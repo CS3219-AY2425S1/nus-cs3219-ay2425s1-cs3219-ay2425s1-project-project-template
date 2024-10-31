@@ -67,6 +67,42 @@ router.get("/sessions", async (req: Request, res: Response) => {
   }
 });
 
+// Get all sessions with a specific user id in the users array
+router.get("/sessions/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const sessions: TSession[] = await Session.find({ users: id }).exec();
+
+    const questionIds = sessions.map((session) => session.question_id);
+
+    // Retrieve title from question service
+    const url = `${process.env.QUESTION_SERVICE}/api/all-ids`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ questionIds }),
+    });
+
+    const questionDataMap = await response.json();
+
+    // combine question data with session data
+    const combinedSessionData = sessions.map((session) => {
+      const questionData = questionDataMap[session.question_id];
+      return {
+        ...session,
+        peer: session.users.filter((userId) => userId !== id)[0], // remove userId from users array
+        questionData,
+      };
+    });
+
+    res.status(200).json(combinedSessionData);
+  } catch (error) {
+    return res.status(500).send("Internal server error");
+  }
+});
+
 // Get a single session by collabid
 router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
   const errors = validationResult(req);

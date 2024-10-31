@@ -3,10 +3,10 @@
 import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
 import { useState, useEffect } from "react";
 import LandingPage from "@/app/(auth)/home/components/landing-page/LandingPage";
-import LeetcodeDashboard from "./LeetcodeDashboard";
+import QuestionDashboard from "./QuestionDashboard";
 import { getToken } from "@/api/user";
 
-const LeetcodeDashboardPage = () => {
+const QuestionDashboardPage = () => {
   const token = getToken();
   const { authStatus } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ const LeetcodeDashboardPage = () => {
     return null;
   }
 
-  return authStatus === AuthStatus.ADMIN ? <LeetcodeDashboard /> : <LandingPage />;
+  return authStatus === AuthStatus.ADMIN ? <QuestionDashboard /> : <LandingPage />;
 };
 
-export default LeetcodeDashboardPage;
+export default QuestionDashboardPage;

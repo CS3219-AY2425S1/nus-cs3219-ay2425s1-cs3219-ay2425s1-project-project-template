@@ -19,14 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getUserHistory } from "@/api/dashboard";
-import { SessionHistory } from "@/types/dashboard";
+import { getUserHistoryData } from "@/api/dashboard";
+import { TCombinedSession } from "@/types/dashboard";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { cn } from "@/lib/utils";
-
-interface SessionHistoryFormatted extends SessionHistory {
-  completedAtFormatted: string;
-}
+import { useAuth } from "@/components/auth/AuthContext";
 
 const Cell = ({
   className,
@@ -38,36 +35,43 @@ const Cell = ({
   return <div className={cn("text-center", className)}>{children}</div>;
 };
 
-export const columns: ColumnDef<SessionHistory>[] = [
+export const columns: ColumnDef<TCombinedSession>[] = [
   {
-    accessorKey: "peerName",
+    accessorKey: "partner",
     header: () => <Cell>Peer</Cell>,
     cell: ({ row }) => (
-      <Cell className="capitalize">{row.getValue("peerName")}</Cell>
+      <Cell className="capitalize">{row.getValue("partner")}</Cell>
     ),
   },
   {
-    accessorKey: "completedAtFormatted",
-    header: () => <Cell>Completed At</Cell>,
-    cell: ({ row }) => <Cell>{row.getValue("completedAtFormatted")}</Cell>,
-  },
-  {
-    accessorKey: "questionName",
+    accessorKey: "title",
     header: () => <Cell>Question Name</Cell>,
+    cell: ({ row }) => <Cell>{row.getValue("title")}</Cell>,
+  },
+  {
+    accessorKey: "language",
+    header: () => <Cell>Language</Cell>,
     cell: ({ row }) => {
-      return <Cell>{row.getValue("questionName")}</Cell>;
+      return <Cell>{row.getValue("language")}</Cell>;
     },
   },
   {
-    accessorKey: "totalTime",
-    header: () => <Cell>Total Time</Cell>,
+    accessorKey: "complexity",
+    header: () => <Cell>Complexity</Cell>,
     cell: ({ row }) => {
-      return <Cell>{row.getValue("totalTime")}</Cell>;
+      return <Cell>{row.getValue("complexity")}</Cell>;
     },
   },
   {
-    accessorKey: "reviewDiscussion",
-    header: () => <Cell>Review Discussion</Cell>,
+    accessorKey: "category",
+    header: () => <Cell>Category</Cell>,
+    cell: ({ row }) => {
+      return <Cell>{row.getValue("category")}</Cell>;
+    },
+  },
+  {
+    accessorKey: "category",
+    header: () => <Cell>Category</Cell>,
     cell: ({}) => {
       return (
         <Cell>
@@ -80,30 +84,13 @@ export const columns: ColumnDef<SessionHistory>[] = [
   },
 ];
 
-const dateFormattingOption: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-};
-
-export function DashboardDataTable() {
-  const [data, setData] = React.useState<SessionHistoryFormatted[]>([]);
+export function DashboardDataTable({ data }: { data: TCombinedSession[] }) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
-  React.useEffect(() => {
-    const userHistory = getUserHistory().map((h: SessionHistory) => {
-      return {
-        ...h,
-        completedAtFormatted: h.completedAt.toLocaleDateString(
-          "en-US",
-          dateFormattingOption
-        ),
-      };
-    });
-    setData(userHistory);
-  }, []);
+
+  
 
   const table = useReactTable({
     data,

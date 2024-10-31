@@ -10,8 +10,7 @@ import { z } from "zod";
 import Navbar from "../../home/components/navbar/Navbar";
 
 const formSchema = z.object({
-  email: z.string()
-    .email("Invalid email"),
+  email: z.string(),
   password: z.string(),
 });
 

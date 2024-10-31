@@ -1,35 +1,20 @@
 "use client";
 
-import Navbar from "@/app/(auth)/home/components/navbar/Navbar";
 import LandingPage from "@/app/(auth)/home/components/landing-page/LandingPage";
-import { getToken } from "@/api/user";
-import { useEffect, useState } from "react";
-import FindPeer from "@/app/(auth)/match/page";
+import { AuthStatus, useAuth } from "@/components/auth/AuthContext";
+import QuestionDashboard from "./question-bank/QuestionDashboard";
+import AuthDashboard from "./components/dashboard/Dashboard";
 
 const Home = () => {
-  const [userToken, setUserToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = getToken();
-    if (token) {
-      setUserToken(token);
-    }
-    setLoading(false);
-  }, []);
-
-  if (loading) {
-    return null; //Can render a loading spinner instead
-  }
+  const { authStatus } = useAuth();
   
-  return !!userToken ? (
-    <FindPeer />
-  ) : (
-    <>
-      <Navbar />
-      <LandingPage />
+  return <>{authStatus === AuthStatus.ADMIN ?
+    <QuestionDashboard/> : 
+    authStatus === AuthStatus.AUTHENTICATED ?
+    <AuthDashboard/> :
+    authStatus === AuthStatus.UNAUTHENTICATED ?
+    <LandingPage/> : <></>}
     </>
-  );
 };
 
 export default Home;

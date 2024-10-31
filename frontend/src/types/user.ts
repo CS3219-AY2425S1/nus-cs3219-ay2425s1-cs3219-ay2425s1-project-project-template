@@ -7,6 +7,7 @@ export interface AttemptedQuestion {
 
 export interface User {
   username?: string;
+  email?: string;
   bio?: string;
   linkedin?: string;
   github?: string;

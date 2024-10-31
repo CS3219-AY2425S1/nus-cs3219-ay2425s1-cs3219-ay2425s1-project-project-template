@@ -20,9 +20,9 @@ import Swal from "sweetalert2";
 import { z } from "zod";
 import MoonLoader from "react-spinners/MoonLoader";
 import {
-  fetchSingleLeetcodeQuestion,
-  updateSingleLeetcodeQuestion,
-} from "@/api/leetcode-dashboard";
+  fetchSingleQuestion,
+  updateSingleQuestion,
+} from "@/api/question-dashboard";
 import { capitalizeWords } from "@/utils/string_utils";
 import { topicsList } from "@/utils/constants";
 
@@ -52,7 +52,7 @@ const EditQuestionDialog = ({
   setRefreshKey,
 }: EditQuestionDialogProp) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [leetcodeData, setLeetcodeData] =
+  const [questionData, setQuestionData] =
     useState<EditQuestionValues>(initialValues);
   const formSchema = z.object({
     questionTitle: z.string().min(2, {
@@ -71,27 +71,27 @@ const EditQuestionDialog = ({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: leetcodeData,
+    defaultValues: questionData,
   });
 
   const { reset } = form;
 
   useEffect(() => {
-    fetchSingleLeetcodeQuestion(questionId).then((resp) => {
+    fetchSingleQuestion(questionId).then((resp) => {
       const questionData = {
         questionTitle: resp.title,
         questionDifficulty: resp.complexity,
         questionTopics: resp.category.map((x: string) => capitalizeWords(x)),
         questionDescription: resp.description,
       };
-      setLeetcodeData(questionData);
+      setQuestionData(questionData);
       reset(questionData);
     });
   }, [questionId, reset]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    updateSingleLeetcodeQuestion({
+    updateSingleQuestion({
       title: values.questionTitle,
       description: values.questionDescription,
       category: values.questionTopics,

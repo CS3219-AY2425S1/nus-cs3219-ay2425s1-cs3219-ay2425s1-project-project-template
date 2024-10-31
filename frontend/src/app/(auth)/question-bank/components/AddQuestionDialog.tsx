@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import { z } from "zod";
 import MoonLoader from "react-spinners/MoonLoader";
-import { createSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
+import { createSingleQuestion } from "@/api/question-dashboard";
 import { topicsList } from "@/utils/constants";
 
 interface AddQuestionDialogProps {
@@ -61,7 +61,7 @@ const AddQuestionDialog = ({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
 
-    createSingleLeetcodeQuestion({
+    createSingleQuestion({
       title: values.questionTitle,
       description: values.questionDescription,
       category: values.questionTopics,
