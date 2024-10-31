@@ -24,6 +24,8 @@ services:
       - question-service
       - matching-service
       - match-notification-service
+    env_file:
+      - .env/.nginx_env
     healthcheck:
       test:
         [
