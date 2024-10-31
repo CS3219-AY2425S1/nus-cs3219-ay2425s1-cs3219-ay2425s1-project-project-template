@@ -36,17 +36,21 @@ const Chat = () => {
     const { id: roomId } = router.query
 
     useEffect(() => {
-        if (!session) {
+        if (!session || !roomId) {
             router.replace('/')
             return
         }
-        const socket = socketIO.connect('ws://localhost:3009')
-        socket.on('receive_message', (data: IMessage) => {
-            setChatData((prev) => {
-                return [...(prev ?? []), data]
+        if (!socket) {
+            const s = socketIO.connect('ws://localhost:3010')
+            s.emit('join_room', roomId)
+            s.on('receive_message', (data: IMessage) => {
+                console.log('Got a msg', data)
+                setChatData((prev) => {
+                    return [...(prev ?? []), data]
+                })
             })
-        })
-        setSocket(socket)
+            setSocket(s)
+        }
     }, [router, session])
 
     const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') => {
