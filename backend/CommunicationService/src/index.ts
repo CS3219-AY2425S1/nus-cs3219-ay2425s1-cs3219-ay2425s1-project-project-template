@@ -1,6 +1,8 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { initializeCommunicationSockets } from "./sockets/handlers";
+import { errorMiddleware } from "./middleware/errorMiddleware";
 
 const app = express();
 const httpServer = createServer(app);
@@ -11,19 +13,18 @@ const io = new Server(httpServer, {
   },
 });
 
+app.use(express.json());
+app.use(errorMiddleware);
+
 app.get("/", (req, res) => {
   res.send("Communication service is running");
 });
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
-
 const PORT = 5000;
+
+// Socket.io setup
+initializeCommunicationSockets(io);
+
 httpServer.listen(PORT, () => {
   console.log(`Communication Server is running on port ${PORT}`);
 });
