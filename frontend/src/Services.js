@@ -1,11 +1,11 @@
 export const QUESTIONS_SERVICE = process.env.REACT_APP_ENV === "PROD" ? 
-"https://question-service-230781056625.asia-southeast1.run.app" : "http://localhost:3001";
+"https://question-service-61871891344.asia-southeast1.run.app" : "http://localhost:3001";
 
 export const USER_SERVICE = process.env.REACT_APP_ENV === "PROD" ?
-"https://user-service-230781056625.asia-southeast1.run.app" : "http://localhost:3002";
+"https://user-service-61871891344.asia-southeast1.run.app" : "http://localhost:3002";
 
 export const NOTIFICATION_SERVICE = process.env.REACT_APP_ENV === "PROD" ?
-"https://notification-service-230781056625.asia-southeast1.run.app" : "http://localhost:5000";
+"https://notification-service-61871891344.asia-southeast1.run.app" : "http://localhost:5000";
 
 export const MATCHING_SERVICE = process.env.REACT_APP_ENV === "PROD" ?
-"https://matching-service-230781056625.asia-southeast1.run.app" : "http://localhost:5001";
+"https://matching-service-61871891344.asia-southeast1.run.app" : "http://localhost:5001";
