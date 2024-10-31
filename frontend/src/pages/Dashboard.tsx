@@ -17,122 +17,141 @@ import Header from "../components/Header";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { fetchUserAttempts } from "../api/attemptApi";
+import { DifficultyLevel, Attempt, Counts } from "../@types/attempt";
 
-const questionAttempts = [
-  {
-    question: "Question 1",
-    topic: "Math",
-    peer: "John Doe",
-    difficulty: "Easy",
-  },
-  {
-    question: "Question 2",
-    topic: "Algorithms",
-    peer: "Jane Smith",
-    difficulty: "Medium",
-  },
-  {
-    question: "Question 3",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Hard",
-  },
-  {
-    question: "Question 4",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Easy",
-  },
-  {
-    question: "Question 5",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Medium",
-  },
-  {
-    question: "Question 6",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Hard",
-  },
-  {
-    question: "Question 7",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Easy",
-  },
-  {
-    question: "Question 8",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Medium",
-  },
-  {
-    question: "Question 9",
-    topic: "Data Structures",
-    peer: "Alice Lee",
-    difficulty: "Hard",
-  },
-];
 
 const Dashboard = () => {
-  const [sortBy, setSortBy] = useState("Newest");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredQuestions, setFilteredQuestions] = useState(questionAttempts);
-  const { user } = useAuth();
+  // State variables
+  const [sortBy, setSortBy] = useState<string>("Newest");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [filteredAttempts, setFilteredAttempts] = useState<Attempt[]>([]);
+  const [counts, setCounts] = useState<Counts>({ Easy: 0, Medium: 0, Hard: 0 });
+
+  // Auth and navigation
+  const { user, token } = useAuth();
   const navigate = useNavigate();
 
+  // Pagination
   const entriesPerPage = 8;
-  const totalEntries = filteredQuestions.length;
+  const totalEntries = filteredAttempts.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = filteredQuestions.slice(
+  const currentEntries = filteredAttempts.slice(
     indexOfFirstEntry,
     indexOfLastEntry
   );
 
+  // Fetch attempts when component mounts or token changes
+  useEffect(() => {
+    const fetchAttemptsData = async () => {
+      if (!token) {
+        console.error("No token available");
+        return;
+      }
+
+      console.log("Fetching user attempts with token:", token);
+      try {
+        const data = await fetchUserAttempts(token);
+        console.log("Fetched attempts data:", data);
+        setAttempts(data);
+        setFilteredAttempts(data);
+
+        // Calculate counts
+        const newCounts: Counts = { Easy: 0, Medium: 0, Hard: 0 };
+        data.forEach((attempt: Attempt) => {
+          const difficulty = attempt.questionId.complexity;
+          if (newCounts[difficulty] !== undefined) {
+            newCounts[difficulty]++;
+          } else {
+            console.warn(`Unexpected difficulty level: ${difficulty}`);
+          }
+        });
+        setCounts(newCounts);
+        console.log("Updated counts:", newCounts);
+      } catch (error: any) {
+        console.error("Failed to fetch attempts", error.response?.data || error.message);
+      }
+    };
+
+    fetchAttemptsData();
+  }, [token]);
+
+  // Sort attempts whenever sortBy or attempts change
+  useEffect(() => {
+    const sortAttempts = () => {
+      console.log(`Sorting attempts by: ${sortBy}`);
+      const sorted = [...attempts];
+      if (sortBy === "Difficulty") {
+        const difficultyOrder: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
+        sorted.sort((a, b) => {
+          return (
+            difficultyOrder.indexOf(a.questionId.complexity) -
+            difficultyOrder.indexOf(b.questionId.complexity)
+          );
+        });
+      } else if (sortBy === "Topic") {
+        sorted.sort((a, b) => {
+          const categoryA = a.questionId.category[0] || "";
+          const categoryB = b.questionId.category[0] || "";
+          return categoryA.localeCompare(categoryB);
+        });
+      } else if (sortBy === "Newest") {
+        // Assuming attempts have a timestamp, sort by newest
+        // If not, this needs to be adjusted accordingly
+        // Here, as no timestamp is present, keeping the order
+      }
+      setFilteredAttempts(sorted);
+      console.log("Sorted attempts:", sorted);
+    };
+
+    sortAttempts();
+  }, [sortBy, attempts]);
+
+  // Filter attempts whenever searchQuery or attempts change
+  useEffect(() => {
+    const filterAttempts = () => {
+      console.log(`Filtering attempts with search query: ${searchQuery}`);
+      const filtered = attempts.filter((attempt) => {
+        const query = searchQuery.toLowerCase();
+        const titleMatch = attempt.questionId.title.toLowerCase().includes(query);
+        const categoryMatch = attempt.questionId.category.some((category) =>
+          category.toLowerCase().includes(query)
+        );
+        const complexityMatch = attempt.questionId.complexity.toLowerCase().includes(query);
+        const peerMatch = attempt.peerUserName
+          ? attempt.peerUserName.toLowerCase().includes(query)
+          : false;
+        return titleMatch || categoryMatch || complexityMatch || peerMatch;
+      });
+      setFilteredAttempts(filtered);
+      setCurrentPage(1);
+      console.log("Filtered attempts:", filtered);
+    };
+
+    filterAttempts();
+  }, [searchQuery, attempts]);
+
+  // Handlers
   const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSortBy(event.target.value);
+    console.log(`Sort by changed to: ${event.target.value}`);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
+    console.log(`Search query changed to: ${event.target.value}`);
   };
-
-  useEffect(() => {
-    const sortedQuestions = [...filteredQuestions];
-    if (sortBy === "Difficulty") {
-      sortedQuestions.sort((a, b) => {
-        const difficultyOrder = ["Easy", "Medium", "Hard"];
-        return (
-          difficultyOrder.indexOf(a.difficulty) -
-          difficultyOrder.indexOf(b.difficulty)
-        );
-      });
-    } else if (sortBy === "Topic") {
-      sortedQuestions.sort((a, b) => a.topic.localeCompare(b.topic));
-    }
-    setFilteredQuestions(sortedQuestions);
-  }, [sortBy]);
-
-  useEffect(() => {
-    const filtered = questionAttempts.filter(
-      (attempt) =>
-        attempt.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        attempt.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        attempt.difficulty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        attempt.peer.toLowerCase().includes(searchQuery.toLowerCase()) // Add checks for peer and difficulty as well
-    );
-    setFilteredQuestions(filtered);
-    setCurrentPage(1);
-  }, [searchQuery]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    console.log(`Page changed to: ${pageNumber}`);
   };
 
+  // Function to highlight search terms in text
   const highlightText = (text: string, searchQuery: string) => {
     if (!searchQuery) return text;
 
@@ -161,7 +180,7 @@ const Dashboard = () => {
     );
   };
 
-  const pageNumbers = [];
+  const pageNumbers: number[] = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
   }
@@ -172,6 +191,7 @@ const Dashboard = () => {
 
       <Container maxWidth="lg" sx={{ mt: 3 }}>
         <Box display="flex" flexDirection="row" gap={2}>
+          {/* User Info Section */}
           <Box
             p={2}
             border={1}
@@ -191,9 +211,9 @@ const Dashboard = () => {
                 Questions Solved:
               </Typography>
               <Box>
-                <Typography>Easy: 3</Typography>
-                <Typography>Medium: 3</Typography>
-                <Typography>Hard: 3</Typography>
+                <Typography>Easy: {counts.Easy}</Typography>
+                <Typography>Medium: {counts.Medium}</Typography>
+                <Typography>Hard: {counts.Hard}</Typography>
               </Box>
             </Box>
 
@@ -215,6 +235,7 @@ const Dashboard = () => {
             </Box>
           </Box>
 
+          {/* Attempts History Section */}
           <Box
             p={2}
             border={1}
@@ -226,6 +247,7 @@ const Dashboard = () => {
               Attempts History
             </Typography>
 
+            {/* Search and Sort Controls */}
             <Box
               display="flex"
               justifyContent="space-between"
@@ -252,6 +274,7 @@ const Dashboard = () => {
               </TextField>
             </Box>
 
+            {/* Attempts Table */}
             <Paper elevation={3}>
               <Table>
                 <TableHead>
@@ -266,16 +289,22 @@ const Dashboard = () => {
                   {currentEntries.map((attempt, index) => (
                     <TableRow key={index}>
                       <TableCell>
-                        {highlightText(attempt.question, searchQuery)}
+                        {highlightText(attempt.questionId.title, searchQuery)}
                       </TableCell>
                       <TableCell>
-                        {highlightText(attempt.topic, searchQuery)}
+                        {highlightText(
+                          attempt.questionId.category.join(", "),
+                          searchQuery
+                        )}
                       </TableCell>
                       <TableCell>
-                        {highlightText(attempt.peer, searchQuery)}
+                        {highlightText(attempt.peerUserName || "N/A", searchQuery)}
                       </TableCell>
                       <TableCell>
-                        {highlightText(attempt.difficulty, searchQuery)}
+                        {highlightText(
+                          attempt.questionId.complexity,
+                          searchQuery
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -283,6 +312,7 @@ const Dashboard = () => {
               </Table>
             </Paper>
 
+            {/* Pagination Controls */}
             <Box
               display="flex"
               justifyContent="space-between"
