@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Request, Response } from 'express'
 import logger from '../utils/logger'
 import { ExecutionResult, TestCase, languageExtensions } from '../models/types'
+import { formatTestInput } from '../utils/utils'
 
 const executeCodeController = async (req: any, res: any) => {
     const { questionId, code, language } = req.body
@@ -27,57 +28,73 @@ const executeCodeController = async (req: any, res: any) => {
 
         const question = getQuestionRes.data[0]
         const testCases: TestCase[] = question.testCases
+        // similar to Kattis where input is separated by a blank line
         const formattedInput = testCases
-            .map((testCase) => testCase.input.join(','))
+            .map((tc) => formatTestInput(tc.input))
             .join('\n')
         const fileName = `q${questionId}.${languageExtensions.get(language)}`
+        const payload = {
+            language: language.toLowerCase(),
+            stdin: formattedInput,
+            files: [
+                {
+                    name: fileName,
+                    content: code,
+                },
+            ],
+            compileOnly: false,
+            wait: true,
+        }
 
+        logger.info(`Sending request to OneCompiler`, {
+            code,
+            language,
+            formattedInput,
+        })
         const executeCodeRes = await axios.post(
             `${process.env.CODE_COMPILER_URL}`,
-            {
-                language: language,
-                stdin: formattedInput,
-                files: [
-                    {
-                        name: fileName,
-                        content: code,
-                    },
-                ],
-            },
+            payload,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    "x-rapidapi-host": "onecompiler-apis.p.rapidapi.com",
-                    "x-rapidapi-key": process.env.ACCESS_TOKEN,
+                    'x-rapidapi-host': 'onecompiler-apis.p.rapidapi.com',
+                    'x-rapidapi-key': process.env.ACCESS_TOKEN,
                 },
                 validateStatus: (status) => status >= 200 && status < 500,
             },
         )
 
-        console.log(executeCodeRes.data)
-        const codeOutput = executeCodeRes.data.stdout?.split('\n') || []
+        logger.info('OneCompiler response', executeCodeRes.data)
 
+        if (executeCodeRes.data.stderr) {
+            logger.error(
+                'Error appeared when executing code',
+                executeCodeRes.data.stderr,
+            )
+            return res.status(400).json({
+                success: false,
+                error: executeCodeRes.data.stderr,
+                compilationOutput: executeCodeRes.data.compilationOutput,
+            })
+        }
+
+        const codeOutput = (executeCodeRes.data.stdout || '').trim().split('\n')
         const results: ExecutionResult[] = testCases.map((tc, i) => ({
             input: tc.input,
             expected: tc.expected,
-            output: codeOutput[i],
-            passed: tc.expected == codeOutput[i]
+            output: codeOutput[i]?.trim() || '',
+            passed: String(tc.expected) == codeOutput[i]?.trim(),
         }))
-        console.log(results)
 
-        logger.info('Code executed successfully', {
-            success: results.every(result => result.passed),
+        const response = {
+            success: results.every((result) => result.passed),
             results,
             compilationOutput: executeCodeRes.data.compilationOutput,
             error: executeCodeRes.data.stderr,
-        })
-        return res.status(200).json({
-            success: results.every(result => result.passed),
-            results,
-            compilationOutput: executeCodeRes.data.compilationOutput,
-            error: executeCodeRes.data.stderr,
-        })
+        }
 
+        logger.info(`Result of user submission`, response)
+        return res.status(200).json(response)
     } catch (e) {
         logger.error('Error appeared when executing code', e)
         return res
