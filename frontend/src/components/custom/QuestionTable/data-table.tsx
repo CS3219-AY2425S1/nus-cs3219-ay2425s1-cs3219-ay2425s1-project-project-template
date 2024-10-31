@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
@@ -30,14 +30,13 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   refetch: () => void;
+  isAdmin: boolean;
 }
-
-import { fetchAdminStatus } from "@/services/UserFunctions";
-
 export function DataTable<TData, TValue>({
   columns,
   data,
   refetch,
+  isAdmin,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState([]);
@@ -70,40 +69,14 @@ export function DataTable<TData, TValue>({
     table.getColumn("topics")?.setFilterValue(selectedValues);
   };
 
-  const [isAdmin, setIsAdmin] = useState<Boolean>(false);
-  
-  async function fetchStatus(): Promise<Boolean> {
-
-      const res = await fetchAdminStatus();
-      if (!res.success) {
-        console.error("Error fetching data", res.error);
-        return false;
-      }
-
-      const isAdmin: boolean = res.data.isAdmin;
-      
-      return isAdmin;
-  };
-
-
-    useEffect(() => {
-        
-      async function updateStatus() {
-        const result = await fetchStatus();
-        setIsAdmin(result)
-      }
-      updateStatus();
-      
-    }, []);
-
   return (
     <>
-      <div className="flex items-center justify-between my-3">
+      <div className="grid grid-cols-7 gap-2 my-3">
         <Input
           placeholder="Filter"
           value={globalFilter}
           onChange={(event) => table.setGlobalFilter(event.target.value)}
-          className="max-w-sm"
+          className="col-span-3 max-w-sm"
         />
 
         <MultiSelect
@@ -111,11 +84,13 @@ export function DataTable<TData, TValue>({
           value={(table.getColumn("topics")?.getFilterValue() as string) ?? ""}
           onValueChange={handleValueChange}
           placeholder="Filter Topics"
-          className="max-w-sm"
+          className="col-span-3 max-w-sm"
         />
-
-        <AddQuestionButton onCreate={refetch} isAdmin={isAdmin}/>
+        <div className="col-span-1 justify-self-end">
+          <AddQuestionButton onCreate={refetch} isAdmin={isAdmin}/>
+        </div>
       </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
