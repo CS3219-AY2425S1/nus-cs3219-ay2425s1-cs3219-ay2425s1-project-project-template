@@ -44,55 +44,53 @@ export default function Chat() {
   };
 
   return (
-    <div className="w-1/3 p-4">
-      <Card className="h-full flex flex-col">
-        <CardHeader>
-          <CardTitle>Chat</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <Tabs
-            value={chatTarget}
-            onValueChange={setChatTarget}
-            className="flex-col"
-          >
-            <TabsList className="flex-shrink-0 mb-2">
-              <TabsTrigger value="partner">Partner Chat</TabsTrigger>
-              <TabsTrigger value="ai">AI Chat</TabsTrigger>
-            </TabsList>
-            <TabsContent value="partner" className="h-full">
-              <ScrollArea className="h-[calc(90vh-280px)]">
-                <div className="pr-4 space-y-2">
-                  {partnerMessages.map((msg) => (
-                    <div>{msg}</div>
-                  ))}
-                  <div ref={lastMessageRef} />
-                </div>
-              </ScrollArea>
-            </TabsContent>
-            <TabsContent value="ai" className="h-full">
-              <ScrollArea className="h-[calc(90vh-280px)]">
-                <div className="pr-4 space-y-2">
-                  {aiMessages.map((msg) => (
-                    <div>{msg}</div>
-                  ))}
-                  <div ref={lastMessageRef} />
-                </div>
-              </ScrollArea>
-            </TabsContent>
-          </Tabs>
-          <div className="flex space-x-2 mt-4 pt-4 border-t">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder={`Message ${chatTarget === "partner" ? "your partner" : "AI assistant"}...`}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <Button onClick={sendMessage}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="flex flex-col">
+      <CardHeader>
+        <CardTitle>Chat</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col">
+        <Tabs
+          value={chatTarget}
+          onValueChange={setChatTarget}
+          className="flex-col"
+        >
+          <TabsList className="flex-shrink-0 mb-2">
+            <TabsTrigger value="partner">Partner Chat</TabsTrigger>
+            <TabsTrigger value="ai">AI Chat</TabsTrigger>
+          </TabsList>
+          <TabsContent value="partner" className="h-full">
+            <ScrollArea className="h-[calc(70vh-280px)]">
+              <div className="pr-4 space-y-2">
+                {partnerMessages.map((msg) => (
+                  <div>{msg}</div>
+                ))}
+                <div ref={lastMessageRef} />
+              </div>
+            </ScrollArea>
+          </TabsContent>
+          <TabsContent value="ai" className="h-full">
+            <ScrollArea className="h-[calc(70vh-280px)]">
+              <div className="pr-4 space-y-2">
+                {aiMessages.map((msg) => (
+                  <div>{msg}</div>
+                ))}
+                <div ref={lastMessageRef} />
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+        <div className="flex space-x-2 mt-4 pt-4 border-t">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder={`Message ${chatTarget === "partner" ? "your partner" : "AI assistant"}...`}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          />
+          <Button onClick={sendMessage}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

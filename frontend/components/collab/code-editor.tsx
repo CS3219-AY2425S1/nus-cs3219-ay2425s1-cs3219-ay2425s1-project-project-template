@@ -25,7 +25,7 @@ export default function CodeEditor() {
   const [code, setCode] = useState<string>("");
 
   return (
-    <div className="w-2/3 p-4">
+    <div className="w-3/5 p-4">
       <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>Code Editor</CardTitle>

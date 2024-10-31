@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Chat from "./chat";
 import CodeEditor from "./code-editor";
+import QuestionDisplay from "./question-display";
 
 export default function CollabRoom({ roomId }: { roomId: String }) {
   return (
@@ -15,7 +16,10 @@ export default function CollabRoom({ roomId }: { roomId: String }) {
         </Button>
       </header>
       <div className="flex flex-1">
-        <Chat />
+        <div className="w-2/5 p-4 flex flex-col space-y-4">
+          <QuestionDisplay />
+          <Chat />
+        </div>
         <CodeEditor />
       </div>
     </div>
