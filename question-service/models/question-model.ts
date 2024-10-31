@@ -6,11 +6,31 @@ enum Difficulty {
   HARD = "Hard",
 }
 
+enum Topic {
+  ALGORITHMS = "Algorithms",
+  ARRAYS = "Arrays",
+  BIT_MANIPULATION = "Bit Manipulation",
+  BRAINTEASER = "Brainteaser",
+  BFS = "Breadth-First Search",
+  DATA_STRUCTURES = "Data Structures",
+  DATABASES = "Databases",
+  DFS = "Depth-First Search",
+  DIVIDECONQUER = "Divide and Conquer",
+  DP = "Dynamic Programming",
+  LINKED_LIST = "Linked List",
+  RECURSION = "Recursion",
+  STRINGS = "Strings",
+  STACK = "Stack",
+  SORTING = "Sorting",
+  TREE = "Tree",
+  QUEUE = "Queue",
+}
+
 interface IQuestion extends Document {
   questionId: number;
   title: string;
   description: string;
-  category: string[];
+  category: Topic[];
   difficulty: Difficulty;
 }
 
@@ -31,7 +51,12 @@ const questionSchema: Schema = new Schema({
   category: {
     type: [String],
     required: true,
-    validate: [(val: string[]) => val.length <= 2, "Max 2 categories allowed"],
+    validate: {
+      validator: (val: string[]) =>
+        val.length <= 2 &&
+        val.every((v) => Object.values(Topic).includes(v as Topic)),
+      message: "Max 2 categories allowed, and categories must be valid topics",
+    },
   },
   difficulty: {
     type: String,

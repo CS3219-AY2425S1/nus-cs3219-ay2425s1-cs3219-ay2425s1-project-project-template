@@ -31,7 +31,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
   const [description, setDescription] = useState(question.description);
   const [category, setCategory] = useState<string[]>(question.category);
   const [difficulty, setDifficulty] = useState(question.difficulty);
-  const { topics, error: topicsError } = useQuestionTopics();
+  const { enumTopics, error: enumTopicsError } = useQuestionTopics();
   const { difficulties, error: difficultiesError } = useQuestionDifficulties();
   const toast = useToast();
 
@@ -89,14 +89,14 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
       {/* Edit Topics */}
       <FormControl mb={4}>
         <FormLabel>Topics</FormLabel>
-        {topicsError ? (
-          <Text color="red.500">{topicsError}</Text>
-        ) : topics.length === 0 ? (
+        {enumTopicsError ? (
+          <Text color="red.500">{enumTopicsError}</Text>
+        ) : enumTopics.length === 0 ? (
           <Spinner size="md" />
         ) : (
           <Box>
             <MultiSelectMenu
-              options={topics}
+              options={enumTopics}
               value={category}
               onChange={setCategory}
               maxSelections={2}

@@ -26,7 +26,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState<Difficulty | "">("");
-  const { topics, error } = useQuestionTopics();
+  const { enumTopics, error } = useQuestionTopics();
   const { difficulties, error: difficultiesError } = useQuestionDifficulties();
   const toast = useToast();
 
@@ -83,12 +83,12 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
         <FormLabel>Topics</FormLabel>
         {error ? (
           <Text color="red.500">{error}</Text>
-        ) : topics.length === 0 ? (
+        ) : enumTopics.length === 0 ? (
           <Spinner size="md" />
         ) : (
           <Box>
             <MultiSelectMenu
-              options={topics}
+              options={enumTopics}
               value={category}
               onChange={setCategory}
               maxSelections={2}

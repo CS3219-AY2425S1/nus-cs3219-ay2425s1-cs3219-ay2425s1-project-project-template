@@ -16,10 +16,10 @@ const MatchMe: React.FC<MatchMeProps> = ({
   selectedTopic,
   updateSelectedTopic,
   selectedDifficulty,
-  updateSelectedDifficulty
+  updateSelectedDifficulty,
 }) => {
   const { difficulties } = useQuestionDifficulties();
-  const { topics } = useQuestionTopics();
+  const { usedTopics } = useQuestionTopics();
   const toast = useToast();
 
   const handleMatchMeClick = () => {
@@ -52,9 +52,9 @@ const MatchMe: React.FC<MatchMeProps> = ({
             mb={4}
             w="300px"
           >
-            {topics.map((topic) => (
-              <option key={topic} value={topic}>
-                {topic}
+            {usedTopics.map((usedTopics) => (
+              <option key={usedTopics} value={usedTopics}>
+                {usedTopics}
               </option>
             ))}
           </Select>
