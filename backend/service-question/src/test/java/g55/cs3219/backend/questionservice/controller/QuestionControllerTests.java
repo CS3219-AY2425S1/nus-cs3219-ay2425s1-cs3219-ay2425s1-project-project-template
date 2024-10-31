@@ -1,35 +1,34 @@
 package g55.cs3219.backend.questionservice.controller;
 
-import g55.cs3219.backend.questionservice.dto.QuestionDto;
-import g55.cs3219.backend.questionservice.exception.ErrorResponse;
-import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
-import g55.cs3219.backend.questionservice.model.Question;
-import g55.cs3219.backend.questionservice.service.QuestionService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import g55.cs3219.backend.questionservice.dto.QuestionDto;
+import g55.cs3219.backend.questionservice.exception.ErrorResponse;
+import g55.cs3219.backend.questionservice.exception.QuestionNotFoundException;
+import g55.cs3219.backend.questionservice.model.Question;
+import g55.cs3219.backend.questionservice.service.QuestionService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class QuestionControllerTests {
@@ -91,7 +90,7 @@ class QuestionControllerTests {
         when(questionService.getAllQuestions()).thenReturn(questions);
 
         ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
-                "/api/question/questions",
+                "/api/questions",
                 QuestionDto[].class
         );
 
@@ -106,7 +105,7 @@ class QuestionControllerTests {
         when(questionService.getAllQuestions()).thenReturn(Collections.emptyList());
 
         ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
-                "/api/question/questions",
+                "/api/questions",
                 QuestionDto[].class
         );
 
@@ -119,7 +118,7 @@ class QuestionControllerTests {
         when(questionService.getQuestionById(1)).thenReturn(questionDto1);
 
         ResponseEntity<QuestionDto> response = restTemplate.getForEntity(
-                "/api/question/1",
+                "/api/questions/1",
                 QuestionDto.class
         );
 
@@ -134,7 +133,7 @@ class QuestionControllerTests {
         when(questionService.getQuestionsByFilters("category", "easy")).thenReturn(questions);
 
         ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
-                "/api/question/filter?category=category&difficulty=easy",
+                "/api/questions/filter?category=category&difficulty=easy",
                 QuestionDto[].class
         );
 
@@ -150,7 +149,7 @@ class QuestionControllerTests {
                 .thenReturn(Collections.emptyList());
 
         ResponseEntity<QuestionDto[]> response = restTemplate.getForEntity(
-                "/api/question/filter?category=category&difficulty=easy",
+                "/api/questions/filter?category=category&difficulty=easy",
                 QuestionDto[].class
         );
 
@@ -167,7 +166,7 @@ class QuestionControllerTests {
         HttpEntity<QuestionDto> request = new HttpEntity<>(questionDto1, headers);
 
         ResponseEntity<QuestionDto> response = restTemplate.postForEntity(
-                "/api/question",
+                "/api/questions",
                 request,
                 QuestionDto.class
         );
@@ -189,7 +188,7 @@ class QuestionControllerTests {
         HttpEntity<QuestionDto> request = new HttpEntity<>(updatedQuestion, headers);
 
         ResponseEntity<QuestionDto> response = restTemplate.exchange(
-                "/api/question/1",
+                "/api/questions/1",
                 HttpMethod.PUT,
                 request,
                 QuestionDto.class
@@ -205,7 +204,7 @@ class QuestionControllerTests {
                 .thenReturn("Question with ID 1 has been deleted.");
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/question/1",
+                "/api/questions/1",
                 HttpMethod.DELETE,
                 null,
                 String.class
@@ -221,7 +220,7 @@ class QuestionControllerTests {
                 .thenThrow(new QuestionNotFoundException("Question not found"));
 
         ResponseEntity<ErrorResponse> response = restTemplate.exchange(
-                "/api/question/99",
+                "/api/questions/99",
                 HttpMethod.DELETE,
                 null,
                 ErrorResponse.class
