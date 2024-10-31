@@ -14,6 +14,7 @@ import RoomPage from "./pages/RoomPage";
 import AccountPage from "./pages/AccountPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import ChangePassword from "../components/account/functions/ChangePassword"
+import DeleteAccount from "../components/account/functions/DeleteAccount"
 
 interface UserData {
   id: string
@@ -107,8 +108,8 @@ function App() {
                 username={userData ? userData.username : ''}
                 id={userData ? userData.id: ''}
                 email={userData ? userData.email : ''} />}>
-                <Route path="password" element={<ChangePassword userId={userData?.id}/>}/>
-                <Route path="delete"/>
+                <Route path="password" element={<ChangePassword userId={userData?.id} />}/>
+                <Route path="delete" element={<DeleteAccount userId={userData?.id} onLogout={handleLogout}/>} />
             </Route>
             </>
           ) : (
