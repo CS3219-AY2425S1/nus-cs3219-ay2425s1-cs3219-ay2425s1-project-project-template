@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/room', collaborationRoutes);
 
 // Set the server to listen on a specific port
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
