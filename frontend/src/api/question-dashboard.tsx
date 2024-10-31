@@ -4,7 +4,7 @@ const QUESTION_SERVICE =
   process.env.NEXT_PUBLIC_QUESTION_SERVICE ||
   "https://question-service-2-598285527681.us-central1.run.app/api";
 
-export const createSingleLeetcodeQuestion = async (
+export const createSingleQuestion = async (
   data: NewQuestionData
 ): Promise<QuestionFull> => {
   const url = `${QUESTION_SERVICE}/create`;
@@ -26,7 +26,7 @@ export const createSingleLeetcodeQuestion = async (
   return result;
 };
 
-export const getLeetcodeDashboardData = async (
+export const getQuestionDashboardData = async (
   pagination: number,
   pageSize: number,
   title: string,
@@ -51,7 +51,7 @@ export const getLeetcodeDashboardData = async (
   return data;
 };
 
-export const fetchSingleLeetcodeQuestion = async (
+export const fetchSingleQuestion = async (
   questionId: string
 ): Promise<QuestionFull> => {
   const url = `${QUESTION_SERVICE}/${questionId}`;
@@ -60,7 +60,7 @@ export const fetchSingleLeetcodeQuestion = async (
   return data;
 };
 
-export const updateSingleLeetcodeQuestion = async ({
+export const updateSingleQuestion = async ({
   questionId,
   title,
   description,
@@ -88,7 +88,7 @@ export const updateSingleLeetcodeQuestion = async ({
   return resp.json();
 };
 
-export const deleteSingleLeetcodeQuestion = async (questionId: string) => {
+export const deleteSingleQuestion = async (questionId: string) => {
   const url = `${QUESTION_SERVICE}/${questionId}/delete`;
   const resp = await fetch(url, {
     method: "POST",

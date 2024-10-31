@@ -76,16 +76,10 @@ export const login = async (email: string, password: string) => {
     case 200:
       handleSuccessfulLogin(data.data);
       break;
-    case 401:
-      toast.fire({
-        icon: "error",
-        title: "Invalid email or password",
-      });
-      break;
     default:
       toast.fire({
         icon: "error",
-        title: "An error occurred while logging in",
+        title: data.message,
       });
   }
 };
@@ -139,22 +133,10 @@ export const register = async (
   switch (response.status) {
     case 201:
       return handleSuccessfulLogin(data.data);
-    case 400:
-      toast.fire({
-        icon: "error",
-        title: "Invalid email or password",
-      });
-      break;
-    case 409:
-      toast.fire({
-        icon: "error",
-        title: "User already exists",
-      });
-      break;
     default:
       toast.fire({
         icon: "error",
-        title: "An error occurred while registering",
+        title: data.message,
       });
   }
 };
@@ -176,24 +158,26 @@ export const getUser = async () => {
       logout();
       break;
     default:
+      const { message } = await response.json();
       toast.fire({
         icon: "error",
-        title: "An error occurred while fetching your profile",
+        title: message,
       });
   }
 };
 
 export const updateUser = async (data: {
-  email: string;
-  password: string;
-  bio: string;
-  linkedin: string;
-  github: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  bio?: string;
+  linkedin?: string;
+  github?: string;
 }) => {
   const token = getToken();
   const { id } = getBaseUserData();
   const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -203,17 +187,17 @@ export const updateUser = async (data: {
 
   switch (response.status) {
     case 200:
-      return response;
-    case 400:
       toast.fire({
-        icon: "error",
-        title: "Invalid data",
+        icon: "success",
+        title: "Profile updated successfully",
       });
       break;
     default:
+      // get the error message
+      const { message } = await response.json();
       toast.fire({
         icon: "error",
-        title: "An error occurred while updating your profile",
+        title: message,
       });
   }
 };

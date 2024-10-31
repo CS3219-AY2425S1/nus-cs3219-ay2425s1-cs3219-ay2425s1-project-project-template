@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { getBaseUserData, login, logout } from "@/api/user";
 
 export enum AuthStatus {
+  LOADING = "LOADING",
   UNAUTHENTICATED = "UNAUTHENTICATED",
   AUTHENTICATED = "AUTHENTICATED",
   ADMIN = "ADMIN",
@@ -19,7 +20,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [authStatus, setAuthStatus] = useState(AuthStatus.UNAUTHENTICATED);
+  const [authStatus, setAuthStatus] = useState(AuthStatus.LOADING);
   const [username, setUsername] = useState("");
   const [id, setId] = useState("");
 
@@ -28,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (username) setUsername(username);
     if (id) setId(id);
     if (!username) setAuthStatus(AuthStatus.UNAUTHENTICATED);
-    else if (isAdmin) setAuthStatus(AuthStatus.ADMIN);
+    else if (isAdmin === "true") setAuthStatus(AuthStatus.ADMIN);
     else setAuthStatus(AuthStatus.AUTHENTICATED);
   }, []);
 

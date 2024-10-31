@@ -24,12 +24,12 @@ import { cn } from "@/lib/utils";
 import { HiOutlinePencil } from "react-icons/hi";
 import { FaRegTrashAlt } from "react-icons/fa";
 import {
-  deleteSingleLeetcodeQuestion,
-  getLeetcodeDashboardData,
-} from "@/api/leetcode-dashboard";
+  deleteSingleQuestion,
+  getQuestionDashboardData,
+} from "@/api/question-dashboard";
 import { QuestionDifficulty, QuestionMinified } from "@/types/find-match";
 import MoonLoader from "react-spinners/MoonLoader";
-import EditQuestionDialog from "@/app/(auth)/leetcode-dashboard/components/EditQuestionDialog";
+import EditQuestionDialog from "@/app/(auth)/question-bank/components/EditQuestionDialog";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
 import Swal from "sweetalert2";
@@ -79,7 +79,7 @@ interface ActionCellProps {
   handleDelete(questionId: string): void;
 }
 
-interface LeetcodeDashboardTableProps {
+interface QuestionDashboardTableProps {
   refreshKey: number;
   setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -169,10 +169,10 @@ function debounce<T extends (...args: Parameters<T>) => void>(
   };
 }
 
-export function LeetcodeDashboardTable({
+export function QuestionDashboardTable({
   refreshKey,
   setRefreshKey,
-}: Readonly<LeetcodeDashboardTableProps>) {
+}: Readonly<QuestionDashboardTableProps>) {
   const [data, setData] = useState<QuestionMinified[]>([]);
   const [editingQuestionId, setEditingQuestionId] = React.useState<
     string | null
@@ -188,7 +188,7 @@ export function LeetcodeDashboardTable({
       showLoaderOnConfirm: true,
       preConfirm: async () => {
         try {
-          await deleteSingleLeetcodeQuestion(questionId);
+          await deleteSingleQuestion(questionId);
           Swal.fire("Question deleted successfully!", "", "success");
 
           setPagination({
@@ -285,7 +285,7 @@ export function LeetcodeDashboardTable({
 
   useEffect(() => {
     setIsLoading(true);
-    getLeetcodeDashboardData(
+    getQuestionDashboardData(
       pagination.pageIndex + 1,
       pagination.pageSize,
       searchTitle,
@@ -339,7 +339,7 @@ export function LeetcodeDashboardTable({
             <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
               <TableCell colSpan={5} className="pl-10">
                 <div className="flex items-center">
-                  <span>LeetCode Question Bank</span>
+                  <span>Question Question Bank</span>
                   <span className="ml-auto flex place-items-center gap-6 pr-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-4" />

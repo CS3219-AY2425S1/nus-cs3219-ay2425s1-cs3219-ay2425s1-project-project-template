@@ -1,7 +1,7 @@
 "use client";
 
-import AddQuestionDialog from "@/app/(auth)/leetcode-dashboard/components/AddQuestionDialog";
-import { LeetcodeDashboardTable } from "@/app/(auth)/leetcode-dashboard/components/LeetcodeDashboardTable";
+import AddQuestionDialog from "@/app/(auth)/question-bank/components/AddQuestionDialog";
+import { QuestionDashboardTable } from "@/app/(auth)/question-bank/components/QuestionDashboardTable";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { PlusIcon } from "lucide-react";
@@ -9,22 +9,22 @@ import { useState } from "react";
 import Modal from "react-modal";
 import { motion } from "framer-motion";
 
-const LeetcodeDashboardHeader = () => {
+const QuestionDashboardHeader = () => {
   return (
     <div className="flex flex-col mt-8">
       <span className="text-h3 font-medium text-white">
-        Leetcode Admin Dashboard
+        Question Bank
       </span>
       <div className="flex flex-col text-white text-lg font-light">
         <span>
-          For Admin users only: Interact with PeerPrep&apos;s Leetcode database!
+          For Admin users only: Interact with PeerPrep&apos;s Question bank!
         </span>
       </div>
     </div>
   );
 };
 
-const LeetcodeDashboard = () => {
+const QuestionDashboard = () => {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-fetch
 
@@ -45,7 +45,7 @@ const LeetcodeDashboard = () => {
 
   return (
     <Container>
-      <LeetcodeDashboardHeader />
+      <QuestionDashboardHeader />
       <div className="flex justify-end mb-4">
         <Button
           onClick={openModal}
@@ -80,7 +80,7 @@ const LeetcodeDashboard = () => {
           </motion.div>
         </Modal>
       </div>
-      <LeetcodeDashboardTable
+      <QuestionDashboardTable
         refreshKey={refreshKey}
         setRefreshKey={setRefreshKey}
       />
@@ -88,4 +88,4 @@ const LeetcodeDashboard = () => {
   );
 };
 
-export default LeetcodeDashboard;
+export default QuestionDashboard;
