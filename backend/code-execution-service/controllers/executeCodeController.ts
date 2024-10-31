@@ -1,10 +1,10 @@
 import axios from 'axios'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import logger from '../utils/logger'
-import { ExecutionResult, TestCase, languageExtensions } from '../models/types'
+import { CodeExecutionRequest, ExecutionResult, TestCase, languageExtensions } from '../models/types'
 import { formatTestInput } from '../utils/utils'
 
-const executeCodeController = async (req: any, res: any) => {
+const executeCodeController = async (req: CodeExecutionRequest, res: Response): Promise<Response> => {
     const { questionId, code, language } = req.body
 
     if (!questionId || !code || !language) {
@@ -22,7 +22,8 @@ const executeCodeController = async (req: any, res: any) => {
             },
         )
 
-        if (!getQuestionRes.data) {
+        if (!getQuestionRes.data || getQuestionRes.data.length === 0) {
+            logger.error('Question not found')
             return res.status(400).json({ message: 'Question not found' })
         }
 
@@ -93,7 +94,8 @@ const executeCodeController = async (req: any, res: any) => {
             error: executeCodeRes.data.stderr,
         }
 
-        logger.info(`Result of user submission`, response)
+        const submissionOutcomeMsg = response.success ? 'All test cases passed' : 'Some test cases failed'
+        logger.info(`Result of user submission: ${submissionOutcomeMsg}`)
         return res.status(200).json(response)
     } catch (e) {
         logger.error('Error appeared when executing code', e)
