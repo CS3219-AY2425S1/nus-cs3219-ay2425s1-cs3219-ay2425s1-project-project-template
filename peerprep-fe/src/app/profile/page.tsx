@@ -12,12 +12,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/state/useAuthStore';
 import { axiosClient } from '@/network/axiosClient';
+import { logout } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 const ProfilePage = () => {
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, clearAuth } = useAuthStore();
+  const router = useRouter();
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Add form state
@@ -49,6 +53,13 @@ const ProfilePage = () => {
     type: 'success' | 'error';
     text: string;
   } | null>(null);
+
+  // Add state for password visibility
+  const [showPasswords, setShowPasswords] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
 
   // Add function to check if form data has changed
   const hasProfileChanges = () => {
@@ -116,6 +127,10 @@ const ProfilePage = () => {
         },
       );
 
+      if (verifyResult.status !== 200) {
+        throw new Error(verifyResult.data.message);
+      }
+
       const result = await axiosClient.patch(`/users/${user.id}`, {
         password: passwordData.newPassword,
       });
@@ -125,6 +140,7 @@ const ProfilePage = () => {
         throw new Error(result.data.message);
       }
 
+      // Sucess state
       setPasswordMessage({
         type: 'success',
         text: 'Password updated successfully',
@@ -146,6 +162,19 @@ const ProfilePage = () => {
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || 'Failed to update password';
       setPasswordMessage({ type: 'error', text: message });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const res = await axiosClient.delete(`/users/${user?.id}`);
+    if (res.status === 200) {
+      const res = await logout();
+
+      if (res) {
+        clearAuth();
+        router.push('/');
+        return;
+      }
     }
   };
 
@@ -219,52 +248,106 @@ const ProfilePage = () => {
                 <Label htmlFor="current-password" className="text-slate-200">
                   Current Password
                 </Label>
-                <Input
-                  id="current-password"
-                  type="password"
-                  className="border-slate-700 bg-slate-900 text-slate-200"
-                  value={passwordData.currentPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                />
+                <div className="relative">
+                  <Input
+                    id="current-password"
+                    type={showPasswords.currentPassword ? 'text' : 'password'}
+                    className="border-slate-700 bg-slate-900 text-slate-200"
+                    value={passwordData.currentPassword}
+                    onChange={(e) =>
+                      setPasswordData({
+                        ...passwordData,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        currentPassword: !prev.currentPassword,
+                      }))
+                    }
+                  >
+                    {showPasswords.currentPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-password" className="text-slate-200">
                   New Password
                 </Label>
-                <Input
-                  id="new-password"
-                  type="password"
-                  className="border-slate-700 bg-slate-900 text-slate-200"
-                  value={passwordData.newPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      newPassword: e.target.value,
-                    })
-                  }
-                />
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showPasswords.newPassword ? 'text' : 'password'}
+                    className="border-slate-700 bg-slate-900 text-slate-200"
+                    value={passwordData.newPassword}
+                    onChange={(e) =>
+                      setPasswordData({
+                        ...passwordData,
+                        newPassword: e.target.value,
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        newPassword: !prev.newPassword,
+                      }))
+                    }
+                  >
+                    {showPasswords.newPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password" className="text-slate-200">
                   Confirm New Password
                 </Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  className="border-slate-700 bg-slate-900 text-slate-200"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                />
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showPasswords.confirmPassword ? 'text' : 'password'}
+                    className="border-slate-700 bg-slate-900 text-slate-200"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordData({
+                        ...passwordData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        confirmPassword: !prev.confirmPassword,
+                      }))
+                    }
+                  >
+                    {showPasswords.confirmPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"
@@ -313,6 +396,7 @@ const ProfilePage = () => {
                   <Button
                     variant="destructive"
                     className="bg-red-600 hover:bg-red-700"
+                    onClick={handleDeleteAccount}
                   >
                     Yes, delete my account
                   </Button>

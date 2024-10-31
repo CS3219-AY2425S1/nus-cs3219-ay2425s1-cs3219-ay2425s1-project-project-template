@@ -8,6 +8,7 @@ import { axiosClient } from '@/network/axiosClient';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
 import Link from 'next/link';
+import { login } from '@/lib/auth';
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
@@ -36,15 +37,22 @@ export default function SignUpPage() {
     });
 
     if (result.request.status === 201) {
-      //Auto login after accoutn creation
+      // Auto login after account creation
       const loginResult = await axiosClient.post('/auth/login', {
         email: email,
         password: password,
       });
       const data = loginResult.data.data;
-      const token = data.accessToken;
-      setAuth(true, token, data);
-      router.push('/');
+      if (loginResult.status === 200) {
+        const token = data.accessToken;
+        const res = await login(token);
+        if (res) {
+          setAuth(true, token, data);
+          router.push('/');
+          return;
+        }
+      }
+      setError(data.error || 'Unable to create account');
     } else {
       setError('Username or Email already exists');
       console.error('Sign up failed');
