@@ -31,7 +31,7 @@ create_secret() {
     kubectl -n $ns \
       create secret generic \
       "$scrt_name" \
-      --from-env-file /dev/stdin
+      --from-env-file="$envFolder$secretName/.env.compose"
   else
     echo "Secret $scrt_name already exists"
   fi
