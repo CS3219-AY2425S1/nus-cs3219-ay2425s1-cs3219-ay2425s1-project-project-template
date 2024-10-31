@@ -196,7 +196,7 @@ const Dashboard = () => {
                     <TableCell>Topic</TableCell>
                     <TableCell>Peer</TableCell>
                     <TableCell>Difficulty</TableCell>
-                    <TableCell>Completed At (SGT)</TableCell>
+                    <TableCell>Attempted At (SGT)</TableCell>
                     <TableCell>Time Taken</TableCell>
                     <TableCell>Action</TableCell>
                   </TableRow>
