@@ -22,7 +22,7 @@ export const INITIAL_PROBLEM_DATA: Problem = {
   title_slug: '',
 };
 
-export const SUPPORTED_PROGRAMMING_LANGUAGES = ['C++', 'Java', 'Python'];
+export const SUPPORTED_PROGRAMMING_LANGUAGES = ['Python', 'Java', 'C++'];
 
 export const DEFAULT_CODE = `int main() {
     "Hello World!";

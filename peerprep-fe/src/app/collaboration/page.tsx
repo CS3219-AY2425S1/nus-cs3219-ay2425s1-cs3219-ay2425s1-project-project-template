@@ -1,5 +1,6 @@
 'use client';
 
+import ProblemCodeEditor from '@/components/problems/ProblemCodeEditor';
 import ProblemDescriptionPanel from '@/components/problems/ProblemDescriptionPanel';
 import ProblemTable from '@/components/problems/ProblemTable';
 import { Button } from '@/components/ui/button';
@@ -10,12 +11,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import { DEFAULT_CODE, SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
 import { UserCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco'
+import { editor as MonacoEditor } from 'monaco-editor';
+
+const TURN_SERVER_IP = '34.124.196.27';
 
 const CollaborationPage = () => {
   const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
@@ -29,6 +35,8 @@ const CollaborationPage = () => {
   const [leftWidth, setLeftWidth] = useState(50);
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const editorRef = React.useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+  const sockServerURI = "ws://localhost:4444";
 
   // Handle dragging of the divider
   const handleMouseDown = useCallback(() => {
@@ -55,6 +63,24 @@ const CollaborationPage = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleMouseMove, handleMouseUp]);
+
+  const handleEditorMount = (editor: any, monaco: any) => {
+    editorRef.current = editor;
+    const doc = new Y.Doc(); // a collection of shared objects -> Text
+    const provider = new WebsocketProvider("ws://localhost:4444", "test-room", doc);
+    const type = doc.getText("monaco"); // Get the shared YJS text object
+
+    // Get the model from the editor
+    const model = editorRef.current?.getModel();
+
+    // Check if model is valid
+    if (editorRef.current && model) {
+      // Bind YJS to Monaco only if the model is not null
+      const binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
+    } else {
+      console.error("Monaco editor model is null");
+    }
+  };
 
   // Handle selection of a problem
   const handleCallback = (id: number) => {
@@ -138,11 +164,9 @@ const CollaborationPage = () => {
           </div>
         </div>
 
-        <Textarea
+        <ProblemCodeEditor
           value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="flex-grow overflow-y-auto bg-gray-900 font-mono text-gray-100"
-          style={{ resize: 'none', height: 'calc(100% - 3rem)' }}
+          onMount={handleEditorMount}
         />
       </div>
     </div>
