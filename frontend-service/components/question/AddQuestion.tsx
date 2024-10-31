@@ -8,10 +8,14 @@ import {
   useToast,
   Spinner,
   Text,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { Question } from "../types";
 import useQuestionTopics from "../hooks/useQuestionTopics";
 import useQuestionDifficulties from "../hooks/useQuestionDifficulties";
+import { Difficulty } from "../types";
+import MultiSelectMenu from "../MultiSelectMenu";
 
 interface AddQuestionProps {
   onAddQuestion: (question: Omit<Question, "questionId">) => void;
@@ -21,7 +25,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string[]>([]);
-  const [difficulty, setDifficulty] = useState("");
+  const [difficulty, setDifficulty] = useState<Difficulty | "">("");
   const { topics, error } = useQuestionTopics();
   const { difficulties, error: difficultiesError } = useQuestionDifficulties();
   const toast = useToast();
@@ -54,67 +58,66 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onAddQuestion }) => {
   return (
     <Box margin="0 auto" padding="4" boxShadow="md">
       {/* Enter title */}
-      <Input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        mb={4}
-      />
+      <FormControl mb={4}>
+        <FormLabel>Title</FormLabel>
+        <Input
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </FormControl>
 
       {/* Enter description */}
-      <Textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        mb={4}
-        minHeight="150px"
-      />
+      <FormControl mb={4}>
+        <FormLabel>Description</FormLabel>
+        <Textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          minHeight="150px"
+        />
+      </FormControl>
 
       {/* Select Topics */}
-      {error ? (
-        <Text color="red.500" mb={4}>
-          {error}
-        </Text>
-      ) : topics.length === 0 ? (
-        <Spinner size="md" />
-      ) : (
-        <Select
-          placeholder="Select a topic"
-          value={category.join(", ")}
-          onChange={(e) =>
-            setCategory(e.target.value.split(",").map((c: string) => c.trim()))
-          }
-          mb={4}
-        >
-          {topics.map((topic) => (
-            <option key={topic} value={topic}>
-              {topic}
-            </option>
-          ))}
-        </Select>
-      )}
+      <FormControl mb={4}>
+        <FormLabel>Topics</FormLabel>
+        {error ? (
+          <Text color="red.500">{error}</Text>
+        ) : topics.length === 0 ? (
+          <Spinner size="md" />
+        ) : (
+          <Box>
+            <MultiSelectMenu
+              options={topics}
+              value={category}
+              onChange={setCategory}
+              maxSelections={2}
+            />
+          </Box>
+        )}
+      </FormControl>
 
       {/* Select Difficulty from Fetched Data */}
-      {difficultiesError ? (
-        <Text color="red.500" mb={4}>
-          {difficultiesError}
-        </Text>
-      ) : difficulties.length === 0 ? (
-        <Spinner size="md" />
-      ) : (
-        <Select
-          placeholder="Select Difficulty"
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-          mb={4}
-        >
-          {difficulties.map((diff) => (
-            <option key={diff} value={diff}>
-              {diff}
-            </option>
-          ))}
-        </Select>
-      )}
+      <FormControl mb={4}>
+        <FormLabel>Difficulty</FormLabel>
+        {difficultiesError ? (
+          <Text color="red.500">{difficultiesError}</Text>
+        ) : difficulties.length === 0 ? (
+          <Spinner size="md" />
+        ) : (
+          <Select
+            placeholder="Select Difficulty"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            {difficulties.map((diff) => (
+              <option key={diff} value={diff}>
+                {diff}
+              </option>
+            ))}
+          </Select>
+        )}
+      </FormControl>
 
       <Button colorScheme="blue" onClick={handleAddQuestion}>
         Add Question

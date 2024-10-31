@@ -8,10 +8,13 @@ import {
   Button,
   Spinner,
   useToast,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { Question } from "../types";
 import useQuestionTopics from "../hooks/useQuestionTopics";
 import useQuestionDifficulties from "../hooks/useQuestionDifficulties";
+import MultiSelectMenu from "../MultiSelectMenu";
 
 interface EditQuestionProps {
   question: Question;
@@ -26,7 +29,7 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
 }) => {
   const [title, setTitle] = useState(question.title);
   const [description, setDescription] = useState(question.description);
-  const [category, setCategory] = useState(question.category);
+  const [category, setCategory] = useState<string[]>(question.category);
   const [difficulty, setDifficulty] = useState(question.difficulty);
   const { topics, error: topicsError } = useQuestionTopics();
   const { difficulties, error: difficultiesError } = useQuestionDifficulties();
@@ -63,66 +66,65 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
   return (
     <Box maxWidth="600px" margin="0 auto" padding="4" boxShadow="md">
       {/* Edit title */}
-      <Input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        mb={4}
-      />
+      <FormControl mb={4}>
+        <FormLabel>Title</FormLabel>
+        <Input
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </FormControl>
 
       {/* Edit description */}
-      <Textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        mb={4}
-        minHeight="150px"
-      />
+      <FormControl mb={4}>
+        <FormLabel>Description</FormLabel>
+        <Textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          minHeight="150px"
+        />
+      </FormControl>
 
       {/* Edit Topics */}
-      {topicsError ? (
-        <Text color="red.500" mb={4}>
-          {topicsError}
-        </Text>
-      ) : topics.length === 0 ? (
-        <Spinner size="md" />
-      ) : (
-        <Select
-          placeholder="Select a topic"
-          value={category.join(", ")}
-          onChange={(e) =>
-            setCategory(e.target.value.split(",").map((c: string) => c.trim()))
-          }
-          mb={4}
-        >
-          {topics.map((topic) => (
-            <option key={topic} value={topic}>
-              {topic}
-            </option>
-          ))}
-        </Select>
-      )}
+      <FormControl mb={4}>
+        <FormLabel>Topics</FormLabel>
+        {topicsError ? (
+          <Text color="red.500">{topicsError}</Text>
+        ) : topics.length === 0 ? (
+          <Spinner size="md" />
+        ) : (
+          <Box>
+            <MultiSelectMenu
+              options={topics}
+              value={category}
+              onChange={setCategory}
+              maxSelections={2}
+            />
+          </Box>
+        )}
+      </FormControl>
 
       {/* Edit difficulty */}
-      {difficultiesError ? (
-        <Text color="red.500" mb={4}>
-          {difficultiesError}
-        </Text>
-      ) : difficulties.length === 0 ? (
-        <Spinner size="md" />
-      ) : (
-        <Select
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-          mb={4}
-        >
-          {difficulties.map((diff) => (
-            <option key={diff} value={diff}>
-              {diff}
-            </option>
-          ))}
-        </Select>
-      )}
+      <FormControl mb={4}>
+        <FormLabel>Difficulty</FormLabel>
+        {difficultiesError ? (
+          <Text color="red.500">{difficultiesError}</Text>
+        ) : difficulties.length === 0 ? (
+          <Spinner size="md" />
+        ) : (
+          <Select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            {difficulties.map((diff) => (
+              <option key={diff} value={diff}>
+                {diff}
+              </option>
+            ))}
+          </Select>
+        )}
+      </FormControl>
 
       <Button colorScheme="blue" onClick={handleSave} mr={3}>
         Save Changes
