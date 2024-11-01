@@ -1,9 +1,9 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { QuestionExample, Topic } from "@/models/Question";
 import { QuestionHistory } from "@/models/QuestionHistory";
 import React from "react";
+import QuestionCard from "../Question/QuestionCard";
+import { Editor } from "@monaco-editor/react";
 
 // Define the prop types for the component
 type QuestionHistoryProps = {
@@ -16,68 +16,27 @@ const QuestionHistoryCard: React.FC<QuestionHistoryProps> = ({
   questionHistory,
   variant = "default",
 }) => {
-  const visibleTopics: Topic[] = questionHistory.topics.slice(0, 3);
-  const moreTopicsCount: number =
-    questionHistory.topics.length - visibleTopics.length;
+  const { dateAttempted, attempt, ...question } = questionHistory;
 
   return (
-    <Card variant={variant} className="w-full h-full">
-      <CardHeader>
-        <CardTitle className="break-words">{questionHistory.title}</CardTitle>
-        <div className="inline-flex gap-1">
-          <Badge
-            className={`inline-flex items-center justify-center rounded-full text-xs font-medium`}
-          >
-            {questionHistory.difficulty}
-          </Badge>
-          {visibleTopics.map((topic: Topic) => (
-            <Badge
-              className={`inline-flex items-center justify-center rounded-full text-xs font-medium whitespace-nowrap`}
-              variant="outline"
-            >
-              {topic}
-            </Badge>
-          ))}
-          {moreTopicsCount > 0 && (
-            <Badge
-              className="inline-flex items-center justify-center rounded-full text-xs font-medium"
-              variant="secondary"
-            >
-              +{moreTopicsCount} more
-            </Badge>
-          )}
+    <Card variant={variant} className="w-full h-full grid grid-cols-2">
+      <div className="flex items-center justify-center col-span-2 md:col-span-1">
+        <QuestionCard question={question} variant="ghost" />
+      </div>
+
+      <Separator
+        className="block md:hidden mx-2 col-span-2"
+        orientation="horizontal"
+      />
+
+      <div className="flex items-stretch justify-between col-span-2 md:col-span-1">
+        <Separator className="hidden md:block mx-2" orientation="vertical" />
+
+        <div className="flex flex-col h-full w-full">
+          <h3 className="text-muted-foreground mb-2">Your Attempt</h3>
+          <Editor height="100%" value={attempt} options={{ readOnly: true }} />
         </div>
-      </CardHeader>
-      <CardContent className="break-words">
-        <div>{questionHistory.description}</div>
-        {(questionHistory.examples.length > 0 ||
-          questionHistory.constraints.length > 0) && (
-          <Separator className="my-2" />
-        )}
-        {questionHistory.examples.length > 0 &&
-          questionHistory.examples.map(
-            (example: QuestionExample, index: number) => (
-              <div>
-                <strong>Example {index + 1}:</strong>
-                <br />
-                <strong>Input:</strong> {example.input}
-                <br />
-                <strong>Output:</strong> {example.output}
-                <Separator className="my-2" />
-              </div>
-            )
-          )}
-        {questionHistory.constraints.length > 0 && (
-          <div>
-            <strong>Constraints:</strong>
-            <ul>
-              {questionHistory.constraints.map((constraint: string) => (
-                <li key={constraint}>{constraint}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </CardContent>
+      </div>
     </Card>
   );
 };
