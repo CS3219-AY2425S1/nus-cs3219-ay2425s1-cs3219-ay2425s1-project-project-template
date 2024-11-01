@@ -1,0 +1,17 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+ARG USER_SERVICE_BACKEND_URL
+
+ENV USER_SERVICE_BACKEND_URL=$USER_SERVICE_BACKEND_URL
+
+EXPOSE 5005
+
+CMD ["npm", "start"]
