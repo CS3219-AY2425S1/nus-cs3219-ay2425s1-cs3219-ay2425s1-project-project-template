@@ -4,3 +4,8 @@ export interface UserData {
     user_id: string
     username: string
 }
+
+export type  CollabExchangeData = {
+    matchedUsers: UserData[]
+    sessionId: string
+}

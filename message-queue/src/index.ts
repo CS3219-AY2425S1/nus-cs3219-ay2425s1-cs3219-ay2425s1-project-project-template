@@ -3,11 +3,12 @@ import cors from "cors"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
 
-import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE } from "./constants"
+import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE, COLLAB_EXCHANGE, COLLAB_KEY } from "./constants"
 import { connectToMongoDB, db } from "./db"
-import { deepEqual, getRandomIntegerInclusive, sleep } from "./helper"
+import { deepEqual, getRandomIntegerInclusive, sleep, generateSessionId } from "./helper"
 import { addUser, findUsersByCriteria, getUsersCollection, updateUserStatus } from "./models/user"
-import { UserData } from "./types"
+import { UserData, CollabExchangeData } from "./types"
+import { MessageEvent } from "http"
 
 const app: Express = express()
 
@@ -27,6 +28,7 @@ const connectRabbitMQ = async () => {
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
     await channel.assertExchange(EXCHANGE, "topic", { durable: true })
+    await channel.assertExchange(COLLAB_EXCHANGE, "direct", { durable: true })
     console.log("Connected to RabbitMQ")
   } catch (err) {
     console.error(err)
@@ -52,6 +54,10 @@ const handleIncomingNotification = (msg: string) => {
 // Decide again if needs to be asynchronous
 const addDataToExchange = (userData: UserData, key: string) => {
   channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
+}
+
+const addDataToCollabExchange = (data: CollabExchangeData, key: string) => {
+  channel.publish(COLLAB_EXCHANGE, key, Buffer.from(JSON.stringify(data)))
 }
 
 // async function pullDataFromExchange(queue) {
@@ -263,9 +269,17 @@ app.post("/match", async (req: Request, res: Response) => {
 
       delete waitingUsers[response.matchedUsers[0].user_id]
       delete waitingUsers[response.matchedUsers[1].user_id]
-
+      const sessionId = generateSessionId(response.matchedUsers[0], response.matchedUsers[1])
+      const dataToExchange: CollabExchangeData = {
+        matchedUsers: response.matchedUsers,
+        sessionId: sessionId
+      }
+      if (userData === response.matchedUsers[0]) { // First user in response.matchedUser to push to Collab exchange
+        addDataToCollabExchange(dataToExchange, COLLAB_KEY) //Send to exchange
+      }
       res.json({
         matchedUsers: response.matchedUsers,
+        sessionId: sessionId,
         timeout: false
       })
     } else {
