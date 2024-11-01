@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 import { UserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Editor } from "@monaco-editor/react";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import axios from "axios";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import EditorElement from "./EditorElement";
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
@@ -191,24 +191,10 @@ const EditorView: React.FC = () => {
         )}
       </div>
       <div className="right-side" style={styles.rightSide}>
-        <div className="language-selector" style={styles.languageSelector}>
-        <label>Select Language: </label>
-        <select value={language} onChange={handleLanguageChange}>
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="typescript">TypeScript</option>
-          <option value="java">Java</option>
-          {/* Add more languages as needed */}
-        </select>
-      </div>
       <div className="editor-container" style={styles.editorContainer}>
-        <Editor
-          height="300px"
-          defaultLanguage={language}
-          theme="vs-dark"
-          value={code}
-          onChange={handleEditorChange}
-        />
+        {socketRef.current && (
+          <EditorElement socket={socketRef.current} />
+        )}
       </div>
       <div className="chat-container" style={styles.chatContainer}>
         <div className="chat-box" ref={chatBoxRef} style={styles.chatBox}>
