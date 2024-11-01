@@ -19,8 +19,9 @@ import {
   MATCH_ERROR_STATUS,
   MATCH_WAITING_STATUS,
   MATCH_IDLE_STATUS,
-} from "@/lib/consts";
-import { useQuestionCategories } from "@/hooks/useQuestions";
+  MATCH_FOUND_SOUND_PATH,
+} from '@/lib/consts';
+import { useQuestionCategories } from '@/hooks/useQuestions';
 import { getToken } from "@/lib/utils";
 
 const difficultyLevels = ["Easy", "Medium", "Hard"];
@@ -262,6 +263,7 @@ export default function DiscussRoute() {
   const [userId] = React.useState(Math.random().toString().split(".")[1]);
 
   const ws = useRef<WebSocket | null>(null);
+  const matchSound = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     ws.current = new WebSocket(
@@ -279,6 +281,9 @@ export default function DiscussRoute() {
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
+        matchSound.current?.play().catch(error => {
+          console.error('Error playing match sound:', error);
+        });
       } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
         setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
@@ -305,6 +310,10 @@ export default function DiscussRoute() {
         ws.current.close();
       }
     };
+  }, []);
+
+  useEffect(() => {
+    matchSound.current = new Audio(MATCH_FOUND_SOUND_PATH);
   }, []);
 
   const startMatching = async (
@@ -398,6 +407,9 @@ export default function DiscussRoute() {
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
+        matchSound.current?.play().catch(error => {
+          console.error('Error playing match sound:', error);
+        });
       } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
         setMatchStatus(MATCH_TIMEOUT_STATUS);
       }
