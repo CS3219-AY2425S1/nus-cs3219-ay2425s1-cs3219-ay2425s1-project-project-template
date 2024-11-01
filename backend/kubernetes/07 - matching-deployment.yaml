@@ -6,15 +6,10 @@ metadata:
   name: matching-service
   namespace: g55
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: matching-service
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
