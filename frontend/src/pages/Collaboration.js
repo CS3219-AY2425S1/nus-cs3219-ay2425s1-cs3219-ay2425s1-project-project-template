@@ -6,6 +6,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
 import { cpp } from '@codemirror/lang-cpp';
 import { java } from '@codemirror/lang-java';
+import { sql } from '@codemirror/lang-sql';
 import '../styles/Collaboration.css';
 
 const socket = io('http://localhost:3002'); // replace with your server URL
@@ -40,6 +41,8 @@ export const Collaboration = () => {
                 return cpp();
             case 'Java':
                 return java();
+            case 'SQL':
+                return sql();
             default:
                 return javascript();
         }
@@ -96,7 +99,7 @@ export const Collaboration = () => {
         <div className="collaboration-container">
           <div className="question-and-whiteboard">
             <div className="question">
-              <h2>Question: </h2>
+              <h3>Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0. A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.For example, "ace" is a subsequence of "abcde". A common subsequence of two strings is a subsequence that is common to both strings. </h3>
             </div>
             <div className="whiteboard">
                 <div className="text-area">
@@ -112,6 +115,7 @@ export const Collaboration = () => {
                         <option value="Python">Python</option>
                         <option value="C++">C++</option>
                         <option value="Java">Java</option>
+                        <option value="SQL">SQL</option>
                     </select>
                     <CodeMirror
                         value={codeText}
