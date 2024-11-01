@@ -5,6 +5,8 @@ import { CsharpIcon, GolangIcon, JavaIcon, JavascriptIcon, PythonIcon, RubyIcon,
 
 interface LanguageModeSelectProps {
     className: string
+    displayValue: LanguageMode
+    setDisplayValue: (value: LanguageMode) => void
     onSelectChange: (value: LanguageMode) => void
 }
 
@@ -32,22 +34,20 @@ const getLanguageIcon = (language: LanguageMode) => {
 }
 
 const LanguageModeSelect = (props: LanguageModeSelectProps) => {
-    const [displayValue, setDisplayValue] = React.useState(languageModeOptions[0])
-
     const handleValueChange = (val: string) => {
         const selectedLanguage = val as LanguageMode
-        setDisplayValue(selectedLanguage)
+        props.setDisplayValue(selectedLanguage)
         props.onSelectChange(selectedLanguage)
     }
 
     return (
         <div className={props.className}>
-            <Select defaultValue={languageModeOptions[0]} value={displayValue} onValueChange={handleValueChange}>
+            <Select defaultValue={languageModeOptions[0]} value={props.displayValue} onValueChange={handleValueChange}>
                 <SelectTrigger>
                     <SelectValue>
                         <div className="flex items-center gap-2">
-                            {getLanguageIcon(displayValue)}
-                            {displayValue}
+                            {getLanguageIcon(props.displayValue)}
+                            {props.displayValue}
                         </div>
                     </SelectValue>
                 </SelectTrigger>

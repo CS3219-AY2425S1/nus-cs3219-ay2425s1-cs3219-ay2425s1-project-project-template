@@ -4,6 +4,7 @@ import { completeCollaborationSession } from './collab.service'
 
 export class WebSocketConnection {
     private io: IOServer
+    private languages: Map<string, string> = new Map()
 
     constructor(port: number) {
         this.io = new IOServer(port, {
@@ -18,6 +19,14 @@ export class WebSocketConnection {
             socket.on('joinRoom', ({ roomId }) => {
                 socket.join(roomId)
                 this.io.to(roomId).emit('user-connected', name)
+                if (this.languages.has(roomId)) {
+                    socket.emit('update-language', this.languages.get(roomId))
+                }
+            })
+
+            socket.on('change-language', (language: string) => {
+                this.io.to(roomId).emit('update-language', language)
+                this.languages.set(roomId, language)
             })
 
             socket.on('disconnect', async () => {
@@ -30,6 +39,7 @@ export class WebSocketConnection {
                 if (!room) {
                     loggerUtil.info(`Room ${roomId} is empty. Completing session.`)
                     await completeCollaborationSession(roomId)
+                    this.languages.delete(roomId)
                 }
             })
         })

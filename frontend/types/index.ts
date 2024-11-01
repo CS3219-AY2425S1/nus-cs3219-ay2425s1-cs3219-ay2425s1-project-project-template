@@ -1,4 +1,4 @@
-import { LanguageMode } from './language-mode'
+import { LanguageMode, getCodeMirrorLanguage } from './language-mode'
 import { IQuestion, QuestionStatus, IQuestionsApi } from './question'
 import { ITestcase } from './test-case'
 import {
@@ -14,7 +14,7 @@ import { IFormFields, FormType } from './form'
 import { ISession } from './session'
 import { IGetQuestions, IGetQuestionsDto } from './questions-api'
 
-export { LanguageMode, SortDirection, QuestionStatus, FormType, Modification }
+export { LanguageMode, SortDirection, QuestionStatus, FormType, Modification, getCodeMirrorLanguage }
 export type {
     IQuestion,
     ITestcase,
