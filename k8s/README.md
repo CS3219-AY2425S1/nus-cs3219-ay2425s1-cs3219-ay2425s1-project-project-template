@@ -147,6 +147,9 @@
     A browser window should launch, directing you to the application's frontend.
 
 ## GKE Instructions
+<!-- https://cert-manager.io/docs/tutorials/getting-started-with-cert-manager-on-google-kubernetes-engine-using-lets-encrypt-for-ingress-ssl/ -->
+
+### Setup
 
 1. Authenticate or ensure you are added as a user to the Google Cloud Project:
 
@@ -209,7 +212,31 @@
 7. If you haven't already, visit the GCloud console -> 'Cloud Domains' and verify that a domain name has been created.
 
     - We currently have one as `peerprep-g16.net`.
+        - This can be created under 'Cloud Domains' -> 'Register Domain' in the GCloud console.
     - We also associate a GCloud Global Web IP `web-ip` to this DNS record as an 'A' record.
+        - To set an IP DNS 'A' record, follow these steps:
+            1. Create an IP:
+
+                ```sh
+                gcloud compute addresses create web-ip --global
+                ```
+
+            2. Verify that it exists:
+
+                ```sh
+                gcloud compute addresses list
+                ```
+
+            3. Grab the IP address:
+
+                ```sh
+                gcloud compute addresses describe web-ip --format='value(address)' --global
+                ```
+
+            4. Associate it via the console:
+                - Cloud DNS -> 'Zone Name': peerprep-g16.net -> 'Add standard'
+                - Paste the IP address
+                - 'Create'
 
 8. Install the `cert-manager` plugin:
 
@@ -226,26 +253,7 @@
     - After 15 minutes, you should be able to access the UI over HTTPS at this link:
         - `https://peerprep-g16.net`
 
-10. Setup the following in Github Actions by:
-
-    - heading to the 'Settings' -> 'Secrets and variables' -> 'Actions' -> 'New repository secret'
-    - Adding the following keys:
-
-        ```txt
-        GKE_SA_KEY: <redacted (get from the cloud console page)>
-        GKE_PROJECT: cs3219-g16
-        GKE_CLUSTER: cs3219-g16 
-        GKE_ZONE: asia-southeast1-c
-
-        ```
-
-11. Merge a PR to `main` and verify that the cluster is redeployed with the latest images:
-
-    ```sh
-    kubectl -n peerprep get deployment
-    ```
-
-12. Cleanup:
+10. Cleanup:
 
     - Delete the cluster:
 
@@ -260,4 +268,29 @@
 
         gcloud compute addresses delete web-ip --global
         ```
-<!-- https://cert-manager.io/docs/tutorials/getting-started-with-cert-manager-on-google-kubernetes-engine-using-lets-encrypt-for-ingress-ssl/ -->
+
+### CD (Continuous Delivery via Github Actions)
+
+1. Setup the following in Github Actions by:
+
+    - heading to the 'Settings' -> 'Secrets and variables' -> 'Actions' -> 'New repository secret'
+    - Adding the following keys:
+
+        ```txt
+        GKE_SA_KEY: <redacted (get from the cloud console IAM -> 'Service Accounts' page)>
+        GKE_PROJECT: cs3219-g16
+        GKE_CLUSTER: cs3219-g16 
+        GKE_ZONE: asia-southeast1-c
+        ```
+
+        - If the `GKE_SA_KEY` is needed, contact us.
+
+2. Merge a PR to `main`. The following will happend:
+
+    1. An action will run under the 'actions' tab in Github.
+
+    2. This will build and push the service images and verify that the cluster is redeployed with the latest images:
+
+    ```sh
+    kubectl -n peerprep get deployment
+    ```

@@ -187,22 +187,22 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup GCloud
-        uses: google-github-actions/setup-gcloud@v
-        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && false }}
+        uses: google-github-actions/setup-gcloud@v2
+        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && secrets.GKE_CLUSTER }}
         with: 
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
       
       - name: Get GKE creds
-        uses: google-github-actions/get-gke-credentials@v
-        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && false }}
+        uses: google-github-actions/get-gke-credentials@v2
+        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && secrets.GKE_CLUSTER }}
         with:
-          cluster_name: ${{ env.GKE_CLUSTER }}
-          location: ${{ env.GKE_ZONE }}
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_ZONE }}
           credentials: ${{ secrets.GKE_SA_KEY }}
       
       - name: Deploy to GKE
-        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && false }}
+        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && secrets.GKE_CLUSTER }}
         run: |-
           deployments=("collab-service" "matching-service" "question-service" "user-service" "frontend")
           for dplymnt in "${deployments[@]}"; do
@@ -217,7 +217,7 @@ jobs:
     needs: build-push-deploy-image
     steps:
       - run: |
-          result="${{ needs.build-and-push-image.result }}"
+          result="${{ needs.build-push-deploy-image.result }}"
           if [[ $result == "success" || $result == "skipped" ]]; then
             exit 0
           else
