@@ -6,7 +6,7 @@ services:
     restart: always
     volumes:
       - ./nginx:/tmp
-      - /etc/letsencrypt:/etc/letsencrypt
+      - .env/.ssl_certs:/etc/letsencrypt/live/localhost
       - react-build:/app/dist
     environment:
       USER_SERVICE_ADDR: user-service:3001
