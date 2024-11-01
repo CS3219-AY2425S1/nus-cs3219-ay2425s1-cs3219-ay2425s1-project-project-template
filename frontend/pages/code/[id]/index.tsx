@@ -10,8 +10,8 @@ import 'ace-builds/src-noconflict/theme-monokai'
 import 'ace-builds/src-noconflict/ext-language_tools'
 
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
-import { IQuestion, ITestcase } from '@/types'
-import { mockChatData, mockCollaboratorData, mockQuestionData, mockTestCaseData, mockUserData } from '@/mock-data'
+import { ITestcase } from '@/types'
+import { mockChatData, mockTestCaseData, mockUserData } from '@/mock-data'
 import { useEffect, useRef, useState } from 'react'
 
 import AceEditor from 'react-ace'
@@ -20,24 +20,29 @@ import CustomLabel from '@/components/ui/label'
 import CustomTabs from '@/components/customs/custom-tabs'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import Image from 'next/image'
-import LanguageModeSelect from './language-mode-select'
+import LanguageModeSelect from '../language-mode-select'
 import React from 'react'
-import TestcasesTab from './testcase-tab'
+import TestcasesTab from '../testcase-tab'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { useRouter } from 'next/router'
+import CodeMirrorEditor from '../editor'
+import { Category, IMatch, SortedComplexity } from '@repo/user-types'
+import { useSession } from 'next-auth/react'
+import { getMatchDetails } from '@/services/matching-service-api'
+import { convertSortedComplexityToComplexity } from '@repo/question-types'
+import { ReloadIcon } from '@radix-ui/react-icons'
+import { toast } from 'sonner'
 
 interface ICollaborator {
     name: string
     email: string
 }
 
-const collaboratorData: ICollaborator = mockCollaboratorData
 const userData: ICollaborator = mockUserData
 const initialChatData = mockChatData
-const questionData: IQuestion = mockQuestionData
 const testCasesData: ITestcase[] = mockTestCaseData
 
-const formatQuestionCategories = (cat: string[]) => {
+const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
 }
 
@@ -69,10 +74,29 @@ export default function Code() {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
     const [chatData, setChatData] = useState(initialChatData)
-    const code = ''
+    const { id } = router.query
     const [editorLanguage, setEditorLanguage] = useState('javascript')
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
+    const [endSessionPressed, setEndSessionPressed] = useState(false)
+    const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
+
+    const retrieveMatchDetails = async () => {
+        const matchId = router.query.id as string
+        if (!matchId) {
+            return
+        }
+        const response = await getMatchDetails(matchId).catch((_) => {
+            router.push('/')
+        })
+        setMatchData(response)
+    }
+
+    const { data: sessionData } = useSession()
+
+    useEffect(() => {
+        retrieveMatchDetails()
+    }, [])
 
     // Ref for autoscroll the last chat message
     const chatEndRef = useRef<HTMLDivElement | null>(null)
@@ -106,6 +130,7 @@ export default function Code() {
     }, [chatData])
 
     const handleLanguageModeSelect = (value: string) => {
+        console.log('Hey', value)
         setEditorLanguage(value)
     }
 
@@ -122,9 +147,12 @@ export default function Code() {
     }
 
     const handleEndSession = () => {
-        // TODO: Add end session logic + confirmation dialog
-        console.log('End session')
+        setEndSessionPressed(!endSessionPressed)
+        // TODO: Add end session logic + confirmation dialog + wait for room to be implemented
         router.push('/')
+        // if (endSessionPressed) {
+        //     router.push('/')
+        // }
     }
 
     const { loading } = useProtectedRoute()
@@ -136,22 +164,31 @@ export default function Code() {
             <section className="w-1/3 flex flex-col">
                 <div className="flex items-center gap-4">
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
-                    <h2 className="text-lg font-medium">Session with: {collaboratorData.name}</h2>
+                    <h2 className="text-lg font-medium">
+                        Session with:{' '}
+                        {sessionData?.user.username !== matchData?.user1Name
+                            ? matchData?.user1Name
+                            : matchData?.user2Name}
+                    </h2>
                 </div>
                 <div
                     id="question-data"
                     className="flex-grow border-2 rounded-lg border-slate-100 mt-2 py-2 px-3 overflow-y-auto"
                 >
-                    <h3 className="text-lg font-medium">{questionData.title}</h3>
+                    <h3 className="text-lg font-medium">{matchData?.question.title}</h3>
                     <div className="flex gap-3 my-2 text-sm">
-                        <DifficultyLabel complexity={questionData.complexity} />
+                        <DifficultyLabel
+                            complexity={convertSortedComplexityToComplexity(
+                                matchData?.question.complexity ?? SortedComplexity.EASY
+                            )}
+                        />
                         <CustomLabel
-                            title={formatQuestionCategories(questionData.categories)}
+                            title={formatQuestionCategories(matchData?.question.categories ?? [])}
                             textColor="text-theme"
                             bgColor="bg-theme-100"
                         />
                     </div>
-                    <div className="mt-6">{questionData.description}</div>
+                    <div className="mt-6">{matchData?.question.description}</div>
                 </div>
 
                 <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-twoFifthScreen flex flex-col">
@@ -213,10 +250,17 @@ export default function Code() {
                             Submit
                         </Button>
                     </div>
-                    <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
-                        <EndIcon fill="white" className="mr-2" />
-                        End session
-                    </Button>
+                    {endSessionPressed ? (
+                        <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
+                            <ReloadIcon className="mr-1 animate-spin" />
+                            Please wait
+                        </Button>
+                    ) : (
+                        <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
+                            <EndIcon fill="white" className="mr-2" />
+                            End session
+                        </Button>
+                    )}
                 </div>
                 <div id="editor-container" className="mt-4">
                     <div id="language-mode-select" className="rounded-t-xl bg-black">
@@ -225,22 +269,7 @@ export default function Code() {
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <AceEditor
-                        ref={editorRef}
-                        height="55vh"
-                        width="100%"
-                        value={code}
-                        mode={editorLanguage}
-                        theme="monokai"
-                        fontSize="16px"
-                        highlightActiveLine={true}
-                        setOptions={{
-                            enableLiveAutocompletion: true,
-                            showLineNumbers: true,
-                            tabSize: 2,
-                            useWorker: false,
-                        }}
-                    />
+                    <CodeMirrorEditor roomId={id as string} language={editorLanguage} />
                 </div>
                 <CustomTabs
                     tabs={testTabs}

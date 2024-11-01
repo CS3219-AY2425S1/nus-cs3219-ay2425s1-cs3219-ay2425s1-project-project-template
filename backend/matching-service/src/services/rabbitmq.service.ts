@@ -1,11 +1,9 @@
 import client, { Channel, Connection, ConsumeMessage, GetMessage } from 'amqplib'
-
-import { Proficiency } from '@repo/user-types'
 import config from '../common/config.util'
 import logger from '../common/logger.util'
+import { Proficiency, IMatch } from '@repo/user-types'
 import { handleCreateMatch } from '../controllers/matching.controller'
 import { wsConnection } from '../server'
-import { IMatch } from '../types/IMatch'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
 
 class RabbitMQConnection {
@@ -281,8 +279,10 @@ class RabbitMQConnection {
                 const matchedUserContent = JSON.parse(matchedUser.content.toString())
                 const match: Partial<IMatch> = {
                     user1Id: content.userId,
+                    user1Name: content.userName,
                     user2Id: matchedUserContent.userId,
-                    categories: [content.topic],
+                    user2Name: matchedUserContent.userName,
+                    category: content.topic,
                     complexity: content.complexity,
                 }
                 await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
