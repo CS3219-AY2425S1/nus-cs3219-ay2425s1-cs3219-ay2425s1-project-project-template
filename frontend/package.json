@@ -21,7 +21,8 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
     "react-toastify": "^10.0.5",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "date-fns": "^2.29.1"
   },
   "optionalDependencies": {
     "@rollup/rollup-darwin-arm64": "^4.22.4"
