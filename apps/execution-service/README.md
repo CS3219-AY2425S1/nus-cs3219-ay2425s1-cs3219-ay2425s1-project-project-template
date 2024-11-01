@@ -86,3 +86,39 @@ In question-service, run the following command:
 ```bash
 go run main.go -populate
 ```
+
+## API Documentation
+
+`GET /tests/{questionDocRefId}/`
+
+To read visible test cases via a question ID, run the following command:
+
+```bash
+curl -X GET http://localhost:8083/tests/bmzFyLMeSOoYU99pi4yZ/ \
+-H "Content-Type: application/json"
+```
+
+`GET /tests/{questionDocRefId}/execute`
+
+To execute test cases via a question ID without custom test cases, run the following command, with custom code and language:
+
+```bash
+curl -X POST http://localhost:8083/tests/{questionDocRefId}/execute \
+-H "Content-Type: application/json" \
+-d '{
+"code": "name = input()\nprint(name[::-1])",
+"language": "Python"
+}'
+```
+
+To execute test cases via a question ID with custom test cases, run the following command, with custom code, language and custom test cases:
+
+```bash
+curl -X POST http://localhost:8083/tests/{questionDocRefId}/execute \
+-H "Content-Type: application/json" \
+-d '{
+"code": "name = input()\nprint(name[::-1])",
+"language": "Python",
+"customTestCases": "2\nHannah\nhannaH\nabcdefg\ngfedcba\n"
+}'
+```
