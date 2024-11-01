@@ -1,10 +1,22 @@
 import axios from 'axios'
 import { Response } from 'express'
 import logger from '../utils/logger'
-import { CodeExecutionRequest, ExecutionResult, TestCase, languageExtensions } from '../models/types'
-import { formatTestInput, countNumberOfPassedTestCases, passedAllTestCases } from '../utils/utils'
+import {
+    CodeExecutionRequest,
+    ExecutionResult,
+    TestCase,
+    languageExtensions,
+} from '../models/types'
+import {
+    formatTestInput,
+    countNumberOfPassedTestCases,
+    passedAllTestCases,
+} from '../utils/utils'
 
-const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promise<Response> => {
+const executeUserCode = async (
+    req: CodeExecutionRequest,
+    res: Response,
+): Promise<Response> => {
     const { questionId, code, language } = req.body
 
     if (!questionId || !code || !language) {
@@ -13,6 +25,8 @@ const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promis
             .json({ message: 'Question ID, code and language are required' })
     }
 
+    let question: any
+    let testCases: TestCase[]
     try {
         const getQuestionRes = await axios.get(
             `${process.env.QUESTION_SERVICE_URL}/get-questions`,
@@ -27,31 +41,33 @@ const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promis
             return res.status(400).json({ message: 'Question not found' })
         }
 
-        const question = getQuestionRes.data[0]
-        const testCases: TestCase[] = question.testCases
-        // similar to Kattis where input is separated by a blank line
-        const formattedInput = testCases
-            .map((tc) => formatTestInput(tc.input))
-            .join('\n')
-        const fileName = `q${questionId}.${languageExtensions.get(language)}`
-        const payload = {
-            language: language.toLowerCase(),
-            stdin: formattedInput,
-            files: [
-                {
-                    name: fileName,
-                    content: code,
-                },
-            ],
-            compileOnly: false,
-            wait: true,
-        }
+        question = getQuestionRes.data[0]
+        testCases = question.testCases
+    } catch (e) {
+        logger.error('Error fetching question details', e)
+        return res
+            .status(500)
+            .json({ message: 'Error fetching question details' })
+    }
 
-        logger.info(`Sending request to OneCompiler`, {
-            code,
-            language,
-            formattedInput,
-        })
+    const formattedInput = testCases
+        .map((tc) => formatTestInput(tc.input))
+        .join('\n')
+    const fileName = `q${questionId}.${languageExtensions.get(language)}`
+    let payload = {
+        language: language.toLowerCase(),
+        stdin: formattedInput,
+        files: [
+            {
+                name: fileName,
+                content: code,
+            },
+        ],
+        compileOnly: false,
+        wait: true,
+    }
+
+    try {
         const executeCodeRes = await axios.post(
             `${process.env.CODE_COMPILER_URL}`,
             payload,
@@ -64,8 +80,6 @@ const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promis
                 validateStatus: (status) => status >= 200 && status < 500,
             },
         )
-
-        logger.info('OneCompiler response', executeCodeRes.data)
 
         if (executeCodeRes.data.stderr) {
             logger.error(
@@ -91,19 +105,21 @@ const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promis
             success: passedAllTestCases(results),
             results,
             testCasesPassed: countNumberOfPassedTestCases(results),
-            testCasesTotal: testCases.length, 
+            testCasesTotal: testCases.length,
             compilationOutput: executeCodeRes.data.compilationOutput,
             error: executeCodeRes.data.stderr,
         }
 
-        const submissionOutcomeMsg = response.success ? 'All test cases passed' : 'Some test cases failed'
+        const submissionOutcomeMsg = response.success
+            ? 'All test cases passed'
+            : 'Some test cases failed'
         logger.info(`Code execution results: ${submissionOutcomeMsg}`)
         return res.status(200).json(response)
     } catch (e) {
-        logger.error('Error appeared when executing code', e)
+        logger.error('Error executing code', e)
         return res
             .status(500)
-            .json({ message: 'Error appeared when executing code' })
+            .json({ message: 'Error executing code with OneCompiler' })
     }
 }
 
