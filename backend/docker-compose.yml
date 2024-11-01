@@ -21,6 +21,7 @@ services:
       - auth-service
       - matching-service
       - collaboration-service
+      - code-execution-service
       # - eventstore.db
       - redis
     networks:
@@ -113,6 +114,22 @@ services:
       - backend-network
     ports:
       - "3005:4000"
+
+  code-execution-service:
+    build:
+      context: ./code-execution-service
+      target: development
+    container_name: code-execution-service
+    volumes:
+      - ./code-execution-service:/app
+      - /app/node_modules
+    command: npm run start:dev
+    env_file:
+      - ./code-execution-service/.env
+    networks:
+      - backend-network
+    ports:
+      - "3006:4000"
 
   y-websocket-service:
     build:
