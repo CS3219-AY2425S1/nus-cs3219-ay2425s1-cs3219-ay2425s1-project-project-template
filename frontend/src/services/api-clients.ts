@@ -35,4 +35,9 @@ export const matchApiClient = axios.create({
   ...basePostHeaders,
 });
 
+export const collabApiClient = axios.create({
+  ...getApiClientBaseConfig(COLLAB_SERVICE),
+  ...basePostHeaders,
+});
+
 // define more api clients for other microservices

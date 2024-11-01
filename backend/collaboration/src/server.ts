@@ -9,6 +9,7 @@ import pino from 'pino-http';
 import { UI_HOST } from '@/config';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
+import aiChatRoutes from '@/routes/chat';
 import roomRoutes from '@/routes/room';
 
 import { setUpWSServer } from './ws';
@@ -54,6 +55,8 @@ export const dbHealthCheck = async () => {
     exit(1);
   }
 };
+
+app.post('/ai', aiChatRoutes);
 
 // Ensure DB service is up before running.
 app.get('/test-db', async (_req, res) => {
