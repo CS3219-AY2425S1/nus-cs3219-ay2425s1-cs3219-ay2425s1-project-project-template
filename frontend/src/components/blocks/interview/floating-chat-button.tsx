@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { ChatSidebar } from './ai-chat';
-import { PartnerChatSidebar } from './partner-chat';
+import { AIChat } from './ai-chat';
+import { PartnerChat } from './partner-chat';
 
 type FloatingChatButtonProps = {
   room: string;
@@ -60,9 +60,9 @@ export const FloatingChatButton = ({ room }: FloatingChatButtonProps) => {
         </div>
       </div>
 
-      {isAIChatOpen && <ChatSidebar isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />}
+      {isAIChatOpen && <AIChat isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />}
       {isPartnerChatOpen && (
-        <PartnerChatSidebar
+        <PartnerChat
           roomId={room}
           isOpen={isPartnerChatOpen}
           onClose={() => setIsPartnerChatOpen(false)}
