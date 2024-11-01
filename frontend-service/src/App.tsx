@@ -15,7 +15,6 @@ import ProfilePage from "./pages/ProfilePage";
 import AboutUs from "./pages/AboutUsPage";
 import ChangePasswordPage from "./pages/ChangePassword";
 import AboutUsPage from "./pages/AboutUsPage";
-import QuestionSideBar from '../components/collab/QuestionSideBar';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -82,7 +81,7 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/match-me" element={<MatchingPage />} />
-          <Route path="/editor" element={<CodeEditor roomId={"3dd0abb8-4c7c-42c2-8d44-96858f5170ac"} userId={"671ff3dce550f80f118be8cb"} />} />
+          <Route path="/editor/:roomId/:userId" element={<CodeEditor />} />
           <Route path="/room" element={<RoomPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/aboutus" element={<AboutUsPage />} />

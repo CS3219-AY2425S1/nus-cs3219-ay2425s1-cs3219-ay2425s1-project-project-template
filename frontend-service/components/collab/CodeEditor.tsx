@@ -5,12 +5,7 @@ import { FIREBASE_DB } from '../../FirebaseConfig'
 import { ref, onValue, set } from 'firebase/database'
 import axios from 'axios'
 import QuestionSideBar from './QuestionSidebar'
-
-
-interface CodeEditorProps {
-  roomId: string,
-  userId: string,
-}
+import { useParams } from 'react-router-dom'
 
 interface Question {
   title: string,
@@ -19,7 +14,8 @@ interface Question {
   difficulty: string,
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
+const CodeEditor: React.FC = () => {
+  const { roomId, userId } = useParams<{ roomId: string; userId: string }>()
   const [code, setCode] = useState('//Start writing your code here..')
   const [codeLanguage, setCodeLanguage] = useState('Javascript')
   const [question, setQuestion] = useState<Question | null>(null)
