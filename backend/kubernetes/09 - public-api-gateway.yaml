@@ -43,3 +43,10 @@ spec:
                 name: user-service
                 port:
                   number: 8080
+          - path: /api/question/public
+            pathType: Prefix
+            backend:
+              service:
+                name: question-service
+                port:
+                  number: 8080
