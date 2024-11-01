@@ -1,7 +1,6 @@
 import { IAuthenticatedRequest, ITypedBodyRequest } from '@repo/request-types'
 import { generateOTP, sendMail } from '../common/mail.util'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
-
 import { ValidationError } from 'class-validator'
 import { Response } from 'express'
 import { hashPassword } from '../common/password.util'
