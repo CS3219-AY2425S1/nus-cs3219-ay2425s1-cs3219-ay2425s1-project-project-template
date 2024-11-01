@@ -27,7 +27,7 @@ export const routes: Routes = [
   { path: "loading-screen", component: MatchModalComponent },
   { path: "question-list", component: QuestionListComponent },
   { path: "landing", component: LandingPageComponent, canActivate: [authGuard]},
-  { path: "collab", component: CollabPageComponent },
+  { path: "collab/:sessionId", component: CollabPageComponent },
 
   { path: "code-editor", component: CollaborativeEditorComponent }
 ];
