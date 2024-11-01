@@ -23,6 +23,9 @@ jobs:
       - name: cd into apps/frontend
         run: cd ./apps/frontend
       
+      - name: ls?
+        run: ls
+      
       - name: Set up .env
         run: cp ./.env.example .env
 
