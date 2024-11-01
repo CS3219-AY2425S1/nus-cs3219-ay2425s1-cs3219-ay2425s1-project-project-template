@@ -7,6 +7,7 @@ import { UserPage } from "./pages/UserPage";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { Match } from "./pages/Match";
+import { Collaboration } from "./pages/Collaboration";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path='/questions/:id' element={<Question />} />
         <Route path="/profile" element={<UserPage />} />
         <Route path="/match" element={<Match />} />
+        <Route path="/collab" element={<Collaboration />} />
         <Route path="*" element={<p>404: Page Not Found!</p>} />
       </Routes>
     </div>
