@@ -23,7 +23,7 @@ async function main() {
       console.log('sample question: ', sample_question);
       const question = new Question(sample_question);
       await question.save();
-      console.log('success for: ', sample_question.title)
+      console.log('success for: ', sample_question.title);
     }
   });
 }
