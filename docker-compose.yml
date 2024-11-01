@@ -10,6 +10,7 @@ services:
       - REACT_APP_USER_SVC_PORT=${USER_SVC_PORT}
       - REACT_APP_QUESTION_SVC_PORT=${QUESTION_SVC_PORT}
       - REACT_APP_MATCHING_SVC_PORT=${MATCHING_SVC_PORT}
+      - REACT_APP_HISTORY_SVC_PORT=${HISTORY_SVC_PORT}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -17,6 +18,7 @@ services:
       - user-service
       - question-service
       - matching-service
+      - history-service
 
   user-service:
     build:

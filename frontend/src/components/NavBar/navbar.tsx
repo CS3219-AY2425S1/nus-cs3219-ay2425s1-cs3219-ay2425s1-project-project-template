@@ -15,13 +15,22 @@ import PeopleIcon from "@mui/icons-material/People";
 import MatchingDialog from "../Matching/matching";
 import axios from "axios";
 import { AuthContext, authState } from "../../hooks/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 
 function NavBar() {
+  const navigate = useNavigate();
+
   const settings = [
     {
       name: "Settings",
       onClick: () => {}
+    },
+    {
+      name: "History",
+      onClick: () => {
+        navigate("history");
+      }
     },
     {
       name: "Logout",
