@@ -16,8 +16,7 @@ const QuestionPageView: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const navigate = useNavigate();
-  
-  
+
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
   };
@@ -26,10 +25,9 @@ const QuestionPageView: React.FC = () => {
     navigate(path);
     setShowDropdown(false);
   };
-  
+
   const fetchUsernameAndAdminStatus = async () => {
     try {
-
       const usernameData = await getUsernameByUid();
       const isAdmin = await fetchAdminStatus();
       setUsername(usernameData);
@@ -42,12 +40,10 @@ const QuestionPageView: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
     fetchUsernameAndAdminStatus();
     setLoading(false); // End loading if no user_id found
   }, []);
-  
 
   return (
     <main
@@ -64,6 +60,13 @@ const QuestionPageView: React.FC = () => {
         />
         {showDropdown && (
           <div className="dropdown-menu">
+            <Button
+              variant="ghost"
+              className="w-full text-left"
+              onClick={() => handleNavigation("/history")}
+            >
+              View History
+            </Button>
             <Button
               variant="ghost"
               className="w-full text-left"
@@ -104,7 +107,7 @@ const QuestionPageView: React.FC = () => {
           <MatchingOptions />
         </div>
         <div className="p-4 col-span-3 md:col-span-2 rounded-lg shadow-lg">
-          <QuestionTable isAdmin={isAdmin}/>
+          <QuestionTable isAdmin={isAdmin} />
         </div>
       </div>
     </main>
