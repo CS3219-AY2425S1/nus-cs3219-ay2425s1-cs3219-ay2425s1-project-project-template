@@ -6,11 +6,11 @@ export async function connectToMongo() {
     await connect('mongodb+srv://admin:admin_g50_password@cs3219-g50-question-ser.c7loi.mongodb.net/');
 }
 
-export async function createRoom(user1: string, user2: string, roomId: string) {
+export async function createRoom(user1, user2, roomId) {
     try {
         const newRoom = new UsersSession({
             users: [user1, user2],
-            roomId: new mongoose.Types.ObjectId().toString(), // Generate a unique room ID
+            roomId: roomId,
             lastUpdated: new Date()
         });
 
@@ -22,7 +22,7 @@ export async function createRoom(user1: string, user2: string, roomId: string) {
     }
 }
 
-export async function get_roomID(user: string): Promise<mongoose.Document | null> {
+export async function get_roomID(user) {
     try {
         const room = await UsersSession.findOne({ users: user });
         return room;
