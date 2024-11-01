@@ -12,6 +12,33 @@ on:
       - staging
 
 jobs:
+  frontend-unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: cd into apps/frontend
+        run: cd ./apps/frontend
+      
+      - name: Set up .env
+        run: cp .env.example .env
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm i -g pnpm
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Run tests
+        run: pnpm test
+
   test:
     runs-on: ubuntu-latest
 
