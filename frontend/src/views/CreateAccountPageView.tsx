@@ -16,10 +16,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // firebase imports
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
-import { addToUserCollection } from "@/services/UserFunctions";
+import { addToUserCollection, doesUserExist } from "@/services/UserFunctions";
+import { isValidUsername } from "@/lib/regex";
 
 const CreateAccountPage: React.FC = () => {
 	const [email, setEmail] = useState<string>("");
+	const [newUsername, setNewUsername] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [visible, setVisible] = useState<boolean>(false);
 	const [alertIcon, setAlertIcon] = useState<boolean>(false);
@@ -29,11 +31,26 @@ const CreateAccountPage: React.FC = () => {
 
 	const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevent refresh
-
+		if (!isValidUsername(newUsername)) {
+			// Handle invalid username error
+			setAlertIcon(false);
+			setAlertTitle("Invalid Username");
+			setAlertDescription("Username must be alphanumeric only.");
+			setVisible(true);
+			setTimeout(() => setVisible(false), 3000);
+			return;
+		}
 		// create account on firebase
 		try {
+			const usernameExists = await doesUserExist(newUsername);
+
+			if (usernameExists) {
+				// If the username is taken, trigger an error to be caught in the catch block
+				throw new Error("Username is already taken. Please choose a different one.");
+			}
+
 			const user = await createUserWithEmailAndPassword(auth, email, password);
-			await addToUserCollection(user);
+			await addToUserCollection(user, newUsername);
 			// show alert & redirect after 3s
 			setAlertIcon(true);
 			setAlertTitle("Account created successfully");
@@ -88,6 +105,16 @@ const CreateAccountPage: React.FC = () => {
 						<form onSubmit={handleLogin}>
 							<CardContent>
 								<div className="grid w-full items-center gap-4">
+									<div className="flex flex-col space-y-1.5">
+										<Label htmlFor="username">Username</Label>
+										<Input
+											id="username"
+											type="text"
+											placeholder="Username"
+											onChange={(e) => setNewUsername(e.target.value)}
+											required
+										/>
+									</div>
 									<div className="flex flex-col space-y-1.5">
 										<Label htmlFor="email">Email</Label>
 										<Input

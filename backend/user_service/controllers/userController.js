@@ -27,7 +27,6 @@ const addToUserCollection = async (req, res) => {
 const checkAdminStatus = async (req, res) => {
     const token = req.headers.authorization?.split('Bearer ')[1];
     try {
-        // Verify the token
         const decodedToken = await auth.verifyIdToken(token);
         const uid = decodedToken.uid;
 
