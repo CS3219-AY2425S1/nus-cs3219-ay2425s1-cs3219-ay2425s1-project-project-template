@@ -34,7 +34,7 @@ services:
   collaboration-service:
     build: ./collaboration-service
     ports:
-      - 5000:5000
+      - 5001:5001
     volumes:
       - ./collaboration-service:/app
       - /app/node_modules
@@ -96,7 +96,7 @@ services:
       - 3005:3005
     depends_on:
       - user-service
-      # - collaboration-service # add after dockerising collaboration-service
+      - collaboration-service # add after dockerising collaboration-service
     volumes:
       - ./matching-service/room-service:/app
       - /app/node_modules
@@ -132,10 +132,8 @@ services:
 volumes:
   user-db-data:
     name: user-db-data
-    external: true
   question-db-data:
     name: question-db-data
-    external: true
 
 
 # Notes:
