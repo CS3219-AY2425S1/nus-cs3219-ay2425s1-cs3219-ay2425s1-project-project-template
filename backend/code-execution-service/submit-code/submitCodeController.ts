@@ -66,8 +66,6 @@ const submitUserCode = async (req: CodeSubmissionRequest, res: Response): Promis
             },
         )
 
-        logger.info('OneCompiler response', executeCodeRes.data)
-
         if (executeCodeRes.data.stderr) {
             logger.error(
                 'Error appeared when executing code',
@@ -102,10 +100,10 @@ const submitUserCode = async (req: CodeSubmissionRequest, res: Response): Promis
         logger.info('Submission saved successfully', submission)
         return res.status(200).json(submission)
     } catch (e) {
-        logger.error('Error appeared when executing code', e)
+        logger.error('Error appeared when submitting code', e)
         return res
             .status(500)
-            .json({ message: 'Error appeared when executing code' })
+            .json({ message: 'Error appeared when submitting code' })
     }
 }
 

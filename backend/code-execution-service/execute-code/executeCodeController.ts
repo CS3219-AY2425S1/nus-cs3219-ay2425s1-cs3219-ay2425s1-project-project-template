@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Response } from 'express'
 import logger from '../utils/logger'
 import { CodeExecutionRequest, ExecutionResult, TestCase, languageExtensions } from '../models/types'
-import { formatTestInput, countNumberOfPassedTestCases } from '../utils/utils'
+import { formatTestInput, countNumberOfPassedTestCases, passedAllTestCases } from '../utils/utils'
 
 const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promise<Response> => {
     const { questionId, code, language } = req.body
@@ -88,7 +88,7 @@ const executeUserCode = async (req: CodeExecutionRequest, res: Response): Promis
         }))
 
         const response = {
-            success: results.every((result) => result.passed),
+            success: passedAllTestCases(results),
             results,
             testCasesPassed: countNumberOfPassedTestCases(results),
             testCasesTotal: testCases.length, 

@@ -4,7 +4,7 @@ import logger from '../utils/logger'
 
 dotenv.config({ path: './.env' })
 
-const url: string | undefined = process.env.DATABASE
+const url: string | undefined = process.env.DATABASE_URL
 
 if (!url) {
     throw new Error('Database connection URL is missing')
