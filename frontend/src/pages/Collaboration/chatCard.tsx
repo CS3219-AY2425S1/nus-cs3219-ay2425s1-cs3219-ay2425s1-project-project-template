@@ -8,6 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { io, Socket } from "socket.io-client";
+import { useSocket } from "../../contexts/SocketContext";
+import { useNavigate } from "react-router-dom";
 
 interface ChatCardProps {
   roomId: string;
@@ -19,9 +21,11 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
   const [messages, setMessages] = useState<{ user: string; text: string }[]>(
     []
   );
+  const { commSocket } = useSocket();
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const chatBoxRef = useRef<HTMLDivElement | null>(null); // Create a ref for the chat box
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -29,35 +33,30 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
     }
   }, [messages]);
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", {
-      auth: { userId, username },
-    });
-    setSocket(newSocket);
+    if (!commSocket) {
+      return;
+    }
 
-    // Join the specified room on connection
-    newSocket.on("connect", () => {
-      newSocket.emit("joinRoom", roomId);
-    });
 
     // Listen for incoming messages and add them to the chat
-    newSocket.on("chatMessage", (message) => {
+    commSocket.on("chatMessage", (message) => {
       console.log("Received message:", message); // Debugging log
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
     // Clean up the socket connection on component unmount
     return () => {
-      newSocket.disconnect();
+      commSocket.disconnect();
     };
-  }, [roomId, userId, username]);
+  }, [commSocket]);
 
   const handleSendMessage = () => {
-    if (input.trim() && socket) {
+    if (input.trim() && commSocket) {
       // Emit the chat message with the correct structure
       console.log("Sending message:", input);
       console.log("Emitting message with data:", { roomId, message: input });
 
-      socket.emit("chatMessage", { roomId, text: input });
+      commSocket.emit("chatMessage", { roomId, text: input });
 
       setInput(""); // Clear input field
     }

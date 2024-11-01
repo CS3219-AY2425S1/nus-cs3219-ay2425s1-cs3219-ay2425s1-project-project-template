@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack';
 import { executeCode } from "../../pages/Collaboration/consoleExecute";
 import { useSocket } from "../../contexts/SocketContext";
 import { useParams } from "react-router-dom";
+import { io } from "socket.io-client";
 
 interface OutputProps {
   editorRef: React.RefObject<any>;
@@ -13,7 +14,7 @@ interface OutputProps {
 }
 
 const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
-  const { collabSocketRef } = useSocket();
+  const { collabSocket } = useSocket();
   const { roomId } = useParams();
   const [output, setOutput] = useState<Array<string>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,31 +22,42 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!collabSocketRef.current) {
+    if (!collabSocket) {
       console.log("Collab socket error");
       return;
     }
+
+    // if (!collabSocket.connected) {
+    //   collabSocket = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`);
+    // }
     
-    collabSocketRef.current.on("sync-console", (consoleResults: Array<string>) => {
+    collabSocket.on("sync-console", (consoleResults: Array<string>) => {
       setOutput(consoleResults);
       
     });
 
-    collabSocketRef.current.on("sync-load", (isLoading: boolean) => {
+    collabSocket.on("sync-load", (isLoading: boolean) => {
       setLoading(isLoading);
-    })
-  }, [])
+    });
+
+    return () => {
+      if (collabSocket && collabSocket.connected) {
+        collabSocket.removeAllListeners();
+        collabSocket.disconnect();
+      }  
+    }
+  }, [collabSocket])
 
   const runCode = async () => {
     const sourceCode = editorRef.current.getValue();
     if (!sourceCode) return;
     try {
       setLoading(true);
-      collabSocketRef.current?.emit("console-load", roomId, true);
+      collabSocket?.emit("console-load", roomId, true);
       const { run: result } = await executeCode(language, sourceCode);
       const consoleResults = result.output.split("\n");
       setOutput(consoleResults);
-      collabSocketRef.current?.emit("console-change", roomId, consoleResults);
+      collabSocket?.emit("console-change", roomId, consoleResults);
       result.stderr ? setIsError(true) : setIsError(false);
     } catch (error) {
       console.log(error);
@@ -55,7 +67,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         message="An error occurred."
         />
     } finally {
-      collabSocketRef.current?.emit("console-load", roomId, false);
+      collabSocket?.emit("console-load", roomId, false);
       setLoading(false);
     }
   };

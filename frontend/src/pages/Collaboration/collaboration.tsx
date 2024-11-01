@@ -9,7 +9,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import PeopleIcon from "@mui/icons-material/People";
 import CodeEditor from "../../components/Collaboration/codeEditor";
-
+import CallIcon from '@mui/icons-material/Call';
 import { Question } from "../Question/question";
 import LeaveRoomModal from "./leaveRoomModal";
 import QuestionSelectModal from "./questionSelectModal";
@@ -17,11 +17,25 @@ import ChatCard from "./chatCard";
 import { Socket, io } from "socket.io-client";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
+import { blue, lightBlue, lightGreen } from "@mui/material/colors";
+import { LoadingButton } from "@mui/lab";
+import CallNotification from "../../components/Communication/callNotification";
+import VideoCall from "../../components/Communication/videoCall";
+
+type Caller = {
+  username: string,
+  avatar: string
+}
+
+export type CallNotificationState = {
+  caller: Caller,
+  isOpen: boolean
+}
 
 const CollaborationPage: FC = () => {
   const navigate = useNavigate();
-  const { collabSocketRef, commSocketRef } = useSocket();
-  const {user} = useContext(AuthContext);
+  const { collabSocket, commSocket, setCollabSocket, setCommSocket } = useSocket();
+  const { user } = useContext(AuthContext);
   const location = useLocation();
   // const { roomId = "", userId = "", question = null } = location.state || {};
   const { roomId } = useParams();
@@ -38,6 +52,15 @@ const CollaborationPage: FC = () => {
     useState<boolean>(false);
   const [isChangeQuestionModalOpen, setIsChangeQuestionModalOpen] =
     useState(false);
+  const [isAwaitingCallResponse, setIsAwaitingCallResponse] = useState(false);
+  const [notification, setNotifcation] = useState<CallNotificationState>({
+    caller: {
+      username: "",
+      avatar: ""
+    },
+    isOpen: false
+  })
+
 
   const handleOpenLeaveRoomModal = () => {
     setIsLeaveRoomModalOpen(true);
@@ -54,93 +77,146 @@ const CollaborationPage: FC = () => {
     question
   );
   const onLeaveRoom = () => {
-    collabSocketRef.current?.emit("leave-room", roomId);
-    collabSocketRef.current?.disconnect();
-    commSocketRef.current?.disconnect();
+    navigate("/");
+    collabSocket?.emit("leave-room", roomId);
+    collabSocket?.disconnect();
+    commSocket?.disconnect();
   };
   const handleQuestionChangeClick = () => setIsChangeQuestionModalOpen(true);
   const handleChangeQuestionModalClose = () =>
     setIsChangeQuestionModalOpen(false);
   const handleQuestionSelect = (question: Question) => {
-    collabSocketRef.current?.emit("question-change", roomId, question);
+    collabSocket?.emit("question-change", roomId, question);
     setSelectedQuestion(question);
     setIsChangeQuestionModalOpen(false); // Close the modal after selection
   };
+  const handleCallButtonClick = () => {
+    commSocket!.emit("initiate-call", roomId, {username: user.username, avatar: user.avatar});
+    setIsAwaitingCallResponse(true);
+    
+  }
+  const handleCallResponse = (isAnswer: boolean) => {
+    setNotifcation(oldNotification => ({...oldNotification, isOpen: false}));
+    commSocket?.emit("call-response", isAnswer, roomId);
+  }
+
 
   useEffect(() => {
 
-    collabSocketRef.current = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
+    // collabSocket = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
+    //   auth: {
+    //     userId: user.id,
+    //     username: user.username
+    //   },
+    //   transports: ["websocket"]
+    // });
+    // commSocket = io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
+    //   auth: {
+    //     userId: user.id,
+    //     username: user.username
+    //   },
+    //   transports: ["websocket"]
+    // });
+    setCollabSocket(io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username
-      }
-    });
-    commSocketRef.current = io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
+      },
+      transports: ["websocket"],
+    }));
+    setCommSocket(io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username
-      }
-    });
+      },
+      transports: ["websocket"],
+    }));
 
-    if (!collabSocketRef.current) {
-      navigate("/");
-      return;
-    }
-    if (!commSocketRef.current) {
-      navigate("/");
-      return;
-    }
+    // if (!collabSocket) {
+    //   navigate("/");
+    //   return;
+    // }
+    // if (!commSocket) {
+    //   navigate("/");
+    //   return;
+    // }
+    
+    // if (!collabSocket.connected) {
+    //   collabSocket.connect();
+    // }
 
-    collabSocketRef.current.connect();
-    commSocketRef.current.connect();
+    // if (!commSocket.connected) {
+    //   commSocket.connect();
+    // }
 
-    if (collabSocketRef.current.connected) {
-      console.log(" THIS IS CONNECTED ")
-    } else {
-      console.log("THIS IS NOT CONNECTED")
-    }
-    collabSocketRef.current.on("connect_error", (err: Error) => {
-      console.log(`Error: ${err.message}`);
-      navigate("/");
-    })
 
-    commSocketRef.current.on("connect_error", (err: Error) => {
-      console.log(`Error ${err.message}`);
-      navigate("/");
-    })
-
-    collabSocketRef.current.emit("join-room", roomId);
-    commSocketRef.current.emit("join-comms-room", roomId);
-
-    collabSocketRef.current.on("user-left", (_user: string) => {
-      collabSocketRef.current?.disconnect();
-      commSocketRef.current?.disconnect();
-      navigate("/");
-    })
-
-    collabSocketRef.current.on("sync-question", (question: Question) => {
-      setSelectedQuestion(question);
-    })
-  
-    return () => {
-      if (collabSocketRef.current && collabSocketRef.current!.connected) {
-        collabSocketRef.current.emit("leave-room", roomId, user.username);
-        collabSocketRef.current.disconnect();
-      }  
-      
-      if (commSocketRef.current && commSocketRef.current.connected) {
-            commSocketRef.current.emit("leave-room", roomId, user.username)
-            commSocketRef.current.disconnect();
-        }
-    };
   
     }, [])
   
-
+    useEffect(() => {
+      if (!collabSocket) {
+        return;
+      }
+      if (!commSocket) {
+        return;
+      }
+      collabSocket.on("connect", () => {
+        collabSocket?.emit("join-room", roomId);
+      });
+  
+      commSocket.on("connect", () => {
+        commSocket?.emit("join-room", roomId);
+      });
+  
+      collabSocket.on("connect_error", (err: Error) => {
+        console.log(`Error: ${err.message}`);
+        navigate("/");
+      });
+  
+      commSocket.on("connect_error", (err: Error) => {
+        console.log(`Error ${err.message}`);
+        navigate("/");
+      });
+  
+      collabSocket.on("user-left", (_user: string) => {
+        collabSocket?.disconnect();
+        commSocket?.disconnect();
+        navigate("/");
+      });
+  
+      collabSocket.on("sync-question", (question: Question) => {
+        setSelectedQuestion(question);
+      });
+      
+      commSocket.on("incoming-call", (caller : Caller) => {
+        setNotifcation({
+          caller: caller,
+          isOpen: true
+        });
+      });
+  
+      commSocket.on("call-response", (isAnswer : boolean) => {
+        setIsAwaitingCallResponse(false);
+        
+      });
+    
+      return () => {
+        if (collabSocket && collabSocket!.connected) {
+          collabSocket.removeAllListeners();
+          collabSocket.disconnect();
+        }  
+        
+        if (commSocket && commSocket.connected) {
+              commSocket.removeAllListeners();
+              commSocket.disconnect();
+          }
+      };
+    }, [collabSocket, commSocket])
 
   return (
     <div className="min-h-screen text-white">
       {/* Header */}
+      {/* <VideoCall/> */}
       <Box>
         <AppBar
           position="static"
@@ -155,6 +231,21 @@ const CollaborationPage: FC = () => {
               />
               {/* Flexible space to push buttons to the right */}
               <Box sx={{ flexGrow: 1 }} />
+              <LoadingButton
+                variant="contained"
+                onClick={handleCallButtonClick}
+                startIcon={<CallIcon/>}
+                sx={{mx: 3,
+                  ":disabled": {
+                    backgroundColor: blue[900]
+                  }
+                }}
+                className="px-4 py-2 rounded hover:bg-green-500 transition-colors"
+                loading={isAwaitingCallResponse}>
+                  Call Peer
+
+              </LoadingButton>
+
               <Button
                 variant="contained"
                 onClick={handleQuestionChangeClick}
@@ -225,6 +316,7 @@ const CollaborationPage: FC = () => {
           </Card>
         </div>
       </div>
+      <CallNotification notification={notification} handleCallResponse={handleCallResponse}/>
     </div>
   );
 };

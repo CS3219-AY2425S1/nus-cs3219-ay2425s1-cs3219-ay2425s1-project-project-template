@@ -5,15 +5,18 @@ import LanguageSelector from './languageSelector';
 import { CODE_SNIPPETS } from './languageSelector';
 import Stack from '@mui/material/Stack';
 import Output from './console';
-import { SocketContext, useSocket } from '../../contexts/SocketContext';
-import { useParams } from 'react-router-dom';
+import { useSocket } from '../../contexts/SocketContext';
+import { useNavigate, useParams } from 'react-router-dom';
+import { io } from 'socket.io-client';
+
 
 const CodeEditor = () => {
     const { roomId } = useParams();
-    const  { collabSocketRef }  = useSocket();
+    const  { collabSocket }  = useSocket();
     const editorRef = useRef();
     const [value, setValue] = useState("");
     const [language, setLanguage] = useState("javascript");
+    const navigate = useNavigate();
 
     const onMount = (editor: any) => {
         editorRef.current = editor;
@@ -22,24 +25,36 @@ const CodeEditor = () => {
     const onSelect = (language:string) => {
         setLanguage(language);
         setValue(CODE_SNIPPETS[language]);
-        collabSocketRef.current?.emit("language-change", roomId, language);
+        collabSocket?.emit("language-change", roomId, language);
       };
     
     useEffect(() => {
-        if (!collabSocketRef.current) {
+        if (!collabSocket) {
             return;
         }
 
-        collabSocketRef.current.on("sync-code", (edittedCode: string) => {
+        // if (!collabSocket.connected) {
+        //     collabSocket.connect();
+        // }
+
+        collabSocket.on("sync-code", (edittedCode: string) => {
             console.log("to sync");
             setValue(edittedCode);
         });
         
-        collabSocketRef.current.on("sync-language", (language: string) => {
+        collabSocket.on("sync-language", (language: string) => {
             setLanguage(language);
             setValue(CODE_SNIPPETS[language]);
-        })
-    }, [])
+        });
+        
+        return () => {
+            if (collabSocket && collabSocket!.connected) {
+              collabSocket.removeAllListeners();
+              collabSocket.disconnect();
+            }  
+        }
+
+    }, [collabSocket])
     
     return (
         <Box height="80vh" width="100%">
@@ -62,7 +77,7 @@ const CodeEditor = () => {
                     onChange={(value) => {
                         if (value !== undefined) {
                             setValue(value);
-                            collabSocketRef.current!.emit("edit-code", roomId, value);
+                            collabSocket!.emit("edit-code", roomId, value);
                         }
                     }}
                 />
