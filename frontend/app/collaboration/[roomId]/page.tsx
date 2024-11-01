@@ -21,6 +21,7 @@ import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
 import VoiceChat from "@/components/collaboration/VoiceChat";
 
+
 const mockQuestion: Question = {
   title: "Fibonacci Number",
   complexity: "Easy",
@@ -33,9 +34,11 @@ const mockQuestion: Question = {
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
+  const [code, setCode] = useState(""); // Store the latest code
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
 
   const socket = useContext(SocketContext);
   const { user } = useUser();
@@ -43,6 +46,28 @@ export default function Page() {
   const [otherUserDisconnect, setUserDisconnect] = useState<boolean>(false);
   const [otherUser, setOtherUser] = useState<string>("");
 
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+  };
+
+  const saveCodeAndEndSession = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/save-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, code })
+      });
+      
+      if (!response.ok) throw new Error("Failed to save code");
+
+      toast.success("Code saved successfully");
+      router.push("/match"); // Redirect after saving
+    } catch (error) {
+      console.error("Error saving code:", error);
+      toast.error("Error saving code");
+    }
+  };
+  
   const socketListeners = () => {
     socket?.on("user-disconnect", () => {
       setUserDisconnect(true);
@@ -58,7 +83,7 @@ export default function Page() {
     });
 
     socket?.on("both-users-agreed-end", () => {
-      router.push("/match");
+      saveCodeAndEndSession(); // Call function to save code and redirect
     });
   };
 
@@ -116,7 +141,7 @@ export default function Page() {
           <VoiceChat />
           
           {/* Render the CodeEditor */}
-          <CodeEditor setOutput={setOutput}/>
+          <CodeEditor setOutput={setOutput} onCodeChange={handleCodeChange}/>
           <div style={{ marginTop: "20px" }}>
             <h3>Output:</h3>
             <pre>{output}</pre>

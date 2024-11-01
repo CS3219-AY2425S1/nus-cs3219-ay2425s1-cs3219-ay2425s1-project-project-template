@@ -21,9 +21,10 @@ const languageMap: Record<string, number> = {
 
 interface CodeEditorProps {
   setOutput: React.Dispatch<React.SetStateAction<string>>;
+  onCodeChange?: (code: string) => void; 
 }
 
-export default function CodeEditor({ setOutput }: CodeEditorProps) {
+export default function CodeEditor({ setOutput, onCodeChange }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
 
@@ -31,6 +32,8 @@ export default function CodeEditor({ setOutput }: CodeEditorProps) {
 const executeCode = async () => {
   if (!codeEditorRef.current) return;
   const code = codeEditorRef.current.getValue();
+
+  onCodeChange?.(code);
 
   // Get the language from the Monaco editor
   const currentLanguage = codeEditorRef.current.getModel()?.getLanguageId();
@@ -82,7 +85,6 @@ const executeCode = async () => {
       const provider = new WebsocketProvider("ws://localhost:1234", "temp", ydoc);
       const yDocTextMonaco = ydoc.getText("monaco");
 
-      // Editor binding to Yjs document
       if (codeEditorRef.current) {
         new MonacoBinding(
           yDocTextMonaco,
@@ -91,8 +93,17 @@ const executeCode = async () => {
           provider.awareness
         );
       }
+
+      // Listen to changes and notify parent
+      codeEditorRef.current?.onDidChangeModelContent(() => {
+        const code = codeEditorRef.current?.getValue();
+        if (code !== undefined) {
+          onCodeChange?.(code);
+        }
+      });
     }
   }, [monaco]);
+
 
   return (
     <div>
