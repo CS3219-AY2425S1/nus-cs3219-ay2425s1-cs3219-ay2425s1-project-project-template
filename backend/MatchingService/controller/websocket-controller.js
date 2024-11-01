@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { addUserToQueue } from "./queue-controller.js";
 import { matchingQueue } from "../queue/matching-queue.js";
+import axios from 'axios';
 let io;
 
 // Set up socket.io and handle user interactions
@@ -56,15 +57,6 @@ export const initializeCollaborationService = (server) => {
       }
     });
 
-    // Handle code changes
-    socket.on("sendCode", ({ room, code }) => {
-      socket.to(room).emit("codeChange", code);
-    });
-
-    socket.on("changeLanguage", ({ room, language }) => {
-      socket.to(room).emit("languageChange", language);
-    });
-
     // Handle disconnection
     socket.on("disconnect", async () => {
       const currentJobs = await matchingQueue.getJobs([
@@ -85,27 +77,42 @@ export const initializeCollaborationService = (server) => {
   });
 };
 
-// Notify users when they have been matched
-export const handleUserMatch = (job) => {
-  // Have both users join the room
-
+export const handleUserMatch = async (job) => {
   const { socketId, matchedUserId } = job.data;
   const userSocket = io.sockets.sockets.get(socketId);
   const matchedUserSocket = io.sockets.sockets.get(matchedUserId);
 
+  // Check if matched user socket is available
   if (matchedUserSocket === undefined) {
     notifyUserOfMatchFailed(
       socketId,
-      "Matched user disconnected, pleas try again"
+      "Matched user disconnected, please try again"
     );
+    return;
   }
 
+  // Proceed if user socket is valid
   if (userSocket) {
-    notifyUserOfMatchSuccess(socketId, userSocket, job);
+    // Call the question service to assign a question
+    try {
+      const response = await axios.post('http://question_service:3002/questions/matching', {
+        category: job.data.topic,
+        complexity: job.data.difficulty,
+      });
+      console.log(response.data); // Handle the response
+
+      // Notify user of match success and provide the assigned question ID
+      notifyUserOfMatchSuccess(socketId, userSocket, job, response.data.question_id);
+    } catch (error) {
+      console.error("Error assigning question:", error);
+      notifyUserOfMatchFailed(socketId, "Error assigning question. Please try again.");
+    }
   }
 };
 
-export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
+
+// Update the notifyUserOfMatchSuccess to also accept the question ID
+export const notifyUserOfMatchSuccess = (socketId, socket, job, questionId) => {
   const { matchedUser, userNumber, matchedUserId } = job.data;
 
   const room =
@@ -114,9 +121,11 @@ export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
       : `room-${matchedUserId}-${socketId}`;
   socket.join(room);
 
+  // Emit the matched event with the assigned question ID
   io.to(socketId).emit("matched", {
     message: `You have been matched with user: ${matchedUser}`,
     room,
+    questionId, // Include the question ID in the response
   });
 };
 

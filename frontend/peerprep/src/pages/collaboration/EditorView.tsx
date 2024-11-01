@@ -4,8 +4,6 @@ import { UserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
-import axios from "axios";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import EditorElement from "./EditorElement";
 
 const EditorView: React.FC = () => {
@@ -23,7 +21,7 @@ const EditorView: React.FC = () => {
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic");
   const difficulty = searchParams.get("difficulty");
-  const [code, setCode] = useState<string>("");
+  const [question, setQuestion] = useState<Question | null>(null);
   const api = useQuesApiContext();
 
   useEffect(() => {
@@ -37,9 +35,7 @@ const EditorView: React.FC = () => {
       return;
     }
 
-    socketRef.current = io("http://localhost:8000/", {
-      path: "/api",
-    });
+    socketRef.current = io("http://localhost:8080/");
     const socket = socketRef.current;
 
     if (socket === null) return;
@@ -49,9 +45,10 @@ const EditorView: React.FC = () => {
       socket.emit("joinQueue", { username: user?.username, topic, difficulty });
     });
 
-    socket.on("matched", (data: { message: string; room: string }) => {
+    socket.on("matched", async (data: { message: string; room: string; questionId: string }) => {
       setRoom(data.room);
       setIsMatched(true);
+      await fetchQuestion(data.questionId); // Fetch the question using the questionId
     });
 
     socket.on("queueEntered", (data: { message: string }) => {
@@ -91,22 +88,22 @@ const EditorView: React.FC = () => {
       }
     );
 
-    // Listen for incoming code changes
-    socket.on("codeChange", (newCode: string) => {
-      setCode(newCode);
-    });
-
-    // Listen for language changes
-    socket.on("languageChange", (newLanguage: string) => {
-      setLanguage(newLanguage);
-    });
-
     return () => {
       if (socketRef.current !== null) {
         socketRef.current.disconnect();
       }
     };
   }, []);
+
+  const fetchQuestion = async (questionId: string) => {
+    try {
+      const response = await api.get(`/questionsById?id=${questionId}`);
+      setQuestion(response.data.questions[0]);
+      console.log(response.data.questions[0])
+    } catch (error) {
+      console.error("Error fetching question:", error);
+    }
+  };
 
   const sendMessage = () => {
     if (message.trim() && socketRef && isMatched) {
