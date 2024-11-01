@@ -23,6 +23,7 @@ export interface Match {
   complexity: string[];
   categories: string[];
   question: Question; // Single Question object
+  createdAt: Date
 }
 
 // Mongoose schema for the Question model
@@ -47,6 +48,7 @@ const matchSchema = new Schema<Match>({
   complexity: { type: [String], required: true },
   categories: { type: [String], required: true },
   question: { type: questionSchema, required: true }, // Embedded single Question document
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Create models from schemas

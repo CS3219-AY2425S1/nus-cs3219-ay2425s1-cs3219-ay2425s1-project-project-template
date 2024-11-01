@@ -37,6 +37,7 @@ export function startRabbitMQ(io: Server) {
             complexity: matchResult.Complexity,
             categories: matchResult.Categories,
             question: {} as Question,
+            createdAt: Date.now
           };
 
           try {

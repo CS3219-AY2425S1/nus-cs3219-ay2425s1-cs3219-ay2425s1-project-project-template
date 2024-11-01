@@ -38,6 +38,7 @@ const (
 // MatchingInfo struct includes user matching criteria
 type MatchingInfo struct {
 	UserID               string                    `json:"user_id" bson:"user_id"`
+	Username			 string						`json: "username" bson "username"`
 	SocketID             string                    `json:"socket_id" bson:"socket_id"`
 	DifficultyLevel      []QuestionComplexityEnum  `json:"difficulty_levels" bson:"difficulty_levels"`
 	Categories           []string                  `json:"categories" bson:"categories"`
@@ -64,7 +65,9 @@ type MatchResult struct {
 	UserOneSocketID string `json:"user_one_socket_id"`
 	UserTwoSocketID string `json:"user_two_socket_id"`
 	UserOne     string                  `bson:"userOne"`
+	UsernameOne string 					`bson:"usernameOne`
 	UserTwo     string                  `bson:"userTwo"`
+	UsernameTwo string 					`bson:"usernameTwo`
 	RoomID      string                 `bson:"room_id"`
 	Complexity  []QuestionComplexityEnum `bson:"complexity"`
 	Categories  []string               `bson:"categories"`

@@ -199,7 +199,9 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				UserOneSocketID: matchingInfo.SocketID,
 				UserTwoSocketID: matchedUser.SocketID,
 				UserOne:         matchingInfo.UserID,    // Set UserOne as the ID of the first user
+				UsernameOne:     matchingInfo.Username,
 				UserTwo:         matchedUser.UserID,     // Set UserTwo as the ID of the matched user
+				UsernameTwo:     matchedUser.Username,
 				RoomID:          roomID,                 // Use the roomID generated for this match
 				Complexity:      complexityIntersection, // Pass the intersection of complexities
 				Categories:      categoriesIntersection, // Pass the intersection of categories
