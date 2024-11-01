@@ -7,9 +7,11 @@ import index from './index'
 // @ts-expect-error - Yjs is not typed
 import { setupWSConnection } from 'y-websocket/bin/utils'
 import WebSocket from 'ws'
+import { WebSocketConnection } from './services/socketio.service'
 
 const server: Server = http.createServer(index)
 const wss = new WebSocket.Server({ noServer: true })
+new WebSocketConnection(3009)
 
 server.on('upgrade', (request, socket, head) => {
     const token = request.headers['sec-websocket-protocol']
@@ -18,7 +20,6 @@ server.on('upgrade', (request, socket, head) => {
         socket.destroy()
         return
     }
-    logger.info(`[WS] Token: ${token}`)
     const user = {
         id: '1',
     }
@@ -30,10 +31,8 @@ server.on('upgrade', (request, socket, head) => {
 wss.on('connection', (ws, req, user) => {
     const docName = req.url.slice(1)
     setupWSConnection(ws, req, { docName })
-    logger.info(`User ${user.id} connected to document: ${docName}`)
-    ws.on('close', () => {
-        logger.info(`User ${user.id} disconnected from document: ${docName}`)
-    })
+    logger.info(`User ${user.id} connected to ${docName}`)
+    ws.on('close', () => {})
 })
 
 server.listen(config.PORT, async () => {

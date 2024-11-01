@@ -8,3 +8,7 @@ export async function getUserById(id: string, accessToken: string): Promise<IUse
     })
     return response.data
 }
+
+export async function completeCollaborationSession(matchId: string): Promise<void> {
+    await axios.put(`${config.MATCHING_SERVICE_URL}/matching`, { matchId })
+}
