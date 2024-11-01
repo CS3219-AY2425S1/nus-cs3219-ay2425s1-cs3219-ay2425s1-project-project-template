@@ -46,7 +46,7 @@ const getAllAttemptedQuestions = async (req, res) => {
         
         const questionsRef = db.collection("questions");
 
-        // Fetch documents based on their TIDs using Promise.all for concurrent requests
+        // Fetch questions based on their questionUids using Promise.all for concurrent requests
         const questionsData = await Promise.all(
             questionUids.map(questionUid => questionsRef.doc(questionUid).get())
         );
@@ -54,13 +54,13 @@ const getAllAttemptedQuestions = async (req, res) => {
         // Convert query results into an array of question data
         const questionData = questionsData.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        // Create a map for quick lookup of question details by UID
+        // Create a map for quick lookup of question details by questionUid
         const questionMap = {};
         questionData.forEach(question => {
             questionMap[question.id] = question;
         });
 
-        // Combine question information with attempt date and time
+        // Combine question information with attempt date&time and code written
         const result = questionsAttempted.map(attempt => ({
             ...questionMap[attempt.questionUid],
             dateAttempted: attempt.dateAttempted,
