@@ -23,3 +23,8 @@ export async function getMatchByUserIdandMatchId(userId: string, matchId: string
         $and: [{ isCompleted: false }, { _id: matchId }],
     })
 }
+
+export async function updateMatchCompletion(matchId: string): Promise<boolean> {
+    const match = await matchModel.updateOne({ _id: matchId }, { isCompleted: true })
+    return !!match
+}

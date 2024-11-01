@@ -79,7 +79,9 @@ export const NewSession = () => {
             return
         }
 
-        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_API_URL}/matching/ws/?id=${websocketId}`)
+        const socket = new WebSocket(
+            `${process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3006'}/matching/ws/?id=${websocketId}`
+        )
         socketRef.current = socket
         socketRef.current.onclose = () => {
             updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
@@ -103,7 +105,7 @@ export const NewSession = () => {
                         updateMatchmakingStatus(MatchingStatus.MATCH_FOUND, newMessage.matchId)
                         setTimeout(() => {
                             router.push(`/code/${newMessage.matchId}`)
-                        }, 3000)
+                        }, 1000)
                         break
                     case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
