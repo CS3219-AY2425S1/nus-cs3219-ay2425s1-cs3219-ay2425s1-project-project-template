@@ -41,8 +41,11 @@
     height: 260px;
     background-color: white;
     max-width: 100%;
-    overflow: auto;
     display: block;
+}
+
+.code-area {
+    overflow: auto;
 }
 
 .text-area textarea {
