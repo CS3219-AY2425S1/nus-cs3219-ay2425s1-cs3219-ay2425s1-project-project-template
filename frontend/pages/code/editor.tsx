@@ -42,7 +42,6 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
     useEffect(() => {
         if (!session) return
         const token = session.user.accessToken
-        session?.user.id
         if (!token) return undefined
         const wsProvider = new WebsocketProvider('ws://localhost:3008', roomId, ydoc, {
             protocols: [token],

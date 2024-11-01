@@ -1,20 +1,8 @@
-import 'ace-builds/src-noconflict/ace'
-import 'ace-builds/src-noconflict/mode-javascript'
-import 'ace-builds/src-noconflict/mode-python'
-import 'ace-builds/src-noconflict/mode-java'
-import 'ace-builds/src-noconflict/mode-csharp'
-import 'ace-builds/src-noconflict/mode-golang'
-import 'ace-builds/src-noconflict/mode-ruby'
-import 'ace-builds/src-noconflict/mode-typescript'
-import 'ace-builds/src-noconflict/theme-monokai'
-import 'ace-builds/src-noconflict/ext-language_tools'
-
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
 import { ITestcase } from '@/types'
 import { mockChatData, mockTestCaseData, mockUserData } from '@/mock-data'
 import { useEffect, useRef, useState } from 'react'
 
-import AceEditor from 'react-ace'
 import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
 import CustomTabs from '@/components/customs/custom-tabs'
@@ -30,8 +18,8 @@ import { Category, IMatch, SortedComplexity } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { getMatchDetails } from '@/services/matching-service-api'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
-import { ReloadIcon } from '@radix-ui/react-icons'
-import { toast } from 'sonner'
+import io, { Socket } from 'socket.io-client'
+import UserAvatar from '@/components/customs/custom-avatar'
 
 interface ICollaborator {
     name: string
@@ -78,8 +66,9 @@ export default function Code() {
     const [editorLanguage, setEditorLanguage] = useState('javascript')
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
-    const [endSessionPressed, setEndSessionPressed] = useState(false)
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
+    const socketRef = useRef<Socket | null>(null)
+    const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -96,6 +85,43 @@ export default function Code() {
 
     useEffect(() => {
         retrieveMatchDetails()
+    }, [])
+
+    useEffect(() => {
+        socketRef.current = io('ws://localhost:3009', {
+            auth: {
+                token: sessionData?.user.accessToken,
+                name: sessionData?.user.username,
+                roomId: id as string,
+            },
+        })
+
+        socketRef.current.on('connect', () => {
+            if (socketRef.current) {
+                socketRef.current.emit('joinRoom', { roomId: id })
+                console.log('Connected and joined room:', id)
+            }
+        })
+
+        socketRef.current.on('user-connected', (username: string) => {
+            console.log('triggered')
+            if (username !== sessionData?.user.username) {
+                setIsOtherUserOnline(true)
+            }
+        })
+
+        socketRef.current.on('user-disconnected', (username: string) => {
+            console.log('triggered')
+            if (username !== sessionData?.user.username) {
+                setIsOtherUserOnline(false)
+            }
+        })
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect()
+            }
+        }
     }, [])
 
     // Ref for autoscroll the last chat message
@@ -134,11 +160,9 @@ export default function Code() {
         setEditorLanguage(value)
     }
 
-    const editorRef = useRef<AceEditor | null>(null)
-
     const handleRunTests = () => {
-        const currCode = editorRef.current?.editor?.getValue()
-        console.log(currCode)
+        // const currCode = editorRef.current?.editor?.getValue()
+        // console.log(currCode)
     }
 
     const handleActiveTestTabChange = (tab: number) => {
@@ -147,12 +171,10 @@ export default function Code() {
     }
 
     const handleEndSession = () => {
-        setEndSessionPressed(!endSessionPressed)
-        // TODO: Add end session logic + confirmation dialog + wait for room to be implemented
+        if (socketRef.current) {
+            socketRef.current.disconnect()
+        }
         router.push('/')
-        // if (endSessionPressed) {
-        //     router.push('/')
-        // }
     }
 
     const { loading } = useProtectedRoute()
@@ -250,17 +272,20 @@ export default function Code() {
                             Submit
                         </Button>
                     </div>
-                    {endSessionPressed ? (
-                        <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
-                            <ReloadIcon className="mr-1 animate-spin" />
-                            Please wait
-                        </Button>
-                    ) : (
+                    <div className="flex flex-row">
+                        <UserAvatar
+                            username={
+                                matchData?.user1Id === sessionData?.user.id
+                                    ? matchData?.user2Name
+                                    : matchData?.user1Name
+                            }
+                            isOnline={isOtherUserOnline}
+                        />
                         <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
                             <EndIcon fill="white" className="mr-2" />
                             End session
                         </Button>
-                    )}
+                    </div>
                 </div>
                 <div id="editor-container" className="mt-4">
                     <div id="language-mode-select" className="rounded-t-xl bg-black">
