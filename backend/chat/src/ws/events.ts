@@ -9,4 +9,5 @@ export const WS_SERVER_EVENT = {
   JOINED_ROOM: 'joinedRoom',
   LEFT_ROOM: 'leftRoof',
   NEW_MESSAGE: 'newMessage',
+  MESSAGE_HISTORY: 'messageHistory',
 };

@@ -1,4 +1,4 @@
-import { useCallback,useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 import { CHAT_SOCKET } from '@/services/api-clients';
@@ -16,6 +16,7 @@ const WS_EVENT = {
   LEFT_ROOM: 'leftRoof',
   NEW_MESSAGE: 'newMessage',
   DISCONNECT: 'disconnect',
+  MESSAGE_HISTORY: 'messageHistory',
 };
 
 interface UseChatProps {
@@ -53,6 +54,11 @@ export const useChat = ({ roomId }: UseChatProps) => {
       console.log(`Joined room: ${roomId}`);
     });
 
+    socket.on(WS_EVENT.MESSAGE_HISTORY, (data: Message[]) => {
+      setMessages(data);
+      console.log(`Retrieved Message history`);
+    });
+
     socket.on(WS_EVENT.DISCONNECT, () => {
       console.log('Disconnected from server');
       setConnected(false);
@@ -76,7 +82,7 @@ export const useChat = ({ roomId }: UseChatProps) => {
         roomId,
         senderId: userId,
         message: messageContent,
-        createdAt: Date.now().toString(),
+        createdAt: Date.now(),
       };
 
       socketRef.current?.emit(WS_EVENT.SEND_MESSAGE, messageData);

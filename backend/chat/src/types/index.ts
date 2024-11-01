@@ -3,5 +3,5 @@ export interface IChatMessage {
   roomId: string;
   senderId: string;
   message: string;
-  createdAt: Date;
+  createdAt: number;
 }

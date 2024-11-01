@@ -99,7 +99,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   );
 };
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => {
+export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -299,22 +299,3 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => {
     </div>
   );
 };
-
-const FloatingChatButton: React.FC = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-
-  return (
-    <>
-      <Button
-        className='fixed bottom-6 right-6 size-12 rounded-full bg-blue-500 shadow-lg transition-transform hover:scale-105 hover:bg-blue-600'
-        onClick={() => setIsSidebarOpen(true)}
-      >
-        <MessageSquare className='size-6' />
-      </Button>
-
-      <ChatSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-    </>
-  );
-};
-
-export default FloatingChatButton;

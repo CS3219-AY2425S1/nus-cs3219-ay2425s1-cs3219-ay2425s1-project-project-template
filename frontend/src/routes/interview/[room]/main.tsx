@@ -4,6 +4,7 @@ import { type LoaderFunctionArgs, Navigate, useLoaderData } from 'react-router-d
 
 import { WithNavBanner, WithNavBlocker } from '@/components/blocks/authed';
 import { Editor } from '@/components/blocks/interview/editor';
+import { FloatingChatButton } from '@/components/blocks/interview/floating-chat-button';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
 import { useCrumbs } from '@/lib/hooks';
@@ -35,12 +36,15 @@ export const InterviewRoom = () => {
   ) : (
     <WithNavBlocker>
       <WithNavBanner crumbs={crumbs}>
-        <div className='flex flex-1 overflow-hidden'>
-          <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
-            <QuestionDetails {...{ questionDetails }} />
-          </Card>
-          <div className='flex flex-1 flex-col overflow-hidden'>
-            <Editor room={roomId as string} />
+        <div className='flex'>
+          <div className='flex flex-1 overflow-hidden'>
+            <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
+              <QuestionDetails {...{ questionDetails }} />
+            </Card>
+            <div className='flex flex-1 flex-col overflow-hidden'>
+              <Editor room={roomId as string} />
+            </div>
+            <FloatingChatButton room={roomId as string} />
           </div>
         </div>
       </WithNavBanner>
