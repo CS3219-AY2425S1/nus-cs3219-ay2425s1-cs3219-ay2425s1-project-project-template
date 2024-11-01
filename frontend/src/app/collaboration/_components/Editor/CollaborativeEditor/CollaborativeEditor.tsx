@@ -23,7 +23,7 @@ export default function CollaborativeEditor({
   sessionId,
   currentUser,
   socketUrl = "ws://localhost:4001",
-  language = "typescript",
+  language = "python",
   themeName = "dracula",
 }: CollaborativeEditorProps) {
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
