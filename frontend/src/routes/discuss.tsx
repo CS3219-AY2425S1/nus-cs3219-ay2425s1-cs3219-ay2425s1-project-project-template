@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Timer } from 'lucide-react';
+} from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, Timer } from "lucide-react";
 import {
   MATCH_TIMEOUT_DURATION,
   MATCH_FOUND_MESSAGE_TYPE,
@@ -22,16 +22,17 @@ import {
   MATCH_FOUND_SOUND_PATH,
 } from '@/lib/consts';
 import { useQuestionCategories } from '@/hooks/useQuestions';
+import { getToken } from "@/lib/utils";
 
-const difficultyLevels = ['Easy', 'Medium', 'Hard'];
+const difficultyLevels = ["Easy", "Medium", "Hard"];
 
 interface IdleViewProps {
   onStartMatching: (topic: string, difficulty: string) => void;
 }
 
 const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
-  const [topic, setTopic] = useState('');
-  const [difficulty, setDifficulty] = useState('');
+  const [topic, setTopic] = useState("");
+  const [difficulty, setDifficulty] = useState("");
   const [showErrors, setShowErrors] = useState(false);
 
   const { data: topics, isLoading } = useQuestionCategories();
@@ -114,7 +115,10 @@ interface WaitingViewProps {
   onCancel: () => void;
 }
 
-const WaitingView: React.FC<WaitingViewProps> = ({ queuePosition, onCancel }) => {
+const WaitingView: React.FC<WaitingViewProps> = ({
+  queuePosition,
+  onCancel,
+}) => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -128,7 +132,7 @@ const WaitingView: React.FC<WaitingViewProps> = ({ queuePosition, onCancel }) =>
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   return (
@@ -253,26 +257,26 @@ const ErrorView: React.FC<ErrorViewProps> = ({ onRetry }) => (
 );
 
 export default function DiscussRoute() {
-  const [matchStatus, setMatchStatus] = React.useState('idle');
+  const [matchStatus, setMatchStatus] = React.useState("idle");
   const [queuePosition, setQueuePosition] = React.useState(0);
-  const [roomId, setRoomId] = React.useState('');
-  const [userId] = React.useState(Math.random().toString().split('.')[1]);
+  const [roomId, setRoomId] = React.useState("");
+  const [userId] = React.useState(Math.random().toString().split(".")[1]);
 
   const ws = useRef<WebSocket | null>(null);
   const matchSound = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     ws.current = new WebSocket(
-      `ws://localhost:8082/ws/matching?userId=${userId}`
+      `ws://localhost:8080/ws/matching?userId=${userId}`
     );
 
     ws.current.onopen = () => {
-      console.log('WebSocket Connected');
+      console.log("WebSocket Connected");
     };
 
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log('Received message:', message);
+      console.log("Received message:", message);
 
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
@@ -291,13 +295,13 @@ export default function DiscussRoute() {
     // };
 
     ws.current.onclose = (event) => {
-      console.log('WebSocket closed:', event);
+      console.log("WebSocket closed:", event);
       if (event.wasClean) {
         console.log(
           `Closed cleanly, code=${event.code}, reason=${event.reason}`
         );
       } else {
-        console.error('Connection died');
+        console.error("Connection died");
       }
     };
 
@@ -318,10 +322,11 @@ export default function DiscussRoute() {
   ) => {
     setMatchStatus(MATCH_WAITING_STATUS);
     try {
-      const response = await fetch('http://localhost:8082/api/match', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8080/api/match", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
           userId: userId,
@@ -331,11 +336,11 @@ export default function DiscussRoute() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to start matching');
+        throw new Error("Failed to start matching");
       }
 
       const result = await response.json();
-      console.log('Matching request sent:', result);
+      console.log("Matching request sent:", result);
 
       // Start a 30-second timeout
       const timeoutId = setTimeout(() => {
@@ -347,24 +352,30 @@ export default function DiscussRoute() {
       // Clear the timeout if the component unmounts or if we get a match
       return () => clearTimeout(timeoutId);
     } catch (error) {
-      console.error('Error starting match:', error);
+      console.error("Error starting match:", error);
       setMatchStatus(MATCH_ERROR_STATUS);
     }
   };
 
   const cancelMatching = async () => {
     try {
-      const response = await fetch(`http://localhost:8082/api/match/${userId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/match/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to cancel matching');
+        throw new Error("Failed to cancel matching");
       }
 
       setMatchStatus(MATCH_IDLE_STATUS);
     } catch (error) {
-      console.error('Error cancelling match:', error);
+      console.error("Error cancelling match:", error);
       setMatchStatus(MATCH_ERROR_STATUS);
     }
   };
@@ -373,7 +384,7 @@ export default function DiscussRoute() {
   const resetState = () => {
     setMatchStatus(MATCH_IDLE_STATUS);
     setQueuePosition(0);
-    setRoomId('');
+    setRoomId("");
 
     // Close existing WebSocket connection
     if (ws.current) {
@@ -381,17 +392,17 @@ export default function DiscussRoute() {
     }
 
     ws.current = new WebSocket(
-      `ws://localhost:8082/ws/matching?userId=${userId}`
+      `ws://localhost:8080/ws/matching?userId=${userId}`
     );
 
     // Re-attach event listeners
     ws.current.onopen = () => {
-      console.log('WebSocket Reconnected');
+      console.log("WebSocket Reconnected");
     };
 
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log('Received message:', message);
+      console.log("Received message:", message);
 
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
@@ -405,7 +416,7 @@ export default function DiscussRoute() {
     };
 
     ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
       setMatchStatus(MATCH_ERROR_STATUS);
     };
   };

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Question, QuestionsArraySchema } from '../types/question';
+import { Question, QuestionsArraySchema } from "../types/question";
 import { QUESTION_API_BASE_URL } from '@/lib/consts';
+import { getToken } from "@/lib/utils";
 
 async function fetchQuestions(): Promise<Question[]> {
   const response = await fetch(`${QUESTION_API_BASE_URL}`);
@@ -17,10 +18,18 @@ export function useQuestions() {
     queryKey: ["questions"],
     queryFn: fetchQuestions,
   });
-};
+}
 
 async function fetchQuestionCategories(): Promise<string[]> {
-  const response = await fetch(`${QUESTION_API_BASE_URL}/categories`);
+  const token = getToken();
+  const response = await fetch(
+   `${QUESTION_API_BASE_URL}/categories`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
@@ -34,4 +43,4 @@ export function useQuestionCategories() {
     queryKey: ["questionCategories"],
     queryFn: fetchQuestionCategories,
   });
-};
+}
