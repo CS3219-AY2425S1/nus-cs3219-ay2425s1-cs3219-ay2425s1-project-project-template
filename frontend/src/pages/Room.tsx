@@ -59,28 +59,33 @@ function Room() {
     socketRef.current.on('load-code', (newCode) => setCode(newCode));
 
     socketRef.current.on('code-updated', (newCode) => {
-      // Capture the current cursor position
-      let cursorHead: number = 0;
-      let cursorAnchor: number = 0;
+      // Capture the current cursor position as line and column
+      let cursorLine = 0;
+      let cursorColumn = 0;
       if (viewUpdateRef.current) {
-        cursorHead = viewUpdateRef.current.view.state.selection.main.head;
-        cursorAnchor = viewUpdateRef.current.view.state.selection.main.anchor;
+        const { head } = viewUpdateRef.current.view.state.selection.main;
+        const pos = viewUpdateRef.current.view.state.doc.lineAt(head);
+        cursorLine = pos.number - 1; // Adjusting for 0-based index
+        cursorColumn = head - pos.from;
       }
     
       // Update the code with the new content
       isRemoteUpdateRef.current = true;
       setCode(newCode);
     
-      // Restore cursor position after the code has been updated
+      // Restore line and column position after the code has been updated
       setTimeout(() => {
         if (viewUpdateRef.current) {
+          const line = viewUpdateRef.current.view.state.doc.line(cursorLine + 1); // Adjusting back to 1-based
+          const newPos = line.from + cursorColumn;
           viewUpdateRef.current.view.dispatch({
-            selection: { anchor: cursorAnchor, head: cursorHead },
+            selection: { anchor: newPos, head: newPos },
           });
-          console.log(cursorAnchor, cursorHead);
+          console.log(`Restored position: Line ${cursorLine + 1}, Column ${cursorColumn}`);
         }
       }, 5);
     });
+    
     
 
     socketRef.current.on('user-joined', () => {
