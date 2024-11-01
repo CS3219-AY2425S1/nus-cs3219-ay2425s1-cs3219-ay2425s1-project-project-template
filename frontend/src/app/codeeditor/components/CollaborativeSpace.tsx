@@ -30,7 +30,6 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
 
   useEffect(() => {
     // websocket link updated 
-    // REPLACE WITH wss:localhost:5004 IF RUNNING WITH NPM RUN DEV. THIS SETUP IS FOR DOCKER.
     const provider = new WebsocketProvider('ws://localhost:5004', roomId, ydoc);
     setProvider(provider);
 

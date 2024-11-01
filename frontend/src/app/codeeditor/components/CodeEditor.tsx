@@ -25,29 +25,51 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [collabProvider, setProvider] = useState<WebsocketProvider | null>(provider);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
+  const awareness = collabProvider?.awareness
+
+  if (awareness != null) {
+    awareness.on('change', () => {
+      // Whenever somebody updates their awareness information,
+      // we log all awareness information from all users.
+      console.log(Array.from(awareness.getStates().values()))
+    })
+  }
+
   useEffect(() => {
     if (collabProvider == null || editor == null) {
       return
     }
-    const binding = new MonacoBinding(ydoc.getText(), editor.getModel()!, new Set([editor]), collabProvider?.awareness)
+    const ytext = ydoc.getText('monaco');
+
+    const binding = new MonacoBinding(ytext, editor.getModel()!, new Set([editor]), collabProvider?.awareness)
     setBinding(binding)
     return () => {
       binding.destroy()
     }
   }, [ydoc, collabProvider, editor])
 
+
   // useEffect(() => {
   //   const ytext = ydoc.getText('monaco');
-
+  //   console.log('ytext length:', ytext.length);
+  //   console.log('initialCode:', initialCode);
   //   // Initialize the shared text with initialCode
   //   if (ytext.length === 0 && initialCode) {
   //     ytext.insert(0, initialCode);
   //   }
+  //   editor.setValue(ytext.toString());
   // }, [ydoc, initialCode]);
 
   const handleEditorDidMount: OnMount = (editor) => {
     setEditor(editor);
-
+    const ytext = ydoc.getText('monaco');
+    console.log('ytext length:', ytext.length);
+    console.log('initialCode:', initialCode);
+    // Initialize the shared text with initialCode
+    if (ytext.length === 0 && initialCode) {
+      ytext.insert(0, initialCode);
+    }
+    editor.setValue(ytext.toString());
   };
 
   return (
