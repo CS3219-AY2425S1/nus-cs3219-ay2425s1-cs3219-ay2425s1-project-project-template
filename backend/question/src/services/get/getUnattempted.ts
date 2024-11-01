@@ -2,7 +2,7 @@
 import { and, eq, or, sql } from 'drizzle-orm';
 
 import { db } from '@/lib/db/index';
-import { questionAttempts,questions } from '@/lib/db/schema';
+import { questionAttempts, questions } from '@/lib/db/schema';
 
 // Fetch an unattempted question or fallback to the least attempted one
 
@@ -15,7 +15,46 @@ export const getUnattemptedOrLeastAttemptedQuestion = async (
   // Convert topics to varchar[] format if provided
   const topicsArray = topics && topics.length > 0 ? topics : [];
 
-  // First, try to find unattempted questions for userId1
+  if (userId2) {
+    const unattemptedQueryBoth = await db
+      .select()
+      .from(questions)
+      .leftJoin(
+        questionAttempts,
+        and(
+          eq(questions.id, questionAttempts.questionId),
+          or(
+            eq(questionAttempts.userId1, userId1),
+            eq(questionAttempts.userId2, userId1),
+            eq(questionAttempts.userId1, userId2),
+            eq(questionAttempts.userId2, userId2)
+          )
+        )
+      )
+      .where(
+        and(
+          // Ensure the question has not been attempted by either userId1 or userId2
+          sql`${questionAttempts.questionId} IS NULL`,
+
+          // Apply topics filter if provided
+          topicsArray.length > 0
+            ? sql`${questions.topic} && ARRAY[${topicsArray.map((topic) => sql`${topic}`)}]::varchar[]`
+            : sql`true`,
+
+          // Filter by difficulty if provided
+          difficulty ? eq(questions.difficulty, difficulty) : sql`true`
+        )
+      )
+      .orderBy(sql`RANDOM()`)
+      .limit(1);
+
+    // If unattempted questions for both users are found, return the first result
+    if (unattemptedQueryBoth.length > 0) {
+      return unattemptedQueryBoth[0];
+    }
+  }
+
+  // try to find unattempted questions for userId1
   const unattemptedQueryUser1 = await db
     .select()
     .from(questions)
