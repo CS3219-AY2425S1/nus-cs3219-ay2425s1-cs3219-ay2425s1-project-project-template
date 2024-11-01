@@ -105,7 +105,7 @@ jobs:
         echo "Outputs Generated: $formatted_matrix"
         echo "matrix=$formatted_matrix" >> $GITHUB_OUTPUT
 
-  build-and-push-image:
+  build-push-deploy-image:
     needs: changes
     if: ${{ fromJson(needs.changes.outputs.matrix)[0] != null }}
     runs-on: ubuntu-latest
@@ -186,14 +186,38 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Setup GCloud
+        uses: google-github-actions/setup-gcloud@v2
+        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && env.IS_GKE_CLUSTER_UP }}
+        with: 
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+      
+      - name: Get GKE creds
+        uses: google-github-actions/get-gke-credentials@v2
+        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && env.IS_GKE_CLUSTER_UP }}
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_ZONE }}
+          credentials: ${{ secrets.GKE_SA_KEY }}
+      
+      - name: Deploy to GKE
+        if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && env.IS_GKE_CLUSTER_UP }}
+        run: |-
+          deployments=("collab-service" "matching-service" "question-service" "user-service" "frontend")
+          for dplymnt in "${deployments[@]}"; do
+            kubectl -n peerprep rollout restart deployment "$dplymnt"
+          done
+
+
   results:
     if: ${{ always() && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     name: Final Results
-    needs: build-and-push-image
+    needs: build-push-deploy-image
     steps:
       - run: |
-          result="${{ needs.build-and-push-image.result }}"
+          result="${{ needs.build-push-deploy-image.result }}"
           if [[ $result == "success" || $result == "skipped" ]]; then
             exit 0
           else

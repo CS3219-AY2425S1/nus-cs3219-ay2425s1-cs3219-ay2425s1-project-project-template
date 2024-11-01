@@ -64,7 +64,7 @@ spec:
       containers:
         - name: user-express
           image: ay2425s1cs3219g16/user-express:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           envFrom:
           - secretRef: 
               name: user-secret

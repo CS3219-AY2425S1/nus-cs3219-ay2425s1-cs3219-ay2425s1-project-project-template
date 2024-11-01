@@ -56,7 +56,7 @@ spec:
               containerPort: 5432
           volumeMounts:
             - name: collab-db-vol
-              mountPath: /data/collab-db  
+              mountPath: /data 
   volumeClaimTemplates:
     - metadata:
         name: collab-db-vol

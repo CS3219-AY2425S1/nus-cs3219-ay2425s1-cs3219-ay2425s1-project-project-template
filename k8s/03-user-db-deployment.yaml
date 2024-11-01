@@ -56,7 +56,7 @@ spec:
               containerPort: 5432
           volumeMounts:
             - name: user-db-vol
-              mountPath: /data/user-db  
+              mountPath: /data
   volumeClaimTemplates:
     - metadata:
         name: user-db-vol

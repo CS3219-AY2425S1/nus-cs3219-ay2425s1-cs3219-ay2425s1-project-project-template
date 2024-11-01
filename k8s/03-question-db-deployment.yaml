@@ -56,7 +56,7 @@ spec:
               containerPort: 5432
           volumeMounts:
             - name: question-db-vol
-              mountPath: /data/question-db  
+              mountPath: /data
   volumeClaimTemplates:
     - metadata:
         name: question-db-vol
