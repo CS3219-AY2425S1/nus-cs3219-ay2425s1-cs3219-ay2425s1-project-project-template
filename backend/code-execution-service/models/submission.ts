@@ -1,7 +1,6 @@
 import { Schema, model, models, Document } from 'mongoose';
 
 export interface ISubmission extends Document {
-    submissionId: number
     collaborators: number[]
     questionId: number
     language: string
@@ -13,7 +12,6 @@ export interface ISubmission extends Document {
 
 const SubmissionSchema = new Schema<ISubmission>(
     {
-        submissionId: { type: Number, required: true, unique: true },
         collaborators: { type: [Number], required: true, default: [] },
         questionId: { type: Number, required: true, index: true },
         language: { type: String, required: true },

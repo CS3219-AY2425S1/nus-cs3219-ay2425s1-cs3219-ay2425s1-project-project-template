@@ -1,11 +1,12 @@
 import axios from 'axios'
 import { Response } from 'express'
 import logger from '../utils/logger'
-import { CodeExecutionRequest, ExecutionResult, TestCase, languageExtensions } from '../models/types'
-import { formatTestInput } from '../utils/utils'
+import { CodeSubmissionRequest, ExecutionResult, TestCase, languageExtensions } from '../models/types'
+import { formatTestInput, countNumberOfPassedTestCases, passedAllTestCases } from '../utils/utils'
+import Submission from '../models/submission'
 
-const executeCodeController = async (req: CodeExecutionRequest, res: Response): Promise<Response> => {
-    const { questionId, code, language } = req.body
+const submitUserCode = async (req: CodeSubmissionRequest, res: Response): Promise<Response> => {
+    const { questionId, collaborators, code, language } = req.body
 
     if (!questionId || !code || !language) {
         return res
@@ -86,17 +87,20 @@ const executeCodeController = async (req: CodeExecutionRequest, res: Response): 
             output: codeOutput[i]?.trim() || '',
             passed: String(tc.expected) == codeOutput[i]?.trim(),
         }))
+        
+        const submission = new Submission({
+            collaborators,
+            questionId,
+            code,
+            language,
+            solved: passedAllTestCases(results),
+            testCasesPassed: countNumberOfPassedTestCases(results),
+            testCasesTotal: testCases.length,
+        })
+        await submission.save()
 
-        const response = {
-            success: results.every((result) => result.passed),
-            results,
-            compilationOutput: executeCodeRes.data.compilationOutput,
-            error: executeCodeRes.data.stderr,
-        }
-
-        const submissionOutcomeMsg = response.success ? 'All test cases passed' : 'Some test cases failed'
-        logger.info(`Result of user submission: ${submissionOutcomeMsg}`)
-        return res.status(200).json(response)
+        logger.info('Submission saved successfully', submission)
+        return res.status(200).json(submission)
     } catch (e) {
         logger.error('Error appeared when executing code', e)
         return res
@@ -105,4 +109,4 @@ const executeCodeController = async (req: CodeExecutionRequest, res: Response): 
     }
 }
 
-export { executeCodeController }
+export { submitUserCode }

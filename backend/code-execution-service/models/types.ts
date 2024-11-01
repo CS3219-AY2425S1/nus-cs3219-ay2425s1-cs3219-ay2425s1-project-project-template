@@ -8,6 +8,15 @@ export interface CodeExecutionRequest extends Request {
     }
 }
 
+export interface CodeSubmissionRequest extends Request {
+    body: {
+        questionId: number
+        collaborators: number[]
+        code: string
+        language: string
+    }
+}
+
 export interface TestCase {
     input: any
     expected: any
