@@ -27,14 +27,11 @@ def produce_message(message):
         if os.getenv('ENV') == "PROD":
             credentials = pika.PlainCredentials(os.getenv('RABBITMQ_USER'), 
                                                 os.getenv('RABBITMQ_PASSWORD'))
-            parameters = pika.ConnectionParameters(host=RABBITMQ_HOST, 
+            parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
+                                                   port=5671,
                                                    virtual_host=os.getenv('RABBITMQ_VHOST'), 
                                                    credentials=credentials, 
                                                    ssl_options=pika.SSLOptions(ssl_context))
-            print("RABBITMQ_HOST: " + RABBITMQ_HOST, file=sys.stderr)
-            print("RABBITMQ_VHOST: " + os.getenv('RABBITMQ_VHOST'), file=sys.stderr)
-            print("RABBITMQ_USER: " + os.getenv('RABBITMQ_USER'), file=sys.stderr)
-            print("RABBITMQ_PASSWORD: " + os.getenv('RABBITMQ_PASSWORD'), file=sys.stderr)
             connection = pika.BlockingConnection(parameters)
         else:
             credentials = pika.PlainCredentials('peerprep', 'peerprep')
