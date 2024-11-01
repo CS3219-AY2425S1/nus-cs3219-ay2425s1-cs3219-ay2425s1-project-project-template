@@ -33,7 +33,7 @@ const fakeQuestionHistory: QuestionHistory[] = [
     ],
     constraints: ["Singapore"],
     dateAttempted: "2021-08-01T00:00:00.000Z",
-    attempt: "Singapore",
+    codeWritten: "Singapore",
   },
   {
     id: "question2",
@@ -50,7 +50,7 @@ const fakeQuestionHistory: QuestionHistory[] = [
     ],
     constraints: ["Kuala Lumpur"],
     dateAttempted: "2023-08-01T00:00:00.000Z",
-    attempt: "Kuala Lumpur",
+    codeWritten: "Kuala Lumpur",
   },
 ];
 

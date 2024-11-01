@@ -16,7 +16,7 @@ const QuestionHistoryCard: React.FC<QuestionHistoryProps> = ({
   questionHistory,
   variant = "default",
 }) => {
-  const { dateAttempted, attempt, ...question } = questionHistory;
+  const { dateAttempted, codeWritten, ...question } = questionHistory;
 
   return (
     <Card variant={variant} className="w-full h-full grid grid-cols-2">
@@ -34,7 +34,7 @@ const QuestionHistoryCard: React.FC<QuestionHistoryProps> = ({
 
         <div className="flex flex-col h-full w-full">
           <h3 className="text-muted-foreground mb-2">Your Attempt</h3>
-          <Editor height="100%" value={attempt} options={{ readOnly: true }} />
+          <Editor height="100%" value={codeWritten} options={{ readOnly: true }} />
         </div>
       </div>
     </Card>
