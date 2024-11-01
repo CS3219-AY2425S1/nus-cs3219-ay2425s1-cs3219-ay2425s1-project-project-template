@@ -13,7 +13,14 @@ import ssl
 
 load_dotenv()
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, resources={r"/*": {
+    "origins": "https://frontend-313275155433.asia-southeast1.run.app",
+    "methods": ["GET", "POST", "DELETE", "PUT", "PATCH"],
+    "allow_headers": ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+    "supports_credentials": True
+}})
+
 sio = socketio.Client()
 NOTIFICATION_SERVICE = "https://notification-service-313275155433.asia-southeast1.run.app" \
 if os.getenv('ENV') == "PROD" else os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
@@ -50,7 +57,6 @@ def produce_message(message):
 
 pending_requests = []
 
-
 def match_user(request):
     print(f"trying to find matches with incoming request {request}", file=sys.stderr)
     topic, difficulty = request['topic'], request['difficulty']
@@ -82,7 +88,6 @@ def match_user(request):
     # Set timer to remove the request after 60 seconds
     threading.Timer(60.0, remove_request, [request]).start()
 
-
 def get_match_payload(user1, user2, match_message):
     return {
         "user1Id": user1['userId'],
@@ -92,11 +97,9 @@ def get_match_payload(user1, user2, match_message):
         "message": match_message
     }
 
-
 def remove_request(request):
     if request in pending_requests:
         pending_requests.remove(request)
-
 
 def consume_messages():
     print("Trying")
@@ -131,7 +134,6 @@ def consume_messages():
     except Exception as e:
         print("Failed: " + str(e), file=sys.stderr)
         traceback.print_exc()
-
 
 @sio.event
 def connect():
