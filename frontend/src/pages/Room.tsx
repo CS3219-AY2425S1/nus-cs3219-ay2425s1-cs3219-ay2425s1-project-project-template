@@ -81,9 +81,8 @@ function Room() {
           viewUpdateRef.current.view.dispatch({
             selection: { anchor: newPos, head: newPos },
           });
-          console.log(`Restored position: Line ${cursorLine + 1}, Column ${cursorColumn}`);
         }
-      }, 5);
+      }, 5); // the delay to be set may vary from device to device
     });
     
     
