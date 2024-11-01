@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 my-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 my-3">
         <Input
           placeholder="Filter"
           value={globalFilter}
