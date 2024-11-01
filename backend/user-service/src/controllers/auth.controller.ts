@@ -1,14 +1,14 @@
 import { IAuthenticatedRequest, ITypedBodyRequest } from '@repo/request-types'
-import { findOneUserByEmail, updateUser } from '../models/user.repository'
 import { generateOTP, sendMail } from '../common/mail.util'
+import { findOneUserByEmail, updateUser } from '../models/user.repository'
 
-import { EmailVerificationDto } from '../types/EmailVerificationDto'
-import { Response } from 'express'
-import { UpdatePasswordDto } from '../types/UpdatePasswordDto'
 import { ValidationError } from 'class-validator'
-import { generateAccessToken } from '../common/token.util'
-import { getHTMLTemplate } from '../common/template.util'
+import { Response } from 'express'
 import { hashPassword } from '../common/password.util'
+import { getHTMLTemplate } from '../common/template.util'
+import { generateAccessToken } from '../common/token.util'
+import { EmailVerificationDto } from '../types/EmailVerificationDto'
+import { UpdatePasswordDto } from '../types/UpdatePasswordDto'
 
 export async function handleLogin({ user }: IAuthenticatedRequest, response: Response): Promise<void> {
     const accessToken = await generateAccessToken(user)
@@ -26,7 +26,7 @@ export async function handleReset(request: ITypedBodyRequest<EmailVerificationDt
     createDto.verificationToken = '0'
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
@@ -60,7 +60,7 @@ export async function handleVerify(
     const createDto = EmailVerificationDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
@@ -86,7 +86,7 @@ export async function handleUpdate(request: ITypedBodyRequest<UpdatePasswordDto>
     const createDto = UpdatePasswordDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
