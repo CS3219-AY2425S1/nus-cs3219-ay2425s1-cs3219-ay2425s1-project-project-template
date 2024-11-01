@@ -201,15 +201,12 @@ jobs:
           prev_step_success="${{ steps.gcloud-auth.outcome }}"
           if [[ "$prev_step_success" != "success" ]]; then
             echo "is_up=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-        
-          clusters="$(gcloud container clusters list)"
-          is_up="$(echo $clusters | grep ${{ secrets.GKE_CLUSTER }})"
-          if [[ -z "$is_up" ]]; then
-            echo "is_up=false" >> $GITHUB_OUTPUT
-          else
-            echo "is_up=true" >> $GITHUB_OUTPUT
+          else 
+            if [[ -z "$(gcloud container clusters list | grep ${{ secrets.GKE_CLUSTER }})" ]]; then
+              echo "is_up=false" >> $GITHUB_OUTPUT
+            else
+              echo "is_up=true" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Get GKE creds
