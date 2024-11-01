@@ -17,6 +17,7 @@ CORS(app)
 sio = socketio.Client()
 NOTIFICATION_SERVICE = "https://notification-service-313275155433.asia-southeast1.run.app" \
 if os.getenv('ENV') == "PROD" else os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
+# NOTIFICATION_SERVICE = os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
 
 PORT = int(os.environ.get('PORT', 5001))
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
@@ -31,6 +32,10 @@ def produce_message(message):
                                                    virtual_host=os.getenv('RABBITMQ_VHOST'), 
                                                    credentials=credentials, 
                                                    ssl_options=pika.SSLOptions(ssl_context))
+            print("RABBITMQ_HOST: " + RABBITMQ_HOST, file=sys.stderr)
+            print("RABBITMQ_VHOST: " + os.getenv('RABBITMQ_VHOST'), file=sys.stderr)
+            print("RABBITMQ_USER: " + os.getenv('RABBITMQ_USER'), file=sys.stderr)
+            print("RABBITMQ_PASSWORD: " + os.getenv('RABBITMQ_PASSWORD'), file=sys.stderr)
             connection = pika.BlockingConnection(parameters)
         else:
             credentials = pika.PlainCredentials('peerprep', 'peerprep')
