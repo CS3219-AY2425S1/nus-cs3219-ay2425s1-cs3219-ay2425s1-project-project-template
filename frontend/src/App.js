@@ -9,6 +9,7 @@ import { UserPage } from "./pages/UserPage";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { Match } from "./pages/Match";
+import { Collaboration } from "./pages/Collaboration";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] =  useState(false);
@@ -81,6 +82,7 @@ function App() {
         <Route path='/questions/:id' element={<PrivateRoute element={<Question />} isAuthenticated={isAuthenticated} />} />
         <Route path="/profile" element={<PrivateRoute element={<UserPage />} isAuthenticated={isAuthenticated} />} />
         <Route path="/match" element={<PrivateRoute element={<Match />} isAuthenticated={isAuthenticated} />} />
+        <Route path="/collab" element={<Collaboration />} />
         <Route path="*" element={<p>404: Page Not Found!</p>} />
       </Routes>
     </div>
