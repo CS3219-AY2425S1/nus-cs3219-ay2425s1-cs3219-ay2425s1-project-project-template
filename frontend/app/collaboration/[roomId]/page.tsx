@@ -20,27 +20,42 @@ import { SocketContext } from "@/context/SockerIOContext";
 import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
 import VoiceChat from "@/components/collaboration/VoiceChat";
-
-const mockQuestion: Question = {
-  title: "Fibonacci Number",
-  complexity: "Easy",
-  category: ["Recursion", "Algorithms"],
-  description:
-    "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. Given n, calculate F(n). ",
-  examples: "Input: n = 2; Output: 1. Input: n = 4; Output: 3.",
-  constraints: "0 <= n <= 30.",
-};
+import {
+  useGetMatchedQuestion,
+  useGetIsAuthorisedUser,
+} from "@/hooks/api/collaboration";
 
 export default function Page() {
   const router = useRouter();
   const params = useParams();
-  const roomId = params?.roomId;
+  const roomId = params?.roomId || "";
 
   const socket = useContext(SocketContext);
   const { user } = useUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [otherUserDisconnect, setUserDisconnect] = useState<boolean>(false);
   const [otherUser, setOtherUser] = useState<string>("");
+  const [question, setQuestion] = useState<Question>({
+    title: "",
+    complexity: "",
+    category: [],
+    description: "",
+    examples: "",
+    constraints: "",
+  });
+
+  const { data: matchedQuestion, isPending: isQuestionPending } = useGetMatchedQuestion(roomId as string);
+  const {
+    data: isAuthorisedUser,
+    isPending: isAuthorisationPending,
+    isError,
+  } = useGetIsAuthorisedUser(roomId as string, user?.id as string);
+
+  useEffect(() => {
+    if (!isAuthorisationPending && !isAuthorisedUser?.authorised) {
+      router.push("/403");
+    }
+  }, [isAuthorisationPending, isAuthorisedUser, router]);
 
   const socketListeners = () => {
     socket?.on("user-disconnect", () => {
@@ -49,7 +64,7 @@ export default function Page() {
     });
 
     socket?.on("waiting-for-other-user-end", () => {
-      toast.info(`Waiting for other user to click exit.`, {
+      toast.info(`Waiting for both users to click exit.`, {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -66,6 +81,19 @@ export default function Page() {
   };
 
   useEffect(() => {
+    if (!isQuestionPending) {
+      setQuestion({
+        title: matchedQuestion?.title || "",
+        complexity: matchedQuestion?.complexity || "",
+        category: matchedQuestion?.category || [],
+        description: matchedQuestion?.description || "",
+        examples: matchedQuestion?.examples || "",
+        constraints: matchedQuestion?.constraints || "",
+      });
+    }
+  }, [isQuestionPending, setQuestion]);
+
+  useEffect(() => {
     if (socket && roomId && user) {
       socket.emit("join-room", roomId, user?.username);
 
@@ -77,6 +105,7 @@ export default function Page() {
             hideProgressBar: false,
           });
           setOtherUser(otherUser);
+          console.log(otherUser);
         }
       });
     }
@@ -94,88 +123,102 @@ export default function Page() {
 
   return (
     <>
-      <div className="flex items-end justify-end mt-4">
-        <Avatar isBordered color={isAvatarActive(otherUser)} name={otherUser} />
-        <Avatar
-          isBordered
-          className="mx-8"
-          color="success"
-          name={user?.username}
-        />
-        <Button className="mx-8" color="danger" onPress={onOpen}>
-          Exit Session
-        </Button>
-      </div>
-      <div className="flex">
-        <div className="flex-[2_2_0%]">
-          <QuestionDescription isCollab={true} question={mockQuestion} />
-        </div>
-        <div className="flex-[3_3_0%]">
-          {/* Render the VoiceChat component */}
-          <VoiceChat />
-          
-          {/* Render the CodeEditor */}
-          <CodeEditor />
-        </div>
-      </div>
+      {isAuthorisationPending ? (
+        <p>Loading...</p>
+      ) : isError ? (
+        <p>Had trouble authorising user!</p>
+      ) : (
+        <>
+          <div className="flex items-end justify-end mt-4">
+            <Avatar
+              isBordered
+              color={isAvatarActive(otherUser)}
+              name={otherUser}
+            />
+            <Avatar
+              isBordered
+              className="mx-2"
+              color="success"
+              name={user?.username}
+            />
+            <Button className="mx-8" color="danger" onPress={onOpen}>
+              Exit Session
+            </Button>
+          </div>
+          <div className="flex">
+            <div className="flex-[2_2_0%]">
+              <QuestionDescription isCollab={true} question={question} />
+            </div>
+            <div className="flex-[3_3_0%]">
+              {/* Render the VoiceChat component */}
+              <VoiceChat />
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Exit Session
-              </ModalHeader>
-              <ModalBody>
-                <p>Did both users agree to exit the session?</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  No
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={() => {
-                    handleEndSession();
-                    onClose();
-                  }}
-                >
-                  Yes, Exit
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+              {/* Render the CodeEditor */}
+              <CodeEditor />
+            </div>
+          </div>
 
-      <Modal
-        hideCloseButton={true}
-        isDismissable={false}
-        isOpen={otherUserDisconnect}
-      >
-        <ModalContent>
-          {() => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Other user disconnected
-              </ModalHeader>
-              <ModalBody>
-                <p>The other user disconnected, the room will now be closed.</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="primary"
-                  onPress={() => {
-                    router.push("/match");
-                  }}
-                >
-                  Back to match
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+          <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Exit Session
+                  </ModalHeader>
+                  <ModalBody>
+                    <p>Did both users agree to exit the session?</p>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      No
+                    </Button>
+                    <Button
+                      color="primary"
+                      onPress={() => {
+                        handleEndSession();
+                        onClose();
+                      }}
+                    >
+                      Yes, Exit
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+
+          <Modal
+            hideCloseButton={true}
+            isDismissable={false}
+            isOpen={otherUserDisconnect}
+          >
+            <ModalContent>
+              {() => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Other user disconnected
+                  </ModalHeader>
+                  <ModalBody>
+                    <p>
+                      The other user disconnected, the room will now be closed.
+                    </p>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      color="primary"
+                      onPress={() => {
+                        router.push("/match");
+                      }}
+                    >
+                      Back to match
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+        </>
+      )}
     </>
   );
 }

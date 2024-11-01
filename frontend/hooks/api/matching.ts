@@ -24,7 +24,7 @@ export const useAddUserToMatch = (
   });
 };
 
-const removeUserFromQueue = async (userID: string) => {
+const removeUserFromQueue = async (userID: string) => { 
   await axios.post(`/matching-service/cancel/${userID}`);
 };
 
