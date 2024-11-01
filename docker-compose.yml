@@ -70,7 +70,7 @@ services:
     build:
       context: ./collab-service
     ports:
-      - 5000:5000
+      - $COLLAB_SVC_PORT:$COLLAB_SVC_PORT
     environment:
-      - PORT=5000
-      # - DB_URI=$CLOUD_MONGO_URI
+      - PORT=$COLLAB_SVC_PORT
+      - DB_URI=$COLLAB_SVC_DB_URI
