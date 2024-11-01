@@ -2,7 +2,7 @@ import QueueModel from '../models/queue-model.js';
 import queueService from './queueService.js';
 
 const { addRequest, removeRequest, getQueue } = QueueModel;
-const { publishMatchRequest, consumeMatchRequests } = queueService;
+const { publishMatchRequest, consumeMatchRequests, publishMatchFound } = queueService;
 
 async function addMatchRequest(userId, topic, difficulty, socketId) {
     const requestData = { topic, difficulty, socketId };
@@ -43,34 +43,29 @@ async function processMatchQueue(io) {
             const curUserDifficultyIndex = difficultyLevels.indexOf(difficulty);   
             const matchUserDifficultyIndex = difficultyLevels.indexOf(match.difficulty);
 
-            let lowestCommonDifficulty = difficultyLevels[0];
-            for (let i = 0; i < difficultyLevels.length; i++) {
-                if (curUserDifficultyIndex === i || matchUserDifficultyIndex === i) {
-                    lowestCommonDifficulty = difficultyLevels[i];
-                    break;
-                }
-            }
-
-            // emit matched event to both users
-            // TODO: emit more verbose event
-            const matchData = {
-                id: match.userId,
-                topic: match.topic,
-                difficulty: match.difficulty,
-            }
-
-            const curData = {
-                id: userId,
-                topic: topic,
-                difficulty: difficulty,
-            }
+            const lowestCommonDifficulty = difficultyLevels[Math.min(curUserDifficultyIndex, matchUserDifficultyIndex)];
             
-            // sent to current user socket
-            io.to(socketId).emit('matched', matchData, curData);
-            io.to(match.socketId).emit('matched', curData, matchData);
+            const roomId = generateRoomId(userId, match.userId);
 
-            console.log(`Matched ${userId} with ${match.userId}`);
-            console.log("Redis Queue (matched) : ", queue);
+            // Create and publish matchfound event
+            const matchFoundEvent = {
+                user1_Id: userId,
+                user2_id: match.userId,
+                topic: topic,
+                difficulty: lowestCommonDifficulty,
+                roomId: roomId
+            }
+
+            io.to(socketId).emit('matched', matchFoundEvent);
+            io.to(match.socketId).emit('matched', matchFoundEvent);
+
+            try {
+                await publishMatchFound(matchFoundEvent);
+                console.log(`Matched ${userId} with ${match.userId}`);
+                console.log("Redis Queue (after matching):");
+            } catch (error) {
+                console.error("Error publishing match found event:", error);
+            }
         }
     });
 }
@@ -102,6 +97,10 @@ function findMatch(queue, userId, topic, difficulty) {
     }
 
     return null;
+}
+
+function generateRoomId(user1_id, user2_id) {
+    return user1_id + user2_id + Date.now();
 }
 
 export default {
