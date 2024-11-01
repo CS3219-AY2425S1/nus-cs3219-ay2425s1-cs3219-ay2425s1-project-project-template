@@ -8,7 +8,7 @@ export async function createSessionRequest(request: ITypedBodyRequest<CollabDto>
     const collabDto = CollabDto.fromRequest(request)
     const errors = await collabDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
