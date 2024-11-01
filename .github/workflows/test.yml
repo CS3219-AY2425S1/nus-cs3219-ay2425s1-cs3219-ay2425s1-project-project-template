@@ -23,11 +23,13 @@ jobs:
       - name: cd into apps/frontend
         run: cd ./apps/frontend
       
-      - name: ls?
-        run: ls
-      
       - name: Set up .env
-        run: cp ./.env.example .env
+        run: echo 'NEXT_PUBLIC_QUESTION_SERVICE_URL="http://localhost:8080/"
+NEXT_PUBLIC_USER_SERVICE_URL="http://localhost:3001/"
+NEXT_PUBLIC_MATCHING_SERVICE_URL="ws://localhost:8081/match"
+NEXT_PUBLIC_SIGNALLING_SERVICE_URL="ws://localhost:4444/"
+NEXT_PUBLIC_HISTORY_SERVICE_URL="http://localhost:8082/"' > .env
+
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
