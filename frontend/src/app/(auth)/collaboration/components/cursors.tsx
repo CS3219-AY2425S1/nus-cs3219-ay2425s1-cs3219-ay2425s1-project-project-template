@@ -3,7 +3,7 @@ import { WebrtcProvider } from "y-webrtc";
 
 type Props = {
     yProvider: WebrtcProvider;
-    username: String;
+    username: string;
     cursorPosition: object;
 };
 
@@ -24,7 +24,7 @@ export function Cursors({ yProvider, username, cursorPosition }: Props) {
         let color;
         do {
             color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-        } while (color === "#000000" || color === "#1e1e1e");
+        } while (/^#([0-1][0-9]|2[0-4])[0-1][0-9][0-1][0-9]$/.test(color));
         return color;
     };
 
@@ -64,7 +64,7 @@ export function Cursors({ yProvider, username, cursorPosition }: Props) {
         return () => {
             awareness.off("change", updateUser);
         };
-    }, [yProvider, cursorPosition, username]);   
+    }, [yProvider, cursorPosition, username, userColor]);   
 
     const styleSheet = useMemo(() => {
         let cursorStyles = "";
