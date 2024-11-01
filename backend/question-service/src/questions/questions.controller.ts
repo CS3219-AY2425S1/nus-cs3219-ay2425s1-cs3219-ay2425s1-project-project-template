@@ -44,9 +44,9 @@ export class QuestionsController {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      
+
       throw new InternalServerErrorException(
-        "Failed to fetch question for collaboration."
+        'Failed to fetch question for collaboration.',
       );
     }
   }
