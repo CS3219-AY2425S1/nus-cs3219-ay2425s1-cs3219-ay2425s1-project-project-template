@@ -60,9 +60,11 @@ function Room() {
 
     socketRef.current.on('code-updated', (newCode) => {
       // Capture the current cursor position
-      let cursorPosition: number = 0;
+      let cursorHead: number = 0;
+      let cursorAnchor: number = 0;
       if (viewUpdateRef.current) {
-        cursorPosition = viewUpdateRef.current.view.state.selection.main.head;
+        cursorHead = viewUpdateRef.current.view.state.selection.main.head;
+        cursorAnchor = viewUpdateRef.current.view.state.selection.main.anchor;
       }
     
       // Update the code with the new content
@@ -73,10 +75,11 @@ function Room() {
       setTimeout(() => {
         if (viewUpdateRef.current) {
           viewUpdateRef.current.view.dispatch({
-            selection: { anchor: cursorPosition },
+            selection: { anchor: cursorAnchor, head: cursorHead },
           });
+          console.log(cursorAnchor, cursorHead);
         }
-      }, 1000); // Adjust the timeout duration if necessary
+      }, 5);
     });
     
 
