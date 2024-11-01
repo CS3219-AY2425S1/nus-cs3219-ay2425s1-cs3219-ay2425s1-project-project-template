@@ -70,19 +70,49 @@ services:
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
   
-  piston:
-    image: ghcr.io/engineer-man/piston
-    container_name: piston-server
-    platform: linux/amd64            # Image built for amd64
-    restart: unless-stopped
+  # piston:
+  #   image: ghcr.io/engineer-man/piston
+  #   container_name: piston-server
+  #   platform: linux/amd64            # Image built for amd64
+  #   restart: unless-stopped
+  #   ports:
+  #     - ${PISTON_PORT}:${PISTON_PORT}
+  #   volumes:
+  #     - ./piston/packages:/piston/packages
+  #   environment:
+  #     - PISTON_DISABLE_NETWORKING=1
+  #   command: >
+  #     sh -c "
+  #       git clone https://github.com/engineer-man/piston.git /piston &&
+  #       cd /piston/cli && npm i && cd - &&
+  #       /piston/cli/index.js ppman install python=3.10.0 javascript=18.15.0 typescript=5.0.3 java=15.0.2 csharp=6.12.0 php=8.2.3
+  #     "
+
+  piston_api:
+    image: ghcr.io/engineer-man/piston:latest
+    container_name: piston_api
+    privileged: true
     ports:
-      - ${PISTON_PORT}:${PISTON_PORT}
+      - "${PISTON_PORT}:${PISTON_PORT}"
     volumes:
-      - ./piston/packages:/piston/packages
+      - $PWD:/piston
     environment:
       - PISTON_DISABLE_NETWORKING=1
+      - PISTON_PORT=${PISTON_PORT}
+
+  piston_cli:
+    image: node:14
+    container_name: piston_cli
+    depends_on:
+      - piston_api
+    volumes:
+      - $PWD:/piston
     command: >
       sh -c "
-        /piston/cli/index.js ppman install python=3.10.0 javascript=18.15.0 typescript=5.0.3 java=15.0.2 csharp=6.12.0 php=8.2.3 &&
-        /piston/cli/index.js run
+        apt-get update && apt-get install -y git &&
+        git clone https://github.com/engineer-man/piston.git /piston &&
+        cd /piston/cli && npm i && cd - &&
+        /piston/cli/index.js -u http://piston_api:${PISTON_PORT} ppman install python=3.10.0 javascript=18.15.0 typescript=5.0.3 java=15.0.2 csharp=6.12.0 php=8.2.3
       "
+    environment:
+      - PISTON_PORT=${PISTON_PORT}
