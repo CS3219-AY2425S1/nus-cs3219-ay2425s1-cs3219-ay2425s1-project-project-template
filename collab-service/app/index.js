@@ -30,6 +30,9 @@ app.use((req, res, next) => {
 });
 
 
+app.use("/collab", collabRoutes);
+
+
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
   res.json({
@@ -53,6 +56,5 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.use("/collab", collabRoutes);
 
 export default app;
