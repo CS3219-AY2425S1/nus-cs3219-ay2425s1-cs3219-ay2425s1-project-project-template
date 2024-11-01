@@ -67,6 +67,19 @@ services:
     volumes:
       - ./history-service:/history-service
 
+  execution-service:
+    build:
+      context: ./execution-service
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8083
+    env_file:
+      - ./execution-service/.env
+    networks:
+      - apps_network
+    volumes:
+      - ./execution-service:/execution-service
+
   redis:
     image: redis:latest
     networks:
