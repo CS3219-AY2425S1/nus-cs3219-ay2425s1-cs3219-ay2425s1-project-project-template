@@ -12,8 +12,10 @@ COPY --from=build --chown=node:node /data/chat-express/dist ./dist
 
 RUN npm ci --omit=dev
 
-COPY src/lib/db ./src/lib/db
-COPY src/lib/utils ./src/lib/utils
+# For migration
+RUN npm install tsx drizzle-kit
+COPY drizzle ./drizzle
+COPY src/lib/db/ ./src/lib/db
 COPY src/config.ts ./src
 COPY tsconfig.json .
 COPY entrypoint.sh .

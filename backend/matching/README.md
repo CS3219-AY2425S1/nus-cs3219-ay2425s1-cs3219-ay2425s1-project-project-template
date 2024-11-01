@@ -9,7 +9,7 @@
       --build-arg port=9004 \
       -f express.Dockerfile .
     ```
-2. Run this command, from the roxot folder:
+2. Run this command, from the root folder:
     ```sh
     make db-up
     ```
