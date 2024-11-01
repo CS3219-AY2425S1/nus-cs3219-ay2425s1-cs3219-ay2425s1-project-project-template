@@ -26,6 +26,7 @@ const shutdown = () => {
       })
       .then(() => {
         logger.info('App shut down');
+        process.exit(0);
       });
   });
 };
