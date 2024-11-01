@@ -13,6 +13,7 @@ services:
       QUESTION_SERVICE_ADDR: question-service:8000
       MATCH_NOTIFICATION_SERVICE_ADDR: match-notification-service:4001
       COLLABORATION_SERVICE_ADDR: collaboration-service:8005
+      COMMUNICATION_SERVICE_ADDR: communication-service:8443
     ports:
       - '80:80'
       - '443:443'
@@ -140,18 +141,15 @@ services:
      container_name: communication-service-backend
      networks:
        - my-network
-    #  ports:
-    #    - "8443:8443" # for testing
      env_file:
        - .env/.communication_env
+
   collaboration-service:
     build:
       context: ./collaboration-service
     container_name: collaboration-service-backend
     networks:
       - my-network
-    # ports:
-    #   - "8004:8004" # for testing
     env_file:
       - .env/.collaboration_env
 
@@ -161,8 +159,6 @@ services:
     container_name: code-execution-service-backend
     networks:
       - my-network
-    ports:
-      - "8050:8050"  # for testing
     env_file:
       - .env/.code_execution_env
 

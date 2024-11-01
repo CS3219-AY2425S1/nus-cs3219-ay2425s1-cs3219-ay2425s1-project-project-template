@@ -19,8 +19,8 @@ module.exports = (server) => {
    */
   io.on('connection', (socket) => {
     try {
-      const authHeader = socket.handshake.headers['authorization'];
-      const user = authGetUser(authHeader);
+      const token = socket.handshake.auth.token;
+      const user = authGetUser(token);
       socket.data.user = user;
       console.log('A user connected:', socket.data.user?.userId);
     } catch (error) {
