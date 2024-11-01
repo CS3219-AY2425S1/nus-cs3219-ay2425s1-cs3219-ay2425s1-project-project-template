@@ -16,7 +16,7 @@ import {
 import { fetchWithAuth } from "../../src/utils/fetchWithAuth";
 
 interface CountdownProps {
-  onSuccess: () => void; // Called when match found
+  onSuccess: (roomId: string) => void; // Called when match found
   onFailure: () => void; // Called when no match found
   onCancel: () => void; // Called when user cancels matching
 }
@@ -30,6 +30,7 @@ const Countdown: React.FC<CountdownProps> = ({
   const [isCheckingMatch, setIsCheckingMatch] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to fetch initial waiting time
   const fetchWaitingTime = async () => {
@@ -51,6 +52,25 @@ const Countdown: React.FC<CountdownProps> = ({
     fetchWaitingTime();
   }, []);
 
+  useEffect(() => {
+    intervalRef.current = setInterval(async () => {
+      try {
+        const response = await fetchWithAuth("http://localhost:3002/match-status");
+        if (response.matchStatus === "isMatched") {
+          clearInterval(intervalRef.current!);
+          onSuccess(response.roomId); // Pass the roomId if match found
+        } else if (response.matchStatus === "unsuccessful") {
+          clearInterval(intervalRef.current!);
+          onFailure();
+        }
+      } catch (error) {
+        console.error("Failed to check match status:", error);
+      }
+    }, 2000);
+
+    return () => clearInterval(intervalRef.current!);
+  }, [onSuccess, onFailure]);
+
   // Count-up effect
   useEffect(() => {
     const timerId = setTimeout(() => setSeconds(seconds + 1), 1000);
@@ -63,6 +83,7 @@ const Countdown: React.FC<CountdownProps> = ({
 
   const handleConfirmCancel = () => {
     setIsDialogOpen(false);
+    clearInterval(intervalRef.current!);
     onCancel();
   };
 

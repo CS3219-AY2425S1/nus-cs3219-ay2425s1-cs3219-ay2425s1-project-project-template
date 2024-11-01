@@ -81,7 +81,7 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/match-me" element={<MatchingPage />} />
-          <Route path="/editor/:roomId/:userId" element={<CodeEditor />} />
+          <Route path="/editor/:roomId/" element={<CodeEditor />} />
           <Route path="/room" element={<RoomPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/aboutus" element={<AboutUsPage />} />

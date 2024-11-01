@@ -54,7 +54,7 @@ const MatchingPage: React.FC = () => {
       } else if (matchStatus == "isMatching") {
         setStage(STAGE.COUNTDOWN);
       } else if (matchStatus == "isMatched") {
-        handleMatchFound();
+        handleMatchFound(result.roomId);
       } else if (matchStatus == "unsuccessful") {
         handleMatchUnsuccess();
       }
@@ -76,8 +76,9 @@ const MatchingPage: React.FC = () => {
     }
   };
 
-  const handleMatchFound = () => {
+  const handleMatchFound = (roomId: string) => {
     setStage(STAGE.SUCCESS);
+    navigate(`/editor/${roomId}`);
   };
 
   const handleMatchUnsuccess = () => {
