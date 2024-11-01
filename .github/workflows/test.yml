@@ -20,22 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       
-      - name: cd into apps/frontend
-        run: |
-          cd ./apps/frontend
-      
-      - name: ls?
-        run: |
-          ls
-      
       - name: Set up .env
         run: |
-          echo 'NEXT_PUBLIC_QUESTION_SERVICE_URL="http://localhost:8080/"
-          NEXT_PUBLIC_USER_SERVICE_URL="http://localhost:3001/"
-          NEXT_PUBLIC_MATCHING_SERVICE_URL="ws://localhost:8081/match"
-          NEXT_PUBLIC_SIGNALLING_SERVICE_URL="ws://localhost:4444/"
-          NEXT_PUBLIC_HISTORY_SERVICE_URL="http://localhost:8082/"' > .env
-
+          echo ./apps/frontend/.env.example > .env
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -46,10 +33,14 @@ jobs:
         run: npm i -g pnpm
 
       - name: Install dependencies
-        run: pnpm i
+        run: |
+          cd ./apps/frontend
+          pnpm i
 
       - name: Run tests
-        run: pnpm test
+        run: |
+          cd ./apps/frontend
+          pnpm test
 
   test:
     runs-on: ubuntu-latest
