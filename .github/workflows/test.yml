@@ -10,7 +10,7 @@ on:
     branches:
       - main
       - staging
-  workflow-dispatch
+  workflow-dispatch:
 
 jobs:
   frontend-unit-tests:
