@@ -1,8 +1,8 @@
-import { Difficulty, IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
-
+import { IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
+import { QuestionDto } from '@/types/question'
+import { Complexity } from '@repo/user-types'
 import axios from 'axios'
 import axiosClient from './axios-middleware'
-import { QuestionDto } from '@/types/question'
 
 const axiosInstance = axiosClient.questionServiceAPI
 
@@ -22,7 +22,7 @@ export const getQuestionsRequest = async (data: IGetQuestions): Promise<IQuestio
         return response
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            throw new Error('An unexpected error occurred' + error.message)
+            throw new Error('An unexpected error occurred: ' + error.message)
         } else {
             throw new Error('An unexpected error occurred')
         }
@@ -83,9 +83,12 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
                 case 401:
                     throw new Error('Error creating the question: Unauthorized')
                 case 400:
-                    throw new Error('Error creating question: Bad request' + error.message)
+                    throw new Error(
+                        'Error creating the question: Invalid input: ' +
+                            error.response?.data.map((err: string) => `(${err})`).join(', ')
+                    )
                 default:
-                    throw new Error('An unexpected error occurred' + error.message)
+                    throw new Error('An unexpected error occurred: ' + error.message)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -98,7 +101,7 @@ export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion 
     try {
         const body: QuestionDto = {
             ...data,
-            complexity: data.complexity.toUpperCase() as Difficulty,
+            complexity: data.complexity.toUpperCase() as Complexity,
             testInputs: data.testCases?.map((testCase) => testCase.input),
             testOutputs: data.testCases?.map((testCase) => testCase.output),
         }
@@ -113,8 +116,13 @@ export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion 
                     throw new Error('Error updating the question: Unauthorized')
                 case 404:
                     throw new Error('Error updating the question: No such user!')
+                case 400:
+                    throw new Error(
+                        'Error creating the question: Invalid input: ' +
+                            error.response?.data.map((err: string) => `(${err})`).join(', ')
+                    )
                 default:
-                    throw new Error('An unexpected error occurred' + error.message)
+                    throw new Error('An unexpected error occurred: ' + error.message)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -137,7 +145,7 @@ export const deleteQuestionById = async (id: string): Promise<IQuestion | undefi
                 case 404:
                     throw new Error('Error deleting the question: No such user!')
                 default:
-                    throw new Error('An unexpected error occurred' + error.message)
+                    throw new Error('An unexpected error occurred: ' + error.message)
             }
         } else {
             throw new Error('An unexpected error occurred')

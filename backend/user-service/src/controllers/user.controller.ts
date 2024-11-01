@@ -20,7 +20,7 @@ export async function handleCreateUser(request: ITypedBodyRequest<CreateUserDto>
     const createDto = CreateUserDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
@@ -49,7 +49,7 @@ export async function handleUpdateProfile(
     const createDto = UserProfileDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
@@ -99,7 +99,7 @@ export async function handleUpdatePassword(
     const createDto = UserPasswordDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
