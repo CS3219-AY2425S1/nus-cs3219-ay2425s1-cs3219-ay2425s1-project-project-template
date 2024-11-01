@@ -30,12 +30,17 @@ export class WebSocketConnection {
             })
 
             socket.on('disconnect', async () => {
-                const room = this.io.sockets.adapter.rooms.get(roomId)
+                let room = this.io.sockets.adapter.rooms.get(roomId)
                 socket.leave(roomId)
                 if (!this.isUserInRoom(roomId, name)) {
                     this.io.to(roomId).emit('user-disconnected', name)
                     loggerUtil.info(`User ${name} disconnected from room ${roomId}`)
                 }
+
+                // If user refreshes and other user has disconnected, then give a bit of time to reconnect
+                await new Promise((resolve) => setTimeout(resolve, 3000))
+                room = this.io.sockets.adapter.rooms.get(roomId)
+
                 if (!room) {
                     loggerUtil.info(`Room ${roomId} is empty. Completing session.`)
                     await completeCollaborationSession(roomId)
