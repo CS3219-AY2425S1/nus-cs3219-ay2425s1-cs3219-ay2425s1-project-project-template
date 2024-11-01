@@ -10,6 +10,7 @@ import { editor } from "monaco-editor";
 import InjectableCursorStyles from "./InjectableCursorStyles";
 import { UserProfile } from "@/types/User";
 import { getRandomColor } from "@/lib/cursorColors";
+import { useSessionContext } from "@/contexts/SessionContext";
 
 interface CollaborativeEditorProps {
   sessionId: string;
@@ -35,7 +36,7 @@ export default function CollaborativeEditor({
     if (!editorRef) return;
 
     const yDoc = new Y.Doc();
-    const yText = yDoc.getText("monaco");
+    const yTextInstance = yDoc.getText("monaco");
     const yProvider = new WebsocketProvider(
       `${socketUrl}/yjs?sessionId=${sessionId}&userId=${currentUser.id}`,
       `c_${sessionId}`,
@@ -44,17 +45,26 @@ export default function CollaborativeEditor({
     setProvider(yProvider);
 
     const binding = new MonacoBinding(
-      yText,
-      editorRef?.getModel() as editor.ITextModel,
+      yTextInstance,
+      editorRef.getModel() as editor.ITextModel,
       new Set([editorRef]),
       yProvider.awareness
     );
 
+    // Observe changes to the Y.Text document
+    const updateCode = () => {
+      setCurrentClientCode(yTextInstance.toString());
+    };
+
+    yTextInstance.observe(updateCode);
+    updateCode();
+
     return () => {
+      yTextInstance.unobserve(updateCode);
       yDoc.destroy();
       binding.destroy();
     };
-  }, [sessionId, currentUser, socketUrl, editorRef]);
+  }, [sessionId, currentUser, socketUrl, editorRef, setCurrentClientCode]);
 
   const handleEditorOnMount = useCallback(
     (e: editor.IStandaloneCodeEditor, monaco: Monaco) => {
