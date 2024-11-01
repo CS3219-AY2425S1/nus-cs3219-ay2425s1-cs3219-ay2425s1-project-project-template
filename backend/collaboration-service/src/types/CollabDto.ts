@@ -13,15 +13,12 @@ import {
 import { Type } from 'class-transformer'
 import { LanguageMode } from './LanguageMode'
 import { ChatModel } from '.'
+import 'reflect-metadata'
 
 export class CollabDto {
     @IsString()
     @IsNotEmpty()
     matchId: string
-
-    @IsString()
-    @IsNotEmpty()
-    questionId: string
 
     @IsEnum(LanguageMode)
     @IsNotEmpty()
@@ -64,6 +61,10 @@ export class CollabDto {
     static fromRequest({
         body: { matchId, language, code, executionResult, chatHistory, createdAt },
     }: ITypedBodyRequest<CollabDto>): CollabDto {
+        return new CollabDto(matchId, language, code, executionResult, chatHistory, createdAt)
+    }
+
+    static fromModel({ matchId, language, code, executionResult, chatHistory, createdAt }: CollabDto): CollabDto {
         return new CollabDto(matchId, language, code, executionResult, chatHistory, createdAt)
     }
 

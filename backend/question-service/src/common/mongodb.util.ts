@@ -1,5 +1,5 @@
-import config from './config.util'
 import { connect } from 'mongoose'
+import config from './config.util'
 import logger from './logger.util'
 
 export default async (connectionString: string): Promise<void> => {
