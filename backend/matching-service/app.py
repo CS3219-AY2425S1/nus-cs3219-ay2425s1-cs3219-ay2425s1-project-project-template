@@ -9,6 +9,7 @@ import threading
 import socketio
 import time
 import traceback
+import ssl
 
 load_dotenv()
 app = Flask(__name__)
@@ -19,11 +20,24 @@ if os.getenv('ENV') == "PROD" else os.getenv('NOTIFICATION_SERVICE', 'http://loc
 
 PORT = int(os.environ.get('PORT', 5001))
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
+ssl_context = ssl.create_default_context()
 
 def produce_message(message):
     try:
-        credentials = pika.PlainCredentials('peerprep', 'peerprep')
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        if os.getenv('ENV') == "PROD":
+            credentials = pika.PlainCredentials(os.getenv('RABBITMQ_USER'), 
+                                                os.getenv('RABBITMQ_PASSWORD'))
+            parameters = pika.ConnectionParameters(host=RABBITMQ_HOST, 
+                                                   virtual_host=os.getenv('RABBITMQ_VHOST'), 
+                                                   credentials=credentials, 
+                                                   ssl_options=pika.SSLOptions(ssl_context))
+            connection = pika.BlockingConnection(parameters)
+        else:
+            credentials = pika.PlainCredentials('peerprep', 'peerprep')
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        print("connection ready")
+        
         channel = connection.channel()
         channel.queue_declare(queue='match_queue')
         channel.basic_publish(exchange='',
@@ -49,6 +63,7 @@ def match_user(request):
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
             sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty} and topic: {topic}"))
             pending_requests.remove(pending)
+            print("Sent match found event", file=sys.stderr)
             return
         elif pending['topic'] == topic:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
@@ -88,11 +103,21 @@ def consume_messages():
     time.sleep(30)
     print("Attempting connection")
     try:
-        credentials = pika.PlainCredentials('peerprep', 'peerprep')
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        if os.getenv('ENV') == "PROD":
+            credentials = pika.PlainCredentials(os.getenv('RABBITMQ_USER'), 
+                                                os.getenv('RABBITMQ_PASSWORD'))
+            parameters = pika.ConnectionParameters(host=RABBITMQ_HOST, 
+                                                   virtual_host=os.getenv('RABBITMQ_VHOST'), 
+                                                   credentials=credentials, 
+                                                   ssl_options=pika.SSLOptions(ssl_context))
+            connection = pika.BlockingConnection(parameters)
+        else:
+            credentials = pika.PlainCredentials('peerprep', 'peerprep')
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
         print("connection ready")
-        channel = connection.channel()
 
+        channel = connection.channel()
         channel.queue_declare(queue='match_queue')
 
         def callback(ch, method, properties, body):
