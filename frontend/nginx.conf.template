@@ -70,7 +70,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-     location /matching-socket/ {
+     location /chat-socket/ {
         proxy_pass ${VITE_CHAT_SERVICE};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

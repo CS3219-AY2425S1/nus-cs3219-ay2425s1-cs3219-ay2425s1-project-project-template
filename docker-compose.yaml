@@ -70,7 +70,7 @@ services:
     build:
       context: ./backend/chat/src/lib/db
     env_file:
-      - ./backend/chat/.env.local
+      - ./backend/chat/.env.compose
     volumes:
       - 'chat-db-docker:${CHAT_PGDATA}'
       #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -246,7 +246,7 @@ services:
     environment:
       # Docker Compose Specific for Service Discovery
       - EXPRESS_DB_HOST=chat-db
-      - EXPRESS_DB_PORT=5435
+      - EXPRESS_DB_PORT=5432
       - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
     depends_on:
       chat-db:
@@ -282,6 +282,7 @@ services:
       - VITE_COLLAB_SERVICE=http://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
       - VITE_COLLAB_WS=ws://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
       - VITE_MATCHING_SERVICE=http://${MATCHING_SERVICE_NAME}:${MATCHING_EXPRESS_PORT}
+      - VITE_CHAT_SERVICE=http://${CHAT_SERVICE_NAME}:${CHAT_EXPRESS_PORT}
       - FRONTEND_PORT=${FRONTEND_PORT}
     depends_on:
       user-service:
@@ -298,6 +299,7 @@ services:
       - question-api-network
       - match-api-network
       - collab-api-network
+      - chat-api-network
 
 volumes:
   # Persistent Volumes for Databases
