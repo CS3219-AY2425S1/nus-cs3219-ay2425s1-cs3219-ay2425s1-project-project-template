@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -26,8 +27,9 @@ function App() {
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.message == "Token verified") {
+          if (data.message === "Token verified") {
             setIsAuthenticated(true);
+            setUserId(data.data.id);
           } else {
             localStorage.removeItem("token");
             setIsAuthenticated(false);
@@ -67,7 +69,7 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/match-me" element={<MatchingPage />} />
-          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat" element={<Chat userId={userId || ""} />} />
         </Routes>
       </Box>
     </Box>
