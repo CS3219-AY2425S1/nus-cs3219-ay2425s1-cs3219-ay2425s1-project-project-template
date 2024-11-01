@@ -64,3 +64,13 @@ services:
       - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
     depends_on:
       - redis
+    
+  
+  collab-service:
+    build:
+      context: ./collab-service
+    ports:
+      - $COLLAB_SVC_PORT:$COLLAB_SVC_PORT
+    environment:
+      - PORT=$COLLAB_SVC_PORT
+      - DB_URI=$COLLAB_SVC_DB_URI
