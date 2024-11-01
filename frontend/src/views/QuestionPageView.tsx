@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MatchingOptions from "@/components/custom/MatchingOptions/MatchingOptions";
 import QuestionTable from "@/components/custom/QuestionTable/QuestionTable";
 import { Separator } from "@/components/ui/separator";
@@ -6,12 +6,18 @@ import { Title } from "@/components/ui/title";
 import profileIcon from "@/assets/profile.png";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { getUsernameByUid } from "@/services/UserFunctions";
 import "@/css/styles.css";
+import { fetchAdminStatus } from "@/services/UserFunctions";
 
 const QuestionPageView: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [username, setUsername] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const navigate = useNavigate();
-
+  
+  
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
   };
@@ -20,6 +26,28 @@ const QuestionPageView: React.FC = () => {
     navigate(path);
     setShowDropdown(false);
   };
+  
+  const fetchUsernameAndAdminStatus = async () => {
+    try {
+
+      const usernameData = await getUsernameByUid();
+      const isAdmin = await fetchAdminStatus();
+      setUsername(usernameData);
+      setIsAdmin(isAdmin);
+    } catch (error) {
+      console.error("Failed to retrieve username or admin status:", error);
+      setUsername("");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchUsernameAndAdminStatus();
+    setLoading(false); // End loading if no user_id found
+  }, []);
+  
 
   return (
     <main
@@ -59,7 +87,15 @@ const QuestionPageView: React.FC = () => {
       </div>
 
       <Separator className="my-2" />
-
+      <div>
+        {loading ? (
+          <p>Loading user information...</p>
+        ) : username ? (
+          <p>Welcome, {username}!</p>
+        ) : (
+          <p>Not logged in</p>
+        )}
+      </div>
       <div className="grid grid-cols-3 gap-4">
         <div
           className="p-4 col-span-3 md:col-span-1 rounded-lg shadow-lg"
@@ -68,7 +104,7 @@ const QuestionPageView: React.FC = () => {
           <MatchingOptions />
         </div>
         <div className="p-4 col-span-3 md:col-span-2 rounded-lg shadow-lg">
-          <QuestionTable />
+          <QuestionTable isAdmin={isAdmin}/>
         </div>
       </div>
     </main>

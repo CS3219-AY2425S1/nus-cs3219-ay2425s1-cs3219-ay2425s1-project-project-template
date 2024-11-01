@@ -29,7 +29,17 @@ const getDifficultyClass = (difficulty: string) => {
   }
 };
 
-export const columns = (refetch: () => void): ColumnDef<Question>[] => [
+
+export const columns = (refetch: () => void, isAdmin: boolean): ColumnDef<Question>[] => [
+  {
+    id: "delete",
+    size: 10,
+    maxSize: 10,
+    cell: ({ row }) => {
+      const question = row.original;
+      return <DeleteQuestionButton question={question} onDelete={refetch} isAdmin={isAdmin}/>;
+    },
+  },
   {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Topics" />
@@ -102,12 +112,7 @@ export const columns = (refetch: () => void): ColumnDef<Question>[] => [
     size: 40,
     cell: ({ row }) => {
       const question = row.original;
-      return (
-        <div className="grid grid-cols-2 gap-2">
-          <EditQuestionButton question={question} onEdit={refetch} />
-          <DeleteQuestionButton question={question} onDelete={refetch} />
-        </div>
-      );
+      return <EditQuestionButton question={question} onEdit={refetch} isAdmin={isAdmin} />;
     },
   },
 ];

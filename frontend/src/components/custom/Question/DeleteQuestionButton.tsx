@@ -4,16 +4,24 @@ import { useState } from "react";
 import DeleteQuestionDialog from "./DeleteQuestionDialog";
 import { Question } from "@/models/Question";
 
+
 interface DeleteQuestionButtonProps {
   question: Question;
   onDelete: () => void;
+  isAdmin: Boolean;
 }
 
 const DeleteQuestionButton: React.FC<DeleteQuestionButtonProps> = ({
   question,
   onDelete,
+  isAdmin,
 }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+  if (!isAdmin) {
+    return null; // Return null to render nothing
+  }
+
 
   const handleOpenDialog = () => {
     setOpenDialog(true);

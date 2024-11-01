@@ -30,12 +30,13 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   refetch: () => void;
+  isAdmin: boolean;
 }
-
 export function DataTable<TData, TValue>({
   columns,
   data,
   refetch,
+  isAdmin,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState([]);
@@ -86,7 +87,7 @@ export function DataTable<TData, TValue>({
           className="col-span-3 max-w-sm"
         />
         <div className="col-span-1 justify-self-end">
-          <AddQuestionButton onCreate={refetch} />
+          <AddQuestionButton onCreate={refetch} isAdmin={isAdmin}/>
         </div>
       </div>
 

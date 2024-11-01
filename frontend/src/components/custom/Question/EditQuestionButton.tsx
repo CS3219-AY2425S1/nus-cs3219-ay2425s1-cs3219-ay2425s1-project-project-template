@@ -7,17 +7,24 @@ import { Question } from "@/models/Question";
 interface EditQuestionButtonProps {
   onEdit: () => void;
   question: Question;
+  isAdmin: boolean;
 }
 
 const EditQuestionButton: React.FC<EditQuestionButtonProps> = ({
   onEdit,
   question,
+  isAdmin,
 }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
+
+  
+  if (!isAdmin) {
+    return null; // Return null to render nothing
+  }
 
   return (
     <>
