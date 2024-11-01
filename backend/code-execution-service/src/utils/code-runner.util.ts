@@ -8,45 +8,39 @@ export async function runCode(
   lang: string,
   input: string,
   timeout: number,
-): Promise<{ output: string; stderr: string }> {
-  const folder = `./temp/${Date.now()}`;
+): Promise<{ stdout: string; stderr: string }> {
+  const folder = `./code/${Date.now()}`;
   await fs.mkdir(folder, { recursive: true });
 
-  const sourceFile = `${folder}/source.${extensions[lang]}`;
+  const sourceFile = `${folder}/solution.${extensions[lang]}`;
   const inputFile = `${folder}/input.txt`;
   const outputFile = `${folder}/output.txt`;
 
-  // Retrieve inputs from server
-  // Compile and run code
-  // Compare output with expected output
-  // Server will need: list of inputs, list of expected outputs, code, language, timeout
-
   await fs.writeFile(sourceFile, code);
   await fs.writeFile(inputFile, input);
+
+  // Input -> Generates output
+  // Compare generated output with expected output
 
   let compileCommand = '';
   let runCommand = `timeout ${timeout} `;
 
   if (lang === 'java') {
     compileCommand = `javac ${sourceFile}`;
-    runCommand += `java -cp ${folder} main < ${inputFile} > ${outputFile}`;
+    runCommand += `java -cp ${folder} main < ${inputFile}`;
   } else if (lang === 'python3') {
-    runCommand += `python3 ${sourceFile} < ${inputFile} > ${outputFile}`;
+    runCommand += `python3 ${sourceFile} < ${inputFile}`;
   }
 
   try {
-    console.log('Called 1');
+    // Compile the code if required
     if (compileCommand) {
       await executeCommand(compileCommand);
     }
 
-    console.log('Called 2');
     const { stdout, stderr } = await executeCommand(runCommand);
-    console.log('Called 3');
 
-    const output = await fs.readFile(outputFile, 'utf-8');
-
-    return { output, stderr };
+    return { stdout, stderr };
   } finally {
     await fs.rm(folder, { recursive: true, force: true });
   }
@@ -58,13 +52,7 @@ function executeCommand(
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        // console.log('here');
-        // console.log(error);
-        // console.log('here');
-        // console.log(stdout);
-        // console.log('here');
-        // console.log(stderr);
-        reject(stderr);
+        reject({ stdout, stderr });
       } else {
         resolve({ stdout, stderr });
       }

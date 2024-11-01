@@ -24,8 +24,7 @@ export class AppService {
       const result = await runCode(code, language, input || '', timeout || 5);
       return { status: 'ok', result };
     } catch (error) {
-      console.log(error);
-      return { status: 'error', message: error };
+      return { status: 'error', result: error };
     }
   }
 }
