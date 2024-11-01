@@ -12,8 +12,9 @@ main().catch((err) => console.log(err));
 
 async function main() {
   await mongoose.connect(mongoDB);
+  
   // delete all
-  await Question.deleteMany({});
+  // await Question.deleteMany({});
 
   // add sample questions
   fs.readFile('./data/sample_questions.json', async (err, data) => {
