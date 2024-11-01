@@ -64,7 +64,7 @@ const getAllAttemptedQuestions = async (req, res) => {
         const result = questionsAttempted.map(attempt => ({
             ...questionMap[attempt.questionUid],
             dateAttempted: attempt.dateAttempted,
-            writtenCode: attempt.writtenCode
+            codeWritten: attempt.codeWritten
         }));
 
         // Send the result back to the frontend
@@ -105,7 +105,7 @@ const createQuestionAttempted = async (req, res) => {
 }
 
 const storeExecutedCode = async (req, res) => {
-    const { userUid, questionUid, dateAttempted, writtenCode } = req.body;
+    const { userUid, questionUid, dateAttempted, codeWritten } = req.body;
 
     try {
         const userRef = db.collection("users").doc(userUid);
@@ -136,7 +136,7 @@ const storeExecutedCode = async (req, res) => {
             ...questionsAttempted.slice(0, index), // Entries before the index
             { 
                 ...questionsAttempted[index], // Keep the existing fields
-                writtenCode: writtenCode // Update the writtenCode
+                codeWritten: codeWritten // Update the codeWritten
             },
             ...questionsAttempted.slice(index + 1) // Entries after the index
         ];
