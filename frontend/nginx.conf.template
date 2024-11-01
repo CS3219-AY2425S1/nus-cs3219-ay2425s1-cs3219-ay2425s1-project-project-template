@@ -49,7 +49,7 @@ server {
     }
 
     location /collab-ws {
-        proxy_pass ${VITE_COLLAB_WS};
+        proxy_pass ${VITE_COLLAB_SERVICE};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
