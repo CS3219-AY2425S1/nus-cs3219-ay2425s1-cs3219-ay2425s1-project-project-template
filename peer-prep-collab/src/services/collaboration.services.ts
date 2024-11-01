@@ -47,13 +47,13 @@ export const getQuestion = async (
         console.log(`Fetching questions for difficulty: ${difficulty}`);   
 
         // fetch questions based on difficulty and category from questions service 
-        // const response = await axios.get<QuestionsApiResponse>(
-        //     `${config.questionsServiceUrl}/questions?filterBy=question_categories&filterValue=${category}`
-        // );
-
         const response = await axios.get<QuestionsApiResponse>(
-            `http://localhost:8080/questions?filterBy=question_categories&filterValues=Arrays`
+            `${config.questionsServiceUrl}/questions?filterBy=question_categories&filterValues=${category}`
         );
+
+        // const response = await axios.get<QuestionsApiResponse>(
+        //     `http://localhost:8080/questions?filterBy=question_categories&filterValues=Arrays`
+        // );
 
         console.log('Raw response data:', response.data);
 
