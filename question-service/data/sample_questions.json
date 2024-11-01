@@ -157,7 +157,7 @@
     "images": []
   },
   {
-    "id": 19,
+    "id": 20,
     "title": "Add Binary",
     "description": "Given two binary strings <code>a</code> and <code>b</code>, return <i>their sum as a binary string</i>.<br /><br />\n\n<b>Example 1:</b><br />\nInput: <code>a = \"11\", b = \"1\"</code><br />\nOutput: <code>\"100\"</code><br /><br />\n\n<b>Example 2:</b><br />\nInput: <code>a = \"1010\", b = \"1011\"</code><br />\nOutput: <code>\"10101\"</code><br /><br />\n          \n<b>Constraints:</b><br />\n<ul>\n  <li><code>1 <= a.length, b.length <= 10^4</code></li>\n  <li><code>a</code> and <code>b</code> consist only of <code>'0'</code> or <code>'1'</code> characters.</li>\n  <li>Each string does not contain leading zeros except for the zero itself.</li>\n</ul>",
     "topics": ["Math", "String", "Bit Manipulation"],
