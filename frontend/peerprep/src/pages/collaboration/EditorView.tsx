@@ -20,25 +20,20 @@ const EditorView: React.FC = () => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const userContext = useContext(UserContext);
   const user = userContext?.user;
+
   const [searchParams] = useSearchParams();
-  const topic = searchParams.get("topic");
-  const difficulty = searchParams.get("difficulty");
-  const [code, setCode] = useState<string>("");
-  const api = useQuesApiContext();
+
+  const roomId = searchParams.get("roomId");
 
   useEffect(() => {
-    if (
-      topic === null ||
-      difficulty === null ||
-      topic === "" ||
-      difficulty === ""
-    ) {
+    if (roomId === null || roomId === "") {
       navigate("/dashboard");
       return;
     }
 
     socketRef.current = io("http://localhost:8000/", {
       path: "/api",
+      query: { roomId },
     });
     const socket = socketRef.current;
 
