@@ -1,6 +1,6 @@
-import express from 'express';
-import cors from 'cors';
-import collabRoutes from './routes/collab-routes.js';
+import express from "express";
+import cors from "cors";
+import collabRoutes from "./routes/collab-routes.js";
 
 const app = express();
 
@@ -9,14 +9,13 @@ app.use(express.json());
 app.use(cors()); // config cors so that front-end can use
 app.options("*", cors());
 
-
 // To handle CORS Errors
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*"); // "*" -> Allow all links to access
 
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
 
   // Browsers usually send this before PUT or POST Requests
@@ -29,9 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use("/collab", collabRoutes);
-
 
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
@@ -55,6 +52,5 @@ app.use((error, req, res, next) => {
     },
   });
 });
-
 
 export default app;

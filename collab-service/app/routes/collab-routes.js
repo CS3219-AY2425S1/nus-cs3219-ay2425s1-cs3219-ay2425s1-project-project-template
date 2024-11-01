@@ -1,9 +1,9 @@
 import express from "express";
 import {
-    create_room,
-    get_room_by_user,
-    update_heartbeat,
-    get_all_rooms_controller
+  create_room,
+  get_room_by_user,
+  update_heartbeat,
+  get_all_rooms_controller,
 } from "../controller/collab-controller.js";
 
 const router = express.Router();
