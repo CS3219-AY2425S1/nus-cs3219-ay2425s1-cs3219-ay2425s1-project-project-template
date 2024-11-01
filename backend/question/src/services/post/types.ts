@@ -12,3 +12,13 @@ export interface IUpdateQuestionPayload extends ICreateQuestionPayload {
 export interface IDeleteQuestionPayload {
   id: number;
 }
+
+export interface Question {
+  id: number;
+  title: string;
+  difficulty: string;
+  topic: string[];
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -12,11 +12,14 @@ import {
   updateQuestion,
 } from '@/controller/question-controller';
 
+import { createAttempt } from '../controller/attempted-controller';
+import { fetchUnattemptedQuestion } from '../controller/unattempted-controller';
+
 const router = Router();
 
 router.get('/search', searchQuestionsByTitle);
 
-router.get('/topics', getTopics);
+router.get('/topic', getTopics);
 router.get('/difficulties', getDifficulties);
 
 router.get('/', getQuestions);
@@ -28,5 +31,8 @@ router.post('/random', getRandomQuestion);
 router.post('/create', createQuestion);
 router.put('/:questionId', updateQuestion);
 router.delete('/:questionId', deleteQuestion);
+
+router.post('/unattempted', fetchUnattemptedQuestion);
+router.post('/newAttempt', createAttempt);
 
 export default router;
