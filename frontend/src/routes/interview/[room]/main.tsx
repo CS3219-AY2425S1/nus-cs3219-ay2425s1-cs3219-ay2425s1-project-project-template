@@ -3,8 +3,9 @@ import { useMemo, useState } from 'react';
 import { type LoaderFunctionArgs, Navigate, useLoaderData } from 'react-router-dom';
 
 import { WithNavBanner, WithNavBlocker } from '@/components/blocks/authed';
+import { AIChat } from '@/components/blocks/interview/ai-chat';
 import { Editor } from '@/components/blocks/interview/editor';
-import { FloatingChatButton } from '@/components/blocks/interview/floating-chat-button';
+import { PartnerChat } from '@/components/blocks/interview/partner-chat';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
 import { useCrumbs } from '@/lib/hooks';
@@ -29,25 +30,49 @@ export const InterviewRoom = () => {
   const { crumbs } = useCrumbs();
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
   const questionDetails = useMemo(() => details.question, [details]);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+  const [isPartnerChatOpen, setIsPartnerChatOpen] = useState(false);
+
+  const handleAIClick = () => {
+    setIsPartnerChatOpen(false);
+    setIsAIChatOpen(!isAIChatOpen);
+  };
+
+  const handlePartnerClick = () => {
+    setIsAIChatOpen(false);
+    setIsPartnerChatOpen(!isPartnerChatOpen);
+  };
 
   return !questionId || !roomId ? (
     <Navigate to={ROUTES.HOME} />
   ) : (
     <WithNavBlocker>
       <WithNavBanner crumbs={crumbs}>
-        <div className='flex'>
-          <div className={`flex ${isChatOpen ? 'w-4/5' : 'w-full'} transition-all duration-300`}>
-            <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
-              <QuestionDetails {...{ questionDetails }} />
-            </Card>
-            <div
-              className={`flex flex-1 ${isChatOpen ? 'w-2/3' : 'w-full'} transition-all duration-300`}
-            >
-              <Editor room={roomId as string} />
-            </div>
+        <div className='flex flex-1 overflow-hidden'>
+          <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
+            <QuestionDetails {...{ questionDetails }} />
+          </Card>
+          <div className='flex w-full'>
+            <Editor
+              room={roomId as string}
+              onAIClick={handleAIClick}
+              onPartnerClick={handlePartnerClick}
+            />
           </div>
-          <FloatingChatButton room={roomId as string} onChatOpenChange={setIsChatOpen} />
+          {(isAIChatOpen || isPartnerChatOpen) && (
+            <Card className='border-border m-4 w-1/3 overflow-hidden'>
+              {isAIChatOpen && (
+                <AIChat isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
+              )}
+              {isPartnerChatOpen && (
+                <PartnerChat
+                  roomId={roomId as string}
+                  isOpen={isPartnerChatOpen}
+                  onClose={() => setIsPartnerChatOpen(false)}
+                />
+              )}
+            </Card>
+          )}
         </div>
       </WithNavBanner>
     </WithNavBlocker>
