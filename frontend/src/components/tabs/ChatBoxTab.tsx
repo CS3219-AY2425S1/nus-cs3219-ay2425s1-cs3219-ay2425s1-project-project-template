@@ -86,18 +86,26 @@ const ChatBoxTab = ({ roomId, token }: ChatBoxTabProps) => {
             }}
           >
             <Paper
-              shadow="sm"
-              p="8px 12px"
-              style={{
-                maxWidth: '70%',
-                borderRadius: '16px',
-                backgroundColor: msg.userId === userId ? '#964ee2' : '#2c2533',
-                color: msg.userId === userId ? '#fff8f9' : '#faf6f9',
-                position: 'relative',
-                padding: '12px',
-              }}
+            shadow="sm"
+            p="8px 12px"
+            style={{
+            maxWidth: '350px', // Ensure it doesn't exceed the screen width
+            borderRadius: '16px',
+            backgroundColor: msg.userId === userId ? '#964ee2' : '#2c2533',
+            color: msg.userId === userId ? '#fff8f9' : '#faf6f9',
+            position: 'relative',
+            padding: '12px',
+            wordWrap: 'break-word', // Ensure wrapping
+            overflowWrap: 'break-word', // Allow breaking long words
+            wordBreak: 'break-all', // Prevent overflow with long words
+            }}
             >
-              <Text size="sm" style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+              <Text size="sm" style={{
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word',
+              }}>
                 {msg.body}
               </Text>
             </Paper>
