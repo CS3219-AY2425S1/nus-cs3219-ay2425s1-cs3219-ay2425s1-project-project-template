@@ -12,11 +12,10 @@ interface UserData {
 }
 
 interface LoginProps {
-  updateAuthStatus: React.Dispatch<React.SetStateAction<boolean>>;
-  updateUserData: React.Dispatch<React.SetStateAction<UserData>>;
+  handleLoginSuccess: React.Dispatch<React.SetStateAction<UserData>>;
 }
 
-const Login: React.FC<LoginProps> = ({ updateAuthStatus, updateUserData }) => {
+const Login: React.FC<LoginProps> = ({ handleLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -42,13 +41,7 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus, updateUserData }) => {
         console.log("Stored token:", localStorage.getItem("token"))
         console.log("Stored userId:", localStorage.getItem("userId"))
         console.log("Stored email:", localStorage.getItem("email"))
-        updateAuthStatus(true);
-        updateUserData({
-          id: data.data.id,
-          username: data.data.username,
-          email: data.data.email,
-          isAdmin: data.data.isAdmin
-        })
+        handleLoginSuccess(data.data);
         navigate("/questions");
       } else {
         toast({
@@ -104,7 +97,7 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus, updateUserData }) => {
                 <input name="checkbox" type="checkbox" />
                 Remember me
               </label>
-              <a href="#" className="forgot-password">
+              <a href="/forgot-password" className="forgot-password">
                 Forgot Password?
               </a>
             </div>

@@ -13,7 +13,9 @@ import CodeEditor from '../components/collab/CodeEditor';
 import RoomPage from "./pages/RoomPage";
 import AccountPage from "./pages/AccountPage";
 import AboutUsPage from "./pages/AboutUsPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ChangePassword from "../components/account/functions/ChangePassword"
+import ChangePasswordModal from "../components/account/functions/ChangePasswordModal"
 import DeleteAccount from "../components/account/functions/DeleteAccount"
 
 interface UserData {
@@ -21,12 +23,14 @@ interface UserData {
   username: string
   email: string
   isAdmin: boolean
+  mustUpdatePassword: boolean
 }
 
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<UserData|undefined>();
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -43,6 +47,9 @@ function App() {
           if (data.message == "Token verified") {
             setIsAuthenticated(true);  // Token sent and verified.
             setUserData(data.data);
+            if (data.data.mustUpdatePassword) {
+              setIsChangePasswordModalOpen(true);
+            }
           } else {
             localStorage.removeItem("token");
             setIsAuthenticated(false);  // Token sent, but is invalid.
@@ -58,11 +65,27 @@ function App() {
     }
   }, []);
 
+  const handleLoginSuccess = (data: UserData) => {
+    setIsAuthenticated(true);
+    setUserData(data);
+    if (data.mustUpdatePassword) {
+      setIsChangePasswordModalOpen(true);
+    }
+  }
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
     setUserData(undefined);
   };
+
+  const handlePasswordChanged = () => {
+      // setUserData((prevUserData) => ({
+      //   ...prevUserData,
+      //   mustUpdatePassword: false,
+      // }));
+      setIsChangePasswordModalOpen(false);
+    };
 
   return (
     <Box className="app" fontFamily="Poppins, sans-serif">
@@ -80,8 +103,7 @@ function App() {
                 path="/login"
                 element={
                   <Login
-                    updateAuthStatus={setIsAuthenticated}
-                    updateUserData={setUserData}
+                    handleLoginSuccess={handleLoginSuccess}
                   />
                 }
               />
@@ -97,6 +119,7 @@ function App() {
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
+          <Route path="/forgot-password" element={<ResetPasswordPage />} />
 
           {isAuthenticated ? (
             <>
@@ -119,6 +142,15 @@ function App() {
 
         </Routes>
       </Box>
+      {/* Render the Update Password Modal if required */}
+      {userData?.mustUpdatePassword && (
+        <ChangePasswordModal
+          isOpen={isChangePasswordModalOpen}
+          onClose={() => setIsChangePasswordModalOpen(false)}
+          userId={userData.id}
+          onPasswordUpdated={handlePasswordChanged}
+        />
+      )}
     </Box>
   );
 }
