@@ -142,6 +142,15 @@ const FindPeer = () => {
                 `We found a match for you! You have been matched with ${matchedUserEmail}.`,
                 "success"
               ).then(async () => {
+                Swal.fire({
+                  title: "Redirecting...",
+                  text: "Please wait while we redirect you to the collaboration page.",
+                  allowOutsideClick: false,
+                  showConfirmButton: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  },
+                });
                 // Create a session in the collaboration service
                 try {
                   const sessionExists = await checkSession(collaborationId);
