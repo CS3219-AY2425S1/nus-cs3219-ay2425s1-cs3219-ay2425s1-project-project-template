@@ -1,5 +1,5 @@
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
-import { ITestcase } from '@/types'
+import { ITestcase, LanguageMode, getCodeMirrorLanguage } from '@/types'
 import { mockChatData, mockTestCaseData, mockUserData } from '@/mock-data'
 import { useEffect, useRef, useState } from 'react'
 
@@ -20,6 +20,7 @@ import { getMatchDetails } from '@/services/matching-service-api'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
+import { toast } from 'sonner'
 
 interface ICollaborator {
     name: string
@@ -63,7 +64,7 @@ export default function Code() {
     const [isChatOpen, setIsChatOpen] = useState(true)
     const [chatData, setChatData] = useState(initialChatData)
     const { id } = router.query
-    const [editorLanguage, setEditorLanguage] = useState('javascript')
+    const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
@@ -103,15 +104,18 @@ export default function Code() {
             }
         })
 
+        socketRef.current.on('update-language', (language: string) => {
+            setEditorLanguage(language as LanguageMode)
+            toast.success('Language mode updated')
+        })
+
         socketRef.current.on('user-connected', (username: string) => {
-            console.log('triggered')
             if (username !== sessionData?.user.username) {
                 setIsOtherUserOnline(true)
             }
         })
 
         socketRef.current.on('user-disconnected', (username: string) => {
-            console.log('triggered')
             if (username !== sessionData?.user.username) {
                 setIsOtherUserOnline(false)
             }
@@ -156,8 +160,7 @@ export default function Code() {
     }, [chatData])
 
     const handleLanguageModeSelect = (value: string) => {
-        console.log('Hey', value)
-        setEditorLanguage(value)
+        socketRef.current?.emit('change-language', value)
     }
 
     const handleRunTests = () => {
@@ -290,11 +293,13 @@ export default function Code() {
                 <div id="editor-container" className="mt-4">
                     <div id="language-mode-select" className="rounded-t-xl bg-black">
                         <LanguageModeSelect
+                            displayValue={editorLanguage}
+                            setDisplayValue={setEditorLanguage}
                             onSelectChange={handleLanguageModeSelect}
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <CodeMirrorEditor roomId={id as string} language={editorLanguage} />
+                    <CodeMirrorEditor roomId={id as string} language={getCodeMirrorLanguage(editorLanguage)} />
                 </div>
                 <CustomTabs
                     tabs={testTabs}
