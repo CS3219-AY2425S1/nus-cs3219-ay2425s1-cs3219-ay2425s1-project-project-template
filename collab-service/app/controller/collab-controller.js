@@ -1,5 +1,5 @@
 import {
-  createRoom,
+  newRoom,
   getRoomId,
   heartbeat,
   getAllRooms,
@@ -19,7 +19,7 @@ export async function createRoom(req, res) {
     .createHash("sha256")
     .update(user1 + user2)
     .digest("hex");
-  const room = await createRoom(user1, user2, roomId);
+  const room = await newRoom(user1, user2, roomId);
 
   if (room) {
     res.status(201).json(room);

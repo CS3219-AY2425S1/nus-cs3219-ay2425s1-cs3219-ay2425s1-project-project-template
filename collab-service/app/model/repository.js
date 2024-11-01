@@ -2,12 +2,10 @@ import { connect, mongoose } from "mongoose";
 import UsersSession from "./usersSession-model.js";
 
 export async function connectToMongo() {
-  await connect(
-    "mongodb+srv://admin:admin_g50_password@cs3219-g50-question-ser.c7loi.mongodb.net/"
-  );
+  await connect(process.env.DB_URI);
 }
 
-export async function createRoom(user1, user2, roomId) {
+export async function newRoom(user1, user2, roomId) {
   try {
     const newRoom = new UsersSession({
       users: [user1, user2],
