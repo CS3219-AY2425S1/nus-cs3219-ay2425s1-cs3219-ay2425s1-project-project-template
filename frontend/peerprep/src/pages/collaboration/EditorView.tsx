@@ -164,7 +164,7 @@ const EditorView: React.FC = () => {
     targetDifficulty: string
   ): Question | undefined => {
     return questions.find((question) => {
-      const categoriesArray = question.Categories.split(',').map((cat) => cat.trim().toLowerCase());
+      const categoriesArray = question.Categories.map((cat) => cat.trim().toLowerCase());
       return (
         categoriesArray.includes(targetTopic.toLowerCase()) &&
         question.Complexity.toLowerCase() === targetDifficulty.toLowerCase()

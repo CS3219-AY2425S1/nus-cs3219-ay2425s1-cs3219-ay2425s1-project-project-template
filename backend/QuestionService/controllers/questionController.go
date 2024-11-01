@@ -17,7 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	// "go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // var database.Coll *mongo.Collection = database.OpenCollection(database.Client, "question_db", "questions")
@@ -299,40 +299,45 @@ func GetTopics(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	// Perform a distinct query to get unique categories
-	topics, err := database.Coll.Distinct(ctx, "categories", bson.M{})
+	// Aggregation pipeline to get unique topics with unique difficulties
+	pipeline := mongo.Pipeline{
+		{{"$unwind", bson.D{{"path", "$categories"}}}},
+		{{"$group", bson.D{
+			{"_id", "$categories"},
+			{"difficulties", bson.D{{"$addToSet", "$complexity"}}},
+		}}},
+	}
+
+	// Execute the aggregation
+	cursor, err := database.Coll.Aggregate(ctx, pipeline)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch topics", "details": err.Error()})
 		return
 	}
+	defer cursor.Close(ctx)
 
-	// Check if topics list is empty
-	if len(topics) == 0 {
-		c.JSON(http.StatusOK, gin.H{"message": "No topics found", "topics": []string{}})
+	// Process results into a response structure
+	var topics []bson.M
+	if err = cursor.All(ctx, &topics); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse topics", "details": err.Error()})
 		return
 	}
 
-	// Create a set to hold unique individual topics
-	topicSet := make(map[string]struct{})
+	if len(topics) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "No topics found", "topics": []gin.H{}})
+		return
+	}
+
+	// Format the result for JSON response
+	var response []gin.H
 	for _, topic := range topics {
-		if str, ok := topic.(string); ok {
-			// Split by commas and trim each topic, then add to the set
-			for _, individualTopic := range strings.Split(str, ",") {
-				trimmedTopic := strings.TrimSpace(individualTopic)
-				if trimmedTopic != "" {
-					topicSet[trimmedTopic] = struct{}{}
-				}
-			}
-		}
+		response = append(response, gin.H{
+			"topic":       topic["_id"],
+			"difficulties": topic["difficulties"],
+		})
 	}
 
-	// Convert the set to a slice for JSON response
-	var stringTopics []string
-	for topic := range topicSet {
-		stringTopics = append(stringTopics, topic)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Topics retrieved successfully", "topics": stringTopics})
+	c.JSON(http.StatusOK, gin.H{"message": "Topics retrieved successfully", "topics": response})
 }
 
 func DeleteQuestion(c *gin.Context) {

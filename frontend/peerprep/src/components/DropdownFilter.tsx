@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Icon,
@@ -29,6 +29,7 @@ interface DropdownFilterProps {
 
 const DropdownFilter: React.FC<DropdownFilterProps> = ({
   filters,
+  columnFilters,
   setColumnFilters,
   filterKey,
   color = "purple",
@@ -37,19 +38,22 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
   const [buttonText, setButtonText] = useState<string>("ALL");
   const [textColor, setTextColor] = useState<string>("white");
 
-  const handleFilterChange = (selectedFilter: string) => {
-    setSelectedFilter(selectedFilter);
+  useEffect(() => {
+    const existingFilter = columnFilters.find((filter) => filter.id === filterKey);
+    if (existingFilter) {
+      handleFilterChange(existingFilter.value as string);
+    }
+  }, []);
 
-    if (selectedFilter === "all") {
+  const handleFilterChange = (selected: string) => {
+    setSelectedFilter(selected);
+
+    if (selected === "all") {
       setTextColor("white");
       setButtonText("ALL");
-      setColumnFilters((prev) =>
-        prev.filter((filter) => filter.id !== filterKey)
-      );
+      setColumnFilters((prev) => prev.filter((filter) => filter.id !== filterKey));
     } else {
-      const selectedOption = filters.find(
-        (filter) => filter.id === selectedFilter
-      );
+      const selectedOption = filters.find((filter) => filter.id === selected);
       setButtonText(selectedOption ? selectedOption.id : "ALL");
       setTextColor(selectedOption ? selectedOption.color : "white");
 
@@ -59,15 +63,12 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
         if (existingFilter) {
           return prev.map((filter) =>
             filter.id === filterKey
-              ? { ...filter, value: selectedFilter }
+              ? { ...filter, value: selected }
               : filter
           );
         }
 
-        return prev.concat({
-          id: filterKey,
-          value: selectedFilter,
-        });
+        return [...prev, { id: filterKey, value: selected }];
       });
     }
   };
@@ -86,7 +87,7 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
           borderRadius="md"
           px={6}
         >
-          {`${buttonText}`}
+          {buttonText}
         </MenuButton>
         <MenuList
           minWidth="auto"
@@ -98,10 +99,9 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
         >
           <MenuOptionGroup
             type="radio"
-            value={selectedFilter || "all"}
+            value={selectedFilter}
             onChange={(value) => handleFilterChange(value as string)}
           >
-            {/* Add an "ALL" option to clear the selection */}
             <MenuItemOption
               key="all"
               value="all"

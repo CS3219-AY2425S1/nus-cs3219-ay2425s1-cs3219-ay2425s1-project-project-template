@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Avatar, Text, Box, Flex, VStack, HStack, border } from "@chakra-ui/react";
+import { Button, Avatar, Text, Box, Flex, VStack, HStack } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { useUserContext } from "../../context/UserContext";
 import { COMPLEXITIES } from "../../constants/data";
@@ -13,43 +13,53 @@ const DashboardView = () => {
   const api = useQuesApiContext();
   const user = useUserContext().user;
 
-  // State for selected topic, difficulty, and topics list
   const services: string[] = ["View Questions", "Let's Match"];
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
-  const [topics, setTopics] = useState<string[]>([]);
+  const [topics, setTopics] = useState<{ topic: string; difficulties: string[] }[]>([]);
+  const [filteredDifficulties, setFilteredDifficulties] = useState<string[]>([]);
 
   // Function to fetch topics
-  const fetchTopics = async (): Promise<string[]> => {
+  const fetchTopics = async () => {
     try {
-      const response = await api.get<{ message: string; topics: string[] }>("/questions/topics");
-      return response.data.topics;
+      const response = await api.get<{ message: string; topics: { topic: string; difficulties: string[] }[] }>(
+        "/questions/topics"
+      );
+      setTopics(response.data.topics);
+      console.log(response)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Axios error: ", error.response?.data || error.message);
-        throw new Error(
-          error.response?.data?.message || "An error occurred while fetching topics"
-        );
       } else {
         console.error("Unknown error: ", error);
-        throw new Error("An unexpected error occurred");
       }
     }
   };
 
   // Fetch topics on component mount
   useEffect(() => {
-    const loadTopics = async () => {
-      try {
-        const topicsData = await fetchTopics();
-        setTopics(topicsData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    loadTopics();
+    fetchTopics();
   }, []);
+
+  // Update filtered difficulties when topic changes
+  useEffect(() => {
+    console.log("Selected Topic:", selectedTopic);
+    console.log("Topics Array:", topics);
+
+    const selectedTopicObject = topics.find(
+      (topicObj) => topicObj.topic.toLowerCase() === selectedTopic.toLowerCase()
+    );
+
+    if (!selectedTopicObject) {
+      console.warn("No match found for selected topic:", selectedTopic);
+    } else {
+      console.log("Found Topic Object:", selectedTopicObject);
+    }
+
+    setFilteredDifficulties(selectedTopicObject ? selectedTopicObject.difficulties : []);
+    setSelectedDifficulty(""); // Reset difficulty when topic changes
+  }, [selectedTopic, topics]);
+
 
   return (
     <Flex direction="column" p={10} w="full" h="200vh">
@@ -71,73 +81,82 @@ const DashboardView = () => {
             </Text>
           </Flex>
           <Button
-            mt={6} // Margin top to create space between text and button
-            borderColor="purple.300" // Purple border
+            mt={6}
+            borderColor="purple.300"
             borderWidth={2}
-            borderRadius="full" // Makes the button oval
+            borderRadius="full"
             size="lg"
-            variant="outline" // Outline variant to remove background
-            color="purple.300" // Text color
-            _hover={{ bgColor: "purple.50" }} // Light background on hover
+            variant="outline"
+            color="purple.300"
+            _hover={{ bgColor: "purple.50" }}
             onClick={() => navigate("/questions")}
           >
             View
           </Button>
         </Flex>
       </Flex>
+      
       {/* Topic and Difficulty Section */}
       <Flex justify="space-between">
+        {/* Topic Selection */}
         <Box w="30%">
           <Text fontSize="2xl" mb={4}>Select Topic: </Text>
-          <Dropdown topics={topics} onSelect={(topic) => setSelectedTopic(topic)} />
+          <Dropdown 
+            topics={topics.map((t) => t.topic)} 
+            onSelect={(topic) => setSelectedTopic(topic)} 
+          />
         </Box>
+
+        {/* Difficulty Selection */}
         <Box w="30%">
           <Text fontSize="2xl" mb={4}>Select Difficulty:</Text>
           <VStack spacing={6}>
-              {COMPLEXITIES.map((value, ind) => (
+            {COMPLEXITIES.map((value, ind) => (
               <Button
                 key={ind}
                 w="100%"
                 h="14"
-                bgColor={selectedDifficulty === value.id ? "purple.600" : "purple.500"} // Change background color if selected
+                bgColor={selectedDifficulty === value.id ? "purple.600" : "purple.500"}
                 color="white"
                 fontSize="lg"
                 border="2px"
-                borderColor={selectedDifficulty === value.id ? "white" : "transparent"} // Conditional border color
-                _hover={{ bgColor: selectedDifficulty === value.id ? "purple.700" : "purple.600" }} // Adjust hover effect
-                onClick={() => {
-                  setSelectedDifficulty(value.id);
-                }}
+                borderColor={selectedDifficulty === value.id ? "white" : "transparent"}
+                _hover={{ bgColor: selectedDifficulty === value.id ? "purple.700" : "purple.600" }}
+                isDisabled={!selectedTopic || !filteredDifficulties.includes(value.id.toLowerCase())}
+                onClick={() => setSelectedDifficulty(value.id)}
               >
                 {value.id}
               </Button>
             ))}
           </VStack>
         </Box>
+
+        {/* Action Buttons */}
         <VStack w="30%" spacing={6} align="center">
           {services.map((value, ind) => (
             <Button
               key={ind}
               w="100%"
-              h="14" // Increased height
+              h="14"
               bgColor="purple.500"
               color="white"
-              fontSize="lg" // Increased font size
+              fontSize="lg"
               _hover={{ bgColor: "purple.600" }}
               rightIcon={<FaArrowRight />}
-              isDisabled={value === "Let's Match" && (selectedDifficulty === "" || selectedTopic === "")}
+              isDisabled={value === "Let's Match" && (!selectedTopic || !selectedDifficulty)}
               onClick={() => {
+                if (value === "View Questions") {
+                  navigate(`/questions?topic=${selectedTopic}&difficulty=${selectedDifficulty}`);
+                }
                 if (value === "Let's Match") {
-                  navigate(
-                    `/matching?topic=${selectedTopic}&difficulty=${selectedDifficulty}`
-                  );
+                  navigate(`/matching?topic=${selectedTopic}&difficulty=${selectedDifficulty}`);
                 }
               }}
             >
               {value}
             </Button>
           ))}
-          {(selectedDifficulty === "" || selectedTopic === "") && (
+          {(!selectedDifficulty || !selectedTopic) && (
             <Text fontWeight="bold" color="red.300" fontSize="lg">
               Select a topic and difficulty before matching
             </Text>

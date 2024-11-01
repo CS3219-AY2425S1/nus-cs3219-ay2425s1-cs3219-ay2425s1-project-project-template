@@ -9,30 +9,46 @@ import {
 import { useQuesApiContext } from "../../context/ApiContext";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useSearchParams } from "react-router-dom";
 
 const QuestionController: React.FC = () => {
   const api = useQuesApiContext();
-  // const generateRandomColor = (): string => {
-  //   const letters = "0123456789ABCDEF";
-  //   let color = "#";
-  //   for (let i = 0; i < 6; i++) {
-  //     color += letters[Math.floor(Math.random() * 16)];
-  //   }
-  //   return color;
-  // };
+  const [searchParams] = useSearchParams();
+  const topic = searchParams.get("topic");
+  const difficulty = searchParams.get("difficulty");
+  
+  const initialCF = React.useMemo(() => {
+    const filters = [];
+    if (topic) {
+      filters.push({
+        id: 'Categories',
+        value: topic,
+      });
+    }
+    if (difficulty) {
+      filters.push({
+        id: 'Complexity',
+        value: difficulty,
+      });
+    }
+    console.log(filters);
+    return filters;
+  }, [topic, difficulty]);
 
   // Function to assign random colors to each topic
-  const assignRandomColorsToTopics = (topics: string[]): Topic[] => {
-    if (!Array.isArray(topics)) {
-      console.error("Expected an array but received:", topics);
-      return []; // Return an empty array if topics is not valid
-    }
-    return topics.map((topic, ind) => ({
-      id: topic,
-      color: ind % 2 == 0 ? "purple.700" : "purple.300",
-      // color: generateRandomColor(),
-    }));
-  };
+  const assignColorsToTopics = (topics: { topic: string; difficulties: string[] }[]): Topic[] => {
+  if (!Array.isArray(topics)) {
+    console.error("Expected an array but received:", topics);
+    return []; // Return an empty array if topics is not valid
+  }
+
+  return topics.map((topicObj, ind) => ({
+    id: topicObj.topic,
+    difficulties: topicObj.difficulties,
+    color: ind % 2 == 0 ? "purple.700" : "purple.300",
+    // color: generateRandomColor(), // Optionally use a random color generator
+  }));
+};
 
   const fetchQuestions = async (): Promise<Question[]> => {
     try {
@@ -54,10 +70,10 @@ const QuestionController: React.FC = () => {
 
   const fetchTopics = async (): Promise<Topic[]> => {
     try {
-      const response = await api.get<{ message: string; topics: string[] }>(
+      const response = await api.get<{ message: string; topics: { topic: string; difficulties: string[] }[] }>(
         "/questions/topics"
       );
-      return assignRandomColorsToTopics(response.data.topics);
+      return assignColorsToTopics(response.data.topics);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Axios error: ", error.response?.data || error.message);
@@ -213,11 +229,12 @@ const QuestionController: React.FC = () => {
       }
     }
   };
-
+  
   return (
     <QuestionView
       questions={questions}
       topics={topics}
+      initialCF={initialCF}
       onAddQuestion={handleAdd}
       onAddLeetCodeQuestion={handleLeetCodeAdd}
       onDeleteQuestion={handleDelete}
