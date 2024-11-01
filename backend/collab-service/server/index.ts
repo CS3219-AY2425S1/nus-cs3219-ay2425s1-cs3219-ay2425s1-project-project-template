@@ -1,5 +1,3 @@
-// backend/collab-service/server/index.ts
-
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -7,7 +5,7 @@ import { createServer } from 'http';
 import logger from '../utils/logger';
 
 import createRoomRouter from '../create-room/createRoomRouter';
-import { setupWebSocketServer } from '../websocket/websocketServer';
+import { setupCodeCollabWebSocketServer } from '../websocket/websocketServer';
 import { verifyRoom } from '../verify-room-validity/verifyRoomValidityController';
 
 dotenv.config({ path: './.env' });
@@ -22,7 +20,7 @@ app.use(verifyRoom);
 const PORT = process.env.PORT || 5003;
 const server = createServer(app);
 
-setupWebSocketServer(server);
+setupCodeCollabWebSocketServer();
 
 server.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);

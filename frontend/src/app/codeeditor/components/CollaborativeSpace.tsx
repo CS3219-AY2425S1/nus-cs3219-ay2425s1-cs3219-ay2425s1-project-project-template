@@ -1,10 +1,12 @@
 "use client"
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco'
 import CodeEditor from '@/app/codeeditor/components/CodeEditor';
 import Chat from '@/app/codeeditor/components/chat';
+import Editor from '@monaco-editor/react'
 
 interface CollaborativeSpaceProps {
   initialCode?: string;
@@ -21,16 +23,16 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   roomId,
   userName,
 }) => {
-  const ydocRef = useRef<Y.Doc | null>(null);
-  const providerRef = useRef<WebsocketProvider | null>(null);
+  const ydoc = useMemo(() => new Y.Doc(), [])
+  const [editor, setEditor] = useState<any | null>(null)
+  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
+  const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
   useEffect(() => {
-    const ydoc = new Y.Doc();
-    ydocRef.current = ydoc;
-
     // websocket link updated 
-    const provider = new WebsocketProvider('ws://localhost:5003?roomId=${roomId}', roomId, ydoc);
-    providerRef.current = provider;
+    // REPLACE WITH wss:localhost:5004 IF RUNNING WITH NPM RUN DEV. THIS SETUP IS FOR DOCKER.
+    const provider = new WebsocketProvider('ws://localhost:5004', roomId, ydoc);
+    setProvider(provider);
 
     // Set user awareness
     provider.awareness.setLocalStateField('user', {
@@ -39,12 +41,12 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     });
 
     return () => {
-      provider.destroy();
+      provider?.destroy();
       ydoc.destroy();
     };
-  }, [roomId, userName]);
+  }, [ydoc]);
 
-  if (!ydocRef.current || !providerRef.current) {
+  if (provider === null || ydoc === null) {
     return <div>Loading...</div>;
   }
 
@@ -52,15 +54,15 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     <div className="collaborative-coding-page" style={{ display: 'flex', height: '100vh' }}>
       <div style={{ flex: 2 }}>
         <CodeEditor
-          ydoc={ydocRef.current}
-          provider={providerRef.current}
+          ydoc={ydoc}
+          provider={provider}
           initialCode={initialCode}
           language={language}
           theme={theme}
         />
       </div>
       <div style={{ flex: 1, marginLeft: '10px' }}>
-        <Chat ydoc={ydocRef.current} provider={providerRef.current} userName={userName} />
+        <Chat ydoc={ydoc} provider={provider} userName={userName} />
       </div>
     </div>
   );
