@@ -39,7 +39,7 @@ const formSchema = z.object({
   testCases: z.array(
     z.object({
       input: z.string().min(1, { message: "Input is required." }),
-      output: z.string().min(1, { message: "Output is required." }),
+      expected: z.string().min(1, { message: "Output is required." }),
     })
   ).min(1, { message: "At least one test case is required." })
 });
@@ -187,7 +187,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
 
 
     return (
-        <div className="flex justify-center">
+        <div className="flex justify-center max-h-[80vh] overflow-y-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-1/2">
             {error && (
@@ -307,11 +307,11 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
                   />
                   <FormField
                     control={form.control}
-                    name={`testCases.${index}.output`}
+                    name={`testCases.${index}.expected`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Textarea placeholder="Output" {...field} className="mt-2" />
+                          <Textarea placeholder="Expected Output" {...field} className="mt-2" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -325,7 +325,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
                   {form.formState.errors.testCases.message}
                 </p>
               )}
-              <Button type="button" onClick={() => append({ input: '', output: '' })}>
+              <Button type="button" onClick={() => append({ input: '', expected: '' })}>
                 + Add Test Case
               </Button>
             </div>

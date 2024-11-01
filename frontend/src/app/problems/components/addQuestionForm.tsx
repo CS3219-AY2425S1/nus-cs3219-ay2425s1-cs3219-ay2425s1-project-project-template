@@ -44,7 +44,7 @@ const formSchema = z.object({
   testCases: z.array(
     z.object({
       input: z.string().min(1, { message: "Input is required." }),
-      output: z.string().min(1, { message: "Output is required." }),
+      expected: z.string().min(1, { message: "Expected Output is required." }),
     })
   ).min(1, { message: "At least one test case is required." })
 })
@@ -246,7 +246,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
                 />
                 <FormField
                   control={form.control}
-                  name={`testCases.${index}.output`}
+                  name={`testCases.${index}.expected`}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -264,7 +264,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
                 {form.formState.errors.testCases.message}
               </p>
             )}
-            <Button type="button" onClick={() => append({ input: '', output: '' })}>
+            <Button type="button" onClick={() => append({ input: '', expected: '' })}>
               + Add Test Case
             </Button>
           </div>
