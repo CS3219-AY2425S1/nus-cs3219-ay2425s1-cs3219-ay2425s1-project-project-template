@@ -1,19 +1,19 @@
 import express from "express";
 import {
-  create_room,
-  get_room_by_user,
-  update_heartbeat,
-  get_all_rooms_controller,
+  createRoom,
+  getRoomByUser,
+  updateHeartbeat,
+  getAllRoomsController,
 } from "../controller/collab-controller.js";
 
 const router = express.Router();
 
-router.post("/create-room", create_room);
+router.post("/create-room", createRoom);
 
-router.get("/user/:user", get_room_by_user);
+router.get("/user/:user", getRoomByUser);
 
-router.patch("/heartbeat/:roomId", update_heartbeat);
+router.patch("/heartbeat/:roomId", updateHeartbeat);
 
-router.get("/rooms", get_all_rooms_controller);
+router.get("/rooms", getAllRoomsController);
 
 export default router;

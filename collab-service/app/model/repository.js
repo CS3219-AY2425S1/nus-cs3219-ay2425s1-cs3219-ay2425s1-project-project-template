@@ -23,7 +23,7 @@ export async function createRoom(user1, user2, roomId) {
   }
 }
 
-export async function get_roomID(user) {
+export async function getRoomId(user) {
   try {
     const room = await UsersSession.findOne({ users: user });
     return room;
@@ -45,7 +45,7 @@ export async function heartbeat(roomId) {
   }
 }
 
-export async function get_all_rooms() {
+export async function getAllRooms() {
   try {
     const rooms = await UsersSession.find({});
     return rooms;

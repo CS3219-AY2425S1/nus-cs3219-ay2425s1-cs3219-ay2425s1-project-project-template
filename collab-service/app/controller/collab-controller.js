@@ -1,13 +1,13 @@
 import {
   createRoom,
-  get_roomID,
+  getRoomId,
   heartbeat,
-  get_all_rooms,
+  getAllRooms,
 } from "../model/repository.js";
 import crypto from "crypto";
 
 // Create a room between two users
-export async function create_room(req, res) {
+export async function createRoom(req, res) {
   const { user1, user2 } = req.body;
 
   if (!user1 || !user2) {
@@ -29,14 +29,14 @@ export async function create_room(req, res) {
 }
 
 // Get room ID by user
-export async function get_room_by_user(req, res) {
+export async function getRoomByUser(req, res) {
   const { user } = req.params;
 
   if (!user) {
     return res.status(400).json({ error: "User is required" });
   }
 
-  const room = await get_roomID(user);
+  const room = await getRoomId(user);
 
   if (room) {
     res.status(200).json(room);
@@ -46,7 +46,7 @@ export async function get_room_by_user(req, res) {
 }
 
 // Update heartbeat for a room
-export async function update_heartbeat(req, res) {
+export async function updateHeartbeat(req, res) {
   const { roomId } = req.params;
 
   if (!roomId) {
@@ -63,8 +63,8 @@ export async function update_heartbeat(req, res) {
 }
 
 // Get all rooms
-export async function get_all_rooms_controller(req, res) {
-  const rooms = await get_all_rooms();
+export async function getAllRoomsController(req, res) {
+  const rooms = await getAllRooms();
 
   if (rooms) {
     res.status(200).json(rooms);
