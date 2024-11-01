@@ -92,6 +92,7 @@ export const createRoom = async (req: Request, res: Response) => {
     await set(userRoomsRef2, roomId);
 
     res.status(201).json({ message: "Room created successfully", roomId });
+    console.log(`Room ID ${roomId} created for users ${userId1} and ${userId2}`);
   } catch (error) {
     console.error("Error creating room:", error);
     res.status(500).json({ message: "Failed to create room" });
