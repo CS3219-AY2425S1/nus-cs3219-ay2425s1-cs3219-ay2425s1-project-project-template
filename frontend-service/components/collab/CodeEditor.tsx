@@ -15,7 +15,7 @@ interface Question {
 }
 
 const CodeEditor: React.FC = () => {
-  const { roomId, userId } = useParams<{ roomId: string; userId: string }>()
+  const { roomId } = useParams<{ roomId: string }>();
   const [code, setCode] = useState('//Start writing your code here..')
   const [codeLanguage, setCodeLanguage] = useState('Javascript')
   const [question, setQuestion] = useState<Question | null>(null)
