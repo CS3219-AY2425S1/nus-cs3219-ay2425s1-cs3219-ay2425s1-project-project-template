@@ -16,8 +16,6 @@ interface ChatLayoutProps {
   isLoading: boolean;
   error: string | null;
   title: string;
-  isExpanded?: boolean;
-  setIsExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -28,10 +26,9 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   isLoading,
   error,
   title,
-  isExpanded = false,
-  setIsExpanded,
 }) => {
   const [input, setInput] = useState<string>('');
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +65,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     <div
       className={`fixed right-0 top-14 h-[calc(100%-3.5rem)] bg-white shadow-xl transition-all duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
-      } ${isExpanded ? 'w-3/4' : 'w-96'}`}
+      } ${isExpanded ? 'w-3/4' : 'w-1/5'}`}
     >
       <div className='flex h-full flex-col'>
         <div className='flex items-center justify-between border-b bg-white px-4 py-3'>
@@ -77,16 +74,14 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
             <h2 className='text-base font-semibold'>{title}</h2>
           </div>
           <div className='flex items-center gap-2'>
-            {setIsExpanded && (
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={() => setIsExpanded(!isExpanded)}
-                className='rounded-full hover:bg-gray-100'
-              >
-                {isExpanded ? <Minimize2 className='size-5' /> : <Maximize2 className='size-5' />}
-              </Button>
-            )}
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => setIsExpanded(!isExpanded)}
+              className='rounded-full hover:bg-gray-100'
+            >
+              {isExpanded ? <Minimize2 className='size-5' /> : <Maximize2 className='size-5' />}
+            </Button>
             <Button
               variant='ghost'
               size='icon'

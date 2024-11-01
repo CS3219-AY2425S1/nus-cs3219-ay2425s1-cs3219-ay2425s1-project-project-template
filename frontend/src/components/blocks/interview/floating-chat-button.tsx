@@ -9,14 +9,27 @@ import { PartnerChat } from './partner-chat';
 
 type FloatingChatButtonProps = {
   room: string;
+  onChatOpenChange: (isOpen: boolean) => void;
 };
 
-export const FloatingChatButton = ({ room }: FloatingChatButtonProps) => {
+export const FloatingChatButton = ({ room, onChatOpenChange }: FloatingChatButtonProps) => {
   const [isAIChatOpen, setIsAIChatOpen] = useState<boolean>(false);
   const [isPartnerChatOpen, setIsPartnerChatOpen] = useState<boolean>(false);
 
+  const toggleAIChat = () => {
+    const newStatus = !isAIChatOpen;
+    setIsAIChatOpen(newStatus);
+    onChatOpenChange(newStatus || isPartnerChatOpen);
+  };
+
+  const togglePartnerChat = () => {
+    const newStatus = !isPartnerChatOpen;
+    setIsPartnerChatOpen(newStatus);
+    onChatOpenChange(newStatus || isAIChatOpen);
+  };
+
   return (
-    <div className='fixed bottom-6 right-6'>
+    <div className='fixed bottom-3 right-3'>
       <div className='group relative'>
         <Button className='size-12 rounded-full bg-blue-500 shadow-lg transition-transform hover:scale-105 hover:bg-blue-600'>
           <MessageSquare className='size-6' />
@@ -29,7 +42,7 @@ export const FloatingChatButton = ({ room }: FloatingChatButtonProps) => {
                 <TooltipTrigger asChild>
                   <Button
                     className='size-12 rounded-full bg-blue-500 hover:bg-blue-600'
-                    onClick={() => setIsAIChatOpen(true)}
+                    onClick={toggleAIChat}
                   >
                     <Bot className='size-10' />
                   </Button>
@@ -46,7 +59,7 @@ export const FloatingChatButton = ({ room }: FloatingChatButtonProps) => {
                 <TooltipTrigger asChild>
                   <Button
                     className='size-12 rounded-full bg-blue-500 hover:bg-blue-600'
-                    onClick={() => setIsPartnerChatOpen(true)}
+                    onClick={togglePartnerChat}
                   >
                     <User className='size-10' />
                   </Button>
@@ -60,13 +73,9 @@ export const FloatingChatButton = ({ room }: FloatingChatButtonProps) => {
         </div>
       </div>
 
-      {isAIChatOpen && <AIChat isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />}
+      {isAIChatOpen && <AIChat isOpen={isAIChatOpen} onClose={() => toggleAIChat()} />}
       {isPartnerChatOpen && (
-        <PartnerChat
-          roomId={room}
-          isOpen={isPartnerChatOpen}
-          onClose={() => setIsPartnerChatOpen(false)}
-        />
+        <PartnerChat roomId={room} isOpen={isPartnerChatOpen} onClose={() => togglePartnerChat()} />
       )}
     </div>
   );

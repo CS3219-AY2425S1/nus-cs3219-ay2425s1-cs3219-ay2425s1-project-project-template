@@ -21,7 +21,6 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const callOpenAI = async (userMessage: string): Promise<string> => {
     if (!API_KEY) {
@@ -91,8 +90,6 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
       isLoading={isLoading}
       error={error}
       title='AI Assistant'
-      isExpanded={isExpanded}
-      setIsExpanded={setIsExpanded}
     />
   );
 };

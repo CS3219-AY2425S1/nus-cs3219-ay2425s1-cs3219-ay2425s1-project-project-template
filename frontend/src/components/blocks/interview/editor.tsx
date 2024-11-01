@@ -43,7 +43,7 @@ export const Editor = ({ room }: EditorProps) => {
   }, [theme]);
 
   return (
-    <div className='flex flex-col gap-4 p-4'>
+    <div className='flex w-full flex-col gap-4 p-4'>
       {isLoading ? (
         <div className='flex h-[60px] w-full flex-row justify-between pt-3'>
           <div className='flex h-10 flex-row gap-4'>
