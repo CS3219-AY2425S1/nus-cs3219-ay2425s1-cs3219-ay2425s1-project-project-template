@@ -14,9 +14,9 @@ type Props = {
 };
 
 function Collaboration({ room, language }: Props) {
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const editorRef = useRef<any>(null); // Ref to store the editor instance
   const docRef = useRef(new Y.Doc()); // Initialize a single YJS document
-  const providerRef = useRef(null); // Ref to store the provider instance
+  const providerRef = useRef<WebrtcProvider | null>(null); // Ref to store the provider instance
   const [username, setUsername] = useState<string | null>(null);
   const [selectionRange, setSelectionRange] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -45,7 +45,9 @@ function Collaboration({ room, language }: Props) {
 
       // Cleanup provider on component unmount or when room changes
       return () => {
-        providerRef.current.destroy();
+        if (providerRef.current) {
+          providerRef.current.destroy();
+        }
         providerRef.current = null;
       };
     }
@@ -74,7 +76,7 @@ function Collaboration({ room, language }: Props) {
     }
   }, [room]);
 
-  function handleEditorDidMount(editor, monaco) {
+  function handleEditorDidMount(editor: { onDidChangeCursorPosition: (arg0: (e: any) => void) => void; }, monaco: any) {
     editorRef.current = editor;
 
     if (providerRef.current && docRef.current) {
@@ -89,7 +91,7 @@ function Collaboration({ room, language }: Props) {
       );
     }
 
-    editor.onDidChangeCursorPosition((e) => {
+    editor.onDidChangeCursorPosition((e: any) => {
       var selection = editorRef.current.getSelection();
       if (selection) {
         setSelectionRange(selection);
@@ -99,7 +101,7 @@ function Collaboration({ room, language }: Props) {
 
   // Save session before page unload
   useEffect(() => {
-    const handleBeforeUnload = async (e) => {
+    const handleBeforeUnload = async (e: { preventDefault: () => void; returnValue: string; }) => {
       e.preventDefault();
       await saveSession();
       e.returnValue = ""; // Chrome requires returnValue to be set
