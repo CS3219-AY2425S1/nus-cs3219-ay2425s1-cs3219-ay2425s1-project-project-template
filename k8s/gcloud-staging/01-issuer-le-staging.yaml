@@ -2,10 +2,14 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: letsencrypt-staging
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: app-cert-issuer-staging
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: <email-address> # ❗ Replace this with your email address
+    email: ay2425s1.cs3219.g16@gmail.com # ❗ Replace this with your email address
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:

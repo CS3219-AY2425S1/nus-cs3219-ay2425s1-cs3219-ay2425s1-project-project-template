@@ -90,7 +90,7 @@
 2. Run the command to set up the ingress controller:
 
     ```sh
-    kubectl apply -f ./k8s/ingress/nginx-ingress.yaml
+    kubectl apply -f ./k8s/local
     ```
 
     It should take a couple of minutes. Once done, you should run this command:
@@ -148,6 +148,116 @@
 
 ## GKE Instructions
 
-To be added.
+1. Authenticate or ensure you are added as a user to the Google Cloud Project:
 
+    - Project ID: `cs3219-g16`
+    - Project Zone: `asia-southeast1-c`
+
+2. Install the `gcloud` C by following the instructions at this link:
+
+    - [Installation Instructions](https://cloud.google.com/sdk/docs/install)
+
+3. Setup the CLI with the following commands:
+
+    ```sh
+    gcloud auth login
+
+    gcloud config set project cs3219-g16
+
+    gcloud config set compute/zone asia-southeast1-c
+
+    gcloud components install gke-gcloud-auth-plugin
+
+    export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+    ```
+
+4. Create the cluster with the following commands:
+
+    ```sh
+    gcloud container clusters create \
+      cs3219-g16 \
+      --preemptible \
+      --machine-type e2-small \
+      --enable-autoscaling \
+      --num-nodes 1 \
+      --min-nodes 1 \
+      --max-nodes 25 \
+      --region=asia-southeast1-c
+    ```
+
+5. Once the cluster has been created, run the commands below to configure `kubectl` and connect to the cluster:
+
+    ```sh
+    gcloud container clusters get-credentials cs3219-g16
+
+    # You should see some output here
+    kubectl get nodes -o wide
+    ```
+
+6. Run the script (ensure you are in a Bash shell like on Mac or Linux):
+
+    ```sh
+    make k8s-up
+    ```
+
+    - Wait until the deployments all reach status running:
+
+        ```sh
+        kubectl -n peerprep rollout status deployment frontend
+        ```
+
+7. If you haven't already, visit the GCloud console -> 'Cloud Domains' and verify that a domain name has been created.
+
+    - We currently have one as `peerprep-g16.net`.
+    - We also associate a GCloud Global Web IP `web-ip` to this DNS record as an 'A' record.
+
+8. Install the `cert-manager` plugin:
+
+    ```sh
+    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.1/cert-manager.yaml
+    ```
+
+9. Create the ingress and secrets in the prod environment:
+
+    ```sh
+    kubectl apply -f ./k8s/gcloud
+    ```
+
+    - After 15 minutes, you should be able to access the UI over HTTPS at this link:
+        - `https://peerprep-g16.net`
+
+10. Setup the following in Github Actions by:
+
+    - heading to the 'Settings' -> 'Secrets and variables' -> 'Actions' -> 'New repository secret'
+    - Adding the following keys:
+
+        ```txt
+        GKE_SA_KEY: <redacted (get from the cloud console page)>
+        GKE_PROJECT: cs3219-g16
+        GKE_CLUSTER: cs3219-g16 
+        GKE_ZONE: asia-southeast1-c
+
+        ```
+
+11. Merge a PR to `main` and verify that the cluster is redeployed with the latest images:
+
+    ```sh
+    kubectl -n peerprep get deployment
+    ```
+
+12. Cleanup:
+
+    - Delete the cluster:
+
+        ```sh
+        gcloud container clusters delete cs3219-g16
+        ```
+
+    - When done with the project, delete the web records:
+
+        ```sh
+        gcloud dns record-sets delete peerprep-g16 --type A
+
+        gcloud compute addresses delete web-ip --global
+        ```
 <!-- https://cert-manager.io/docs/tutorials/getting-started-with-cert-manager-on-google-kubernetes-engine-using-lets-encrypt-for-ingress-ssl/ -->
