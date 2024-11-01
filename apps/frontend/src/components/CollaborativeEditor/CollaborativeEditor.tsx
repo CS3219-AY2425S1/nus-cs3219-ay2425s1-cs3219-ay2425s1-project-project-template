@@ -48,6 +48,7 @@ interface AwarenessUpdate {
 }
 
 interface Awareness {
+  sessionEnded: boolean;
   user: {
     name: string;
     color: string;
@@ -245,7 +246,7 @@ const CollaborativeEditor = forwardRef(
             const state = provider.awareness
               .getStates()
               .get(clientID) as Awareness;
-            if (state && state.codeSavedStatus) {
+            if (state && state.codeSavedStatus && !state.sessionEnded) {
               // Display the received status message
               messageApi.open({
                 type: "success",
