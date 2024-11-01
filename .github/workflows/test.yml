@@ -24,7 +24,7 @@ jobs:
         run: cd ./apps/frontend
       
       - name: Set up .env
-        run: cp .env.example .env
+        run: cp ./.env.example .env
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
