@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import MonacoEditor from '@monaco-editor/react'
-import { Box, Button, Text } from '@chakra-ui/react'
+import { Box, Button, Select, Text } from '@chakra-ui/react'
 import { FIREBASE_DB } from '../../FirebaseConfig'
 import { ref, onValue, set } from 'firebase/database'
 import axios from 'axios'
@@ -12,6 +12,14 @@ interface Question {
   description: string,
   category: string,
   difficulty: string,
+}
+
+// support multiple programming languages
+const languageType: { [key: string]: string } = {
+  javascript: '// Start writing your JavaScript code here...',
+  python: '# Start writing your Python code here...',
+  java: '// Start writing your Java code here...',
+  csharp: '// Start writing your C# code here...',
 }
 
 const CodeEditor: React.FC = () => {
@@ -39,9 +47,8 @@ const CodeEditor: React.FC = () => {
   }
 
   const handleResetCode = () => {
-    const initialCode = '//Start writing your code here..'
-    setCode(initialCode)
-    set(codeRef, initialCode)
+    setCode(languageType[codeLanguage])
+    set(codeRef, languageType[codeLanguage])
   }
 
   const handleSelectQuestion = async (questionId: string) => {
@@ -51,7 +58,14 @@ const CodeEditor: React.FC = () => {
     } catch (error) {
       console.error("Failed to fetch question details:", error);
     }
-  };
+  }
+
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedLanguage = event.target.value
+    setCodeLanguage(selectedLanguage)
+    setCode(languageType[selectedLanguage])
+    set(codeRef, languageType[selectedLanguage])
+  }
 
   return (
     <Box display="flex" height="100vh">
@@ -80,7 +94,19 @@ const CodeEditor: React.FC = () => {
           <Text fontSize="lg" fontWeight="bold" color="gray.700">
             Code Editor
           </Text>
-          <Box>
+          <Box display="flex" alignItems="center">
+            <Select
+              size="sm"
+              width="150px"
+              mr={3}
+              value={codeLanguage}
+              onChange={handleLanguageChange}
+            >
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="csharp">C#</option>
+            </Select>
             <Button size="sm" colorScheme="blue" marginRight={10}>
               Run
             </Button>

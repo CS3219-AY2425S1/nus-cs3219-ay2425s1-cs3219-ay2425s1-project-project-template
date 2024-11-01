@@ -27,7 +27,12 @@ const createRoom = async (userA: string, userB: string): Promise<void> => {
       }
     );
     if (response.status === 201) {
-      console.log(`Room created successfully for users ${userA} and ${userB}.`);
+      const data = await response.json();
+      const roomId = data.roomId;
+      console.log(
+        `Room ID ${roomId} created successfully for users ${userA} and ${userB}.`
+      );
+      return roomId;
     } else {
       const errorMsg = await response.text();
       console.error(
@@ -36,7 +41,7 @@ const createRoom = async (userA: string, userB: string): Promise<void> => {
     }
   } catch (error: any) {
     console.error(`Error creating room for users ${userA} and ${userB}`);
-    console.error(error)
+    console.error(error);
   }
 };
 

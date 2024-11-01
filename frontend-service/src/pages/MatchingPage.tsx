@@ -48,12 +48,15 @@ const MatchingPage: React.FC = () => {
   const checkMatchStatus = async () => {
     try {
       const result = await fetchWithAuth("http://localhost:3002/match-status");
+      console.log("Match Status:", result.matchStatus);
+
       const matchStatus = result.matchStatus;
       if (matchStatus == "isNotMatching") {
         setStage(STAGE.MATCHME);
       } else if (matchStatus == "isMatching") {
         setStage(STAGE.COUNTDOWN);
       } else if (matchStatus == "isMatched") {
+        console.log("Matched! Room ID:", result.roomId);
         handleMatchFound(result.roomId);
       } else if (matchStatus == "unsuccessful") {
         handleMatchUnsuccess();
@@ -77,6 +80,7 @@ const MatchingPage: React.FC = () => {
   };
 
   const handleMatchFound = (roomId: string) => {
+    console.error("Room ID:", roomId);
     setStage(STAGE.SUCCESS);
     navigate(`/editor/${roomId}`);
   };
