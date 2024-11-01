@@ -27,6 +27,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@types/angular": "^1.8.9",
     "angular-oauth2-oidc": "^17.0.2",
+    "ngx-monaco-editor-v2": "^18.1.0",
     "node": "^22.9.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

@@ -12,8 +12,9 @@ import { LandingPageComponent } from "../landing-page/landing-page.component"
 import {MatchModalComponent} from "../loading-screen/match-modal/match-modal.component";
 import { authGuard } from "./authService/auth.guard"
 import { adminGuard } from "./authService/admin.guard"
-import { loginGuard } from "./authService/login.guard"
-import { CollabPageComponent } from "../collab-page/collab-page.component"
+import {CollaborativeEditorComponent} from "../code-editor/collaborative-editor/collaborative-editor.component";
+import {CollabPageComponent} from "../collab-page/collab-page.component";
+import {loginGuard} from "./authService/login.guard";
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -26,5 +27,7 @@ export const routes: Routes = [
   { path: "loading-screen", component: MatchModalComponent },
   { path: "question-list", component: QuestionListComponent },
   { path: "landing", component: LandingPageComponent, canActivate: [authGuard]},
-  { path: "collab", component: CollabPageComponent }
-]
+  { path: "collab", component: CollabPageComponent },
+
+  { path: "code-editor", component: CollaborativeEditorComponent }
+];

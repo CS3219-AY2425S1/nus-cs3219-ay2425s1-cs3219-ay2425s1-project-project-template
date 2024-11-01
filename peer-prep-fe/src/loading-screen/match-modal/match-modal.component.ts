@@ -40,9 +40,9 @@ export class MatchModalComponent implements OnInit {
   otherDifficulty: string = '';
   // seconds: number = 30;
 
-  constructor(private router: Router, 
-    private route: ActivatedRoute, 
-    private matchService: MatchService, 
+  constructor(private router: Router,
+    private route: ActivatedRoute,
+    private matchService: MatchService,
     private userService: UserService) {}
 
   ngOnInit(): void {
@@ -54,7 +54,7 @@ export class MatchModalComponent implements OnInit {
       this.queueName = params['queueName'];
     });
     this.userData = {difficulty: this.difficulty, topic: this.category, user_id: this.userId};
-    
+
     this.findMatch();
   }
 
@@ -94,7 +94,7 @@ export class MatchModalComponent implements OnInit {
       this.handleMatchResponse(response);
     }
   }
-  
+
   handleMatchResponse(response: MatchResponse) {
     console.log('response', response);
     // if (response.timeout || this.seconds === 0) {
@@ -145,6 +145,7 @@ export class MatchModalComponent implements OnInit {
   acceptMatch() {
     this.isVisible = false;
     // Logic to navigate to the next page
+    this.router.navigate(['collab']);
   }
 
   async requeue() {
