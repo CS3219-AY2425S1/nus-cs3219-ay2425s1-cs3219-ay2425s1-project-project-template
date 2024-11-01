@@ -5,7 +5,7 @@ services:
     container_name: nginx
     restart: always
     volumes:
-      - ./nginx/default.conf:/tmp/default.conf
+      - ./nginx:/tmp
       - /etc/letsencrypt:/etc/letsencrypt
       - react-build:/app/dist
     environment:
@@ -24,6 +24,8 @@ services:
       - question-service
       - matching-service
       - match-notification-service
+    env_file:
+      - .env/.nginx_env
     healthcheck:
       test:
         [
@@ -55,6 +57,7 @@ services:
     container_name: user-service-backend
     env_file:
       - .env/.user_env
+      - .env/.global_auth_env
     depends_on:
       - user-service-mongo
     networks:
@@ -154,6 +157,7 @@ services:
     #   - "8004:8004" # for testing
     env_file:
       - .env/.collaboration_env
+      - .env/.global_auth_env
 
   code-execution-service:
     build:

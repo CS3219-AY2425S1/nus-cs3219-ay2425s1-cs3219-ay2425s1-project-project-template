@@ -3,14 +3,16 @@ import '@mantine/core/styles.css';
 import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 
 import './App.css';
-import './App.css';
+import PrivateRoute from './components/PrivateRoute';
 import AuthProvider from './hooks/AuthProvider';
-import Admin from './pages/Admin';
-import Dashboard from './pages/Dashboard';
-import Landing from './pages/Landing';
-import Room from './pages/Room';
+
+const Admin = lazy(() => import('./pages/Admin'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Landing = lazy(() => import('./pages/Landing'));
+const Room = lazy(() => import('./pages/Room'));
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -37,12 +39,16 @@ function App() {
       <Notifications position="top-right" />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/room" element={<Room />} />
-          </Routes>
+          <Suspense fallback={<></>}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/room" element={<Room />} />
+              </Route>
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </MantineProvider>
