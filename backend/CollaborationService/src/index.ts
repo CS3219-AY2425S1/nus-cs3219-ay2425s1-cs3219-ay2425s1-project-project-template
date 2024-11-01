@@ -25,13 +25,14 @@ let pending: ((value: any) => void)[] = [];
 let io = new Server(server, {
   path: "/api",
   cors: {
-    origin: "*",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
 
 // listening for connections from clients
 io.on("connection", (socket: Socket) => {
+  console.log("new connection");
   socket.on("pullUpdates", (version: number) => {
     if (version < updates.length) {
       socket.emit("pullUpdateResponse", JSON.stringify(updates.slice(version)));
@@ -73,7 +74,7 @@ io.on("connection", (socket: Socket) => {
   });
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 // server.listen(port, () => console.log(`Server listening on port: ${port}`));
 
 server.listen(port, () => {

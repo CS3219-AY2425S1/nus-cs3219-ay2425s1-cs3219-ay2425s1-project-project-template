@@ -23,16 +23,23 @@ const EditorView: React.FC = () => {
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic");
   const difficulty = searchParams.get("difficulty");
-  const [code, setCode] = useState<string>(""); 
+  const [code, setCode] = useState<string>("");
   const api = useQuesApiContext();
 
   useEffect(() => {
-    if (topic === null || difficulty === null || topic === "" || difficulty === "") {
+    if (
+      topic === null ||
+      difficulty === null ||
+      topic === "" ||
+      difficulty === ""
+    ) {
       navigate("/dashboard");
       return;
     }
 
-    socketRef.current = io("http://localhost:8080/");
+    socketRef.current = io("http://localhost:8000/", {
+      path: "/api",
+    });
     const socket = socketRef.current;
 
     if (socket === null) return;
@@ -48,72 +55,58 @@ const EditorView: React.FC = () => {
     });
 
     socket.on("queueEntered", (data: { message: string }) => {
-        console.log("queue entered", data);
-      });
-  
+      console.log("queue entered", data);
+    });
+
     socket.on("matchFailed", (data: { error: string }) => {
-        console.log("Match failed:", data.error);
-        });
-  
+      console.log("Match failed:", data.error);
+    });
+
     socket.on("assignSocketId", (data: { socketId: string }) => {
-        console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
-        setSocketId(data.socketId); // Set the socket ID from the server
+      console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
+      setSocketId(data.socketId); // Set the socket ID from the server
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        `You are assigned to: ${data.socketId}`, // Add to messages
+      ]);
+    });
+
+    socket.on("message", (data: string) => {
+      setMessages((prevMessages) => [...prevMessages, data]);
+      if (chatBoxRef.current) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
+      }
+    });
+
+    socket.on(
+      "receiveMessage",
+      (data: { username: string; message: string }) => {
         setMessages((prevMessages) => [
           ...prevMessages,
-          `You are assigned to: ${data.socketId}`, // Add to messages
+          `${data.username}: ${data.message}`,
         ]);
-      });
-  
-    socket.on("message", (data: string) => {
-        setMessages((prevMessages) => [...prevMessages, data]);
         if (chatBoxRef.current) {
-          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
+          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
         }
-      });
-  
-    socket.on(
-        "receiveMessage",
-        (data: { username: string; message: string }) => {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            `${data.username}: ${data.message}`,
-          ]);
-          if (chatBoxRef.current) {
-            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-          }
-        }
-      );
+      }
+    );
 
     // Listen for incoming code changes
     socket.on("codeChange", (newCode: string) => {
-        setCode(newCode);
+      setCode(newCode);
     });
 
     // Listen for language changes
     socket.on("languageChange", (newLanguage: string) => {
-        setLanguage(newLanguage);
+      setLanguage(newLanguage);
     });
 
     return () => {
-        if (socketRef.current !== null) {
-            socketRef.current.disconnect();
-        }
+      if (socketRef.current !== null) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
-
-  // Send code updates to other users in the room
-  const handleEditorChange = (value: string | undefined) => {
-    if (!value || !isMatched) return;
-    setCode(value);
-    socketRef.current?.emit("sendCode", { room, code: value });
-  };
-
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-    socketRef.current?.emit("changeLanguage", { room, language: newLanguage });
-  };
-
 
   const sendMessage = () => {
     if (message.trim() && socketRef && isMatched) {
@@ -127,168 +120,99 @@ const EditorView: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
-  };
-
-  const fetchQuestions = async (): Promise<Question[]> => {
-    try {
-      const response = await api.get<Question[]>("/questions");
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error: ", error.response?.data || error.message);
-        throw new Error(
-          error.response?.data?.message || "An error occurred while fetching questions"
-        );
-      } else {
-        console.error("Unknown error: ", error);
-        throw new Error("An unexpected error occurred");
-      }
-    }
-  };
-
-  const { data: questions = [] } = useQuery({
-    queryKey: ["questions"],
-    queryFn: fetchQuestions,
-    placeholderData: keepPreviousData,
-  });
-
-  //console.log("question chosen: ", questions);
-
-  const filterQuestionByTopicAndDifficulty = (
-    questions: Question[],
-    targetTopic: string,
-    targetDifficulty: string
-  ): Question | undefined => {
-    return questions.find((question) => {
-      const categoriesArray = question.Categories.map((cat) => cat.trim().toLowerCase());
-      return (
-        categoriesArray.includes(targetTopic.toLowerCase()) &&
-        question.Complexity.toLowerCase() === targetDifficulty.toLowerCase()
-      );
-    });
-  };  
-
-  const filteredQuestion = filterQuestionByTopicAndDifficulty(questions, topic, difficulty);
-  console.log("question chosen: ", filteredQuestion);
-
   return (
     <div className="collaboration-container">
-        <div className="question-display" style={styles.questionDisplay}>
-        {filteredQuestion ? (
-          <div>
-            <h2>{filteredQuestion.Title}</h2>
-            <p><strong>Topic:</strong> {filteredQuestion.Categories}</p>
-            <p><strong>Difficulty:</strong> {filteredQuestion.Complexity}</p>
-            <p><strong>Description:</strong> <span dangerouslySetInnerHTML={{ __html: filteredQuestion.Description }} /></p>
-            <a href={filteredQuestion.Link} target="_blank" rel="noopener noreferrer">View on LeetCode</a>
-          </div>
-        ) : (
-          <p>Loading question...</p>
-        )}
-      </div>
       <div className="right-side" style={styles.rightSide}>
-      <div className="editor-container" style={styles.editorContainer}>
-        {socketRef.current && (
-          <EditorElement socket={socketRef.current} />
-        )}
-      </div>
-      <div className="chat-container" style={styles.chatContainer}>
-        <div className="chat-box" ref={chatBoxRef} style={styles.chatBox}>
-          {messages.map((msg, index) => (
-            <div key={index} style={styles.message}>{msg}</div>
-          ))}
+        <div className="editor-container" style={styles.editorContainer}>
+          {socketRef.current && <EditorElement socket={socketRef.current} />}
         </div>
-        <div className="socket-id-display" style={styles.socketIdDisplay}>
-          {socketId && <div>Your Socket ID: {socketId}</div>}
-        </div>
-        <div className="chat-input" style={styles.chatInput}>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Message"
-            style={styles.input}
-          />
-          <button onClick={sendMessage} style={styles.sendButton}>
-            Send
-          </button>
+        <div className="chat-container" style={styles.chatContainer}>
+          <div className="chat-box" ref={chatBoxRef} style={styles.chatBox}>
+            {messages.map((msg, index) => (
+              <div key={index} style={styles.message}>
+                {msg}
+              </div>
+            ))}
+          </div>
+          <div className="socket-id-display" style={styles.socketIdDisplay}>
+            {socketId && <div>Your Socket ID: {socketId}</div>}
+          </div>
+          <div className="chat-input" style={styles.chatInput}>
+            <button onClick={sendMessage} style={styles.sendButton}>
+              Send
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
 
 const styles = {
-    languageSelector: {
-        margin: "10px 0",
-        color: "black",
-    },
-    editorContainer: {
-        margin: "10px",
-    },
-    questionDisplay: {
-        flex: 1,
-        padding: "20px",
-        borderRight: "1px solid #ccc",
-        backgroundColor: "#170c0c",
-        overflowY: "auto" as const,
-    },
-    chatContainer: {
-        width: "300px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        backgroundColor: "white",
-        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-    },
-    rightSide: {
-        flex: 1,
-        display: "flex",
-        flexDirection: "column" as const,
-        padding: "20px",
-    },
-    chatBox: {
-        height: "200px",
-        padding: "10px",
-        borderBottom: "1px solid #ccc",
-        overflowY: "auto" as const,
-        backgroundColor: "#fafafa",
-    },
-    message: {
-        color: "black",
-    },
-    socketIdDisplay: {
-        padding: "10px",
-        backgroundColor: "#e9ecef",
-        textAlign: "center" as const,
-        color: "blue",
-    },
-    chatInput: {
-        display: "flex",
-        padding: "10px",
-    },
-    input: {
-        width: "100%",
-        padding: "8px",
-        marginRight: "5px",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        outline: "none",
-        color: "black",
-    },
-    sendButton: {
-        padding: "8px 12px",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-    },
+  languageSelector: {
+    margin: "10px 0",
+    color: "black",
+  },
+  editorContainer: {
+    margin: "10px",
+  },
+  questionDisplay: {
+    flex: 1,
+    padding: "20px",
+    borderRight: "1px solid #ccc",
+    backgroundColor: "#170c0c",
+    overflowY: "auto" as const,
+  },
+  chatContainer: {
+    width: "300px",
+    border: "1px solid #ccc",
+    borderRadius: "8px",
+    backgroundColor: "white",
+    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+  },
+  rightSide: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column" as const,
+    padding: "20px",
+  },
+  chatBox: {
+    height: "200px",
+    padding: "10px",
+    borderBottom: "1px solid #ccc",
+    overflowY: "auto" as const,
+    backgroundColor: "#fafafa",
+  },
+  message: {
+    color: "black",
+  },
+  socketIdDisplay: {
+    padding: "10px",
+    backgroundColor: "#e9ecef",
+    textAlign: "center" as const,
+    color: "blue",
+  },
+  chatInput: {
+    display: "flex",
+    padding: "10px",
+  },
+  input: {
+    width: "100%",
+    padding: "8px",
+    marginRight: "5px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    outline: "none",
+    color: "black",
+  },
+  sendButton: {
+    padding: "8px 12px",
+    backgroundColor: "#4CAF50",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
 };
 
 export default EditorView;
