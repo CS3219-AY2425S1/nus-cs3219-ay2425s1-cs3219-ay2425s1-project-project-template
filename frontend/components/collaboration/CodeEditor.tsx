@@ -1,109 +1,118 @@
 import { useRef, useEffect } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { type editor } from "monaco-editor";
-// import { WebsocketProvider } from 'y-websocket';
+import axios from "axios";
 import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
 
-var randomColor = require("randomcolor"); // import the script
-const RandomColor = randomColor(); // a hex code for an attractive color
+const randomColor = require("randomcolor");
+const API_BASE_URL = process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
 
-export default function CodeEditor() {
+// Mapping Monaco editor languages to API language IDs
+const languageMap: Record<string, number> = {
+  javascript: 63,
+  python: 71,
+  java: 62,
+  cpp: 54,
+  csharp: 51,
+  // Add more mappings as needed
+};
+
+interface CodeEditorProps {
+  setOutput: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function CodeEditor({ setOutput }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
 
-  // read room Id here:
+// Function to handle code execution
+const executeCode = async () => {
+  if (!codeEditorRef.current) return;
+  const code = codeEditorRef.current.getValue();
 
-  // read userContext here
+  // Get the language from the Monaco editor
+  const currentLanguage = codeEditorRef.current.getModel()?.getLanguageId();
+  
+  // Safely check if currentLanguage is defined, and fetch from languageMap
+  const languageId = currentLanguage && languageMap[currentLanguage] ? languageMap[currentLanguage] : 63; // Default to JavaScript if not found
 
-  // Runs once when the component mounts to set the initial language.
+  try {
+    // Submit code to backend for execution
+    const response = await axios.post(`${API_BASE_URL}/api/code-execute`, {
+      source_code: code,
+      language_id: languageId,
+    });
+
+    // Extract token and ensure it is a string
+    const token = response.data.token;
+
+    // Poll for result using the token
+    const intervalId = setInterval(async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/code-execute/${token}`, {
+          params: { base64_encoded: "false", fields: "*" },
+        });
+
+        if (data.status.id === 3) { // Check if execution completed
+          clearInterval(intervalId);
+          setOutput(data.stdout || data.stderr || "No output");
+        } else if (data.status.id > 3) { // Handle errors
+          clearInterval(intervalId);
+          setOutput(data.stderr || "An error occurred");
+        }
+      } catch (error) {
+        clearInterval(intervalId);
+        console.error("Error fetching code execution result:", error);
+        setOutput("Something went wrong while fetching the code execution result.");
+      }
+    }, 1000);
+
+  } catch (error) {
+    console.error("Error executing code:", error);
+    setOutput("Something went wrong during code execution.");
+  }
+};
+
+  // Runs once when the component mounts
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (monaco) {
-        // create a yew yjs doc
-        const ydoc = new Y.Doc();
-        // establish partykit as your websocket provider
-        const provider = new WebsocketProvider(
-          "ws://localhost:1234",
-          "temp",
-          ydoc,
-        );
-        // awareness for collaborative features
-        const yAwareness = provider.awareness;
-        // get the text from the monaco editor
-        const yDocTextMonaco = ydoc.getText("monaco");
-        // get the monaco editor
-        const editor = monaco.editor.getEditors()[0];
-        // const userColor = RandomColor();
+    if (typeof window !== "undefined" && monaco) {
+      const ydoc = new Y.Doc();
+      const provider = new WebsocketProvider("ws://localhost:1234", "temp", ydoc);
+      const yDocTextMonaco = ydoc.getText("monaco");
 
-        // awareness.setLocalStateField("user", {
-        //   name: user?.username,
-        //   userId: user?.id,
-        //   email: user?.email,
-        //   color,
-        // });
-
-        // yAwareness.on(
-        //   "change",
-        //   (changes: {
-        //     added: number[];
-        //     updated: number[];
-        //     removed: number[];
-        //   }) => {
-        //     const awarenessStates = yAwareness.getStates();
-
-        //     dispatch(setAwareness(awareness as AwarenessUser));
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        //     changes.added.forEach((clientId) => {
-        //       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        //       const state = awarenessStates.get(clientId)?.user;
-        //       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-        //       const color = state?.color;
-        //       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-        //       const username = state?.name;
-        //       const cursorStyleElem = document.head.appendChild(
-        //         document.createElement("style"),
-        //       );
-
-        //       cursorStyleElem.innerHTML = `.yRemoteSelectionHead-${clientId} { border-left: ${color} solid 2px;}`;
-        //       const highlightStyleElem = document.head.appendChild(
-        //         document.createElement("style"),
-        //       );
-
-        //       highlightStyleElem.innerHTML = `.yRemoteSelection-${clientId} { background-color: ${color}9A;}`;
-        //       const styleElem = document.head.appendChild(
-        //         document.createElement("style"),
-        //       );
-
-        //       styleElem.innerHTML = `.yRemoteSelectionHead-${clientId}::after { background-color: ${color}; color: black; content: '${username}'}`;
-        //     });
-        //   },
-        // );
-
-        // create the monaco binding to the yjs doc
+      // Editor binding to Yjs document
+      if (codeEditorRef.current) {
         new MonacoBinding(
           yDocTextMonaco,
-          editor.getModel()!,
-          // @ts-expect-error TODO: fix this
-          new Set([editor]),
-          provider.awareness,
+          codeEditorRef.current.getModel()!,
+          new Set([codeEditorRef.current]),
+          provider.awareness
         );
       }
     }
   }, [monaco]);
 
   return (
-    <Editor
-      height="100vh"
-      language="javascript"
-      options={{
-        scrollBeyondLastLine: false,
-        fixedOverflowWidgets: true,
-        fontSize: 14,
-      }}
-      theme="vs-dark"
-      width="50vw"
-    />
+    <div>
+      <Editor
+        height="100vh"
+        language="javascript"
+        options={{
+          scrollBeyondLastLine: false,
+          fixedOverflowWidgets: true,
+          fontSize: 14,
+        }}
+        theme="vs-dark"
+        width="50vw"
+        onMount={(editor) => {
+          codeEditorRef.current = editor;
+        }}
+      />
+      <button onClick={executeCode} style={{ marginTop: "10px" }}>
+        Run Code
+      </button>
+    </div>
   );
 }

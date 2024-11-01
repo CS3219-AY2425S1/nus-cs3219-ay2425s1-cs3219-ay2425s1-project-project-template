@@ -48,26 +48,27 @@ type MatchingInfo struct {
 }
 
 type Question struct {
-	QuestionID  string    `json:"questionId" bson:"questionId"`
-	Title       string    `json:"title" bson:"title"`
-	Description string    `json:"description" bson:"description"`
-	Constraints string    `json:"constraints" bson:"constraints"`
-	Examples    string    `json:"examples" bson:"examples"`
-	Category    []string  `json:"category" bson:"category"`
-	Complexity  string    `json:"complexity" bson:"complexity"`
-	ImageURL    string    `json:"imageUrl" bson:"imageUrl"`
+	QuestionID  string             `json:"questionId" bson:"questionId"`
+	Title       string             `json:"title" bson:"title"`
+	Description string             `json:"description" bson:"description"`
+	Constraints string             `json:"constraints" bson:"constraints"`
+	Examples    string             `json:"examples" bson:"examples"`
+	Category    []string           `json:"category" bson:"category"`
+	Complexity  string             `json:"complexity" bson:"complexity"`
+	ImageURL    string             `json:"imageUrl" bson:"imageUrl"`
 	CreatedAt   primitive.DateTime `json:"createdAt" bson:"createdAt"`
 	UpdatedAt   primitive.DateTime `json:"updatedAt" bson:"updatedAt"`
 }
 
 type MatchResult struct {
-	UserOneSocketID string `json:"user_one_socket_id"`
-	UserTwoSocketID string `json:"user_two_socket_id"`
-	UserOne     string                  `bson:"userOne"`
-	UserTwo     string                  `bson:"userTwo"`
-	RoomID      string                 `bson:"room_id"`
-	Complexity  []QuestionComplexityEnum `bson:"complexity"`
-	Categories  []string               `bson:"categories"`
-	Question    Question             `bson:"question"` 
+	UserOneSocketID string                   `json:"user_one_socket_id"`
+	UserTwoSocketID string                   `json:"user_two_socket_id"`
+	UserOnePeerID   string                   `json:"user_one_peer_id"`
+	UserTwoPeerID   string                   `json:"user_two_peer_id"`
+	UserOne         string                   `bson:"userOne"`
+	UserTwo         string                   `bson:"userTwo"`
+	RoomID          string                   `bson:"room_id"`
+	Complexity      []QuestionComplexityEnum `bson:"complexity"`
+	Categories      []string                 `bson:"categories"`
+	Question        Question                 `bson:"question"`
 }
-

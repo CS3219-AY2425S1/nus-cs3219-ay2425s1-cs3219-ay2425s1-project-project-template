@@ -32,6 +32,7 @@ const mockQuestion: Question = {
 };
 
 export default function Page() {
+  const [output, setOutput] = useState("Your output will appear here...");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId;
@@ -115,7 +116,11 @@ export default function Page() {
           <VoiceChat />
           
           {/* Render the CodeEditor */}
-          <CodeEditor />
+          <CodeEditor setOutput={setOutput}/>
+          <div style={{ marginTop: "20px" }}>
+            <h3>Output:</h3>
+            <pre>{output}</pre>
+          </div>
         </div>
       </div>
 
