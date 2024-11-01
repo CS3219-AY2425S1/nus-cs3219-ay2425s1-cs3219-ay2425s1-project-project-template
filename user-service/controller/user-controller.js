@@ -10,6 +10,7 @@ import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  updateUserPasswordById as _updateUserPasswordById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -134,6 +135,54 @@ export async function updateUserPrivilege(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when updating user privilege!" });
+  }
+}
+
+export async function updateUserPassword(req, res) {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    if (oldPassword && newPassword && confirmPassword) {
+
+      // Retrieve user information
+      const userId = req.params.id;
+      if (!isValidObjectId(userId)) {
+        return res.status(404).json({ message: `User ${userId} not found` });
+      }
+      const user = await _findUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: `User ${userId} not found` });
+      }
+
+      // Handle different scenarios
+      const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+      if (!isOldPasswordCorrect) {
+        return res.status(403).json({ message: "Old password is incorrect" });
+      }
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: "New passwords do not match" });
+      }
+      const isNewPasswordDifferent = await bcrypt.compare(newPassword, user.password);
+      if (isNewPasswordDifferent) {
+        return res.status(400).json({ message: "New password is the same as old password" });
+      }
+      // TODO: Check if the new password is secure.
+
+      let hashedPassword;
+      if (newPassword) {
+        const salt = bcrypt.genSaltSync(10);
+        hashedPassword = bcrypt.hashSync(newPassword, salt);
+      }
+      const updatedUser = await _updateUserPasswordById(userId, hashedPassword);
+      return res.status(200).json({
+        message: `Updated password for user ${userId}`,
+        data: formatUserResponse(updatedUser),
+      });
+    } else {
+      return res.status(400).json({ message: "No field to update: username and passwords (old, new, confirm) are missing!" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when updating user password!" });
   }
 }
 

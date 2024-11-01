@@ -6,6 +6,7 @@ import {
   getAllUsers,
   getUser,
   updateUser,
+  updateUserPassword,
   updateUserPrivilege,
 } from "../controller/user-controller.js";
 import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
@@ -21,6 +22,8 @@ router.post("/", createUser);
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
+
+router.patch("/:id/change-password", verifyAccessToken, verifyIsOwnerOrAdmin, updateUserPassword);
 
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 
