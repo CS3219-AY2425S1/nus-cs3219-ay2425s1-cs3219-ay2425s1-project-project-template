@@ -64,3 +64,13 @@ services:
       - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
     depends_on:
       - redis
+    
+  
+  collab-service:
+    build:
+      context: ./collab-service
+    ports:
+      - 5000:5000
+    environment:
+      - PORT=5000
+      # - DB_URI=$CLOUD_MONGO_URI
