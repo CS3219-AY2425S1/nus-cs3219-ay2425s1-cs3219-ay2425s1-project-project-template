@@ -67,25 +67,44 @@ function App() {
             <>
               <Route path="/login" element={<Login updateAuthStatus={setIsAuthenticated} />} />
               <Route path="/aboutus" element={<AboutUs />} />
-              <Route path="/signup" element={<Signup updateAuthStatus={function (value: SetStateAction<boolean>): void {
-                throw new Error("Function not implemented.");
-              }} />} />
+              <Route path="/signup" element={<Signup updateAuthStatus={setIsAuthenticated} />} />
             </>
           ) : (
             <Route path="*" element={<Navigate to="/" replace />} /> // Redirect authenticated users
           )}
 
-          {/* Public or authenticated routes */}
+          {/* Routes accessible to everyone */}
           <Route path="/" element={<QuestionPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/questions" element={<QuestionPage />} />
           <Route path="/questions/:id" element={<QuestionDetails />} />
-          <Route path="/match-me" element={<MatchingPage />} />
-          <Route path="/editor/:roomId/" element={<CodeEditor />} />
-          <Route path="/room" element={<RoomPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
-          <Route path="/changepassword" element={<ChangePasswordPage />} />
+
+          {/* authenticated routes */}
+          {isAuthenticated ? (
+            <>
+              <Route path="/" element={<QuestionPage />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/questions" element={<QuestionPage />} />
+              <Route path="/questions/:id" element={<QuestionDetails />} />
+              <Route path="/match-me" element={<MatchingPage />} />
+              <Route path="/editor/:roomId/" element={<CodeEditor />} />
+              <Route path="/room" element={<RoomPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/aboutus" element={<AboutUsPage />} />
+              <Route path="/changepassword" element={<ChangePasswordPage />} />
+            </>
+          ) : (
+            // Redirect unauthenticated users trying to access protected routes
+            <>
+              <Route path="/match-me" element={<Navigate to="/login" replace />} />
+              <Route path="/editor/:roomId" element={<Navigate to="/login" replace />} />
+              <Route path="/room" element={<Navigate to="/login" replace />} />
+              <Route path="/profile" element={<Navigate to="/login" replace />} />
+              <Route path="/changepassword" element={<Navigate to="/login" replace />} />
+            </>
+          )
+          }
         </Routes>
       </Box>
     </Box>
