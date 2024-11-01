@@ -14,6 +14,7 @@ const Collaboration = dynamic(() => import("../components/editor"), {
 export default function CollaborationPage() {
   const { room } = useParams() as { room: string };
   const [language, setLanguage] = useState<string>("");
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const url = window.location.href;
