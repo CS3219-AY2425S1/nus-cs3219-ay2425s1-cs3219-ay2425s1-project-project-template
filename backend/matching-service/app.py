@@ -12,7 +12,6 @@ import traceback
 import ssl
 
 load_dotenv()
-print()
 app = Flask(__name__)
 CORS(app)
 sio = socketio.Client()
