@@ -12,10 +12,12 @@ import { LandingPageComponent } from "../landing-page/landing-page.component"
 import {MatchModalComponent} from "../loading-screen/match-modal/match-modal.component";
 import { authGuard } from "./authService/auth.guard"
 import { adminGuard } from "./authService/admin.guard"
+import { loginGuard } from "./authService/login.guard"
+import { CollabPageComponent } from "../collab-page/collab-page.component"
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
-  { path: "login", component: LoginComponent },
+  { path: "login", component: LoginComponent, canActivate: [loginGuard]},
   { path: "create-account", component: CreateAccountComponent },
   { path: "admin-controls", component: AdminComponent, canActivate: [adminGuard] },
   { path: "add-question", component: AddPageComponent },
@@ -23,5 +25,6 @@ export const routes: Routes = [
   { path: "question-list", component: QuestionListComponent },
   { path: "loading-screen", component: MatchModalComponent },
   { path: "question-list", component: QuestionListComponent },
-  { path: "landing", component: LandingPageComponent, canActivate: [authGuard]}
+  { path: "landing", component: LandingPageComponent, canActivate: [authGuard]},
+  { path: "collab", component: CollabPageComponent }
 ]
