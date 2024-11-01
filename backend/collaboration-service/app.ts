@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import { startRabbitMQ } from "./consumer";
 import { authenticateAccessToken } from "./utils/jwt";
 import mongoose from "mongoose";
-import { checkAuthorisedUser, getQuestionHandler } from "./controllers/controller";
+import { checkAuthorisedUser, getQuestionHandler, getHistoryHandler, saveCodeHandler } from "./controllers/controller";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const MONGO_URI_CS = process.env.MONGO_URI_CS;
@@ -27,8 +27,11 @@ const io = new Server(httpServer, {
   cors: { origin: FRONTEND_URL },
 });
 
-app.get("/api/check-authorization", checkAuthorisedUser);
-app.get("/api/get-question", getQuestionHandler);
+app.get("/check-authorization", checkAuthorisedUser);
+app.get("/get-question", getQuestionHandler);
+app.get("/get-history", getHistoryHandler);
+app.post("/save-code", saveCodeHandler);
+
 
 interface UsersAgreedEnd {
   [roomId: string]: Record<string, boolean>;
