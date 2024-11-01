@@ -5,6 +5,7 @@ import {
   handleSendMessage,
 } from "../controllers/chatController";
 import { SignalData } from "simple-peer";
+import { Caller } from "../utils/types";
 
 export function initializeCommunicationSockets(io: Server) {
   io.on("connection", (socket: Socket) => {
@@ -12,7 +13,7 @@ export function initializeCommunicationSockets(io: Server) {
     handleConnection(socket);
 
     // Listen for joining a room
-    socket.on("joinRoom", (roomId: string) => {
+    socket.on("join-room", (roomId: string) => {
       handleJoinRoom(socket, roomId);
     });
 
@@ -24,13 +25,8 @@ export function initializeCommunicationSockets(io: Server) {
     });
 
     // video call events
-    socket.on("initiate-call", (roomId: string) => {
-      console.log(roomId);
-      socket.to(roomId).emit("incoming-call");
-    })
-
-    socket.on("initiate-call", (roomId: string) => {
-        socket.to(roomId).emit("incoming-call");
+    socket.on("initiate-call", (roomId: string, user : Caller) => {
+        socket.to(roomId).emit("incoming-call", user);
         console.log(`${socket.data.username} initiated`);
     })
 
@@ -44,9 +40,16 @@ export function initializeCommunicationSockets(io: Server) {
         console.log(`${socket.data.username} signalled`);
     })
     
-
+    socket.on("disconnecting", () => {
+      // leaves all rooms, ideally only one
+      socket.rooms.forEach((roomID: string) => {
+          console.log(`Socket has left ${roomID}`);
+          socket.leave(roomID);
+      });
+  })
     // Handle disconnection
     socket.on("disconnect", () => {
+      socket.removeAllListeners();
       console.log(`User ${socket.data.username} disconnected`);
     });
   });

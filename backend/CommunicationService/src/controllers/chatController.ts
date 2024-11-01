@@ -40,7 +40,7 @@ export const handleSendMessage = (
   message: string
 ): void => {
   // Broadcast the message to the room only
-  io.to(roomId).emit("chatMessage", {
+  io.sockets.in(roomId).emit("chatMessage", {
     user: socket.data.username,
     text: message,
   });

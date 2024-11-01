@@ -23,27 +23,11 @@ export default function VideoCall() {
 
         if (!commSocket) {
             console.log("Communication socket error.");
-            navigate("/");
             return;
         }
 
-        commSocket.on("incoming-call", () => {
-            console.log("incoming call");
-            setIsReceivingCall(true);
-        })
-        
-        // socket receives answer from other side
-        commSocket.on("call-response", (isAnswer: boolean) => {
-            if (isAnswer) {
-                setMediaDevices();
-                setIsShowVideo(true);
-                initiatePeerConnection(roomId!, true); // true because this socket is the caller
-            } else {
-                console.log("call declined");
-                setIsShowVideo(false);
-                // implement logic when the other side declines the call
-
-            }
+        commSocket.on("dummy-comm", (msg: string) => {
+            console.log(msg);
         })
 
         commSocket.on("signal", (signal: SignalData) => {
@@ -59,22 +43,6 @@ export default function VideoCall() {
 
     }, [commSocket])
     
-    const initiateCall = () => {
-        commSocket!.emit("initiate-call", roomId, user);
-    }
-
-    const acceptCall = () => {
-        commSocket!.emit("call-response", true, roomId);
-        setMediaDevices();
-        setIsReceivingCall(false);
-        initiatePeerConnection(roomId!, false);
-        setIsShowVideo(true);
-    }
-
-    const rejectCall = () => {
-        commSocket!.emit("call-response", false, roomId)
-        setIsReceivingCall(false);
-    }
 
     const initiatePeerConnection = (roomId: string, isInitiator: boolean) => {
         peerInstance.current = new SimplePeer({
@@ -106,7 +74,7 @@ export default function VideoCall() {
 
     return (
     <div>
-        <Draggable bounds="">
+        <Draggable>
             <div className="min-w-full min-h-full flex items-center justify-center z-50 absolute">
                 {
                 isShowVideo ?

@@ -23,7 +23,7 @@ export const initialiseCollaborationSockets = (io : Server) => {
         })
 
         socket.on("edit-code", (roomID: string, edittedCode : string) => {
-            console.log(`Edit to ${edittedCode}`)
+            console.log(`Sent to ${roomID}`);
             socket.to(roomID).emit("sync-code", edittedCode);
         })
 
@@ -46,12 +46,13 @@ export const initialiseCollaborationSockets = (io : Server) => {
         socket.on("disconnecting", () => {
             // leaves all rooms, ideally only one
             socket.rooms.forEach((roomID: string) => {
-                socket.to(roomID).emit("user-left", socket.data.username);
+                console.log(`Socket has left ${roomID}`);
                 socket.leave(roomID);
             });
         })
 
         socket.on("disconnect", () => {
+            socket.removeAllListeners();
             console.log(`${socket.data.username} has disconnected`)
         })
 

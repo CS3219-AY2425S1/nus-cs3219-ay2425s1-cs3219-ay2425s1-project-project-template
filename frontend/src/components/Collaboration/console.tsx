@@ -23,7 +23,6 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
 
   useEffect(() => {
     if (!collabSocket) {
-      console.log("Collab socket error");
       return;
     }
 
