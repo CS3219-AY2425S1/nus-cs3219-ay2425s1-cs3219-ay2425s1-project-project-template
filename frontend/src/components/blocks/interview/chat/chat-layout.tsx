@@ -62,7 +62,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
 
   return (
     <div className='flex size-full flex-col'>
-      <div className='bg-secondary/50 flex items-center justify-between border-b px-4 py-3'>
+      <div className='bg-secondary/50 border-border flex items-center justify-between border-b px-4 py-3'>
         <div className='flex items-center gap-2'>
           <h2 className='font-semibold'>{title}</h2>
         </div>
@@ -71,7 +71,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
             variant='ghost'
             size='icon'
             onClick={onClose}
-            className='rounded-full hover:bg-gray-100'
+            className='hover:bg-secondary rounded-full'
           >
             <X className='size-5' />
           </Button>
@@ -103,7 +103,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         <div ref={messagesEndRef} />
       </ScrollArea>
 
-      <div className='bg-secondary/50 border p-4'>
+      <div className='bg-secondary/50 border-border border-t p-4'>
         <div className='flex gap-2'>
           <Input
             ref={inputRef}
