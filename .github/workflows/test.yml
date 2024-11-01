@@ -24,11 +24,12 @@ jobs:
         run: cd ./apps/frontend
       
       - name: Set up .env
-        run: echo 'NEXT_PUBLIC_QUESTION_SERVICE_URL="http://localhost:8080/"
-NEXT_PUBLIC_USER_SERVICE_URL="http://localhost:3001/"
-NEXT_PUBLIC_MATCHING_SERVICE_URL="ws://localhost:8081/match"
-NEXT_PUBLIC_SIGNALLING_SERVICE_URL="ws://localhost:4444/"
-NEXT_PUBLIC_HISTORY_SERVICE_URL="http://localhost:8082/"' > .env
+        run: |
+          echo 'NEXT_PUBLIC_QUESTION_SERVICE_URL="http://localhost:8080/"
+          NEXT_PUBLIC_USER_SERVICE_URL="http://localhost:3001/"
+          NEXT_PUBLIC_MATCHING_SERVICE_URL="ws://localhost:8081/match"
+          NEXT_PUBLIC_SIGNALLING_SERVICE_URL="ws://localhost:4444/"
+          NEXT_PUBLIC_HISTORY_SERVICE_URL="http://localhost:8082/"' > newfile.env
 
 
       - name: Set up Node.js
