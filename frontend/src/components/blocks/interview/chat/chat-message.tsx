@@ -32,7 +32,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`max-w-[85%] rounded-lg px-4 py-2 text-xs ${
-          message.isUser ? 'bg-primary-foreground' : 'bg-secondary'
+          message.isUser ? 'bg-secondary/50' : 'bg-secondary'
         }`}
       >
         {parts.map((part, index) => {

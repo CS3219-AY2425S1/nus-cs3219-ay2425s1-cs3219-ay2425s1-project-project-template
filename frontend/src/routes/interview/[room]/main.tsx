@@ -49,7 +49,7 @@ export const InterviewRoom = () => {
     <WithNavBlocker>
       <WithNavBanner crumbs={crumbs}>
         <div className='flex flex-1 overflow-hidden'>
-          <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
+          <Card className='border-border m-4 w-1/3 overflow-hidden p-4 md:w-2/5'>
             <QuestionDetails {...{ questionDetails }} />
           </Card>
           <div className='flex w-full'>
