@@ -22,11 +22,19 @@ const EditorView: React.FC = () => {
   const user = userContext?.user;
 
   const [searchParams] = useSearchParams();
+  const topic = searchParams.get("topic");
+  const difficulty = searchParams.get("difficulty");
+  const [question, setQuestion] = useState<Question | null>(null);
+  const api = useQuesApiContext();
 
   const roomId = searchParams.get("roomId");
 
   useEffect(() => {
     if (roomId === null || roomId === "") {
+      // || topic === null ||
+      // difficulty === null ||
+      // topic === "" ||
+      // difficulty === "" ||
       navigate("/dashboard");
       return;
     }
@@ -38,6 +46,25 @@ const EditorView: React.FC = () => {
     const socket = socketRef.current;
 
     if (socket === null) return;
+
+    socket.on("connect", () => {
+      setSocketId(socket.id);
+      socket.emit("joinQueue", { username: user?.username, topic, difficulty });
+    });
+
+    socket.on("matched", async (data: { message: string; room: string; questionId: string }) => {
+      setRoom(data.room);
+      setIsMatched(true);
+      await fetchQuestion(data.questionId); // Fetch the question using the questionId
+    });
+
+    socket.on("queueEntered", (data: { message: string }) => {
+      console.log("queue entered", data);
+    });
+
+    socket.on("matchFailed", (data: { error: string }) => {
+      console.log("Match failed:", data.error);
+    });
 
     socket.on("assignSocketId", (data: { socketId: string }) => {
       console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
@@ -79,6 +106,16 @@ const EditorView: React.FC = () => {
       }
     };
   }, []);
+
+  const fetchQuestion = async (questionId: string) => {
+    try {
+      const response = await api.get(`/questionsById?id=${questionId}`);
+      setQuestion(response.data.questions[0]);
+      console.log(response.data.questions[0])
+    } catch (error) {
+      console.error("Error fetching question:", error);
+    }
+  };
 
   const sendMessage = () => {
     if (message.trim() && socketRef && isMatched) {
