@@ -16,11 +16,10 @@ import { Avatar } from "@nextui-org/avatar";
 import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 
 import NavLink from "@/components/navLink";
 import { useLogout } from "@/hooks/api/auth";
-import { UserContext } from "@/context/UserContext";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";
@@ -29,9 +28,8 @@ import { useUser } from "@/hooks/users";
 export const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const userContext = useContext(UserContext);
-  const isAdmin = userContext?.user?.isAdmin || false;
   const { user, setUser } = useUser();
+  const isAdmin = user?.isAdmin || false;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { mutate: logout } = useLogout();

@@ -26,7 +26,7 @@ export default function QuestionDescription({
   } = question;
 
   return (
-    <Card className="p-5 m-8">
+    <Card className="p-3 m-3">
       <CardHeader className="flex flex-col items-start">
         <h2 className="font-bold text-2xl mb-4">{`${title}`}</h2>
         <div className="flex mb-4 text-med">
@@ -42,21 +42,27 @@ export default function QuestionDescription({
       <Divider />
       <CardBody>
         <p className="my-3 text-lg">Description</p>
-        <div className="max-h-[150px] overflow-y-auto">
-          <pre className="bg-gray-700 p-2 rounded-lg text-balance">
-            <code className="text-white text-pretty">{description}</code>
+        <div className="max-h-[200px] overflow-y-auto">
+          <pre className="bg-gray-700 p-2 rounded-lg text-balance min-h-[100px]">
+            <code className="text-white text-pretty min-h-[50px]">
+              {description}
+            </code>
           </pre>
         </div>
         <p className="my-3 text-lg">Examples</p>
         <div className="max-h-[150px] overflow-y-auto">
-          <pre className="bg-gray-700 p-2 rounded-lg text-balance">
-            <code className="text-white text-pretty">{examples}</code>
+          <pre className="bg-gray-700 p-2 rounded-lg text-balance min-h-[50px]">
+            <code className="text-white text-pretty">
+              {examples || "There are no examples."}
+            </code>
           </pre>
         </div>
         <p className="my-3 text-lg">Constraints</p>
         <div className="max-h-[150px] overflow-y-auto">
-          <pre className="bg-gray-700 p-2 rounded-lg text-balance">
-            <code className="text-white text-pretty">{constraints}</code>
+          <pre className="bg-gray-700 p-2 rounded-lg text-balance min-h-[50px]">
+            <code className="text-white text-pretty min-h-[50px]">
+              {constraints || "There are no constraints."}
+            </code>
           </pre>
         </div>
       </CardBody>

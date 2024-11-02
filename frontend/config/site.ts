@@ -11,7 +11,7 @@ export const siteConfig = (isAdmin: boolean) => ({
     {
       label: "Questions",
       href: isAdmin ? "/admin/questions" : "/questions",
-    }
+    },
   ],
   navMenuItems: [
     {

@@ -173,10 +173,10 @@ export default function CodeEditor({
   }, [monaco]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="flex flex-col">
       <button
         style={{
-          alignSelf: "center",
+          alignSelf: "end",
           padding: "8px 16px",
           marginBottom: "8px",
           backgroundColor: "#007bff",
@@ -190,7 +190,7 @@ export default function CodeEditor({
         Run Code
       </button>
       <Editor
-        height="75vh"
+        height="55vh"
         language={language.toLowerCase()}
         options={{
           scrollBeyondLastLine: false,

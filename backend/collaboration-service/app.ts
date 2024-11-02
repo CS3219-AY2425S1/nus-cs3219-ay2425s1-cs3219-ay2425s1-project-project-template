@@ -60,8 +60,8 @@ const io = new Server(httpServer, {
   cors: { origin: FRONTEND_URL },
 });
 
-app.get("/api/check-authorization", checkAuthorisedUser);
-app.get("/api/get-question", getQuestionHandler);
+app.get("/check-authorization", checkAuthorisedUser);
+app.get("/get-question", getQuestionHandler);
 
 // POST endpoint to submit code for execution
 app.post("/api/code-execute", async (req: Request, res: Response) => {
@@ -145,7 +145,6 @@ io.on("connection", (socket) => {
         socket.join(roomId);
         socket.data.roomId = roomId;
         socket.data.username = username;
-        console.log(`User: ${username} joined ${roomId}}`)
 
         socket.emit("room-joined", roomId);
         io.to(roomId).emit("user-join", username);
@@ -155,8 +154,6 @@ io.on("connection", (socket) => {
       socket.on("user-agreed-end", (roomId: string, userId: string) => {
         usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
         usersAgreedEnd[roomId][userId] = true;
-
-        console.log(`User: ${userId} agreed to end in ${roomId}}`)
 
         if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
           io.to(roomId).emit("both-users-agreed-end", roomId);
