@@ -42,7 +42,7 @@ export class QuestionsController {
       return await this.questionsService.findCollabQuestion(collabQuestionDto);
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw error;
+        return null;
       }
 
       throw new InternalServerErrorException(

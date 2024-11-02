@@ -6,7 +6,7 @@ export class CollabQuestionDto {
   complexity: QuestionComplexity;
 
   @IsEnum(QuestionCategory, { each: true })
-  category: QuestionCategory[];
+  category: QuestionCategory;
 
   @IsArray()
   idsToExclude?: string[];
