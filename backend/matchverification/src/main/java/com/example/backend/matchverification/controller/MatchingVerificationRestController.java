@@ -23,6 +23,7 @@ import com.example.backend.matchverification.model.PickQuestionDTO;
 import com.example.backend.matchverification.model.PickedQuestionResponse;
 import com.example.backend.matchverification.model.VerificationResponse;
 import com.example.backend.matchverification.model.VerifyMatchesDTO;
+import com.example.backend.matchverification.redis.MatchVerificationHashsetService;
 
 @RestController
 @RequestMapping("/api")
