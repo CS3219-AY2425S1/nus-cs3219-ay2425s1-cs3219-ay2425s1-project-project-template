@@ -1,4 +1,5 @@
 import { QueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { LanguageName } from '@uiw/codemirror-extensions-langs';
 import { useMemo, useState } from 'react';
 import { type LoaderFunctionArgs, Navigate, useLoaderData } from 'react-router-dom';
 
@@ -32,6 +33,13 @@ export const InterviewRoom = () => {
   const questionDetails = useMemo(() => details.question, [details]);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [isPartnerChatOpen, setIsPartnerChatOpen] = useState(false);
+  const [currentCode, setCurrentCode] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState<LanguageName>('typescript');
+
+  const handleCodeChange = (code: string, language: LanguageName) => {
+    setCurrentCode(code);
+    setCurrentLanguage(language);
+  };
 
   const handleAIClick = () => {
     setIsPartnerChatOpen(false);
@@ -57,12 +65,19 @@ export const InterviewRoom = () => {
               room={roomId as string}
               onAIClick={handleAIClick}
               onPartnerClick={handlePartnerClick}
+              onCodeChange={handleCodeChange}
             />
           </div>
           {(isAIChatOpen || isPartnerChatOpen) && (
             <Card className='border-border m-4 w-[500px] overflow-hidden'>
               {isAIChatOpen && (
-                <AIChat isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
+                <AIChat
+                  isOpen={isAIChatOpen}
+                  onClose={() => setIsAIChatOpen(false)}
+                  editorCode={currentCode}
+                  language={currentLanguage}
+                  questionDetails={questionDetails.description}
+                />
               )}
               {isPartnerChatOpen && (
                 <PartnerChat

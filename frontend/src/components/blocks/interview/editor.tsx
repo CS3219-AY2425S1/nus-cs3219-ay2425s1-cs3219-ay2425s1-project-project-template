@@ -3,7 +3,7 @@ import { useWindowSize } from '@uidotdev/usehooks';
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
 import { Bot, User } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect,useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -25,9 +25,10 @@ type EditorProps = {
   room: string;
   onAIClick: () => void;
   onPartnerClick: () => void;
+  onCodeChange?: (code: string, language: LanguageName) => void;
 };
 
-export const Editor = ({ room, onAIClick, onPartnerClick }: EditorProps) => {
+export const Editor = ({ room, onAIClick, onPartnerClick, onCodeChange }: EditorProps) => {
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
   const {
@@ -44,6 +45,21 @@ export const Editor = ({ room, onAIClick, onPartnerClick }: EditorProps) => {
   const themePreset = useMemo(() => {
     return getTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    onCodeChange?.(code, language);
+  }, [code, language, onCodeChange]);
+
+  const handleLanguageChange = (val: string) => {
+    const newLanguage = val as LanguageName;
+    setLanguage(newLanguage);
+    onCodeChange?.(code, newLanguage);
+  };
+
+  const handleCodeChange = (value: string) => {
+    setCode(value);
+    onCodeChange?.(value, language);
+  };
 
   return (
     <div className='flex w-full flex-col gap-4 p-4'>
@@ -63,7 +79,7 @@ export const Editor = ({ room, onAIClick, onPartnerClick }: EditorProps) => {
           <div className='flex gap-4'>
             <div className='flex flex-col gap-2'>
               <Label>Language</Label>
-              <Select value={language} onValueChange={(val) => setLanguage(val as LanguageName)}>
+              <Select value={language} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='focus-visible:ring-secondary-foreground/60 max-w-[150px]'>
                   <SelectValue />
                 </SelectTrigger>
@@ -94,7 +110,6 @@ export const Editor = ({ room, onAIClick, onPartnerClick }: EditorProps) => {
           </div>
           <div className='flex items-center gap-2'>
             <div className='flex gap-1 font-mono text-xs'>
-              {/* TODO: Get user avatar and display */}
               {members.map((member, index) => (
                 <div
                   className='grid size-8 place-items-center !overflow-clip rounded-full border-2 p-1 text-xs'
@@ -140,9 +155,7 @@ export const Editor = ({ room, onAIClick, onPartnerClick }: EditorProps) => {
           }}
           height={`${Math.max((height as number) - EXTENSION_HEIGHT, MIN_EDITOR_HEIGHT)}px`}
           value={code}
-          onChange={(value, _viewUpdate) => {
-            setCode(value);
-          }}
+          onChange={handleCodeChange}
           theme={themePreset}
           lang={language}
           basicSetup={{

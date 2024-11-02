@@ -3,6 +3,7 @@ export interface ChatMessageType {
   isUser: boolean;
   timestamp: Date;
   isCode?: boolean;
+  isStreaming?: boolean;
 }
 
 interface ChatMessageProps {
