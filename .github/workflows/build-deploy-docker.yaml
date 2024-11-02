@@ -16,6 +16,7 @@ env:
   QUESTION_EXPRESS_PORT: 9002
   COLLAB_EXPRESS_PORT: 9003
   MATCH_EXPRESS_PORT: 9004
+  CHAT_EXPRESS_PORT: 9005
   FRONTEND_PORT: 3000
 
 jobs:
@@ -44,6 +45,8 @@ jobs:
             - 'backend/collaboration/**'
           matching:
             - 'backend/matching/**'
+          chat:
+            - 'backend/chat/**'
           frontend:
             - 'frontend/**'
     - name: output-job-matrix
@@ -88,6 +91,16 @@ jobs:
             --arg ctx "./backend/matching" \
             --arg dkr "./backend/matching/express.Dockerfile" \
             --arg bag "port=$MATCH_EXPRESS_PORT" \
+            '{package: $pkg, image: $img, context: $ctx, dockerfile: $dkr, "build-args": $bag}')
+          matrix+=("$config")
+        fi
+        if [[ "${{ steps.filter.outputs.chat }}" == "true" || "$is_main" == "true" ]]; then
+          config=$(jq -n \
+            --arg pkg "chat" \
+            --arg img "$DOCKER_REGISTRY_USN/chat-express" \
+            --arg ctx "./backend/chat" \
+            --arg dkr "./backend/chat/express.Dockerfile" \
+            --arg bag "port=$CHAT_EXPRESS_PORT" \
             '{package: $pkg, image: $img, context: $ctx, dockerfile: $dkr, "build-args": $bag}')
           matrix+=("$config")
         fi
