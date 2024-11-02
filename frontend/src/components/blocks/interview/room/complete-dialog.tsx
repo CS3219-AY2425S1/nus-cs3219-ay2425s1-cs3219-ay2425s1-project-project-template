@@ -1,5 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 import { FC, PropsWithChildren, useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -9,11 +11,16 @@ import {
   DialogHeader,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { addQuestionAttempt } from '@/services/question-service';
 import { IYjsUserState } from '@/types/collab-types';
 
+import { COMPLETION_STATES } from '../constants';
+
 type CompleteDialogProps = {
+  userId: string;
   questionId: number;
   code: string;
+  language: string;
   members: Array<IYjsUserState['user']>;
   setCompleting: (state: string, resetId?: boolean) => void;
 };
@@ -21,7 +28,14 @@ type CompleteDialogProps = {
 export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
   children,
   setCompleting,
+  questionId,
+  userId,
+  code,
+  language,
+  members,
 }) => {
+  const navigate = useNavigate();
+
   const [isOpen, _setIsOpen] = useState(false);
   const setIsOpen = useCallback(
     (openState: boolean) => {
@@ -36,13 +50,28 @@ export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
     [isOpen]
   );
 
-  const { mutate: _m } = useMutation({
-    mutationFn: async () => {},
-    onSuccess: () => {
-      setCompleting('success');
-      // Navigate to home page
+  const { mutate: sendCompleteRequest, isPending } = useMutation({
+    mutationFn: async () => {
+      return await addQuestionAttempt({
+        questionId,
+        code,
+        language,
+        userId1: userId,
+        userId2:
+          members.length < 2 ? undefined : members.filter((v) => v.userId !== userId)[0].userId,
+      });
     },
-    onError: () => {},
+    onSuccess: () => {
+      setCompleting(COMPLETION_STATES.SUCCESS);
+      // Navigate to home page
+      setTimeout(() => {
+        setCompleting(COMPLETION_STATES.EMPTY, true);
+        navigate('/');
+      }, 200);
+    },
+    onError: () => {
+      setCompleting(COMPLETION_STATES.ERROR);
+    },
   });
 
   return (
@@ -62,7 +91,14 @@ export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
             >
               Go Back
             </Button>
-            <Button>Complete Question</Button>
+            <Button
+              disabled={isPending}
+              onClick={() => sendCompleteRequest()}
+              className='flex flex-row items-center gap-2'
+            >
+              <span>Complete Question</span>
+              {isPending && <Loader2 className='animate-spin' />}
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

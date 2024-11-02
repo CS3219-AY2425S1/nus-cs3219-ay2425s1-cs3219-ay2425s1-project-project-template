@@ -30,3 +30,20 @@ export type IGetDifficultiesResponse = {
 export type IGetQuestionDetailsResponse = {
   question: QuestionDetails;
 };
+
+export type IPostAddQuestionAttemptParams = {
+  questionId: number;
+  userId1: string;
+  userId2?: string; // Optional if userId2 is not always required
+  code: string;
+  language: string;
+};
+
+export type IPostAddQuestionAttemptResponse =
+  | {
+      message: string;
+    }
+  | {
+      error: string;
+      details: string;
+    };

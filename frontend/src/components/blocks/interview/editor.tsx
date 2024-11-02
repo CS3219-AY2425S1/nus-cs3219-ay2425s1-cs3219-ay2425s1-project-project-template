@@ -51,19 +51,19 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
     return getTheme(theme);
   }, [theme]);
 
-  const [isOtherUserCompletingDialogOpen, setIsOtherUserCompletingDialogOpen] = useState('');
+  const [completionState, setCompletionState] = useState('');
 
   useEffect(() => {
     if (isCompleting.userId !== userId && isCompleting.state) {
-      setIsOtherUserCompletingDialogOpen(isCompleting.state);
+      setCompletionState(isCompleting.state);
     } else {
-      setIsOtherUserCompletingDialogOpen('');
+      setCompletionState('');
     }
   }, [isCompleting]);
 
   return (
     <div className='flex w-full flex-col gap-4 p-4'>
-      {isOtherUserCompletingDialogOpen && <OtherUserCompletingDialog />}
+      {completionState && <OtherUserCompletingDialog status={completionState} />}
       {isLoading ? (
         <div className='flex h-[60px] w-full flex-row justify-between pt-3'>
           <div className='flex h-10 flex-row gap-4'>
@@ -126,7 +126,16 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
                 ))}
               </div>
             </div>
-            <CompleteDialog {...{ setCompleting: setIsCompleting, questionId, code, members }}>
+            <CompleteDialog
+              {...{
+                setCompleting: setIsCompleting,
+                userId: userId as string,
+                questionId,
+                code,
+                members,
+                language,
+              }}
+            >
               <Button size='sm' variant='destructive' disabled={!code} className='mx-4'>
                 Complete question
               </Button>

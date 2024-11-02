@@ -3,6 +3,8 @@ import type {
   IGetQuestionDetailsResponse,
   IGetQuestionsResponse,
   IGetTopicsResponse,
+  IPostAddQuestionAttemptParams,
+  IPostAddQuestionAttemptResponse,
 } from '@/types/question-types';
 
 import { questionApiClient } from './api-clients';
@@ -12,6 +14,7 @@ const QUESTION_SERVICE_ROUTES = {
   GET_QUESTION_DETAILS: '/questions/<questionId>',
   GET_TOPICS: '/questions/topics',
   GET_DIFFICULTIES: '/questions/difficulties',
+  POST_ADD_ATTEMPT: '/questions/newAttempt',
 };
 
 export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDetailsResponse> => {
@@ -56,4 +59,18 @@ export const fetchDifficulties = (): Promise<IGetDifficultiesResponse> => {
   return questionApiClient.get(QUESTION_SERVICE_ROUTES.GET_DIFFICULTIES).then((res) => {
     return res.data as IGetDifficultiesResponse;
   });
+};
+
+export const addQuestionAttempt = (
+  params: IPostAddQuestionAttemptParams
+): Promise<IPostAddQuestionAttemptResponse> => {
+  return questionApiClient
+    .post(QUESTION_SERVICE_ROUTES.POST_ADD_ATTEMPT, params, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((res) => {
+      return res.data as IPostAddQuestionAttemptResponse;
+    });
 };

@@ -9,8 +9,6 @@ interface AddAttemptRequestBody {
   userId2?: string; // Optional if userId2 is not always required
   code: string;
   language: string;
-  topic: string[]; // Assuming topic is an array of strings
-  difficulty: string;
 }
 
 // Controller function to handle creating an attempt
@@ -18,10 +16,10 @@ export const createAttempt = async (
   req: Request<unknown, unknown, AddAttemptRequestBody>,
   res: Response
 ) => {
-  const { questionId, userId1, userId2, code, language, topic, difficulty } = req.body;
+  const { questionId, userId1, userId2, code, language } = req.body;
 
   // Basic validation for required fields
-  if (!questionId || !userId1 || !code || !language || !topic || !difficulty) {
+  if (!questionId || !userId1 || !code || !language) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
