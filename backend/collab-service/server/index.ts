@@ -6,6 +6,8 @@ import logger from '../utils/logger';
 
 import createRoomRouter from '../create-room/createRoomRouter';
 import deleteRoomRouter from '../delete-room/deleteRoomRouter';
+import { router as createMatchRoute } from '../create-match/createMatchRoute';
+import { router as updateMatchRoute } from '../update-match/updateMatchRoute';
 import { setupCodeCollabWebSocketServer } from '../websocket/websocketServer';
 import { verifyRoom } from '../verify-room-validity/verifyRoomValidityController';
 
@@ -17,6 +19,8 @@ app.use(express.json());
 
 app.use(createRoomRouter);
 app.use(deleteRoomRouter);
+app.use(createMatchRoute);
+app.use(updateMatchRoute);
 app.use(verifyRoom);
 
 const PORT = process.env.PORT || 5003;
