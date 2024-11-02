@@ -15,7 +15,6 @@ function App() {
         <Route path="/signup/otp" element={<SignupOTP />} />
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/history" element={<History />} />
         <Route path="/questions" element={<Questions />} />
       </Routes>
     </div>

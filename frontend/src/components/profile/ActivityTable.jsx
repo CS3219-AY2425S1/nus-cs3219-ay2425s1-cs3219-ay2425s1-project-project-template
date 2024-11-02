@@ -8,7 +8,7 @@ const columns = [
   { id: 'datetime', label: 'Date/Time', minWidth: 80 }
 ];
 
-export default function HistoryTable({ activities }) {
+export default function ActivityTable({ activities }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
 

@@ -7,10 +7,9 @@ const useAuth = () => {
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies([]);
   const [username, setUsername] = useState("");
-  const [privilege, setPrivilege] = useState(false);
+  const [priviledge, setPriviledge] = useState(false);
   const [userId, setUserId] = useState("");
   const [email, setEmail] = useState("");
-  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const verifyCookie = async () => {
@@ -31,10 +30,9 @@ const useAuth = () => {
         if (response.status === 200) {
           const { data } = response.data;
           setUsername(data.username);
-          setPrivilege(data.isAdmin);
+          setPriviledge(data.isAdmin);
           setUserId(data.id);
           setEmail(data.email);
-          setHistory(data.history);
         } else {
           removeCookie("token");
           navigate("/login");
@@ -48,7 +46,7 @@ const useAuth = () => {
     verifyCookie();
   }, [cookies, navigate, removeCookie]);
 
-  return { username, privilege, userId, email, history, cookies, removeCookie };
+  return { username, priviledge, userId, email, cookies, removeCookie };
 };
 
 export default useAuth;
