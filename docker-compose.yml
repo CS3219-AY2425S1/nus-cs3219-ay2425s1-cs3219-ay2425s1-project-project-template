@@ -48,8 +48,8 @@ services:
       dockerfile: Dockerfile
       target: development
     volumes:
-      - ./user-service:/app
-      - ./user-service/node_modules:/app/node_modules
+      - ./user-service:/usr/src/app
+      - /usr/src/app/node_modules
     ports:
       - "3001:3001"
     networks:
