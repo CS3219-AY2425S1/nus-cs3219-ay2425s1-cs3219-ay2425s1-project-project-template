@@ -36,6 +36,7 @@ export async function formatFullUserResponse(user) {
     username: user.username,
     email: user.email,
     profileImage: await getImageSignedUrl(user),
+    history: user.history,
     isAdmin: user.isAdmin,
     isVerified: user.isVerified,
     createdAt: user.createdAt,

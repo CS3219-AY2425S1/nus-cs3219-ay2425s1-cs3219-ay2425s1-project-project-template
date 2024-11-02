@@ -64,7 +64,7 @@ export async function createUser(req, res) {
   }
 }
 
-export async function getUser(req, res) {
+export async function getUserById(req, res) {
   try {
     const userId = req.params.id;
     if (!isValidObjectId(userId)) {
@@ -79,6 +79,28 @@ export async function getUser(req, res) {
     return res.status(200).json({
       message: `Found user`,
       data: await (req.user.isAdmin || req.user.id === userId 
+        ? formatFullUserResponse(user)
+        : formatPartialUserResponse(user))
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when getting user!" });
+  }
+}
+
+export async function getUserByUsername(req, res) {
+  try {
+    const username = req.params.username;
+
+    const user = await _findUserByUsername(username);
+    if (!user) {
+      return res.status(404).json({ message: `User ${username} not found` });
+    }
+
+    return res.status(200).json({
+      message: `Found user`,
+      data: await (req.user.isAdmin || req.user.username === username 
         ? formatFullUserResponse(user)
         : formatPartialUserResponse(user))
     });
