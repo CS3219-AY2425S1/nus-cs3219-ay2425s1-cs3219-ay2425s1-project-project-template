@@ -12,7 +12,7 @@ import { useContext, useState } from "react";
 import { AuthContext, authState } from "../../hooks/AuthContext";
 
 export default function LoginPage() {
-  const {user, setUser, setIsAuthenticated} = useContext(AuthContext);
+  const { user, setUser, setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,13 +36,10 @@ export default function LoginPage() {
       navigate("/");
     },
     onError: (error: AxiosError) => {
-      let message: string;
-      if (error.status === 401) {
-        message = "Incorrect email or password"
-      } else {
-        message = "Unknown error occurred"
+      const data: any = error.response?.data;
+      if (data) {
+        toast.error(data.message);
       }
-      toast.error(message)
     }
   });
 

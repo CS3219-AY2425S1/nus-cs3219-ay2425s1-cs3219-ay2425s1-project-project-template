@@ -44,6 +44,9 @@ module.exports = {
             "table": {
               width: "auto",
             },
+            "th": {
+              fontWeight: "bold",
+            }
           },
         },
       },

@@ -10,6 +10,7 @@ services:
       - REACT_APP_USER_SVC_PORT=${USER_SVC_PORT}
       - REACT_APP_QUESTION_SVC_PORT=${QUESTION_SVC_PORT}
       - REACT_APP_MATCHING_SVC_PORT=${MATCHING_SVC_PORT}
+      - REACT_APP_CODE_EXECUTION_SVC_PORT=${TORK_CLIENT_ENDPOINT}
       - REACT_APP_HISTORY_SVC_PORT=${HISTORY_SVC_PORT}
     volumes:
       - ./frontend:/app
@@ -18,6 +19,7 @@ services:
       - user-service
       - question-service
       - matching-service
+      - code-execution-service
       - history-service
 
   user-service:
@@ -31,6 +33,12 @@ services:
       - DB_LOCAL_URI=${USER_DB_URI}
       - JWT_SECRET=${JWT_SECRET}
       - FRONTEND_PORT=${FRONTEND_PORT}
+      - CLOUD_DOMAIN=${CLOUD_DOMAIN}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     volumes:
       - ./backend/UserService:/app
       - /app/node_modules
@@ -70,6 +78,18 @@ services:
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
 
+  code-execution-service:
+    build:
+      context: ./backend/CodeExecutionService
+    ports:
+      - ${TORK_CLIENT_ENDPOINT}:${TORK_CLIENT_ENDPOINT}
+    environment:
+      - TORK_COORDINATOR_ADDRESS=${TORK_COORDINATOR_ADDRESS}
+
+    volumes:
+      - ./backend/CodeExecutionService:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+  
   history-service:
     build:
       context: ./backend/HistoryService

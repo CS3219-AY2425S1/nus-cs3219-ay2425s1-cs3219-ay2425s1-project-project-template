@@ -19,6 +19,7 @@ import {
 } from "@tanstack/react-query";
 import axios from "axios";
 
+import MainLayout from "../../components/MainLayout";
 import { type Question } from "../Question/question";
 
 interface Attempt {
@@ -114,7 +115,9 @@ const HistoryTable = () => {
 }
 
 export default function HistoryPage() {
-  return <Box sx={{ margin: "50px" }}>
-    <HistoryTable />
-  </Box>;
+  return <MainLayout>
+    <Box sx={{ margin: "50px" }}>
+      <HistoryTable />
+    </Box>
+  </MainLayout>;
 };
