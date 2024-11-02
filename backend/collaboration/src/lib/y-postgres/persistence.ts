@@ -1,10 +1,47 @@
+import { Pool } from 'pg';
 import { PostgresqlPersistence } from 'y-postgresql';
 import * as Y from 'yjs';
 
 import { dbConfig } from '@/config';
+import { logger } from '@/lib/utils';
 import type { IWSSharedDoc } from '@/types/interfaces';
 
 import { setPersistence } from './utils';
+
+// From y-postgresql
+const defaultTableName = 'yjs-writings';
+
+async function migrateTable() {
+  // Custom logic to add `updated_at` column if purging is desired
+  const p = new Pool(dbConfig);
+  const conn = await p.connect().then((client) => {
+    logger.info('Migration Client connected');
+    return client;
+  });
+  await conn
+    .query(
+      `
+  DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1
+          FROM information_schema.columns 
+          WHERE table_name = '${defaultTableName}'
+          AND column_name = 'updated_at'
+      ) THEN
+        ALTER TABLE "${defaultTableName}"
+          ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+      END IF;
+    END
+  $$
+  `
+    )
+    .then(() => {
+      logger.info('Migration Complete');
+    });
+  p.end();
+  logger.info('Migration Client disconnected');
+}
 
 export const setUpPersistence = async () => {
   const pgdb = await PostgresqlPersistence.build(dbConfig);
@@ -34,4 +71,6 @@ export const setUpPersistence = async () => {
       });
     },
   });
+
+  await migrateTable();
 };

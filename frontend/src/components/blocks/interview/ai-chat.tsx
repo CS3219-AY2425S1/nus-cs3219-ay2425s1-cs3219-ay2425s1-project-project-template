@@ -16,9 +16,6 @@ interface AIChatProps {
   onClose: () => void;
 }
 
-// const API_URL = 'https://api.openai.com/v1/chat/completions';
-// const API_KEY = process.env.OPENAI_API_KEY;
-
 export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -27,26 +24,21 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const handleSend = async (userMessage: string): Promise<void> => {
     if (!userMessage.trim() || isLoading) return;
 
-    const updatedMessages = [
-      ...messages,
-      { text: userMessage, isUser: true, timestamp: new Date() },
-    ];
-
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, { text: userMessage, isUser: true, timestamp: new Date() }]);
     setIsLoading(true);
     setError(null);
 
-    const inputMessages = updatedMessages.map((message) => ({
-      role: message.isUser ? 'user' : 'assistant',
-      content: message.text,
-    }));
-
     try {
-      const response = await sendChatMessage(inputMessages);
-      setMessages((prev) => [
-        ...prev,
-        { text: response?.message, isUser: false, timestamp: new Date() },
-      ]);
+      const response = await sendChatMessage(
+        messages.map((v) => ({ role: v.isUser ? 'user' : 'system', content: v.text }))
+      );
+
+      if (response.success) {
+        setMessages((prev) => [
+          ...prev,
+          { text: response.message, isUser: false, timestamp: new Date() },
+        ]);
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'An error occurred while fetching the response'

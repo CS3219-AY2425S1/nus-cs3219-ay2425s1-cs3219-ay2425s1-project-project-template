@@ -8,7 +8,7 @@ else
   echo "Namespace exists, creating secrets"
 fi
 
-pkgs=("backend/user" "backend/question" "backend/collaboration" "backend/matching" "frontend")
+pkgs=("backend/user" "backend/question" "backend/collaboration" "backend/matching" "backend/chat" "frontend")
 
 create_secret() {
   local secretName=$1
@@ -41,5 +41,4 @@ for pkg in "${pkgs[@]}"; do
   create_secret $pkg
 done
 
-cd k8s 
-kubectl apply -f .
+kubectl apply -f ./k8s

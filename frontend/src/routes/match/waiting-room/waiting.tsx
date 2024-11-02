@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/lib/routes';
 import { MATCHING_EVENT, WS_EVENT } from '@/lib/ws';
 import { MATCHING_SOCKET } from '@/services/api-clients';
 import { cancelMatch } from '@/services/match-service';
@@ -130,9 +131,8 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
       countdownRef.current = 0;
       clearInterval(timerRef.current!);
 
-      setUIState((prevState) => ({ ...prevState, uiState: UI_STATUS.SUCCESS_STATUS }));
-      updateDescription(`RoomId: ${roomId}\nQuestionId: ${questionId} `);
       socket.close();
+      navigate(`${ROUTES.INTERVIEW.replace(':roomId', roomId)}?questionId=${questionId}`);
     });
 
     socket.on(MATCHING_EVENT.FAILED, () => {

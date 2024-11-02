@@ -7,6 +7,9 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   return {
+    define: {
+      'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
+    },
     plugins: [react()],
     build: {
       outDir: 'build',
@@ -60,6 +63,12 @@ export default defineConfig(({ mode }) => {
         },
         '/matching-socket/': {
           target: env.VITE_MATCHING_SERVICE,
+          ws: true,
+          secure: false,
+          changeOrigin: true,
+        },
+        '/chat-socket/': {
+          target: env.VITE_CHAT_SERVICE,
           ws: true,
           secure: false,
           changeOrigin: true,
