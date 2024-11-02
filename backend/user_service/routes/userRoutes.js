@@ -1,4 +1,4 @@
-const { addToUserCollection, checkUsernameExists, checkAdminStatus, getUsernameByUid } = require('../controllers/userController');
+const { addToUserCollection, checkUsernameExists, checkAdminStatus, getUsernameByUid, removeFromUserCollection } = require('../controllers/userController');
 const express = require('express');
 const authenticateToken = require('../middleware/authenticateToken'); // Import the authentication middleware
 const router = express.Router();
@@ -11,6 +11,8 @@ router.post('/verify-token', authenticateToken, (req, res) => {
 
 // Route to create a new user
 router.post('/user/addToUserCollection', addToUserCollection);
+
+router.post('/user/removeFromUserCollection', authenticateToken, removeFromUserCollection);
 
 // Route for checking admin status
 router.get('/admin/checkAdminStatus', authenticateToken, checkAdminStatus); 

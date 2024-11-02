@@ -15,6 +15,15 @@ export async function addToUserCollection(userCredential: UserCredential, userna
     return res;
 }
 
+export async function removeUserFromCollection(): Promise<SuccessObject> {
+    const uid = sessionStorage.getItem("uid");
+    const userData = {
+        uid
+    }
+    const res = await callFunction(HTTP_SERVICE_USER, "user/removeFromUserCollection", "POST", userData);
+    return res
+}
+
 export const fetchAdminStatus = async () => {
     const res = await callFunction(HTTP_SERVICE_USER, "admin/checkAdminStatus", "GET");
     return res.data.isAdmin
