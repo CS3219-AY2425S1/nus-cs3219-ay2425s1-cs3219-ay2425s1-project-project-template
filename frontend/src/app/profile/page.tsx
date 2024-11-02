@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/authContext';
 import { useRouter } from 'next/navigation';
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +12,9 @@ import { difficulties } from '@/utils/constant';
 const ProfilePage: React.FC = () => {
     const router = useRouter();
     const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
+    const [ pastMatches, setPastMatches ] = useState([]);
+    const [ totalNumberOfMatches, setTotalNumberOfMatches ] = useState(0);
+    const [ skills, setSkills ] = useState([]);
 
     const handleLogout = async () => {
         try {
@@ -33,6 +36,12 @@ const ProfilePage: React.FC = () => {
         }
     };
 
+    const fetchPastMatches = async () => {
+    }
+
+    useEffect(() => {
+        fetchPastMatches();
+    }, []);
 
     if (!user) {
         // Optionally, show a loading state while fetching user data
