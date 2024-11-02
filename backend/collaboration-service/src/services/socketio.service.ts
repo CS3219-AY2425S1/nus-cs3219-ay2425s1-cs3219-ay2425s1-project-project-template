@@ -1,6 +1,8 @@
 import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
+import { updateLanguage } from '../models/collab.repository'
+import { LanguageMode } from '../types/LanguageMode'
 
 export class WebSocketConnection {
     private io: IOServer
@@ -24,9 +26,10 @@ export class WebSocketConnection {
                 }
             })
 
-            socket.on('change-language', (language: string) => {
+            socket.on('change-language', async (language: string) => {
                 this.io.to(roomId).emit('update-language', language)
                 this.languages.set(roomId, language)
+                await updateLanguage(roomId, language as LanguageMode)
             })
 
             socket.on('disconnect', async () => {

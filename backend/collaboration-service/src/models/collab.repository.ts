@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose'
 import { CollabDto } from '../types/CollabDto'
 import collabSchema from './collab.model'
 import { ChatModel } from '../types'
+import { LanguageMode } from '../types/LanguageMode'
 
 const collabModel: Model<CollabDto> = model('collab', collabSchema)
 
@@ -22,6 +23,10 @@ export async function getSessionById(id: string): Promise<CollabDto> {
 
 export async function updateChatHistory(id: string, chatEntry: ChatModel) {
     return collabModel.updateOne({ _id: id }, { $push: { chatHistory: chatEntry } })
+}
+
+export async function updateLanguage(id: string, language: LanguageMode) {
+    return collabModel.updateOne({ _id: id }, { $set: { language: language } })
 }
 
 export async function saveCode(id: string, code: string) {
