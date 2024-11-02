@@ -38,13 +38,20 @@ pending_requests = []
 
 def match_user(request):
     print(f"trying to find matches with incoming request {request}", file=sys.stderr)
-    topic, difficulty = request['topic'], request['difficulty']
+    topic, difficulty, userId, cancel = request['topic'], request['difficulty'], request['userId'], request['cancel']
     user1 = request
-
+    print(pending_requests, file=sys.stderr)
     for pending in pending_requests:
         user2 = pending
 
-        if pending['topic'] == topic and pending['difficulty'] == difficulty:
+        if cancel:
+            # Cancel request
+            if pending['userId'] == userId:
+                print(f"Deleting: {user2}", file=sys.stderr)
+                pending_requests.remove(pending)
+            else:
+                continue
+        elif pending['topic'] == topic and pending['difficulty'] == difficulty:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
             sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty} and topic: {topic}"))
             pending_requests.remove(pending)
@@ -61,7 +68,8 @@ def match_user(request):
             return
 
     # No match found; add to pending requests
-    pending_requests.append(request)
+    if not cancel:
+        pending_requests.append(request)
 
     # Set timer to remove the request after 60 seconds
     threading.Timer(60.0, remove_request, [request]).start()
@@ -124,7 +132,14 @@ def queue():
     data = json.dumps(request.get_json())
     produce_message(data)
 
-    return jsonify({"status": "Message sent to RabbitMQ", "message": data}), 200
+    return jsonify({"status": "Enqueue request sent to RabbitMQ", "message": data}), 200
+
+@app.route('/dequeue', methods=['POST'])
+def dequeue():
+    data = json.dumps(request.get_json())
+    produce_message(data)
+
+    return jsonify({"status": "Dequeue request sent to RabbitMQ", "message": data}), 200
 
 if __name__ == '__main__':
     print(f"Running on port {PORT}")

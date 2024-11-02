@@ -47,24 +47,9 @@ export const HomePage = () => {
     // Removes the last comma
     return output.substring(0, output.length - 2);
   }
-
-  /** 
-  const checkAuthenticated = async (accessToken) => {
-    try {
-      const response = await axios.get(`http://localhost:3001/auth/verify-token`, {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`
-        }
-      })
-
-    } catch (error) {
-      console.log("error!");
-    }
-  }
-  */
+  
 
   useEffect(() => {
-    //checkAuthenticated(localStorage.getItem("accessToken"));
     getQuestions();
   }, []);
 

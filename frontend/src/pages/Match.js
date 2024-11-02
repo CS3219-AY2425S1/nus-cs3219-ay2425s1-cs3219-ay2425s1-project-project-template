@@ -7,6 +7,7 @@ import {
   faStar,
   faUserCircle,
   faSpinner,
+  faHome
 } from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
 import axios from "axios";
@@ -52,6 +53,7 @@ export const Match = () => {
           alert(
             "Couldn't find anyone to match you with at this time...please try again."
           );
+          console.log("Cancelling match");
         }
       }, 1000);
     } else {
@@ -76,6 +78,10 @@ export const Match = () => {
     navigate("/profile");
   };
 
+  const handleHomeButton = (e) => {
+    navigate("/home");
+  }
+
   const startMatching = async (e) => {
     e.preventDefault();
     if (!selectedTopic || !selectedDifficulty) {
@@ -99,6 +105,7 @@ export const Match = () => {
           username: localStorage.getItem("username"),
           email: localStorage.getItem("email"),
           userId: userId,
+          cancel: false
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -116,7 +123,7 @@ export const Match = () => {
         alert(
           `You have been matched with ${data.match}!\n${data.match_message}`
         );
-        stopMatching();
+        completeMatching();
       });
 
       socket.on("connect_error", (err) => {
@@ -129,10 +136,40 @@ export const Match = () => {
     }
   };
 
-  const stopMatching = () => {
+  const completeMatching = async () => {
     if (socket?.connected) socket.disconnect();
     setIsMatching(false);
     setTimer(0);
+  }
+
+  const stopMatching = async () => {
+    if (socket?.connected) socket.disconnect();
+    setIsMatching(false);
+    setTimer(0);
+    try {
+      const response = await axios.post(
+        `${MATCHING_SERVICE}/dequeue`,
+        {
+          topic: selectedTopic,
+          difficulty: selectedDifficulty,
+          username: localStorage.getItem("username"),
+          email: localStorage.getItem("email"),
+          userId: userId,
+          cancel: true
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.status === 200) {
+        alert("Cancelled successfully!");
+      } else {
+        console.log("An error occured!");
+        console.log(response)
+      }
+    } catch (error) {
+      console.log("Error: " + error);
+    }
   };
 
   return (
@@ -146,6 +183,7 @@ export const Match = () => {
           onClick={handleLogoClick}
           style={{ cursor: "pointer" }}
         />
+        <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} onClick={handleHomeButton} />        
         <FontAwesomeIcon
           icon={faUserCircle}
           className="profile-icon"

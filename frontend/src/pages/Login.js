@@ -3,7 +3,7 @@ import '../styles/Login.css';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
-export const Login = () => {
+export const Login = ({ onLoginSuccess }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
@@ -26,6 +26,7 @@ export const Login = () => {
                     localStorage.setItem("username", response.data.data.username);
                     localStorage.setItem("email", response.data.data.email);
                     alert('Successfully logged in!');
+                    onLoginSuccess();
                     navigate("/home");
                 } else {
                     alert('Unable to log in.');
