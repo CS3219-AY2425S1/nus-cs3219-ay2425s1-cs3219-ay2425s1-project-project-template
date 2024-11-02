@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CodeReviewDto {
+export class JoinCollabSessionRequestDto {
   @IsString()
   @IsNotEmpty()
-  sessionId: string;
+  userId: string;
 
   @IsString()
   @IsNotEmpty()
-  code: string;
+  sessionId: string;
 }

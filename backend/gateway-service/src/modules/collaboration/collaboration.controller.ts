@@ -34,7 +34,7 @@ export class CollaborationController {
     // To implement middleware to check for session authentication if needed (similar to getSessionDetailsById)
     return this.collaborationClient.send({ cmd: 'review-code' }, dto);
   }
-  
+
   // Get session details by id
   @Get(':id')
   @ApiOkResponse({
@@ -72,8 +72,4 @@ export class CollaborationController {
       ...sessionDetail,
     };
   }
-
-
-
-
 }
