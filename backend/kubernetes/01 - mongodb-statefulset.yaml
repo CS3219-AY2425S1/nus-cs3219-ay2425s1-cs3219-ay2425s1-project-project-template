@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mongodb
-          image: m1oojv/mongodb:latest
+          image: docker_username/mongodb:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 27017
