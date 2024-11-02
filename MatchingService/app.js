@@ -6,6 +6,7 @@ import matchController from './controllers/matchController.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+const frontendURL = process.env.frontend_url || "http://localhost:8080";
 const app = express();
 const port = 3000;
 const server = createServer(app);
@@ -24,7 +25,7 @@ io.on('connection', (socket) => {
     });
 });
 
-app.use(cors());
+app.use(cors({origin: frontendURL, credentials: true}));
 app.use(json());
 app.use(cookieParser());
 app.use('/matcher', matchRoutes);
