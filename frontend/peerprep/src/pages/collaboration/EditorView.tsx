@@ -30,7 +30,9 @@ const EditorView: React.FC = () => {
   const questionId = searchParams.get("questionId");
 
   useEffect(() => {
-    if (roomId === null || roomId === "" || !questionId) {
+    const disconnected = sessionStorage.getItem("disconnected");
+
+    if (disconnected === "true" || roomId === null || roomId === "" || !questionId) {
       navigate("/dashboard");
       return;
     }
@@ -106,6 +108,15 @@ const EditorView: React.FC = () => {
     }
   };
 
+  const disconnectAndGoBack = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+    sessionStorage.setItem("disconnected", "true");
+    sessionStorage.removeItem('reconnectUrl');
+    navigate("/dashboard");
+  };
+
   return (
     <div className="collaboration-container">
       <div className="right-side" style={styles.rightSide}>
@@ -129,10 +140,15 @@ const EditorView: React.FC = () => {
             </button>
           </div>
         </div>
+        <div style={styles.disconnectButtonContainer}>
+          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
+            Disconnect
+          </button>
+        </div>
       </div>
     </div>
   );
-};
+};  
 
 const styles = {
   languageSelector: {
@@ -198,6 +214,23 @@ const styles = {
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
+  },
+  disconnectButtonContainer: {
+    marginTop: "10px",
+    display: "flex",
+    justifyContent: "center",
+  },
+  disconnectButton: {
+    padding: "10px 15px",
+    backgroundColor: "#f44336",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "16px",
+    fontWeight: "bold",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+    transition: "background-color 0.3s ease",
   },
 };
 
