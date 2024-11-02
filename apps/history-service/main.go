@@ -75,10 +75,10 @@ func initChiRouter(service *handlers.Service) *chi.Mux {
 
 func registerRoutes(r *chi.Mux, service *handlers.Service) {
 	r.Route("/histories", func(r chi.Router) {
-		r.Get("/{username}", service.ListUserHistories)
+		r.Get("/user/{username}", service.ListUserHistories)
 		//r.Post("/", service.CreateHistory)
 
-		r.Route("/{matchId}", func(r chi.Router) {
+		r.Route("/match/{matchId}", func(r chi.Router) {
 			r.Put("/", service.CreateOrUpdateHistory)
 			r.Get("/", service.ReadHistory)
 			//r.Put("/", service.UpdateHistory)

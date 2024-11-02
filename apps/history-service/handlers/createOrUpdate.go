@@ -41,6 +41,7 @@ func (s *Service) CreateOrUpdateHistory(w http.ResponseWriter, r *http.Request) 
 				"questionDocRefId":   collaborationHistory.QuestionDocRefID,
 				"questionDifficulty": collaborationHistory.QuestionDifficulty,
 				"questionTopics":     collaborationHistory.QuestionTopics,
+				"status":             collaborationHistory.Status,
 				"createdAt":          firestore.ServerTimestamp,
 				"updatedAt":          firestore.ServerTimestamp,
 			})

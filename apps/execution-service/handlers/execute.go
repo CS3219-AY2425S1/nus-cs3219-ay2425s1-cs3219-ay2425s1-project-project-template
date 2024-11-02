@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func (s *Service) ExecuteTest(w http.ResponseWriter, r *http.Request) {
+func (s *Service) ExecuteVisibleAndCustomTests(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	questionDocRefId := chi.URLParam(r, "questionDocRefId")
@@ -41,7 +41,7 @@ func (s *Service) ExecuteTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	testResults, err := utils.ExecuteTest(code, test)
+	testResults, err := utils.ExecuteVisibleAndCustomTests(code, test)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,14 +52,14 @@ func (s *Service) ExecuteTest(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(testResults)
 }
 
-//curl -X POST http://localhost:8083/tests/bmzFyLMeSOoYU99pi4yZ/execute \
+//curl -X POST http://localhost:8083/tests/Yt29JjnIDpRwIlYAX8OF/execute \
 //-H "Content-Type: application/json" \
 //-d '{
 //"code": "name = input()\nprint(name[::-1])",
 //"language": "Python"
 //}'
 
-//curl -X POST http://localhost:8083/tests/bmzFyLMeSOoYU99pi4yZ/execute \
+//curl -X POST http://localhost:8083/tests/Yt29JjnIDpRwIlYAX8OF/execute \
 //-H "Content-Type: application/json" \
 //-d '{
 //"code": "name = input()\nprint(name[::-1])",

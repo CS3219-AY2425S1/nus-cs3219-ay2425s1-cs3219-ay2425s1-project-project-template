@@ -42,6 +42,8 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 	// Prepare the update data.
 	updates := []firestore.Update{
 		{Path: "code", Value: updatedHistory.Code},
+		{Path: "language", Value: updatedHistory.Language},
+		{Path: "status", Value: updatedHistory.Status},
 		{Path: "updatedAt", Value: firestore.ServerTimestamp},
 	}
 

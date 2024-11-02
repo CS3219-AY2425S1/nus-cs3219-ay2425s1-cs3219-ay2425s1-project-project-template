@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func (s *Service) ReadTest(w http.ResponseWriter, r *http.Request) {
+func (s *Service) ReadVisibleTests(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	questionDocRefId := chi.URLParam(r, "questionDocRefId")

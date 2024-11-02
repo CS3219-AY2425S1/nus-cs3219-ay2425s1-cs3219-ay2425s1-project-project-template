@@ -7,12 +7,10 @@ COPY go.mod go.sum ./
 
 RUN go mod tidy && go mod download && go mod verify
 
-COPY .env /usr/src/app/.env
-
 COPY . .
 
 RUN go build -v -o /usr/local/bin/app ./main.go
 
-EXPOSE 8083 8083
+EXPOSE 8083
 
 CMD ["app"]

@@ -11,6 +11,6 @@ COPY . .
 
 RUN go build -v -o /usr/local/bin/app ./main.go
 
-EXPOSE 8082 8082
+EXPOSE 8082
 
 CMD ["app"]

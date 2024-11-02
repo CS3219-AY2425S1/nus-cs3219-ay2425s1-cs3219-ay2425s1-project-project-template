@@ -90,8 +90,9 @@ func registerRoutes(r *chi.Mux, service *handlers.Service) {
 			// Future extension: can be read by admin to view testcases
 			//r.Put("/", service.UpdateTest)
 			//r.Delete("/", service.DeleteTest)
-			r.Get("/", service.ReadTest)
-			r.Post("/execute", service.ExecuteTest)
+			r.Get("/", service.ReadVisibleTests)
+			r.Post("/execute", service.ExecuteVisibleAndCustomTests)
+			r.Post("/submit", service.ExecuteVisibleAndHiddenTestsAndSubmit)
 		})
 	})
 }

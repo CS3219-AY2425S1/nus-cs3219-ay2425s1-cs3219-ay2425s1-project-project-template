@@ -1,43 +1,14 @@
 # Execution Service
 
-## Overview
-
-The Execution Service is built with Go, utilizing Firestore as the database and Chi as the HTTP router. It provides an API to manage test cases, such as populating test cases (via question-service), reading visible test cases and executing visible, hidden and custom test cases.
-
-## Features
-
-- Populate test cases (via populate questins in question-service)
-- Read visible test cases via a question ID
-- Execute visible test cases via a question ID
-
-## Technologies Used
-
-- Go (Golang)
-- Firestore (Google Cloud Firestore)
-- Chi (HTTP router)
-- Yaegi (Go interpreter)
-
-## Getting Started
-
-### Prerequisites
-
-- Go 1.16 or later
-- Google Cloud SDK
-- Firestore database setup in your Google Cloud project
-
 ### Installation
 
-1. Clone the repository
-
-2. Set up your Firestore client
-
-3. Install dependencies:
+1. Install dependencies:
 
 ```bash
 go mod tidy
 ```
 
-4. Create the `.env` file from copying the `.env.example`, and copy the firebase JSON file into execution-service/ fill in the `FIREBASE_CREDENTIAL_PATH` with the path of the firebase credential JSON file.
+2. Create the `.env` file from copying the `.env.example`, and copy the firebase JSON file into execution-service/ fill in the `FIREBASE_CREDENTIAL_PATH` with the path of the firebase credential JSON file.
 
 ### Running the Application
 
@@ -94,8 +65,19 @@ go run main.go -populate
 To read visible test cases via a question ID, run the following command:
 
 ```bash
-curl -X GET http://localhost:8083/tests/bmzFyLMeSOoYU99pi4yZ/ \
+curl -X GET http://localhost:8083/tests/{questioinDocRefId}/ \
 -H "Content-Type: application/json"
+```
+
+The following json format will be returned:
+
+```json
+[
+   {
+      "input":"hello",
+      "expected":"olleh"
+   }
+]
 ```
 
 `GET /tests/{questionDocRefId}/execute`
@@ -103,7 +85,7 @@ curl -X GET http://localhost:8083/tests/bmzFyLMeSOoYU99pi4yZ/ \
 To execute test cases via a question ID without custom test cases, run the following command, with custom code and language:
 
 ```bash
-curl -X POST http://localhost:8083/tests/{questionDocRefId}/execute \
+curl -X POST http://localhost:8083/tests/{questioinDocRefId}/execute \
 -H "Content-Type: application/json" \
 -d '{
 "code": "name = input()\nprint(name[::-1])",
@@ -111,14 +93,123 @@ curl -X POST http://localhost:8083/tests/{questionDocRefId}/execute \
 }'
 ```
 
-To execute test cases via a question ID with custom test cases, run the following command, with custom code, language and custom test cases:
+The following json format will be returned:
+
+```json
+{
+  "visibleTestResults":[
+    {
+      "input":"hello",
+      "expected":"olleh",
+      "actual":"olleh",
+      "passed":true,
+      "error":""
+    }
+  ],
+  "customTestResults":null
+}
+```
+
+To execute visible and custom test cases via a question ID with custom test cases, run the following command, with custom code, language and custom test cases:
 
 ```bash
-curl -X POST http://localhost:8083/tests/{questionDocRefId}/execute \
+curl -X POST http://localhost:8083/tests/{questioinDocRefId}/execute \
 -H "Content-Type: application/json" \
 -d '{
 "code": "name = input()\nprint(name[::-1])",
 "language": "Python",
 "customTestCases": "2\nHannah\nhannaH\nabcdefg\ngfedcba\n"
 }'
+```
+
+The following json format will be returned:
+
+```json
+{
+  "visibleTestResults":[
+    {
+      "input":"hello",
+      "expected":"olleh",
+      "actual":"olleh",
+      "passed":true,
+      "error":""
+    }
+  ],
+  "customTestResults":[
+    {
+      "input":"Hannah",
+      "expected":"hannaH",
+      "actual":"hannaH",
+      "passed":true,
+      "error":""
+    },
+    {
+      "input":"abcdefg",
+      "expected":"gfedcba",
+      "actual":"gfedcba",
+      "passed":true,
+      "error":""
+    }
+  ]
+}
+```
+
+To submit a solution and execute visible and hidden test cases via a question ID, run the following command, with custom code and language:
+
+```bash
+curl -X POST http://localhost:8083/tests/{questioinDocRefId}/submit \
+-H "Content-Type: application/json" \
+-d '{
+"title": "Example Title",
+"code": "name = input()\nprint(name[::-1])",
+"language": "Python",
+"user": "user123",
+"matchedUser": "user456",
+"matchId": "match123",
+"matchedTopics": ["topic1", "topic2"],
+"questionDifficulty": "Medium",
+"questionTopics": ["Loops", "Strings"]
+}'
+```
+
+The following json format will be returned:
+
+```json
+{
+  "visibleTestResults":[
+    {
+      "input":"hello",
+      "expected":"olleh",
+      "actual":"olleh",
+      "passed":true,
+      "error":""
+    }
+  ],
+  "hiddenTestResults":{
+    "passed":2,
+    "total":2
+  },
+  "status":"Accepted"
+}
+```
+
+If compilation error exists or any of the tests (visible and hidden) fails, status "Attempted" will be returned:
+
+```json
+{
+  "visibleTestResults":[
+    {
+      "input":"hello",
+      "expected":"olleh",
+      "actual":"",
+      "passed":false,
+      "error":"Command execution failed: Traceback (most recent call last):\n  File \"/tmp/4149249165.py\", line 2, in \u003cmodule\u003e\n    prit(name[::-1])\n    ^^^^\nNameError: name 'prit' is not defined. Did you mean: 'print'?\n: %!w(*exec.ExitError=\u0026{0x4000364678 []})"
+    }
+  ],
+  "hiddenTestResults":{
+    "passed":0,
+    "total":2
+  },
+  "status":"Attempted"
+}
 ```
