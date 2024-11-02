@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -18,10 +18,13 @@ import { AuthContext, authState } from "../../hooks/AuthContext";
 
 
 function NavBar() {
+  const navigate = useNavigate();
   const settings = [
     {
       name: "Settings",
-      onClick: () => {}
+      onClick: () => {
+        navigate("/settings", { replace: true });
+      }
     },
     {
       name: "Logout",
@@ -81,7 +84,7 @@ function NavBar() {
             <Typography sx={{ mx: 3 }} >{`Welcome, ${user.username}`}</Typography>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Remy Sharp" src={user.avatar} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -109,7 +112,7 @@ function NavBar() {
           </Toolbar>
         </Container>
       </AppBar>
-      <MatchingDialog open={matchScreenOpen} handleMatchScreenClose={handleMatchScreenClose}/>
+      <MatchingDialog open={matchScreenOpen} handleMatchScreenClose={handleMatchScreenClose} />
     </Box>
   );
 }

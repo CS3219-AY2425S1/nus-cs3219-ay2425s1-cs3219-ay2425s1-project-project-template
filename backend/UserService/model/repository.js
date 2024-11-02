@@ -27,12 +27,13 @@ export async function findUserByUsername(username) {
   return UserModel.findOne({ username });
 }
 
+export async function findUserByForgotPasswordToken(token) {
+  return UserModel.findOne({ forgotPasswordToken: token });
+}
+
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
-    $or: [
-      { username },
-      { email },
-    ],
+    $or: [{ username }, { email }],
   });
 }
 
@@ -40,17 +41,53 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password) {
+export async function updateUserById(
+  userId,
+  username,
+  email,
+  avatar,
+  password
+) {
+  const updateFields = {};
+  if (username) updateFields.username = username;
+  if (email) updateFields.email = email;
+  if (password) updateFields.password = password;
+  if (avatar) updateFields.avatar = avatar;
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $set: updateFields },
+    { new: true }
+  );
+}
+
+export async function updateUserForgetPasswordTokenById(
+  userId,
+  forgotPasswordToken,
+  forgotPasswordTokenExpiry
+) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
       $set: {
-        username,
-        email,
-        password,
+        forgotPasswordToken,
+        forgotPasswordTokenExpiry,
       },
     },
-    { new: true },  // return the updated user
+    { new: true, runValidators: true } // return the updated user
+  );
+}
+
+export async function updateUserPasswordById(userId, password) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        password: password,
+        forgotPasswordToken: "",
+        forgotPasswordTokenExpiry: "",
+      },
+    },
+    { new: true }
   );
 }
 
@@ -62,7 +99,7 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
         isAdmin,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
