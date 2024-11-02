@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
+	// "strconv"
 	"strings"
 	"time"
 
@@ -53,65 +53,44 @@ func GetQuestions(c *gin.Context) {
 }
 
 func GetQuestionsById(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
+    ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+    defer cancel()
 
-	idsParam := c.Query("id")
-	idsString := strings.Split(idsParam, ",")
+    idsParam := c.Query("id")
+    if idsParam == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"message": "ID parameter is required"})
+        return
+    }
 
-	if len(idsString) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Need to have at least one question id in params"})
-	}
+    id, err := primitive.ObjectIDFromHex(idsParam)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid question id; should be a valid ObjectID"})
+        return
+    }
 
-	// Convert string ids to int
-	ids := make([]int, len(idsString))
+    filter := bson.M{"_id": id}
+    curr, err := database.Coll.Find(ctx, filter)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
 
-	for i, idstr := range idsString {
-		id, err := strconv.Atoi(idstr)
+    var results []models.Question
+    for curr.Next(ctx) {
+        var question models.Question
+        if err := curr.Decode(&question); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            return
+        }
+        results = append(results, question)
+    }
 
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid question id should be only be integers"})
-			return
-		}
+    if len(results) == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"message": "No question found with the provided ID"})
+        return
+    }
 
-		ids[i] = id
-	}
-
-	// var questions []models.Question
-
-	filter := bson.M{"_id": bson.M{"$in": ids}}
-
-	curr, err := database.Coll.Find(ctx, filter)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	var results []map[string]interface{}
-
-	for curr.Next(context.TODO()) {
-		var question models.Question
-		err := curr.Decode(&question)
-		if err != nil {
-			return
-		}
-
-		// Convert ObjectID to string
-		result := map[string]interface{}{
-			"ID":          question.ID.Hex(), // Convert ObjectID to string
-			"Title":       question.Title,
-			"Description": question.Description,
-			"Categories":  question.Categories,
-			"Complexity":  question.Complexity,
-			"Link":        question.Link,
-		}
-
-		results = append(results, result)
-	}
-
-	// curr.All(ctx, &questions)
-	c.JSON(http.StatusOK, gin.H{"message": "Questions retrieve successfully", "questions": results})
+    c.JSON(http.StatusOK, gin.H{"message": "Questions retrieved successfully", "questions": results})
 }
 
 func AddQuestionToDb() gin.HandlerFunc {
@@ -380,8 +359,8 @@ func AssignQuestion(c *gin.Context) {
 	defer cancel()
 
 	type AssignRequest struct {
-		Category string
-		Complexity string
+		Category   string `json:"category"`
+		Complexity string `json:"complexity"`
 	}
 
 	var assignRequest AssignRequest
@@ -390,7 +369,7 @@ func AssignQuestion(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
- 
+
 	filter := bson.M{"$and": []bson.M{
 		{"complexity": strings.ToLower(assignRequest.Complexity)},
 		{"categories": bson.M{"$in": []string{strings.ToLower(assignRequest.Category)}}},
@@ -398,28 +377,29 @@ func AssignQuestion(c *gin.Context) {
 
 	cursor, err := database.Coll.Find(ctx, filter)
 
-	// check if can find matching
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	var questionsApplicable []models.Question;
-	
-	for cursor.Next(context.Background()) {
-		var question models.Question
-		cursor.Decode(&question)
-		questionsApplicable = append(questionsApplicable, question)
+	var questionIDs []primitive.ObjectID
+
+	for cursor.Next(ctx) {
+		var question struct {
+			ID primitive.ObjectID `bson:"_id"`
+		}
+		if err := cursor.Decode(&question); err == nil {
+			questionIDs = append(questionIDs, question.ID)
+		}
 	}
 
-	if len(questionsApplicable) == 0 {
+	if len(questionIDs) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"message": "No matching questions found"})
 		return
 	}
 
-	// Generate a random number to select a question
-	ind := helper.GenerateRandomIndex(len(questionsApplicable))
+	ind := helper.GenerateRandomIndex(len(questionIDs))
 
 	log.Println("ind", ind)
-	c.JSON(http.StatusOK, gin.H{"message": "Question assigned successfully", "question": questionsApplicable[ind]})
+	c.JSON(http.StatusOK, gin.H{"message": "Question assigned successfully", "question_id": questionIDs[ind]})
 }
