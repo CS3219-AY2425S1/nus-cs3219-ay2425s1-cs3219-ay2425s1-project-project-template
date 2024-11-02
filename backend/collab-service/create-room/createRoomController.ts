@@ -10,8 +10,6 @@ import logger from '../utils/logger';
 const createRoom = async (req: Request, res: Response):Promise<any> => {
     const { userId1, userId2, language } = req.body;
 
-    
-
     if (!userId1 || !userId2) {
         return res.status(400).json({ message: 'User IDs are required' });
     }
