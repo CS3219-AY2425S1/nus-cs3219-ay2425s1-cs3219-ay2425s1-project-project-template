@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 
-export type QuestionHistoryDocument = HydratedDocument<QuestionSubmission>;
+export type QuestionSubmissionDocument = HydratedDocument<QuestionSubmission>;
 
 @Schema({ collection: 'questionhistories', timestamps: true })
 export class QuestionSubmission {

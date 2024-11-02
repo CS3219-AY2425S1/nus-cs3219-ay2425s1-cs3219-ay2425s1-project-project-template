@@ -8,7 +8,7 @@ export class QuestionHistoryController {
   constructor(private readonly questionHistoryService: QuestionHistoryService) {}
 
   @Post()
-  async createQuestionHistory(@Body() CreateQuestionSubmissionDto: CreateQuestionSubmissionDto) {
+  async createQuestionSubmission(@Body() CreateQuestionSubmissionDto: CreateQuestionSubmissionDto) {
     try {
       return await this.questionHistoryService.create(CreateQuestionSubmissionDto);
     } catch (error) {
@@ -17,7 +17,7 @@ export class QuestionHistoryController {
   }
 
   @Patch(':id')
-  async updateQuestionHistory(@Param('id') id: string, @Body() UpdateQuestionSubmissionDto: UpdateQuestionSubmissionDto) {
+  async updateQuestionSubmission(@Param('id') id: string, @Body() UpdateQuestionSubmissionDto: UpdateQuestionSubmissionDto) {
     try {
       return await this.questionHistoryService.update(id, UpdateQuestionSubmissionDto);
     } catch (error) {
@@ -29,7 +29,7 @@ export class QuestionHistoryController {
   }
 
   @Get()
-  async getAllQuestionHistory() {
+  async getAllQuestionSubmissions() {
     try {
       return await this.questionHistoryService.findAll();
     } catch (error) {
@@ -38,7 +38,7 @@ export class QuestionHistoryController {
   }
 
   @Get(':sessionId')
-  async getQuestionHistoryBySession(@Param('sessionId') sessionId: string) {
+  async getQuestionSubmissionsBySession(@Param('sessionId') sessionId: string) {
     try {
       return await this.questionHistoryService.findAllInSession(sessionId);
     } catch (error) {
@@ -50,7 +50,7 @@ export class QuestionHistoryController {
   }
 
   @Get(':sessionId/:questionId')
-  async getSingleQuestionHistory(@Param('sessionId') sessionId: string, @Param('questionId') questionId: string) {
+  async getSingleQuestionSubmission(@Param('sessionId') sessionId: string, @Param('questionId') questionId: string) {
     try {
       // change to look for active question history?
       return await this.questionHistoryService.findOne(sessionId, questionId);

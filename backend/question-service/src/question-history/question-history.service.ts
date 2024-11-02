@@ -15,19 +15,19 @@ export class QuestionHistoryService {
     ) {}
 
     async create(CreateQuestionSubmissionDto: CreateQuestionSubmissionDto): Promise<QuestionSubmission> {
-      return this.questionHistoryDB.createQuestionHistory(CreateQuestionSubmissionDto);
+      return this.questionHistoryDB.createQuestionSubmission(CreateQuestionSubmissionDto);
     }
     async update(id: string, UpdateQuestionSubmissionDto: UpdateQuestionSubmissionDto): Promise<QuestionSubmission> {
-      return this.questionHistoryDB.updateQuestionHistory(id, UpdateQuestionSubmissionDto);
+      return this.questionHistoryDB.updateQuestionSubmission(id, UpdateQuestionSubmissionDto);
     }
     async findAll(): Promise<QuestionSubmission[]> {
-      return this.questionHistoryDB.getAllQuestionHistory();
+      return this.questionHistoryDB.getAllQuestionSubmissions();
     }
     async findAllInSession(sessionId: string): Promise<QuestionSubmission[]> {
-      return this.questionHistoryDB.getQuestionHistoryBySession(sessionId);
+      return this.questionHistoryDB.getQuestionSubmissionsBySession(sessionId);
     }
     async findOne(sessionId: string, questionId: string): Promise<QuestionSubmission> {
-      return this.questionHistoryDB.getSingleQuestionHistory(sessionId, questionId);
+      return this.questionHistoryDB.getSingleQuestionSubmission(sessionId, questionId);
     }
   }
 
