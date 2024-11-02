@@ -27,6 +27,8 @@ export default function CollaborativeEditor({
   language = "python",
   themeName = "dracula",
 }: CollaborativeEditorProps) {
+  const { codeReview } = useSessionContext();
+  const { setCurrentClientCode } = codeReview;
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
 
