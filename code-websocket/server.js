@@ -26,9 +26,9 @@ server.on('connection', (socket, request) => {
             // Update the stored code for this session
             sessionData[sessionID].code = parsedMessage.content;
 
-            // Broadcast the updated code to all clients in the session
+            // Broadcast the updated code to all clients in the same session
             server.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
+                if (client.readyState === WebSocket.OPEN && client !== socket) {
                     client.send(JSON.stringify({ type: 'code', content: parsedMessage.content }));
                 }
             });
