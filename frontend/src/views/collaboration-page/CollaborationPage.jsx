@@ -93,11 +93,12 @@ const CollaborationPage = () => {
     }, [roomId, cookies.userId]);
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        const interval = setTimeout(() => {
+            console.log('Saving codeSnippet to localStorage');
             localStorage.setItem(`codeSnippet-${language}`, content);
-        }, 5000); // save after every 5 seconds
-        return () => clearInterval(interval);
-    }, [content, language, cookies.userId]);
+        }, 2000); // save after every 2 seconds
+        return () => clearTimeout(interval);
+    }, [content, language]);
 
     const handleEditorChange = (newContent) => {
         setContent(newContent);
