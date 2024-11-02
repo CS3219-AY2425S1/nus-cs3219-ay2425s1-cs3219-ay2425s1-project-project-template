@@ -16,7 +16,6 @@ const EditorView: React.FC = () => {
   const [room, setRoom] = useState<string>("");
   const [socketId, setSocketId] = useState<string | undefined>("");
   const [isMatched, setIsMatched] = useState<boolean>(false);
-  const [language, setLanguage] = useState<string>("javascript");
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const userContext = useContext(UserContext);
   const user = userContext?.user;
@@ -24,20 +23,19 @@ const EditorView: React.FC = () => {
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic");
   const difficulty = searchParams.get("difficulty");
-  const questionId = searchParams.get("questionId");
   const [question, setQuestion] = useState<Question | null>(null);
   const api = useQuesApiContext();
 
-  const roomId = searchParams.get("roomId");
+  const roomId = searchParams.get("room");
+  const questionId = searchParams.get("questionId");
 
   useEffect(() => {
-    // if (roomId === null || roomId === "" || questionId === null || questionId === "") {
-    //   navigate("/dashboard");
-    //   return;
-    // }
+    if (roomId === null || roomId === "" || !questionId) {
+      navigate("/dashboard");
+      return;
+    }
     
-    // fetchQuestion(questionId);
-
+    fetchQuestion();
     socketRef.current = io("http://localhost:3004/", {
       path: "/api",
       query: { roomId },
@@ -86,7 +84,7 @@ const EditorView: React.FC = () => {
     };
   }, []);
 
-  const fetchQuestion = async (questionId: string) => {
+  const fetchQuestion = async () => {
     try {
       const response = await api.get(`/questionsById?id=${questionId}`);
       setQuestion(response.data.questions[0]);
