@@ -3,9 +3,13 @@ import http from "http";
 import index from "./index.js";
 import { Server } from "socket.io";
 import { addMessageToChat } from "./model/repository.js";
+import ywsUtils from "y-websocket/bin/utils";
+import { WebSocketServer } from "ws";
+const setupWSConnection = ywsUtils.setupWSConnection;
 
 const PORT = process.env.PORT || 3002;
 const server = http.createServer(index);
+const docs = ywsUtils.docs;
 
 const io = new Server(server, {
   cors: {
@@ -15,6 +19,27 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
+const yjsWs = new WebSocketServer({ noServer: true });
+yjsWs.on("connection", (conn, req) => {
+  setupWSConnection(conn, req, {
+    gc: req.url.slice(1) !== "ws/prosemirror-versions",
+  });
+});
+
+setInterval(() => {
+  let conns = 0;
+  docs.forEach((doc) => {
+    conns += doc.conns.size;
+  });
+  const stats = {
+    conns,
+    docs: docs.size,
+    websocket: `ws://localhost:${PORT}`,
+    http: `http://localhost:${PORT}`,
+  };
+  console.log(`${new Date().toISOString()} Stats: ${JSON.stringify(stats)}`);
+}, 10000);
 
 io.on("connection", (socket) => {
   console.log("User connected to Socket.IO");
@@ -37,6 +62,19 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected from Socket.IO");
   });
+});
+
+server.on("upgrade", (request, socket, head) => {
+  const pathname = new URL(request.url, `http://${request.headers.host}`)
+    .pathname;
+
+  if (pathname.startsWith("/yjs")) {
+    yjsWs.handleUpgrade(request, socket, head, (ws) => {
+      yjsWs.emit("connection", ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
 });
 
 connectToMongo()
