@@ -1,4 +1,4 @@
-<div class="sidebar-container">
+<div class="sidebar-container" *ngIf="question">
     <h1>{{ question.question_title }}</h1>
     <div class="difficulty">
         <span [ngClass]="{
@@ -11,7 +11,7 @@
     </div>
     <div class="tags-container">
         <span 
-          *ngFor="let tag of tags" 
+          *ngFor="let tag of generateTags()" 
           class="tag" 
           [ngStyle]="{ 'background-color': tag.color }">
           {{ tag.name }}
@@ -20,7 +20,7 @@
 
     <p class="description" [innerHTML]="getFormattedDescription()"></p>
     <hr>
-<div *ngFor="let example of question.examples; let i = index">
+<!-- <div *ngFor="let example of question.examples; let i = index">
     <div class="example">
         <h4>Example {{ i + 1 }}:</h4>
         <div>
@@ -38,4 +38,4 @@
     <ul class = "constraints">
       <li *ngFor="let constraint of question.constraints">{{ constraint }}</li>
     </ul>
-</div>
+</div> -->

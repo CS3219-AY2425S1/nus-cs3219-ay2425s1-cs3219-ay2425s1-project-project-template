@@ -1,5 +1,5 @@
 <nav class = "nav-bar">
-    <header class ="header" (click)="navigateBack()">
+    <header class ="header">
         Peer Prep
     </header>
     <div class = "pair-settings">
@@ -15,13 +15,13 @@
     </button>
     </div>
     </div>
-    <button class = "end-session">
+    <button class = "end-session" (click)="endSession()">
         End Session
     </button>
 </nav>
 
 <div class="collab-container">
-  <app-sidebar></app-sidebar>
+  <app-sidebar [question]="question"></app-sidebar>
 
   <app-collaborative-editor></app-collaborative-editor>
 </div>

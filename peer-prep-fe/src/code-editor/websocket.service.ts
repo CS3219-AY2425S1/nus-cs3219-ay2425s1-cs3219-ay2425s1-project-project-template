@@ -6,10 +6,15 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class WebSocketService {
-  private socket$: WebSocketSubject<any>;
+  private socket$!: WebSocketSubject<any>;
 
-  constructor() {
-    this.socket$ = webSocket('ws://localhost:8080'); // Replace with your WebSocket server URL if different
+  constructor() {}
+
+  connect(sessionId: string): void {
+    if (this.socket$) {
+      this.disconnect();
+    }
+    this.socket$ = webSocket(`ws://localhost:8081/${sessionId}`); // Replace with your WebSocket server URL if different
   }
 
   sendMessage(message: any): void {
@@ -18,5 +23,9 @@ export class WebSocketService {
 
   getMessages(): Observable<any> {
     return this.socket$.asObservable();
+  }
+
+  disconnect(): void {
+    this.socket$.complete(); // Close the WebSocket connection
   }
 }

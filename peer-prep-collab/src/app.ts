@@ -5,7 +5,16 @@ import { connectToRabbitMQ, initConsumer } from '.';
 
 dotenv.config();
 
+const cors = require('cors');
 const app = express();
+
+// any origin
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type, Authorization']
+}));
+
 app.use(express.json());
 
 // tells the server to use collabRoutes for any requests starting with '/collab'
