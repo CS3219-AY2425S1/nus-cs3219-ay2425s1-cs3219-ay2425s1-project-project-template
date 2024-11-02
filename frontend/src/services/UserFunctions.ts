@@ -18,7 +18,7 @@ export async function addToUserCollection(userCredential: UserCredential, userna
 export async function removeUserFromCollection(): Promise<SuccessObject> {
     const uid = sessionStorage.getItem("uid");
     const userData = {
-        uid
+        uid: uid
     }
     const res = await callFunction(HTTP_SERVICE_USER, "user/removeFromUserCollection", "POST", userData);
     return res
