@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { requestMatch } from '@/services/match-service';
 import { fetchDifficulties, fetchTopics } from '@/services/question-service';
-import { getUserId } from '@/services/user-service';
+import { useUser } from '@/stores/auth-store';
 
 export interface MatchFormData {
   selectedTopics: string[];
@@ -44,8 +44,7 @@ const formSchema = z.object({
 export type IRequestMatchFormSchema = z.infer<typeof formSchema>;
 
 export const useRequestMatchForm = () => {
-  // TODO: Set on RouteGuard is-authed request and then query Context API
-  const userId = getUserId() as string;
+  const { userId } = useUser();
 
   const [socketPort, setSocketPort] = useState('');
 

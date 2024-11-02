@@ -8,6 +8,7 @@ import { Editor } from '@/components/blocks/interview/editor';
 import { PartnerChat } from '@/components/blocks/interview/partner-chat';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCrumbs } from '@/lib/hooks';
 import { questionDetailsQuery } from '@/lib/queries/question-details';
 import { ROUTES } from '@/lib/routes';
@@ -50,8 +51,18 @@ export const InterviewRoom = () => {
       <WithNavBanner crumbs={crumbs}>
         <div className='flex flex-1 overflow-hidden'>
           <Card className='border-border m-4 flex w-[500px] overflow-hidden p-4 md:w-2/5'>
-            <QuestionDetails {...{ questionDetails }} />
+            <Tabs defaultValue='details'>
+              <TabsList className=''>
+                <TabsTrigger value='details'>Question Details</TabsTrigger>
+                <TabsTrigger value='attempts'>Past Attempts</TabsTrigger>
+              </TabsList>
+              <TabsContent value='details' className='flex h-full'>
+                <QuestionDetails {...{ questionDetails }} />
+              </TabsContent>
+              <TabsContent value='attempts' className='flex h-full' />
+            </Tabs>
           </Card>
+
           <div className='flex w-full'>
             <Editor
               questionId={questionId}

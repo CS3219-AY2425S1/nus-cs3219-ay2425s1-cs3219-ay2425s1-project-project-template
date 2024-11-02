@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 import { CHAT_SOCKET } from '@/services/api-clients';
-import { getUserId } from '@/services/user-service';
+import { useUser } from '@/stores/auth-store';
 import { Message } from '@/types/chat-types';
 
 const WS_EVENT = {
@@ -24,7 +24,7 @@ interface UseChatProps {
 }
 
 export const useChat = ({ roomId }: UseChatProps) => {
-  const [userId] = useState(getUserId());
+  const { userId } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);

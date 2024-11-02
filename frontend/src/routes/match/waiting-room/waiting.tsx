@@ -8,7 +8,7 @@ import { ROUTES } from '@/lib/routes';
 import { MATCHING_EVENT, WS_EVENT } from '@/lib/ws';
 import { MATCHING_SOCKET } from '@/services/api-clients';
 import { cancelMatch } from '@/services/match-service';
-import { getUserId } from '@/services/user-service';
+import { useUser } from '@/stores/auth-store';
 import { useMatchRequest } from '@/stores/match-request-store';
 
 import { UI_STATUS } from './constants';
@@ -25,6 +25,7 @@ type IWaitingRoomUIState = {
 };
 
 export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) => {
+  const { userId } = useUser();
   const navigate = useNavigate();
   const { values } = useMatchRequest();
   const [{ connected, canCancel, uiState }, setUIState] = useState<IWaitingRoomUIState>({
@@ -33,7 +34,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
     uiState: UI_STATUS.WAITING_STATUS,
   });
   const { mutate: sendCancelRequest, isPending: isCancelling } = useMutation({
-    mutationFn: cancelMatch,
+    mutationFn: () => cancelMatch(userId),
     onSuccess: () => {
       // TODO: Add toaster notif or cancel success UI
       setIsModalOpen(false);
@@ -100,7 +101,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
 
     socket.emit(WS_EVENT.START_QUEUING, {
       roomId: socketPort,
-      userId: getUserId(),
+      userId,
       topic: values?.selectedTopics,
       difficulty: values?.difficulty,
     });

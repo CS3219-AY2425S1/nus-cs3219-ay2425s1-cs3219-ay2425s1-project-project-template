@@ -42,6 +42,8 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
         return {
           isAuthed: true,
           expiresAt: response.data ? new Date(response.data.expiresAt) : new Date(),
+          userId: response.data ? response.data.userId : undefined,
+          username: response.data ? response.data.userName : undefined,
         };
       }
 
@@ -49,8 +51,4 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
         isAuthed: false,
       };
     });
-};
-
-export const getUserId = () => {
-  return localStorage.getItem('cachedUserID');
 };

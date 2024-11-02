@@ -12,6 +12,7 @@ import {
 import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 import { checkIsAuthed } from '@/services/user-service';
+import { AuthStoreProvider } from '@/stores/auth-store';
 
 import { Loading } from './loading';
 
@@ -55,9 +56,15 @@ export const RouteGuard = () => {
             }
 
             setIsLoading(false);
-          }, []);
+          }, [authedPayload]);
           usePageTitle(path);
-          return isLoading ? <Loading /> : <Outlet />;
+          return (
+            <AuthStoreProvider
+              value={{ userId: authedPayload.userId ?? '', username: authedPayload.userName ?? '' }}
+            >
+              {isLoading ? <Loading /> : <Outlet />}
+            </AuthStoreProvider>
+          );
         }}
       </Await>
     </Suspense>
