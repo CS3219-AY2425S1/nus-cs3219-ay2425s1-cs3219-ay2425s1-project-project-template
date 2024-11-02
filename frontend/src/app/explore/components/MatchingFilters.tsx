@@ -122,12 +122,13 @@ const MatchingFilters = () => {
         });
 
         socket.on('matchAccepted', (data: any) => {
-            console.log('Both users have accepted the match:', data.matchId, data.roomId);
+            console.log('Both users have accepted the match:', data.matchId, data.roomId, data.language);
             setMatchStatus('accepted');
 
             // codespace logic
             const { roomId } = data;
             router.push(`/codeeditor/${roomId}`);
+            localStorage.setItem('language', data.language);
         });
 
         return () => {
@@ -162,7 +163,7 @@ const MatchingFilters = () => {
     }
 
     const handleAccept = (matchId: string) => {
-        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id });
+        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id, language: selectedLanguage });
         setMatchStatus('waiting');
     };
 

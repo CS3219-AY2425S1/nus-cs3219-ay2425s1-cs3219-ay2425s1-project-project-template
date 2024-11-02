@@ -5,6 +5,7 @@ import { Awareness } from 'y-protocols/awareness'
 interface Room {
     roomId: string;
     userIds: string[];
+    language: string;
     code: Y.Doc;
     connectedClients: Set<WebSocket>;
     awareness: Awareness;

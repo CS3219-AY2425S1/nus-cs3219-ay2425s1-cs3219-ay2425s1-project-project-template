@@ -8,7 +8,7 @@ import { Room } from '../models/types';
 import logger from '../utils/logger';
 
 const createRoom = async (req: Request, res: Response):Promise<any> => {
-    const { userId1, userId2 } = req.body;
+    const { userId1, userId2, language } = req.body;
 
     
 
@@ -30,13 +30,14 @@ const createRoom = async (req: Request, res: Response):Promise<any> => {
         roomId,
         userIds: [userId1, userId2],
         code: yDoc,
+        language: language,
         connectedClients: new Set<WebSocket>(),
         awareness: awareness,
     };
 
     rooms.set(roomId, newRoom);
 
-    return res.status(200).json({ roomId });
+    return res.status(200).json({ roomId, language });
 };
 
 export {createRoom}

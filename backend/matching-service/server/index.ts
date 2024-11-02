@@ -57,8 +57,8 @@ const io = new Server({
 
         socket.on(
             'acceptMatch',
-            async (data: { matchId: string; userId: string }) => {
-                const { matchId, userId } = data
+            async (data: { matchId: string; userId: string, language: string }) => {
+                const { matchId, userId, language } = data
                 const matchSession = activeMatches.get(matchId)
 
                 logger.info(`User ${userId} has accepted match ${matchId}`)
@@ -81,16 +81,18 @@ const io = new Server({
                             {
                                 userId1: userId,
                                 userId2: otherUserId,
+                                language: language,
                             },
                         )
 
                         io.to(matchSession.users[userId].socketId).emit(
                             'matchAccepted',
-                            { matchId, roomId: res.data.roomId },
+                            { matchId, roomId: res.data.roomId, language: res.data.language },
                         )
                         io.to(otherUser.socketId).emit('matchAccepted', {
                             matchId,
                             roomId: res.data.roomId,
+                            language: res.data.language
                         })
 
                         activeMatches.delete(matchId)
