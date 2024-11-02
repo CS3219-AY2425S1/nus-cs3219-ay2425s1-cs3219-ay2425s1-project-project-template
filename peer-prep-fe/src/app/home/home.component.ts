@@ -21,6 +21,10 @@ export class HomeComponent {
     this.router.navigate(["/login"])
   }
 
+  goToCreateAccountPage() {
+    this.router.navigate(["/create-account"])
+  }
+
   isLoggedIn(): boolean {
     return this.authService.isAuthenticated()
   }
