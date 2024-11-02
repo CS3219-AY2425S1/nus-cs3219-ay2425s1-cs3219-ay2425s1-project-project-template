@@ -19,7 +19,7 @@ const router = Router();
 
 router.get('/search', searchQuestionsByTitle);
 
-router.get('/topic', getTopics);
+router.get('/topics', getTopics);
 router.get('/difficulties', getDifficulties);
 
 router.get('/', getQuestions);

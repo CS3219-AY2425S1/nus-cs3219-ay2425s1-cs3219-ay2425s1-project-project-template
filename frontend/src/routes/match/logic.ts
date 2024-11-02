@@ -6,7 +6,7 @@ import { defer, LoaderFunctionArgs } from 'react-router-dom';
 import { z } from 'zod';
 
 import { requestMatch } from '@/services/match-service';
-import { fetchTopics } from '@/services/question-service';
+import { fetchDifficulties, fetchTopics } from '@/services/question-service';
 import { getUserId } from '@/services/user-service';
 
 export interface MatchFormData {
@@ -20,11 +20,19 @@ const getTopicsQueryConfig = () =>
     queryFn: async () => fetchTopics(),
   });
 
+const getDifficultiesQueryConfig = () => {
+  return queryOptions({
+    queryKey: ['difficulties'],
+    queryFn: async () => fetchDifficulties(),
+  });
+};
+
 export const loader =
   (queryClient: QueryClient) =>
   async ({ params: _ }: LoaderFunctionArgs) => {
     return defer({
       topics: queryClient.ensureQueryData(getTopicsQueryConfig()),
+      difficulties: queryClient.ensureQueryData(getDifficultiesQueryConfig()),
     });
   };
 

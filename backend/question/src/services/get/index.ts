@@ -228,8 +228,13 @@ export const getDifficultiesService = async (): Promise<IGetDifficultiesResponse
     };
   }
 
-  const uniqueDifficulties = results.map((result) => result.difficulty);
-
+  const uniqueDifficulties = results
+    .map((result) => result.difficulty)
+    .sort((a, b) => {
+      if (a === 'Hard' || b === 'Easy') return 1;
+      if (b === 'Hard' || a === 'Easy') return -1;
+      return 0;
+    });
   return {
     code: StatusCodes.OK,
     data: {

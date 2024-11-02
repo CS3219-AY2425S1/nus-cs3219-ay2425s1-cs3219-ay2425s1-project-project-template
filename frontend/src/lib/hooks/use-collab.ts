@@ -9,6 +9,7 @@ import * as Y from 'yjs';
 import { extensions as baseExtensions, getLanguage } from '@/lib/editor/extensions';
 import { COLLAB_WS } from '@/services/api-clients';
 import { getUserId } from '@/services/user-service';
+import type { IYjsUserState } from '@/types/collab-types';
 
 // credit: https://github.com/yjs/y-websocket
 const usercolors = [
@@ -26,8 +27,6 @@ const getRandomColor = () => {
   return usercolors[Math.floor(Math.random() * usercolors.length)];
 };
 
-type IYjsUserState = { user: { name: string; userId: string; color: string; colorLight: string } };
-
 // TODO: Test if collab logic works
 export const useCollab = (roomId: string) => {
   const [userId] = useState(getUserId());
@@ -36,16 +35,25 @@ export const useCollab = (roomId: string) => {
   const [extensions, setExtensions] = useState<Array<Extension>>(baseExtensions);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isCompleting, _setIsCompleting] = useState({ userId: '', state: '' });
   const [code, setCode] = useState('');
   const [language, _setLanguage] = useState<LanguageName>('python');
   const [members, _setMembers] = useState<Array<IYjsUserState['user']>>([]);
   const [cursorPosition, setCursorPosition] = useState({ lineNum: 1, colNum: 0 });
+
   const setMembers = useCallback(_setMembers, [members]);
   const setLanguage = useCallback(
     (lang: LanguageName) => {
       _setLanguage(lang);
       // Get language from room
       sharedDocRef?.set('language', lang);
+    },
+    [sharedDocRef]
+  );
+  const setIsCompleting = useCallback(
+    (completingState: string, resetId?: boolean) => {
+      _setIsCompleting((s) => ({ ...s, state: completingState }));
+      sharedDocRef?.set('complete', { userId: resetId ? '' : userId, state: completingState });
     },
     [sharedDocRef]
   );
@@ -116,6 +124,9 @@ export const useCollab = (roomId: string) => {
           const lang = yState.get('language') as LanguageName;
           _setLanguage(lang);
           console.log('Language changed to: ' + lang);
+        } else if (event.keysChanged.has('complete')) {
+          console.log(yState.get('complete'));
+          _setIsCompleting(yState.get('complete') as typeof isCompleting);
         }
       });
       _setLanguage((yState.get('language') as LanguageName) ?? 'python');
@@ -139,6 +150,9 @@ export const useCollab = (roomId: string) => {
     setCode,
     members,
     isLoading,
+    userId,
+    isCompleting,
+    setIsCompleting,
     cursorPosition,
   };
 };

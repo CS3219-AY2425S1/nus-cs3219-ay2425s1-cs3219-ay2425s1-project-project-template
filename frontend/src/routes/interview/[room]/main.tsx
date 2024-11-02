@@ -54,6 +54,7 @@ export const InterviewRoom = () => {
           </Card>
           <div className='flex w-full'>
             <Editor
+              questionId={questionId}
               room={roomId as string}
               onAIClick={handleAIClick}
               onPartnerClick={handlePartnerClick}
