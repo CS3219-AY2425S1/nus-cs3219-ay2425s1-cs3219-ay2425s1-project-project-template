@@ -1,15 +1,16 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { GithubIcon } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { axiosClient } from '@/network/axiosClient';
 import { login } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
+import { initiateOAuth } from '@/lib/oauth';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -17,6 +18,14 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      setError('email or username already exists');
+    }
+  }, [searchParams]);
 
   // handle login here
   const handleLogin = async (e: React.FormEvent) => {
@@ -40,12 +49,15 @@ export default function LoginForm() {
     setError(data.error || 'Please provide correct email and password');
   };
 
+  const handleGithubLogin = () => {
+    initiateOAuth('github');
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900">
       <div className="w-full max-w-md space-y-6 rounded-lg bg-gray-800 p-8 shadow-xl">
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -104,6 +116,7 @@ export default function LoginForm() {
           <Button
             variant="outline"
             className="rounded-md border border-gray-600 bg-gray-700 py-2 text-sm font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            onClick={handleGithubLogin}
           >
             <GithubIcon className="mr-2 h-5 w-5" />
             GitHub
@@ -125,7 +138,7 @@ export default function LoginForm() {
           Do not have an account?
           <span className="mx-1" />
           <Link href="/signup" className="text-blue-500 hover:underline">
-            Sign up
+            Sign up with email
           </Link>
         </div>
       </div>

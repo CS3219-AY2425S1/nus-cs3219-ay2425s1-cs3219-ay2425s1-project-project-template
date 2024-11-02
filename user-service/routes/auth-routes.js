@@ -3,6 +3,7 @@ import {
   handleLogin,
   handleVerifyToken,
 } from '../controller/auth-controller.js';
+import { handleGithubCallback } from '../controller/oauth-controller.js';
 import { verifyAccessToken } from '../middleware/basic-access-control.js';
 
 const router = express.Router();
@@ -10,5 +11,7 @@ const router = express.Router();
 router.post('/login', handleLogin);
 
 router.get('/verify-token', verifyAccessToken, handleVerifyToken);
+
+router.get('/github/callback', handleGithubCallback);
 
 export default router;
