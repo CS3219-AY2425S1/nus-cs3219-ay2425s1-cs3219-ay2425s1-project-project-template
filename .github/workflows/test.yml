@@ -11,7 +11,34 @@ on:
       - main
       - staging
 
+
 jobs:
+  question-service-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up .env
+        run: |
+          echo ./apps/question-service/.env.example > .env
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: '1.23.x'
+
+      - name: Install dependencies
+        run: |
+          cd ./apps/question-service
+          go mod tidy
+
+      - name: Run tests
+        run: |
+          cd ./apps/question-service
+          go test
+
   test:
     runs-on: ubuntu-latest
 
