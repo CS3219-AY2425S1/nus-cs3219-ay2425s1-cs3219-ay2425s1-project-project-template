@@ -24,8 +24,8 @@ app.use('/collab', collabRoutes);
 // process.env.PORT allows us to change the port the server runs on without modifying code (for diff environments)
 
 connectToRabbitMQ()
-    .then(() => {
-        initConsumer() //Start consuming
+    .then(async () => {
+        await initConsumer() //Start consuming
     })
     .then(() => {
         const PORT = process.env.PORT || 4003;
