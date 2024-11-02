@@ -41,7 +41,7 @@ done
 kubectl apply -f . -n $NAMESPACE
 
 # Port-forward Ingress-Nginx service (keep terminal open)
-nohup kubectl port-forward --namespace ingress-nginx service/ingress-nginx-controller 8080:80 &
+echo "Open a terminal and run: kubectl port-forward --namespace ingress-nginx service/ingress-nginx-controller 8080:80 "
 
 echo "Port forwarding is running in the background. Do not close this terminal."
 
