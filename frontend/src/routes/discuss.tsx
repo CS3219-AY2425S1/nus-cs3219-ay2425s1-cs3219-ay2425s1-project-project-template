@@ -3,6 +3,7 @@ import { IdleView } from '@/components/discuss/views/IdleView';
 import { MatchedView } from '@/components/discuss/views/MatchedView';
 import { TimeoutView } from '@/components/discuss/views/TimeoutView';
 import { WaitingView } from '@/components/discuss/views/WaitingView';
+import { BACKEND_URL_MATCHING, BACKEND_WEBSOCKET_MATCHING } from '@/lib/common';
 import {
   MATCH_ERROR_STATUS,
   MATCH_FOUND_MESSAGE_TYPE,
@@ -28,7 +29,7 @@ export default function DiscussRoute() {
 
   useEffect(() => {
     ws.current = new WebSocket(
-      `ws://localhost:8080/ws/matching?userId=${userId}`
+      `${BACKEND_WEBSOCKET_MATCHING}?userId=${userId}`
     );
 
     ws.current.onopen = () => {
@@ -83,7 +84,7 @@ export default function DiscussRoute() {
   ) => {
     setMatchStatus(MATCH_WAITING_STATUS);
     try {
-      const response = await fetch('http://localhost:8080/api/match', {
+      const response = await fetch(BACKEND_URL_MATCHING, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,15 +121,12 @@ export default function DiscussRoute() {
 
   const cancelMatching = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/match/${userId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
+      const response = await fetch(`${BACKEND_URL_MATCHING}/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error('Failed to cancel matching');
@@ -153,7 +151,7 @@ export default function DiscussRoute() {
     }
 
     ws.current = new WebSocket(
-      `ws://localhost:8080/ws/matching?userId=${userId}`
+      `${BACKEND_WEBSOCKET_MATCHING}?userId=${userId}`
     );
 
     // Re-attach event listeners
