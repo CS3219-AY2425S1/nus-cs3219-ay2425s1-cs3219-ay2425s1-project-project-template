@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-export const MonacoEditor = dynamic(
+const MonacoEditor = dynamic(
   () => import("@/components/collab/monaco-editor"),
   {
     ssr: false,

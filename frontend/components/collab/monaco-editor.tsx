@@ -12,7 +12,6 @@ export default function MonacoEdit({ roomId }: { roomId: string }) {
   const [editor, setEditor] =
     useState<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
-  const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
   // this effect manages the lifetime of the Yjs document and the provider
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function MonacoEdit({ roomId }: { roomId: string }) {
       new Set([editor]),
       provider?.awareness
     );
-    setBinding(monacoBinding);
     return () => {
       monacoBinding.destroy();
     };
