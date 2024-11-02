@@ -233,13 +233,7 @@ const styles = {
     height: "100vh",
     backgroundColor: "#1e1e2e",
   },
-  questionSection: {
-    width: "30%",
-    padding: "20px",
-    color: "#ffffff",
-    overflowY: "auto",
-    backgroundColor: "#2e2e3e",
-  },
+  
   rightSection: {
     display: "flex",
     flexDirection: "column" as const,
