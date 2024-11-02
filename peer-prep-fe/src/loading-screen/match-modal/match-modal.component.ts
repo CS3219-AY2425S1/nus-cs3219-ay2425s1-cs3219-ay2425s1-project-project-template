@@ -1,7 +1,7 @@
 import {Component, Injectable, Input, OnInit} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { NgClass, NgIf } from "@angular/common";
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { MatchService } from '../../services/match.service';
 import { MatchResponse } from '../../app/models/match.model';
 import {UserService} from '../../app/userService/user-service';
@@ -141,7 +141,12 @@ export class MatchModalComponent implements OnInit {
   acceptMatch() {
     this.isVisible = false;
     // Logic to navigate to the next page
-    this.router.navigate(['collab/', this.collabSessionId]);
+    const navigationExtras: NavigationExtras = {
+      queryParams: {
+        userId: this.userId,
+      }
+    };
+    this.router.navigate(['collab', this.collabSessionId], navigationExtras);
   }
 
   async requeue() {

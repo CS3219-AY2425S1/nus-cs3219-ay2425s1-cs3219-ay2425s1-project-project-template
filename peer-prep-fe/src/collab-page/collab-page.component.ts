@@ -34,9 +34,7 @@ export class CollabPageComponent implements OnInit, OnDestroy {
     this.routeSubscription = this.route.params.subscribe(params => {
       this.sessionId = params['sessionId'];
 
-      // @Lynnettee getUserID
-      this.userId = this.route.snapshot.queryParamMap.get('userID') || '';
-
+      this.userId = this.route.snapshot.queryParamMap.get('userId') || '';
 
       this.fetchSessionData();
 
