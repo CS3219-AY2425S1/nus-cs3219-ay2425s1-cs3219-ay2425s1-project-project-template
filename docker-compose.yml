@@ -14,6 +14,17 @@ services:
     networks:
       - peer-prep-network
     restart: on-failure:10
+  
+  signaling:
+    build: ./backend/signaling
+    container_name: signaling-container
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./backend/signaling:/app
+      - /app/node_modules
+    networks:
+      - peer-prep-network
 
   matching:
     build: ./backend/matching

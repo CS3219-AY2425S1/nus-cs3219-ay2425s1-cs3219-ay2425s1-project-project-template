@@ -16,6 +16,7 @@ import {
   topicsList,
 } from "@/utils/constants";
 import Swal from "sweetalert2";
+import { checkSession, createSession, fetchSession } from "@/api/collaboration";
 // import { createRoot } from "react-dom/client";
 
 interface FindMatchFormOutput {
@@ -34,7 +35,7 @@ interface FindMatchSocketMessage {
 interface FindMatchSocketMessageResponse {
   matchedUserEmail: string;
   collaborationId: string;
-  questionId: string;
+  questionId: number;
   language: string;
 }
 
@@ -125,6 +126,7 @@ const FindPeer = () => {
                 ...prevMessages,
                 message.body,
               ]);
+              console.log("Received message: ", message.body);
               const response: FindMatchSocketMessageResponse = JSON.parse(
                 message.body
               );
@@ -138,7 +140,36 @@ const FindPeer = () => {
                 "Match Found!",
                 `We found a match for you! You have been matched with ${matchedUserEmail}.`,
                 "success"
-              );
+              ).then(async () => {
+                Swal.fire({
+                  title: "Redirecting...",
+                  text: "Please wait while we redirect you to the collaboration page.",
+                  allowOutsideClick: false,
+                  showConfirmButton: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  },
+                });
+                // Create a session in the collaboration service
+                try {
+                  const sessionExists = await checkSession(collaborationId);
+                  if (!sessionExists.exists) {
+                    await createSession({
+                      collabid: collaborationId,
+                      users: [CURRENT_USER!, matchedUserEmail],
+                      question_id: questionId,
+                      language: language,
+                    });
+                  }
+                } catch (error) {
+                  console.error(error);
+                }
+
+                // Pass language as a query parameter to the collaboration page
+                window.location.href = `/collaboration/${collaborationId}?language=${encodeURIComponent(
+                  language
+                )}`;
+              });
               client.deactivate();
             } catch (error) {
               console.error(
