@@ -27,11 +27,13 @@ const Collab = () => {
     const providerRef = useRef(null);
     const intervalRef = useRef(null);
 
-    const [countdown, setCountdown] = useState(60); // set to 1 min default timer
+    const [countdown, setCountdown] = useState(20); // set to 1 min default timer
     const [timeOver, setTimeOver] = useState(false);
 
     const [showQuitPopup, setShowQuitPopup] = useState(false);
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
+
+    const [isSoloSession, setIsSoloSession] = useState(false);
 
     // Ensure location state exists, else redirect to home
     useEffect(() => {
@@ -51,7 +53,7 @@ const Collab = () => {
 
         // Listen for 'start-timer' event to start countdown (used for both new session and continue session)
         socketRef.current.on('start-timer', () => {
-            setCountdown(60); // Reset to your desired starting time
+            setCountdown(20); // Reset to your desired starting time
             setTimeOver(false);
             startCountdown();
         });
@@ -129,6 +131,13 @@ const Collab = () => {
         socketRef.current.emit("continue-session", roomId);
     };
 
+    const handleContinueSessionAlone = () => {
+        setCountdown(20); // Reset to your desired starting time
+        setTimeOver(false);
+        startCountdown();
+        setIsSoloSession(true);
+    }
+
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -189,7 +198,9 @@ const Collab = () => {
             {timeOver && (
                 <TimeUpPopup 
                     continueSession={handleContinueSession}
-                    quitSession={handleQuitConfirm}/>
+                    quitSession={handleQuitConfirm}
+                    continueAlone={handleContinueSessionAlone}
+                    isSoloSession={isSoloSession}/>
             )}
         </div>
     );
