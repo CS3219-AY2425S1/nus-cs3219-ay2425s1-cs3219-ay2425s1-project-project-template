@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   collaboration:
     build: ./backend/collaboration
@@ -11,6 +13,7 @@ services:
       - ./backend/collaboration/.env
     networks:
       - peer-prep-network
+    restart: on-failure:10
   
   signaling:
     build: ./backend/signaling
@@ -23,18 +26,18 @@ services:
     networks:
       - peer-prep-network
 
-
   matching:
     build: ./backend/matching
     container_name: matching-container
     ports:
       - "3002:3002"
     env_file:
-      - ./backend/matching/.env # Env file for matching service, to test in prod
+      - ./backend/matching/.env
     volumes:
       - ./backend/matching/src:/app/src
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   matchverification:
     build: ./backend/matchverification
@@ -42,11 +45,12 @@ services:
     ports:
       - "3006:3006"
     env_file:
-      - ./backend/matchverification/.env # Env file for matching service, to test in prod
+      - ./backend/matchverification/.env
     volumes:
       - ./backend/matchverification/src:/app/src
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   websocket:
     build: ./backend/websocket
@@ -54,11 +58,12 @@ services:
     ports:
       - "3005:3005"
     env_file:
-      - ./backend/websocket/.env # Env file for matching service, to test in prod
+      - ./backend/websocket/.env
     volumes:
       - ./backend/websocket/src:/app/src
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.1
@@ -71,6 +76,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   kafka:
     image: confluentinc/cp-kafka:7.7.1
@@ -84,9 +90,9 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    restart: on-failure:10 # temporary workaround for kafka container failing to start the first time until we find a fix
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   question:
     build: ./backend/question
@@ -100,6 +106,7 @@ services:
       - ./backend/question/.env
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   user:
     build: ./backend/user
@@ -113,6 +120,7 @@ services:
       - ./backend/user/.env
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
   mongo:
     image: mongo
@@ -123,6 +131,7 @@ services:
       - mongo-data:/data/db
     networks:
       - peer-prep-network
+    restart: on-failure:10
 
 volumes:
   mongo-data:
