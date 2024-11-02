@@ -4,8 +4,6 @@ import { UserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
-import axios from "axios";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import EditorElement from "./EditorElement";
 
 const EditorView: React.FC = () => {
@@ -13,9 +11,7 @@ const EditorView: React.FC = () => {
   const socketRef = useRef<Socket | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
-  const [room, setRoom] = useState<string>("");
   const [socketId, setSocketId] = useState<string | undefined>("");
-  const [isMatched, setIsMatched] = useState<boolean>(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const userContext = useContext(UserContext);
   const user = userContext?.user;
@@ -49,18 +45,17 @@ const EditorView: React.FC = () => {
     });
 
     socket.on("assignSocketId", (data: { socketId: string }) => {
-      console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
-      setSocketId(data.socketId); // Set the socket ID from the server
+      setSocketId(data.socketId);
       setMessages((prevMessages) => [
         ...prevMessages,
-        `You are assigned to: ${data.socketId}`, // Add to messages
+        `You are assigned to: ${data.socketId}`,
       ]);
     });
 
     socket.on("message", (data: string) => {
       setMessages((prevMessages) => [...prevMessages, data]);
       if (chatBoxRef.current) {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
       }
     });
 
@@ -88,16 +83,16 @@ const EditorView: React.FC = () => {
     try {
       const response = await api.get(`/questionsById?id=${questionId}`);
       setQuestion(response.data.questions[0]);
-      console.log(response.data.questions[0])
+      console.log(response.data.questions[0]);
     } catch (error) {
       console.error("Error fetching question:", error);
     }
   };
 
   const sendMessage = () => {
-    if (message.trim() && socketRef && isMatched) {
+    if (message.trim() && socketRef) {
       socketRef.current?.emit("sendMessage", {
-        room,
+        room: roomId,
         message,
         username: user?.username,
       });
@@ -107,27 +102,90 @@ const EditorView: React.FC = () => {
   };
 
   return (
-    <div className="collaboration-container">
-      <div className="right-side" style={styles.rightSide}>
-        <div className="editor-container" style={styles.editorContainer}>
-          {socketRef.current && <EditorElement socket={socketRef.current} />}
+    <div style={styles.container}>
+      {/* Inline CSS for dark scrollbars */}
+      <style>
+        {`
+          /* Custom dark scrollbar styling */
+          .editor-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+          }
+          .editor-scrollbar::-webkit-scrollbar-track {
+            background: #2e2e3e;
+          }
+          .editor-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 4px;
+          }
+          .editor-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+          }
+          /* Firefox-specific scrollbar styling */
+          .editor-scrollbar {
+            scrollbar-color: #444 #2e2e3e;
+            scrollbar-width: thin;
+          }
+        `}
+      </style>
+
+      {/* Question Section */}
+      {question && (
+        <div style={styles.questionSection} className="editor-scrollbar">
+          <h2 style={styles.questionTitle}>{question.Title}</h2>
+          
+          <div style={styles.questionDetail}>
+            <p><strong>Complexity:</strong> {question.Complexity}</p>
+          </div>
+
+          <h3 style={styles.questionSubheading}>Description:</h3>
+          <div style={styles.questionDetail} dangerouslySetInnerHTML={{ __html: question.Description }} />
+
+          <h3 style={styles.questionSubheading}>Categories:</h3>
+          <p style={styles.questionDetail}>{question.Categories.join(", ")}</p>
+
+          <a href={question.Link} target="_blank" rel="noopener noreferrer" style={styles.leetCodeLink}>
+            View on LeetCode
+          </a>
         </div>
-        <div className="chat-container" style={styles.chatContainer}>
-          <div className="chat-box" ref={chatBoxRef} style={styles.chatBox}>
-            {messages.map((msg, index) => (
-              <div key={index} style={styles.message}>
-                {msg}
-              </div>
-            ))}
+      )}
+
+      {/* Editor and Chat Section */}
+      <div style={styles.rightSection}>
+        <div style={styles.topRight}>
+          {/* Video Section */}
+          <div style={styles.videoContainer}>
+            <div style={styles.videoPlaceholder}>Video Placeholder</div>
           </div>
-          <div className="socket-id-display" style={styles.socketIdDisplay}>
-            {socketId && <div>Your Socket ID: {socketId}</div>}
+
+          {/* Chat Section */}
+          <div style={styles.chatContainer} className="editor-scrollbar">
+            <div ref={chatBoxRef} style={styles.chatBox} className="editor-scrollbar">
+              {messages.map((msg, index) => (
+                <div key={index} style={styles.message}>{msg}</div>
+              ))}
+            </div>
+            <div style={styles.socketIdDisplay}>
+              {socketId && <div>Your Socket ID: {socketId}</div>}
+            </div>
+            <div style={styles.messageInputContainer}>
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Message"
+                style={styles.input}
+              />
+              <button onClick={sendMessage} style={styles.sendButton}>
+                Send
+              </button>
+            </div>
           </div>
-          <div className="chat-input" style={styles.chatInput}>
-            <button onClick={sendMessage} style={styles.sendButton}>
-              Send
-            </button>
-          </div>
+        </div>
+
+        {/* Editor Section */}
+        <div style={styles.editorContainer} className="editor-scrollbar">
+          {socketRef.current && <EditorElement socket={socketRef.current} />}
         </div>
       </div>
     </div>
@@ -135,61 +193,120 @@ const EditorView: React.FC = () => {
 };
 
 const styles = {
-  languageSelector: {
-    margin: "10px 0",
-    color: "black",
-  },
-  editorContainer: {
-    margin: "10px",
-  },
-  questionDisplay: {
-    flex: 1,
+  questionSection: {
+    width: "30%",
     padding: "20px",
-    borderRight: "1px solid #ccc",
-    backgroundColor: "#170c0c",
-    overflowY: "auto" as const,
+    color: "#ffffff",
+    overflowY: "auto",
+    backgroundColor: "#2e2e3e",
+    borderRadius: "8px",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+  },
+  questionTitle: {
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    color: "#FFCB6B",
+  },
+  questionDetail: {
+    fontSize: "1rem",
+    marginBottom: "15px",
+    lineHeight: "1.5",
+  },
+  questionSubheading: {
+    fontSize: "1.1rem",
+    fontWeight: "600",
+    marginTop: "15px",
+    marginBottom: "5px",
+    color: "#82AAFF",
+  },
+  leetCodeLink: {
+    color: "#89DDFF",
+    textDecoration: "none",
+    fontWeight: "bold",
+    marginTop: "10px",
+    display: "inline-block",
+  },
+
+  container: {
+    display: "flex",
+    height: "100vh",
+    backgroundColor: "#1e1e2e",
+  },
+  questionSection: {
+    width: "30%",
+    padding: "20px",
+    color: "#ffffff",
+    overflowY: "auto",
+    backgroundColor: "#2e2e3e",
+  },
+  rightSection: {
+    display: "flex",
+    flexDirection: "column" as const,
+    width: "70%",
+    padding: "10px",
+    overflow: "hidden", // Prevent right section overflow
+  },
+  topRight: {
+    display: "flex",
+    flex: "0 0 50%", // Allocating 50% height to video and chat
+    marginBottom: "10px",
+  },
+  videoContainer: {
+    flex: 1,
+    marginRight: "10px",
+    border: "1px solid #333",
+    borderRadius: "8px",
+    backgroundColor: "#2e2e3e",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  videoPlaceholder: {
+    color: "#ffffff",
+    fontSize: "18px",
+    textAlign: "center",
   },
   chatContainer: {
-    width: "300px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    backgroundColor: "white",
-    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-  },
-  rightSide: {
     flex: 1,
     display: "flex",
     flexDirection: "column" as const,
-    padding: "20px",
+    padding: "10px",
+    border: "1px solid #333",
+    borderRadius: "8px",
+    backgroundColor: "#2e2e3e",
+    color: "#ffffff",
+    overflowY: "auto", // Enable scroll for chat container
   },
   chatBox: {
-    height: "200px",
+    flex: 1,
+    overflowY: "auto",
+    backgroundColor: "#1e1e2e",
+    border: "1px solid #444",
+    borderRadius: "8px",
     padding: "10px",
-    borderBottom: "1px solid #ccc",
-    overflowY: "auto" as const,
-    backgroundColor: "#fafafa",
-  },
-  message: {
-    color: "black",
+    color: "#ffffff",
   },
   socketIdDisplay: {
-    padding: "10px",
-    backgroundColor: "#e9ecef",
-    textAlign: "center" as const,
-    color: "blue",
+    padding: "5px",
+    backgroundColor: "#333",
+    textAlign: "center",
+    color: "#70a4a7",
+    borderRadius: "8px",
+    marginBottom: "10px",
   },
-  chatInput: {
+  messageInputContainer: {
     display: "flex",
-    padding: "10px",
+    alignItems: "center",
   },
   input: {
-    width: "100%",
-    padding: "8px",
+    flex: 1,
+    padding: "10px",
+    borderRadius: "5px",
+    backgroundColor: "#333",
+    border: "1px solid #444",
+    color: "#ffffff",
     marginRight: "5px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    outline: "none",
-    color: "black",
   },
   sendButton: {
     padding: "8px 12px",
@@ -199,6 +316,17 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer",
   },
+  editorContainer: {
+    flex: "0 0 50%", // Allocating 50% height for the editor container
+    backgroundColor: "#1e1e2e",
+    padding: "10px",
+    borderRadius: "8px",
+    overflowY: "auto", // Enable scroll for editor container
+  },
+  message: {
+    color: "#ffffff",
+  },
 };
+
 
 export default EditorView;
