@@ -1,10 +1,12 @@
 import express from "express";
-import { getHistory, addHistory, deleteHistory } from './controller.js';
+import { getHistory, getSomeHistory, addHistory, deleteHistory } from './controller.js';
 
 const router = express.Router();
 
-router.post("/", addHistory);
-router.get("/:id", getHistory);
-router.delete("/:id", deleteHistory);
+router.post("/single/", addHistory);
+router.get("/single/:id", getHistory);
+router.delete("/single/:id", deleteHistory);
+
+router.get("/bulk", getSomeHistory);
 
 export default router;

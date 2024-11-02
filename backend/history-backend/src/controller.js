@@ -23,6 +23,24 @@ export async function getHistory(req, res) {
 
 }
 
+export async function getSomeHistory(req, res) {
+  const { ids } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0)
+    return res.status(400).json({ message: "Invalid or missing ids field"});
+
+  try {
+    const histories = await HistoryModel.find({ _id: { $in: ids }});
+    return res.status(200).json({
+      message: "Found history",
+      data: histories,
+    });
+  } catch (error) {
+    console.err(error);
+    return res.status(500).json({ message: "Unknown error when getting history!" });
+  }
+}
+
 export async function addHistory(req, res) {
   const { roomId, question, user, partner, status, datetime, solution } = req.body;
 
@@ -30,15 +48,13 @@ export async function addHistory(req, res) {
     return res.status(400).json({ message: "Missing one or more of the required fields" });
 
   try {
-    let newHistory;
+    let newHistory = { roomId, question, user, partner, status, datetime, solution };
 
     const existingHistory = await _getHistoryByRoomIdAndUser(roomId, user);
     if (existingHistory)
-      newHistory = await _updateHistoryByRoomIdAndUser(existingHistory.id, roomId, user);
+      newHistory = await _updateHistory(existingHistory.id, newHistory);
     else
-      newHistory = await new HistoryModel(
-        { roomId, question, user, partner, status, datetime, solution }
-      ).save();
+      newHistory = await new HistoryModel(newHistory).save();
   
     return res.status(200).json({
       message: "Successfully added question history",
@@ -64,10 +80,11 @@ async function _getHistoryByRoomIdAndUser(roomId, user) {
   });
 }
 
-async function _updateHistoryByRoomIdAndUser(id, roomId, user) {
+async function _updateHistory(id, newHistory) {
+
   return HistoryModel.findByIdAndUpdate(
     id,
-    { $set: { roomId, user } },
+    { $set: newHistory },
     { new: true },
   );
 }
