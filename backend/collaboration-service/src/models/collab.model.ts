@@ -11,15 +11,16 @@ const collabSchema = new Schema<CollabDto>({
     },
     code: {
         type: String,
-        required: true,
+        required: false,
     },
     executionResult: {
         type: String,
-        required: true,
+        required: false,
     },
     chatHistory: {
         type: [chatModelSchema],
-        required: true,
+        required: false,
+        default: [],
     },
     createdAt: {
         type: Date,

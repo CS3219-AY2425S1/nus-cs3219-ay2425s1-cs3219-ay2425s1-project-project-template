@@ -182,12 +182,10 @@ export async function handleGetRandomQuestion(request: Request, response: Respon
         return
     }
     if (!Object.values(Category).includes(topic as Category)) {
-        console.log(topic, complexity, Object.values(Category).includes(topic as Category))
         response.status(400).json('invalid topic').send()
         return
     }
     if (!Object.values(SortedComplexity).includes(complexity as SortedComplexity)) {
-        console.log(topic, complexity, Object.values(SortedComplexity).includes(complexity as SortedComplexity))
         response.status(400).json('invalid complexity').send()
         return
     }

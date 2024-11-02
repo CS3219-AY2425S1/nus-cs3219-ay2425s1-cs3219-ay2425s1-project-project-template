@@ -1,6 +1,5 @@
 import { ITypedBodyRequest } from '@repo/request-types'
 import {
-    ArrayNotEmpty,
     IsArray,
     IsDate,
     IsEnum,
@@ -25,15 +24,12 @@ export class CollabDto {
     language: LanguageMode
 
     @IsString()
-    @IsNotEmpty()
     code: string
 
     @IsString()
-    @IsNotEmpty()
     executionResult: string
 
     @IsArray()
-    @ArrayNotEmpty()
     @ValidateNested({ each: true })
     @Type(() => ChatModel)
     chatHistory: ChatModel[]
@@ -47,25 +43,24 @@ export class CollabDto {
         language: LanguageMode,
         code: string,
         executionResult: string,
-        chatHistory: ChatModel[],
-        createdAt: Date
+        chatHistory: ChatModel[]
     ) {
         this.matchId = matchId
         this.language = language
         this.code = code
         this.executionResult = executionResult
         this.chatHistory = chatHistory
-        this.createdAt = createdAt
+        this.createdAt = new Date()
     }
 
     static fromRequest({
-        body: { matchId, language, code, executionResult, chatHistory, createdAt },
+        body: { matchId, language, code, executionResult, chatHistory },
     }: ITypedBodyRequest<CollabDto>): CollabDto {
-        return new CollabDto(matchId, language, code, executionResult, chatHistory, createdAt)
+        return new CollabDto(matchId, language, code, executionResult, chatHistory)
     }
 
-    static fromModel({ matchId, language, code, executionResult, chatHistory, createdAt }: CollabDto): CollabDto {
-        return new CollabDto(matchId, language, code, executionResult, chatHistory, createdAt)
+    static fromModel({ matchId, language, code, executionResult, chatHistory }: CollabDto): CollabDto {
+        return new CollabDto(matchId, language, code, executionResult, chatHistory)
     }
 
     async validate(): Promise<ValidationError[]> {

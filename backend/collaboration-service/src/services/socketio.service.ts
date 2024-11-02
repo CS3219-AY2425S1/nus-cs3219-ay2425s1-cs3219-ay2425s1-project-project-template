@@ -1,6 +1,8 @@
 import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
+import { updateLanguage } from '../models/collab.repository'
+import { LanguageMode } from '../types/LanguageMode'
 
 export class WebSocketConnection {
     private io: IOServer
@@ -24,23 +26,19 @@ export class WebSocketConnection {
                 }
             })
 
-            socket.on('change-language', (language: string) => {
+            socket.on('change-language', async (language: string) => {
                 this.io.to(roomId).emit('update-language', language)
                 this.languages.set(roomId, language)
+                await updateLanguage(roomId, language as LanguageMode)
             })
 
             socket.on('disconnect', async () => {
-                let room = this.io.sockets.adapter.rooms.get(roomId)
+                const room = this.io.sockets.adapter.rooms.get(roomId)
                 socket.leave(roomId)
                 if (!this.isUserInRoom(roomId, name)) {
                     this.io.to(roomId).emit('user-disconnected', name)
                     loggerUtil.info(`User ${name} disconnected from room ${roomId}`)
                 }
-
-                // If user refreshes and other user has disconnected, then give a bit of time to reconnect
-                await new Promise((resolve) => setTimeout(resolve, 3000))
-                room = this.io.sockets.adapter.rooms.get(roomId)
-
                 if (!room) {
                     loggerUtil.info(`Room ${roomId} is empty. Completing session.`)
                     await completeCollaborationSession(roomId)
