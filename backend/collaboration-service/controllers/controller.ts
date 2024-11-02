@@ -71,13 +71,38 @@ export const getHistoryHandler = async (req: Request, res: Response): Promise<vo
     return;
   }
 
+  // Parse 'page' and 'limit' query parameters with default values
+  const page = parseInt(req.query.page as string, 10) || 1;
+  const limit = parseInt(req.query.limit as string, 10) || 10;
+
   try {
-    // Find sessions where the user is either userOne or userTwo, sorted by createdAt
+    // Count total sessions matching the query
+    const totalSessions = await SessionModel.countDocuments({
+      $or: [{ userOne: username }, { userTwo: username }]
+    }).exec();
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    // Retrieve sessions with pagination and sorting by createdAt in descending order
     const sessions = await SessionModel.find({
       $or: [{ userOne: username }, { userTwo: username }]
-    }).sort({ createdAt: -1 }).exec();
+    })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
 
-    res.json(sessions);
+    // Calculate total pages
+    const totalPages = Math.ceil(totalSessions / limit);
+
+    // Send paginated response with sessions and pagination info
+    res.json({
+      sessions,
+      totalPages,
+      currentPage: page,
+      totalSessions
+    });
   } catch (error) {
     console.error("Error retrieving history:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -124,6 +149,29 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
     res.json({ message: "Code saved successfully", session: newSession });
   } catch (error) {
     console.error("Error saving code:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// GetSessionHandler retrieves a session based on the roomId
+export const getSessionHandler = async (req: Request, res: Response): Promise<void> => {
+  res.setHeader("Content-Type", "application/json");
+  
+  const roomId = req.query.roomId as string;
+  if (!roomId) {
+    res.status(400).json({ error: "Missing roomId" });
+    return;
+  }
+
+  try {
+    const session = await SessionModel.findOne({ room_id: roomId }).exec();
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+    res.json(session);
+  } catch (error) {
+    console.error("Error finding session:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
