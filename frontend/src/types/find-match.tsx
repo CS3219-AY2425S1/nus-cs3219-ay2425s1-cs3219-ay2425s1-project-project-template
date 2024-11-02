@@ -1,9 +1,9 @@
 // eslint-disable no-invalid-page-export
 
 export enum QuestionDifficulty {
-  EASY = "easy",
-  MEDIUM = "medium",
-  HARD = "hard",
+  EASY = "Easy",
+  MEDIUM = "Medium",
+  HARD = "Hard",
 }
 
 export enum QuestionLanguages {
@@ -78,6 +78,13 @@ export enum QuestionTopics {
   BINARY_SEARCH_TREE = "Binary Search Tree",
   BINARY_TREE = "Binary Tree",
   HASH_SUM = "Hash Sum",
+}
+
+export interface QuestionAll {
+  questions: QuestionMinified[];
+  currentPage: number;
+  totalPages: number;
+  totalQuestions: number;
 }
 
 export interface QuestionMinified {
