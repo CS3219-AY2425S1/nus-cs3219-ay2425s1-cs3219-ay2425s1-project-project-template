@@ -30,14 +30,12 @@ export default function Chat({ roomId }: { roomId: string }) {
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!auth?.user?.id) return; // Don't connect if user is not authenticated
+    if (!auth?.user?.id) return; // Avoid connecting if user is not authenticated
 
     const socketInstance = io(
       process.env.NEXT_PUBLIC_COLLAB_SERVICE_URL || "http://localhost:3002",
       {
-        auth: {
-          userId: own_user_id,
-        },
+        auth: { userId: own_user_id },
       }
     );
 
@@ -66,16 +64,16 @@ export default function Chat({ roomId }: { roomId: string }) {
   }, [roomId, own_user_id]);
 
   useEffect(() => {
-    if (partnerMessages.length > 0 || aiMessages.length > 0) {
-      scrollToBottom();
-    }
-  }, [partnerMessages, aiMessages]);
+    const scrollWithDelay = () => {
+      setTimeout(() => {
+        if (lastMessageRef.current) {
+          lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100); // Delay to ensure the DOM is fully rendered
+    };
 
-  const scrollToBottom = () => {
-    if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+    scrollWithDelay();
+  }, [partnerMessages, aiMessages, chatTarget]);
 
   const sendMessage = () => {
     if (!newMessage.trim() || !socket || !isConnected || !own_user_id) return;
