@@ -5,6 +5,9 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/context/authContext';
 import { useRouter } from 'next/navigation';
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator";
+import { difficulties } from '@/utils/constant';
 
 const ProfilePage: React.FC = () => {
     const router = useRouter();
@@ -41,27 +44,57 @@ const ProfilePage: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-grow items-center justify-center bg-gray-100 p-4 w-screen">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-                <div className="flex items-center mb-6">
-                    <img
-                        src="/assets/wumpus.jpg" // Keep the avatar as is
-                        alt="User Avatar"
-                        className="w-16 h-16 rounded-full mr-4 object-cover"
-                    />
-                    <div>
-                        <h2 className="text-xl font-bold">{user.name}</h2>
-                        <p className="text-gray-600">{user.email}</p>
-                        <p className="text-gray-600">Role: {isAdmin ? 'Admin' : 'User'}</p>
+        <div className="flex flex-grow items-center justify-center bg-gray-100 w-screen">
+            <div className="flex-col h-full py-12 w-5/6 2xl:w-3/5 space-y-8">
+                <div className="flex flex-grow gap-8">
+                    <div className="min-w-fit w-1/4 p-4 bg-white rounded-lg space-y-4">
+                        {/* Profile Card */}
+                        <div className="flex">
+                            <img
+                                src="/assets/wumpus.jpg" // Keep the avatar as is
+                                alt="User Avatar"
+                                className="w-20 h-20 rounded-full mr-4 object-cover"
+                            />
+                            <div className='py-1'>
+                                <div className='flex gap-2'>
+                                    <h2 className="text-lg font-bold">{user.name}</h2>
+                                    {isAdmin && <Badge variant='outline'>Admin</Badge>}
+                                </div>
+                                <p className="text-gray-600 text-sm">{user.email}</p>
+                            </div>
+                        </div>
+                        {/* <button
+                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button> */}
+                        <Separator />
+                        {/* Problems Statistics */}
+                        <div className="flex flex-col gap-2">
+                            <div className='flex'>
+                                <h2 className="text-sm font-bold">Problems Solved</h2>
+                                <p className="text-sm ml-auto">0</p>
+                            </div>
+                            <div className='grid grid-cols-3 gap-2'>
+                                {difficulties.map((difficulty) => (
+                                    <div className="flex flex-col items-center justify-center p-2 bg-gray-100 rounded-sm">
+                                        <span className="text-xs font-semibold">{difficulty}</span>
+                                        <span className="text-xs">count</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <Separator />
+                        {/* Categories Statistics */}
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-sm font-bold">Skills</h2>
+                        </div>
+                    </div>
+                    <div className="flex-1 bg-white rounded-lg">
+                        History
                     </div>
                 </div>
-                {/* Add more profile-related sections here */}
-                <button
-                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-                    onClick={handleLogout}
-                >
-                    Logout
-                </button>
             </div>
         </div>
     );
