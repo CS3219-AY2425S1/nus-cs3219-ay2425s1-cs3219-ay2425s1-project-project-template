@@ -1,25 +1,34 @@
 "use client";
 import Header from "@/components/Header/header";
-import { Button, Col, Layout, message, Row, Tag, Select } from "antd";
+import {
+  Button,
+  Col,
+  Layout,
+  message,
+  Row,
+  Tag,
+  Select,
+  Table,
+  Input,
+} from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
-  PlusCircleOutlined,
   LeftOutlined,
   RightOutlined,
   CaretRightOutlined,
-  ClockCircleOutlined,
-  CommentOutlined,
-  CheckCircleOutlined,
+  CodeOutlined,
+  SendOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
-import { useEffect, useState, useLayoutEffect } from "react";
+import { useEffect, useState } from "react";
 import { GetSingleQuestion } from "../../services/question";
 import React from "react";
 import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
-import { ValidateUser, VerifyTokenResponseType } from "../../services/user";
 import { useRouter } from "next/navigation";
+import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
 
 export default function QuestionPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
@@ -47,160 +56,103 @@ export default function QuestionPage() {
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [selectedItem, setSelectedItem] = useState("python"); // State to hold the selected language item
-  
+
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
     if (!isLoading) {
       setIsLoading(true);
     }
 
-    GetSingleQuestion(docRefId).then((data: any) => {
-      setQuestionTitle(data.title);
-      setComplexity(data.complexity);
-      setCategories(data.categories);
-      setDescription(data.description);
-    });
+    GetSingleQuestion(docRefId)
+      .then((data: any) => {
+        setQuestionTitle(data.title);
+        setComplexity(data.complexity);
+        setCategories(data.categories);
+        setDescription(data.description);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [docRefId]);
+
+  // TODO: retrieve history
+  const history: any[] = [];
+
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Attempted at",
+      dataIndex: "attemptedAt",
+      key: "attemptedAt",
+    },
+    {
+      title: "Language",
+      dataIndex: "language",
+      key: "language",
+    },
+    {
+      title: "Matched with",
+      dataIndex: "matchedUser",
+      key: "matchedUser",
+    },
+  ];
 
   return (
     <div>
       {contextHolder}
-      <Layout className="code-editor-layout">
+      <Layout className="question-layout">
         <Header selectedKey={undefined} />
-        <Content className="code-editor-content">
-          <Row className="entire-page">
-            <Col className="col-boxes" span={7}>
-              <Row className="problem-description boxes">
-                <div className="problem-description-info">
-                  <div className="problem-description-top">
-                    <h3 className="problem-description-title">
-                      {questionTitle}
-                    </h3>
-                    <span className="problem-solve-status">
-                      Solved&nbsp;
-                      <CheckCircleOutlined />
-                    </span>
+        <Content className="question-content">
+          <Row gutter={0} className="question-row">
+            <Col span={12} className="first-col">
+              <QuestionDetailFull
+                questionTitle={questionTitle}
+                complexity={complexity}
+                categories={categories}
+                description={description}
+                testcaseItems={undefined}
+              />
+            </Col>
+            <Col span={12} className="second-col">
+              <Row className="history-row">
+                <div className="history-container">
+                  <div className="history-top-container">
+                    <div className="history-title">
+                      <HistoryOutlined className="title-icons" />
+                      Submission History
+                    </div>
                   </div>
-                  <div className="complexity-div">
-                    <Tag
-                      className="complexity-tag"
-                      style={{
-                        color:
-                          complexity === "easy"
-                            ? "#2DB55D"
-                            : complexity === "medium"
-                            ? "orange"
-                            : "red",
-                      }}
-                    >
-                      {complexity &&
-                        complexity.charAt(0).toUpperCase() +
-                          complexity.slice(1)}
-                    </Tag>
-                  </div>
-                  <div id="tag-container" className="tag-container">
-                    <span className="topic-label">Topics: </span>
-                    {categories.map((category) => (
-                      <Tag key={category}>{category}</Tag>
-                    ))}
-                  </div>
-                  <div className="description-text">
-                    <span>{description}</span>
-                  </div>
-                </div>
-              </Row>
-              <Row className="test-cases boxes">
-                <div className="test-cases-div">
-                  <div className="test-cases-top">
-                    <h3 className="testcase-title">Testcases</h3>
-                    <Button className="runtestcases-button">
-                      Run testcases
-                      <CaretRightOutlined />
-                    </Button>
-                  </div>
-                  <div className="testcase-buttons">
-                    <Button>Case 1</Button>
-                    <Button>Case 2</Button>
-                    <PlusCircleOutlined />
-                  </div>
-                  <div className="testcase-code-div">
-                    <TextArea
-                      className="testcase-code"
-                      placeholder="Testcases code"
+                  <div style={{ margin: "10px" }}>
+                    <Table
+                      rowKey="id"
+                      dataSource={history}
+                      columns={columns}
+                      loading={isLoading}
                     />
                   </div>
                 </div>
               </Row>
-            </Col>
-            <Col className="col-boxes" span={11}>
-              <Row className="code-editor boxes">
-                <div className="code-editor-div">
-                  <div className="code-editor-top">
-                    <h3 className="code-editor-title">
-                      <LeftOutlined />
-                      <RightOutlined style={{ marginRight: "4px" }} />
-                      Code
-                    </h3>
-                    <Button className="submit-solution-button">
-                      Submit Solution
-                      <CaretRightOutlined />
-                    </Button>
-                  </div>
-                  <div className="language-select">
-                    <div>
-                      <span className="language-text">
-                        Select Language:&nbsp;
-                      </span>
-                      <Select
-                        className="select-language-button"
-                        defaultValue={selectedItem}
-                        onSelect={(val) => setSelectedItem(val)}
-                        options={ProgrammingLanguageOptions}
-                      />
+              <Row className="code-row">
+                <div className="code-container">
+                  <div className="code-top-container">
+                    <div className="code-title">
+                      <CodeOutlined className="title-icons" />
+                      Submitted Code
                     </div>
                   </div>
-                  <div className="code-editor-code-div">
-                    <TextArea
-                      className="code-editor-code"
-                      placeholder="Insert code here"
-                    ></TextArea>
-                  </div>
-                </div>
-              </Row>
-            </Col>
-            <Col span={6} className="col-boxes">
-              <Row className="session-details boxes">
-                <div className="session-details-div">
-                  <div className="session-details-top">
-                    <h3 className="session-details-title">
-                      <ClockCircleOutlined />
-                      &nbsp;Session Details
-                    </h3>
-                    <Button className="end-session-button">End</Button>
-                  </div>
-                  <div className="session-details-text-div">
-                    <div className="session-details-text">
-                      <span className="session-headers">Start Time: </span>
-                      01:23:45
-                      <br />
-                      <span className="session-headers">
-                        Session Duration:{" "}
-                      </span>
-                      01:23:45
-                      <br />
-                      <span className="session-headers">Matched with: </span>
-                      John Doe
-                    </div>
-                  </div>
-                </div>
-              </Row>
-              <Row className="chat-box boxes">
-                <div className="chat-box-div">
-                  <div className="chat-box-top">
-                    <h3 className="chat-box-title">
-                      <CommentOutlined />
-                      &nbsp;Chat
-                    </h3>
+                  {/* TODO: set value of code, refactor to look like collab editor but not editable */}
+                  <div style={{ margin: "10px" }}>
+                    <Input.TextArea
+                      className="code-viewer"
+                      readOnly
+                      placeholder="Empty submission"
+                      rows={20}
+                      value="TODO"
+                    />
                   </div>
                 </div>
               </Row>
