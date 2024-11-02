@@ -3,7 +3,6 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import GeneralNavbar from "../components/navbar/GeneralNavbar";
-import ActivityTable from "../components/profile/ActivityTable";
 import "../styles/Profile.css";
 import DefaultImage from '../assets/Default.jpg';
 import EditImage from '../assets/Edit.png';
@@ -16,7 +15,6 @@ const Profile = () => {
     email: "",
   });
   const [profilePic, setProfilePic] = useState(DefaultImage);
-  const [activities, setActivities] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
   const fileInputRef = useRef(null);
@@ -36,7 +34,6 @@ const Profile = () => {
           email: data.data.email,
         });
         setProfilePic(data.data.profileImage || DefaultImage);
-        setActivities(data.data.activities || []);
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         toast.error("Failed to load profile");
@@ -252,11 +249,6 @@ const Profile = () => {
               )}
             </div>
           </div>
-        </div>
-        
-        <div className="profile-activity">
-          <h1>History</h1>
-          <ActivityTable activities={activities}/>
         </div>
 
         <ToastContainer />
