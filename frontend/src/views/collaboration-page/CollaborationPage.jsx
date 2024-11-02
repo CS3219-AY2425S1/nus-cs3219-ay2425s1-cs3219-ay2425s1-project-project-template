@@ -13,7 +13,8 @@ const CollaborationPage = () => {
     const { roomId } = useParams();
     const [question, setQuestion] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState(''); // actual content to be displayed
+    const [codeSnippets, setCodeSnippets] = useState({}); // used to store the code for different lang locally
     const [partnerUsername, setPartnerUsername] = useState('');
     const [isConnected, setIsConnected] = useState(false);
     const [language, setLanguage] = useState("javascript");
@@ -91,8 +92,19 @@ const CollaborationPage = () => {
         };
     }, [roomId, cookies.userId]);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            localStorage.setItem(`codeSnippet-${language}`, content);
+        }, 5000); // save after every 5 seconds
+        return () => clearInterval(interval);
+    }, [content, language, cookies.userId]);
+
     const handleEditorChange = (newContent) => {
         setContent(newContent);
+        setCodeSnippets(prev => ({
+            ...prev,
+            [language]: newContent
+        }));
         console.log('Emitting editDocument with new content: ', newContent);
         socketRef.current.emit('editDocument', { roomId, content: newContent });
     };
@@ -100,15 +112,22 @@ const CollaborationPage = () => {
     const handleLeave = () => {
         const username = cookies.username;
         console.log('Emitting custom_disconnect before navigating away');
+        localStorage.clear();
         socketRef.current.emit('custom_disconnect', { roomId, username });
         navigate('/', { replace: true });
         socketRef.current.disconnect();
     };
 
     const handleLanguageChange = (newLanguage) => {
-        setLanguage(newLanguage.target.value);
-        console.log('Language change: ', newLanguage.target.value);
-        socketRef.current.emit('editLanguage', { roomId, language: newLanguage.target.value });
+        const selectedLanguage = newLanguage.target.value
+        setLanguage(selectedLanguage);
+
+        const savedSnippet = localStorage.getItem(`codeSnippet-${selectedLanguage}`) || '';
+        setContent(savedSnippet)
+        
+        console.log('Language change: ', selectedLanguage);
+        socketRef.current.emit('editLanguage', { roomId, language: selectedLanguage });
+        socketRef.current.emit('editDocument', { roomId, content: savedSnippet });
     }
 
     const handleThemeChange = (newTheme) => {
