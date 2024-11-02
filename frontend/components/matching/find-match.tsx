@@ -137,6 +137,8 @@ export default function FindMatch() {
           isMatched = true;
           const user1_id = responseData.user1;
           const user2_id = responseData.user2;
+          const question_id = responseData.question_id;
+          console.log(question_id);
           toast({
             title: "Matched",
             description: "Successfully matched",
@@ -173,6 +175,8 @@ export default function FindMatch() {
 
             const user1_id = responseData.user1;
             const user2_id = responseData.user2;
+            const question_id = responseData.question_id;
+            console.log(question_id);
             if (user1_id && user2_id) {
               isMatched = true;
               setIsSearching(false);
@@ -199,6 +203,13 @@ export default function FindMatch() {
             });
           }
         };
+        return;
+      case 404:
+        toast({
+          title: "Error",
+          description: "No question with specified difficulty level and complexity exists!",
+          variant: "destructive",
+        });
         return;
       default:
         toast({
