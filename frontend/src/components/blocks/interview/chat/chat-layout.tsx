@@ -3,8 +3,8 @@ import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from '
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
 
 import { ChatMessage, ChatMessageType } from './chat-message';
 
@@ -28,13 +28,14 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   title,
 }) => {
   const [input, setInput] = useState<string>('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Focus and scroll to bottom on window open
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
@@ -42,9 +43,20 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     }
   }, [isOpen]);
 
+  // Scroll to bottom on reception of messages
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  // Resize textarea on input, up to a maximum height
+  useEffect(() => {
+    const textAreaEl = inputRef.current;
+
+    if (textAreaEl) {
+      textAreaEl.style.height = 'auto';
+      textAreaEl.style.height = `${Math.min(textAreaEl.scrollHeight, 100)}px`;
+    }
+  }, [input]);
 
   const handleSend = () => {
     if (input.trim()) {
@@ -53,7 +65,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -62,7 +74,10 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
 
   return (
     <div className='flex size-full flex-col'>
-      <div className='bg-secondary/50 border-border flex items-center justify-between border-b px-4 py-3'>
+      <div
+        id='chat-header'
+        className='bg-secondary/50 border-border flex items-center justify-between border-b py-1 pl-3 pr-1'
+      >
         <div className='flex items-center gap-2'>
           <h2 className='font-semibold'>{title}</h2>
         </div>
@@ -78,7 +93,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         </div>
       </div>
 
-      <ScrollArea className='h-full flex-1 overflow-y-auto p-4'>
+      <ScrollArea id='chat-messages' className='h-full flex-1 overflow-y-auto p-4'>
         {messages.length === 0 && (
           <div className='flex h-full flex-col items-center justify-center text-gray-500'>
             <MessageSquare className='mb-4 size-12 opacity-50' />
@@ -103,18 +118,24 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         <div ref={messagesEndRef} />
       </ScrollArea>
 
-      <div className='bg-secondary/50 border-border border-t p-4'>
-        <div className='flex gap-2'>
-          <Input
+      <div className='bg-secondary/50 border-border border-t p-3'>
+        <div className='flex w-full items-center justify-between gap-3'>
+          <Textarea
+            rows={1}
             ref={inputRef}
             value={input}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
             placeholder='Type your message...'
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             disabled={isLoading}
-            className='bg-primary-foreground flex-1'
+            className='bg-primary-foreground scrollbar-thin scrollbar-track-black h-10 min-h-10 flex-1 resize-none overflow-y-auto p-2'
           />
-          <Button variant='outline' onClick={handleSend} disabled={isLoading || !input.trim()}>
+          <Button
+            variant='outline'
+            onClick={handleSend}
+            disabled={isLoading || !input.trim()}
+            className='min-h-10 px-3 py-2'
+          >
             {isLoading ? <Loader2 className='size-4 animate-spin' /> : <Send className='size-4' />}
           </Button>
         </div>
