@@ -16,12 +16,16 @@ const CHAT_SOCKET_URL =
 const Question = ({ collabid }: { collabid: string }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
   const [collaborator, setCollaborator] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socket = new SockJS(CHAT_SOCKET_URL);
+    const userID = getBaseUserData().id;
+    setUserID(userID);
+
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`);
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
@@ -30,9 +34,9 @@ const Question = ({ collabid }: { collabid: string }) => {
         console.log("STOMP connection established");
         setIsConnected(true);
 
-        // client.subscribe("/topic/chat", (message) => {
-        //   console.log("Received message", message);
-        // });
+        client.subscribe("/user/queue/chat", (message) => {
+          console.log("Received message", message);
+        });
       },
       onDisconnect: () => {
         console.log("STOMP connection lost");
@@ -43,6 +47,7 @@ const Question = ({ collabid }: { collabid: string }) => {
       },
     });
     stompClientRef.current = client;
+
     client.activate();
 
     return () => {

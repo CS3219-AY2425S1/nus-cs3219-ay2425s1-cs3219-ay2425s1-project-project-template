@@ -7,39 +7,39 @@ import lombok.Data;
 
 @Data
 public class ChatUserPrincipal implements Principal, Serializable {
-    private final String userWSID; // Identify each user through userID + wsID
+    private final String userID; 
 
-    public ChatUserPrincipal(String userWSID) {
-        if (userWSID == null) {
+    public ChatUserPrincipal(String userID) {
+        if (userID == null) {
             throw new NullPointerException("null name is illegal");
         }
-        this.userWSID = userWSID;
+        this.userID = userID;
     }
 
     @Override
     public String getName() {
-        return this.userWSID;
+        return this.userID;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof ChatUserPrincipal) {
-            ChatUserPrincipal other = (ChatUserPrincipal) obj;
-            return this.userWSID.equals(other.getName());
-        }
-        return false;
-    }
+    // @Override
+    // public boolean equals(Object obj) {
+    //     if (this == obj) {
+    //         return true;
+    //     }
+    //     if (obj instanceof ChatUserPrincipal) {
+    //         ChatUserPrincipal other = (ChatUserPrincipal) obj;
+    //         return this.userWSID.equals(other.getName());
+    //     }
+    //     return false;
+    // }
 
-    @Override
-    public int hashCode() {
-        return this.userWSID.hashCode();
-    }
+    // @Override
+    // public int hashCode() {
+    //     return this.userWSID.hashCode();
+    // }
 
     @Override
     public String toString() {
-        return "ChatUserPrincipal{name='" + this.userWSID + "'}";
+        return "ChatUserPrincipal{UserID='" + this.userID + "'}";
     }
 }

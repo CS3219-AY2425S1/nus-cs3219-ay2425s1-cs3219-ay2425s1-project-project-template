@@ -11,4 +11,8 @@ public class Message {
         this.message = message;
         this.collabID = collabID;
     }
+
+    public String getMessage() {
+        return this.message;
+    }
 }

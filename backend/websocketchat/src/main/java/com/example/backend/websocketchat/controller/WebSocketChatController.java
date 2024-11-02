@@ -23,11 +23,12 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/sendMessage")
-    @SendTo("/topic/chat")
-    public String processSentMessage(Message message, Principal principal) {
+    public void processSentMessage(Message message, Principal principal) {
         ChatUserPrincipal myUserPrincipal = (ChatUserPrincipal) principal;
-        String userId = myUserPrincipal.getName(); // This should return the wsid
-        System.out.println(message.toString());
-        return message.toString();
+        String userID = myUserPrincipal.getName(); // This should return the wsid
+        System.out.println("User ID: " + userID + " sent message: " + message.toString());
+
+
+        this.webSocketChatService.sendToOtherUser("/queue/chat", message, userID);
     }
 }
