@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-DOCKER_USERNAME="m1oojv"
+DOCKER_USERNAME="your_docker_username"
 NAMESPACE="g55"
 IMAGE_NAMES=("user_service" "question_service" "matching_service" "mongodb")
 
