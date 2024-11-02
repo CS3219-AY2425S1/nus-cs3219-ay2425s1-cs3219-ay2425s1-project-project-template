@@ -20,7 +20,7 @@ const HistoryTable = (props: HistoryTableProps) => {
     matches.length === 0 ? (
       <div className="flex flex-1 flex-col items-center justify-center gap-2">
         <ArchiveX size={32} className="text-gray-400" />
-        <p className="text-gray-400">No history found</p>
+        <p className="text-gray-400 text-sm font-semibold">No history found</p>
       </div>
     ) : (
       <Table className="table-auto">
