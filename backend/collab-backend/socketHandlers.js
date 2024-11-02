@@ -1,4 +1,4 @@
-// const { initializeSession, handleVoteToContinue, resetSessionVotes, cleanupSession } = require('./sessionManager');
+const { addContinueVote } = require('./sessionManager');
 const { addUserToRoom, removeUserFromRoom, getRoomUserCount, cleanupRoom } = require('./roomManager');
 
 function handleSocketEvents(io) {
@@ -26,6 +26,11 @@ function handleSocketEvents(io) {
             socket.roomId = roomId;
             socket.join(roomId);
             addUserToRoom(roomId, socket.username);
+
+            // Check if both users have joined
+            if (getRoomUserCount(roomId) === 2) {
+                io.to(roomId).emit('start-timer');
+            }
         });
         
         // Handle disconnection with grace period
@@ -47,6 +52,11 @@ function handleSocketEvents(io) {
         socket.on('reconnect', () => {
             const timeoutId = disconnectTimeouts.get(socket.username);
             if (timeoutId) clearTimeout(timeoutId);
+        });
+
+        // Listen for continue-session from client
+        socket.on('continue-session', (roomId) => {
+            addContinueVote(roomId, socket.username, io);
         });
     });
 }

@@ -49,6 +49,13 @@ const Collab = () => {
         socketRef.current.emit("add-user", username?.toString());
         socketRef.current.emit("join-room", roomId);
 
+        // Listen for 'start-timer' event to start countdown (used for both new session and continue session)
+        socketRef.current.on('start-timer', () => {
+            setCountdown(60); // Reset to your desired starting time
+            setTimeOver(false);
+            startCountdown();
+        });
+
         // Listen for user-left event for the specific room
         socketRef.current.on("user-left", () => {
             setShowPartnerQuitPopup(true);
@@ -72,22 +79,17 @@ const Collab = () => {
         };
     }, []);
 
-    // Timer function
-    useEffect(() => {
-        if (countdown > 0 && !timeOver) {
-            intervalRef.current = setInterval(() => {
-                setCountdown((prevCountdown) => {
-                    if (prevCountdown <= 1) {
-                        clearInterval(intervalRef.current); // Clear interval at end of countdown
-                        setTimeOver(true);
-                    }
-                    return prevCountdown - 1;
-                });
-            }, 1000);
-        }
-
-        return () => clearInterval(intervalRef.current);
-    }, [countdown, timeOver]);
+    const startCountdown = () => {
+        intervalRef.current = setInterval(() => {
+            setCountdown((prevCountdown) => {
+                if (prevCountdown <= 1) {
+                    clearInterval(intervalRef.current);
+                    setTimeOver(true);
+                }
+                return prevCountdown - 1;
+            });
+        }, 1000);
+    };
 
     // Initialize editor and Yjs 
     const handleEditorDidMount = (editor) => {
@@ -124,9 +126,7 @@ const Collab = () => {
     const handleQuitCancel = () => setShowQuitPopup(false);
 
     const handleContinueSession = () => {
-        clearInterval(intervalRef.current);
-        setCountdown(10);  // changed to 10s for testing
-        setTimeOver(false);
+        socketRef.current.emit("continue-session", roomId);
     };
 
     const formatTime = (seconds) => {
