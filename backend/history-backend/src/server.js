@@ -1,7 +1,7 @@
 import http from "http";
 import index from "./index.js";
-import "dotenv/config";
 import { connect } from "mongoose";
+import "dotenv/config";
 
 const port = process.env.PORT || 3004;
 
@@ -20,7 +20,7 @@ await connectToDB().then(() => {
   console.log("MongoDB Connected!");
 
   server.listen(port);
-  console.log("User server is listening on http://localhost:" + port);
+  console.log("History server is listening on http://localhost:" + port);
 }).catch((err) => {
   console.error("Failed to connect to DB");
   console.error(err);

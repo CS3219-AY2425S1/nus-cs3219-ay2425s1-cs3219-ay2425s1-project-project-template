@@ -6,7 +6,7 @@ import userService from '../../services/user-service';
 import useAuth from "../../hooks/useAuth";
 
 const columns = [
-  { id: 'index', label: 'idx', minWidth: 10 },
+  { id: 'index', label: 'ID', minWidth: 10 },
   { id: 'question', label: 'Question', minWidth: 170 },
   { id: 'partner', label: 'Partner', minWidth: 80 },
   { id: 'status', label: 'Status', minWidth: 50 },
