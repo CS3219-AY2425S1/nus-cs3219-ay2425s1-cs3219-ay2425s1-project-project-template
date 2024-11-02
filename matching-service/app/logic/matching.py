@@ -106,7 +106,6 @@ def _get_queue_state_message(topic, difficulty, queue, before: bool):
 
 async def fetch_random_question(topic: str, difficulty: str) -> str:
     """Fetch a random question from the question service based on topic and difficulty."""
-    logger.debug("Test!!!")
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{QUESTION_SVC_URL}/questions/random",
