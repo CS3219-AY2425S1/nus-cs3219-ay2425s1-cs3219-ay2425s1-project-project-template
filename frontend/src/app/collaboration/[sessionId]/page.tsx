@@ -65,7 +65,11 @@ export default async function Page(props: { params: Params }) {
         <ResizableHandle withHandle={true} />
 
         <ResizablePanel defaultSize={70}>
-          <CenterPanel sessionId={sessionId} userProfile={userProfile} />
+          <CenterPanel
+            sessionId={sessionId}
+            userProfile={userProfile}
+            question={question}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
 
