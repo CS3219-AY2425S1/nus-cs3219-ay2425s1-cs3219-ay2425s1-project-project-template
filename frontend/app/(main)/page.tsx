@@ -7,6 +7,8 @@ import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 
+const config = siteConfig(false);
+
 export default function Page() {
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
@@ -27,14 +29,14 @@ export default function Page() {
             radius: "full",
             variant: "shadow",
           })}
-          href={siteConfig.links.login}
+          href={config.links.login}
         >
           Login here!
         </Link>
         <Link
           isExternal
           className={buttonStyles({ variant: "bordered", radius: "full" })}
-          href={siteConfig.links.github}
+          href={config.links.github}
         >
           <GithubIcon size={20} />
           GitHub

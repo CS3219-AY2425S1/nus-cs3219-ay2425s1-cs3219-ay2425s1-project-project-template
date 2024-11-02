@@ -1,6 +1,6 @@
 export type SiteConfig = typeof siteConfig;
 
-export const siteConfig = {
+export const siteConfig = (isAdmin: boolean) => ({
   name: "PeerPrep",
   description: "Your Interview Prep Platform.",
   navItems: [
@@ -10,8 +10,8 @@ export const siteConfig = {
     },
     {
       label: "Questions",
-      href: "/questions",
-    }
+      href: isAdmin ? "/admin/questions" : "/questions",
+    },
   ],
   navMenuItems: [
     {
@@ -52,4 +52,4 @@ export const siteConfig = {
     docs: "https://nextui-docs-v2.vercel.app",
     login: "/login",
   },
-};
+});

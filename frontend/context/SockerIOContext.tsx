@@ -42,7 +42,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
       setLoading(false);
       setSocket(socketIOInstance);
-      console.log(socket)
       console.log("SocketIO instance connected");
 
       // Handle socket connection error
