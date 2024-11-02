@@ -5,8 +5,8 @@ import { addAttempt } from '../services/post/addAttempt';
 // Define the expected request body structure
 interface AddAttemptRequestBody {
   questionId: number;
-  userId1: number;
-  userId2?: number; // Optional if userId2 is not always required
+  userId1: string;
+  userId2?: string; // Optional if userId2 is not always required
   code: string;
   language: string;
   topic: string[]; // Assuming topic is an array of strings
@@ -33,8 +33,6 @@ export const createAttempt = async (
       userId2,
       code,
       language,
-      topic: topic, // Adjusted to match the schema if topics is used
-      difficulty,
     });
 
     // Respond with success

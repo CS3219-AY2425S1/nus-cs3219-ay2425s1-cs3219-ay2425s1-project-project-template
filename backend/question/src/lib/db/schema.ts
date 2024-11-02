@@ -25,13 +25,11 @@ export const questionAttempts = pgTable(
   {
     attemptId: serial('attempt_id').primaryKey(),
     questionId: integer('question_id').notNull(),
-    userId1: integer('user_id_1').notNull(),
-    userId2: integer('user_id_2'), // Nullable if only one user is involved
+    userId1: uuid('user_id_1').notNull(),
+    userId2: uuid('user_id_2'), // Nullable if only one user is involved
     code: text('code').notNull(),
     timestamp: timestamp('timestamp', { precision: 6, withTimezone: true }).defaultNow(),
     language: varchar('language', { length: 50 }).notNull(),
-    topic: varchar('topics', { length: 255 }).array().notNull(), // Denormalized array of topics
-    difficulty: varchar('difficulty', { length: 50 }).notNull(),
   },
   (questAttempt) => ({
     uniqueUsersAttempt: uniqueIndex('unique_users_attempt').on(

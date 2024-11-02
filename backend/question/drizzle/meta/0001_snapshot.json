@@ -1,5 +1,5 @@
 {
-  "id": "7c021462-f400-4c5e-90a0-bf42f218e710",
+  "id": "afa9ccaa-137c-47d3-acb0-ab1e2208038e",
   "prevId": "84b2ca8d-3021-496f-8769-bbc4dada6468",
   "version": "7",
   "dialect": "postgresql",
@@ -53,13 +53,13 @@
         },
         "user_id_1": {
           "name": "user_id_1",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "user_id_2": {
           "name": "user_id_2",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -78,18 +78,6 @@
         },
         "language": {
           "name": "language",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "topics": {
-          "name": "topics",
-          "type": "varchar(255)[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "difficulty": {
-          "name": "difficulty",
           "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true
