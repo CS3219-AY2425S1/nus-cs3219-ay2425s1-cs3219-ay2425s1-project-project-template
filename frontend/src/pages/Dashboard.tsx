@@ -29,6 +29,7 @@ const Dashboard = () => {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [filteredAttempts, setFilteredAttempts] = useState<Attempt[]>([]);
   const [counts, setCounts] = useState<Counts>({ Easy: 0, Medium: 0, Hard: 0 });
+  const [proficiency, setProficiency] = useState<string>("Beginner");
 
   // Auth and navigation
   const { user, token } = useAuth();
@@ -72,6 +73,24 @@ const Dashboard = () => {
 
     fetchAttemptsData();
   }, [token]);
+
+    // Function to determine proficiency level based on counts
+    useEffect(() => {
+      const determineProficiency = () => {
+        if (counts.Hard >= 20) {
+          setProficiency("Expert");
+        } else if (counts.Medium >= 40 || counts.Hard >= 10) {
+          setProficiency("Proficient");
+        } else if (counts.Medium >= 15 || counts.Hard >= 5) {
+          setProficiency("Competent");
+        } else if (counts.Easy >= 20 || counts.Medium >= 5 || counts.Hard >= 2) {
+          setProficiency("Novice");
+        } else {
+          setProficiency("Beginner");
+        }
+      };
+      determineProficiency();
+    }, [counts]);
 
   const filterAndSortAttempts = (data: Attempt[], query: string, criteria: string) => {
     const filtered = data.filter((attempt) => {
@@ -172,7 +191,7 @@ const handleViewAttempt = async (attemptId: string) => {
         <Box display="flex" flexDirection="row" gap={2}>
           <Box p={2} border={1} borderColor="grey.300" borderRadius={2} flex="1 1 25%">
             <Typography variant="h5" gutterBottom>{user ? user.name : "Loading..."}</Typography>
-            <Typography variant="subtitle1" gutterBottom>Proficiency: Expert</Typography>
+            <Typography variant="subtitle1" gutterBottom>Proficiency: {proficiency}</Typography>
             <Box mt={3} mb={3}>
               <Typography variant="subtitle1" gutterBottom>Questions Solved:</Typography>
               <Box>
