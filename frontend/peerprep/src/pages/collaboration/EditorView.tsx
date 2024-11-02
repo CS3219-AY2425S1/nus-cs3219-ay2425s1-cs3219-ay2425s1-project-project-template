@@ -4,8 +4,6 @@ import { UserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
-import axios from "axios";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import EditorElement from "./EditorElement";
 
 const EditorView: React.FC = () => {
@@ -39,10 +37,7 @@ const EditorView: React.FC = () => {
       return;
     }
 
-    socketRef.current = io("http://localhost:3004/", {
-      path: "/api",
-      query: { roomId },
-    });
+    socketRef.current = io("http://localhost:8080/");
     const socket = socketRef.current;
 
     if (socket === null) return;
@@ -94,11 +89,6 @@ const EditorView: React.FC = () => {
         }
       }
     );
-
-    // Listen for language changes
-    socket.on("languageChange", (newLanguage: string) => {
-      setLanguage(newLanguage);
-    });
 
     return () => {
       if (socketRef.current !== null) {
