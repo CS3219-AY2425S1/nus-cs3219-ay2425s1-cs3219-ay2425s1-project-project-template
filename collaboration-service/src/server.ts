@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
-import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom, handleRunCode } from "./service/collaboration-service";
+import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom, handleRunCode, changeLanguage } from "./service/collaboration-service";
 
 const PORT = process.env.PORT || 3003;
 const app = express();
@@ -42,6 +42,10 @@ io.on("connection", (socket) => {
   socket.on("run_code", (data) => {
     handleRunCode(socket, data);
   });
+
+  socket.on("change_language", (data) => {
+    changeLanguage(socket, data);
+  })
 });
 
 // Start the server and connect RabbitMQ

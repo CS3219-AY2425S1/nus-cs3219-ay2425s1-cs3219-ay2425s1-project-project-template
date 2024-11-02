@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { io, Socket } from "socket.io-client";
 import { Editor } from "@monaco-editor/react";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import { Box, Typography, Button, CircularProgress, InputLabel, FormControl, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { toast } from "react-toastify";
@@ -20,6 +20,7 @@ const CollaborativeEditor: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { question } = location.state;
+  const [language, setLanguage] = useState("javascript");
 
   useEffect(() => {
     if (!user) {
@@ -60,6 +61,10 @@ const CollaborativeEditor: React.FC = () => {
       setIsLoading(false);
     });
 
+    socketRef.current.on("change_language", ({ newLanguage }: { newLanguage: string }) => {
+      setLanguage(newLanguage);
+    });
+
     return () => {
       cleanupCollaboration();
     };
@@ -75,7 +80,7 @@ const CollaborativeEditor: React.FC = () => {
 
   const handleLeaveRoom = () => {
     cleanupCollaboration();
-    navigate("/matching"); // Redirect to match selection after leaving the room
+    navigate("/matching");
   };
 
   const cleanupCollaboration = () => {
@@ -89,9 +94,17 @@ const CollaborativeEditor: React.FC = () => {
     if (socketRef.current) {
       setIsLoading(true); 
       socketRef.current.emit("code_execution_started", { roomId });
-      socketRef.current.emit("run_code", { roomId, code });
+      socketRef.current.emit("run_code", { roomId, code, language });
     }
   };
+
+  const handleChangeLanguage = (event: SelectChangeEvent) => {
+    const newLanguage = event.target.value as string;
+    setLanguage(newLanguage);
+    if (socketRef.current) {
+      socketRef.current.emit("change_language", { roomId, newLanguage });
+    }
+  }  
 
   return (
     <>
@@ -116,12 +129,30 @@ const CollaborativeEditor: React.FC = () => {
 
         <Typography variant="h6">Room ID: {roomId}</Typography>
         <Typography variant="h6">User: {user?.name}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 4 }}>
+          <FormControl sx={{ width: '200px' }}>
+            <InputLabel id="demo-simple-select-label">Language</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={language}
+              label="Language"
+              onChange={handleChangeLanguage}
+            >
+              <MenuItem value={"cpp"}>C++</MenuItem>
+              <MenuItem value={"java"}>Java</MenuItem>
+              <MenuItem value={"python"}>Python3</MenuItem>
+              <MenuItem value={"c"}>C</MenuItem>
+              <MenuItem value={"javascript"}>JavaScript</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
         {isConnected ? (
           <>
             <Editor
               height="80vh"
-              defaultLanguage="javascript"
+              language={language}
               value={code}
               onChange={handleEditorChange}
               theme="vs-dark"

@@ -12,10 +12,17 @@ export async function joinCollaborationRoom(socket: Socket, { roomId, userName }
   const existingCode = await redis.get(`collab:${roomId}:code`) || "";
 
   const existingOutput = await redis.get(`collab:${roomId}:output`);
+
+  const existingLanguage = await redis.get(`collab:${roomId}:language`);
+
   socket.emit("code_update", { code: existingCode });
 
   if (existingOutput) {
     socket.emit("code_result", { output: existingOutput });
+  }
+
+  if (existingLanguage) {
+    socket.emit("change_language", { newLanguage: existingLanguage });
   }
 
   callback({ success: true });
@@ -33,12 +40,12 @@ export async function handleLeaveRoom(socket: Socket, { roomId, userName }: { ro
   socket.to(roomId).emit("leave_collab_notify", { userName });
 }
 
-export async function handleRunCode(socket: Socket, { roomId, code }: { roomId: string; code: string }) {
+export async function handleRunCode(socket: Socket, { roomId, code, language }: { roomId: string; code: string; language: string }) {
   socket.to(roomId).emit("code_execution_started");
   socket.emit("code_execution_started");
 
   try {
-    const output = await executeCode(code);
+    const output = await executeCode(code, language);
 
     await redis.set(`collab:${roomId}:output`, output, "EX", 3600);
 
@@ -53,4 +60,9 @@ export async function handleRunCode(socket: Socket, { roomId, code }: { roomId: 
     socket.to(roomId).emit("code_execution_finished");
     socket.emit("code_execution_finished");
   }
+}
+
+export async function changeLanguage(socket: Socket, { roomId, newLanguage }: { roomId: string; newLanguage: string }) {
+  await redis.set(`collab:${roomId}:language`, newLanguage, "EX", 3600);
+  socket.to(roomId).emit("change_language", { newLanguage });
 }

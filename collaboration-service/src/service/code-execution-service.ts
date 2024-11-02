@@ -1,62 +1,48 @@
-import { exec } from "child_process";
-import util from "util";
-import fs from "fs";
-import os from "os";
-import path from "path";
+import axios from "axios";
+import dotenv from 'dotenv';
 
-const execPromise = util.promisify(exec);
+dotenv.config();
+
+const JUDGE0_API_URL = process.env.JUDGE0_API_URL;
+
+// Language ID mapping for Judge0 API
+const languageIds: { [key: string]: number } = {
+  javascript: 63, // JavaScript (Node.js) language ID
+  python: 71,    // Python 3 language ID
+  java: 62,       // Java
+  c: 50,          // C (GCC)
+  cpp: 54         // C++ (GCC)
+};
 
 export async function executeCode(code: string, language: string = "javascript"): Promise<string> {
-  // 15 seconds timeout if code runs too long
-  const TIMEOUT = 15000;
+  const languageId = languageIds[language];
+
+  if (!code.trim()) {
+    return "None";
+  }
+  
+  if (!languageId) {
+    throw new Error("Unsupported language");
+  }
 
   try {
-    let dockerImage;
-    switch (language) {
-      case "javascript":
-        dockerImage = "node:14";
-        break;
-      case "python":
-        dockerImage = "python:3.9";
-        break;
-      default:
-        throw new Error("Unsupported language");
+    const submissionResponse = await axios.post(
+      `${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`,
+      {
+        source_code: code,
+        language_id: languageId,
+      }
+    );
+
+    const { stdout, stderr, compile_output, status } = submissionResponse.data;
+    
+    if (status && status.description !== "Accepted") {
+      return `Error: ${status.description}\n${compile_output || stderr}`;
     }
-
-    const tempDir = os.tmpdir();
-    const filePath = path.join(tempDir, `${Date.now()}.${language}`);
-
-    fs.writeFileSync(filePath, code);
-
-    const command = `docker run --rm -v "${filePath}:/codefile" ${dockerImage} ${language === "javascript" ? "node" : "python"} /codefile`;
-
-    const { stdout, stderr } = await execPromise(command, { timeout: TIMEOUT });
-
-    fs.unlinkSync(filePath);
-
-    if (stderr) {
-      return `Error executing code:\n${formatErrorMessage(stderr.trim())}`;
-    }
-    return stdout.trim();
+    
+    return stdout || compile_output || stderr || "None";
   } catch (error) {
     console.error("Error executing code:", error);
-
-    if ((error as any).killed) {
-      return "TIME LIMIT EXCEEDED";
-    }
-
-    // Handle other errors
-    if (error instanceof Error) {
-      const stderr = (error as any).stderr || "";
-      return `Error executing code:\n${formatErrorMessage(stderr.trim() || error.message)}`;
-    }
-    return "An unknown error occurred during code execution.";
+    return "An error occurred during code execution.";
   }
-}
-
-function formatErrorMessage(errorOutput: string): string {
-  return errorOutput
-    .split("\n")
-    .filter(line => !line.includes("/codefile"))
-    .join("\n");
 }
