@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { io, Socket } from "socket.io-client";
 import { Editor } from "@monaco-editor/react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, TextField, Button, List, ListItem, Paper } from "@mui/material";
+
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { toast } from "react-toastify";
@@ -16,6 +17,8 @@ const CollaborativeEditor: React.FC = () => {
   const socketRef = useRef<Socket | null>(null);
   const [code, setCode] = useState<string>("function helloWorld() { console.log('Hello, world!'); }");
   const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState<{ userName: string; message: string; timestamp: number }[]>([]);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,6 +49,10 @@ const CollaborativeEditor: React.FC = () => {
       setCode(code);
     });
 
+    socketRef.current.on("receive_message", (message: any) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
     socketRef.current.on("leave_collab_notify", ({ userName }: { userName: string }) => {
       console.log(`User ${userName} left the collaboration room.`);
       toast.info(`User ${userName} left the collaboration room. Redirecting to match selection in 5s...`);
@@ -67,6 +74,16 @@ const CollaborativeEditor: React.FC = () => {
     }
   };
 
+  const handleSendMessage = () => {
+    if (socketRef.current && message.trim()) {
+      const timestamp = Date.now();
+      const chatMessage = { roomId, userName: user!!.name, message, timestamp: timestamp };
+      setMessages((prevMessages) => [...prevMessages, chatMessage]); 
+      socketRef.current.emit("send_message", chatMessage);
+      setMessage("");
+    }
+  };
+
   const handleLeaveRoom = () => {
     cleanupCollaboration();
     navigate("/matching"); // Redirect to match selection after leaving the room
@@ -81,42 +98,92 @@ const CollaborativeEditor: React.FC = () => {
 
   return (
     <>
-    <Header />
-    <Box sx={{ p: 4 }}>
-      {/* Displaying the hardcoded question */}
-      <Typography variant="h4">{question.title}</Typography>
-      <Typography variant="h6" color="textSecondary">
-        Difficulty: {question.complexity}
-      </Typography>
-      <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
-        {question.description}
-      </Typography>
+      <Header />
+      <Box sx={{ display: "flex", height: "100vh", p: 2 }}>
+        <Box sx={{ flex: 2, pr: 4 }}>
+          {/* Displaying the hardcoded question */}
+          <Typography variant="h4">{question.title}</Typography>
+          <Typography variant="h6" color="textSecondary">
+            Difficulty: {question.complexity}
+          </Typography>
+          <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
+            {question.description}
+          </Typography>
 
-      {/* Collaboration Info */}
-      <Typography variant="h6">Room ID: {roomId}</Typography>
-      <Typography variant="h6">User: {user?.name}</Typography>
+          {/* Collaboration Info */}
+          <Typography variant="h6">Room ID: {roomId}</Typography>
+          <Typography variant="h6">User: {user?.name}</Typography>
 
-      {/* Code Editor */}
-      {isConnected ? (
-        <>
-            <Editor
-            height="80vh"
-            defaultLanguage="javascript"
-            value={code}
-            onChange={handleEditorChange}
-            theme="vs-dark"
-            />
-            <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleLeaveRoom}>
-            Leave Collaboration
-            </Button>
-        </>
-      ) : (
-        <Typography variant="h6" color="error">
-          Connecting to the collaboration room...
-        </Typography>
-      )}
-    </Box>
-  </>
+          {/* Code Editor */}
+          {isConnected ? (
+            <>
+              <Editor
+                height="65vh"
+                defaultLanguage="javascript"
+                value={code}
+                onChange={handleEditorChange}
+                theme="vs-dark"
+              />
+              <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleLeaveRoom}>
+                Leave Collaboration
+              </Button>
+            </>
+          ) : (
+            <Typography variant="h6" color="error">
+              Connecting to the collaboration room...
+            </Typography>
+          )}
+        </Box>
+
+        {/* Chat Section */}
+        <Box sx={{ flex: 1, p: 2, borderLeft: "1px solid #ccc" }}>
+          <Typography variant="h5" gutterBottom>Chat</Typography>
+          <Paper sx={{ height: "60vh", overflow: "auto", p: 2, mb: 2 }}>
+            <List>
+              {messages.map((msg, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    justifyContent: msg.userName === user?.name ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      maxWidth: "70%",
+                      p: 1.5,
+                      borderRadius: 2,
+                      bgcolor: msg.userName === user?.name ? "primary.main" : "grey.300",
+                      color: msg.userName === user?.name ? "white" : "black",
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {msg.userName === user?.name ? `You` : msg.userName} -{" "}
+                      <Typography component="span" variant="caption" sx={{ fontSize: "0.75em" }}>
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+                    </Typography>
+                    </Typography>
+                    <Typography variant="body1">{msg.message}</Typography>
+                  </Box>
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
+
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+          />
+          <Button variant="contained" color="primary" onClick={handleSendMessage} sx={{ mt: 1 }}>
+            Send
+          </Button>
+        </Box>
+      </Box>
+    </>
   );
 };
 
