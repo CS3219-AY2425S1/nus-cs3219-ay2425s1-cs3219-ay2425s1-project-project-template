@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import matchRoutes from './routes/matchRoutes.js';
 import matchController from './controllers/matchController.js';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const port = 3000;
@@ -25,6 +26,7 @@ io.on('connection', (socket) => {
 
 app.use(cors());
 app.use(json());
+app.use(cookieParser());
 app.use('/matcher', matchRoutes);
 
 // Start the server
