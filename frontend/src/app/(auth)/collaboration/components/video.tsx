@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { WebrtcProvider } from "y-webrtc";
-
+import {
+  CiMicrophoneOn,
+  CiMicrophoneOff,
+  CiVideoOn,
+  CiVideoOff,
+} from "react-icons/ci";
 type VideoCallProps = {
   provider: WebrtcProvider;
 };
@@ -232,12 +237,20 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             style={{ width: "200px" }}
           />
           {localVideoSourceObject && (
-            <div>
+            <div className="mt-1">
               <button onClick={toggleLocalMute}>
-                {isLocalMuted ? "🔇" : "🔊"}
+                {isLocalMuted ? (
+                  <CiMicrophoneOff className="text-lg" />
+                ) : (
+                  <CiMicrophoneOn className="text-lg" />
+                )}
               </button>
               <button onClick={toggleLocalVideo}>
-                {isLocalVideoOn ? "📷" : "📵"}
+                {isLocalVideoOn ? (
+                  <CiVideoOn className="text-lg" />
+                ) : (
+                  <CiVideoOff className="text-lg" />
+                )}
               </button>
             </div>
           )}
@@ -252,12 +265,20 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             style={{ width: "200px" }}
           />
           {remoteVideoSourceObject && (
-            <div>
+            <div className="mt-1">
               <button onClick={toggleRemoteMute}>
-                {isRemoteMuted ? "🔇" : "🔊"}
+                {isRemoteMuted ? (
+                  <CiMicrophoneOff className="text-lg" />
+                ) : (
+                  <CiMicrophoneOn className="text-lg" />
+                )}
               </button>
               <button onClick={toggleRemoteVideo}>
-                {isRemoteVideoOn ? "📷" : "📵"}
+                {isRemoteVideoOn ? (
+                  <CiVideoOn className="text-lg" />
+                ) : (
+                  <CiVideoOff className="text-lg" />
+                )}
               </button>
             </div>
           )}
