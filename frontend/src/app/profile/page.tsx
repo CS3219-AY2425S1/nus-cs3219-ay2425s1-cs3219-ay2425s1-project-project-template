@@ -4,7 +4,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/authContext';
-import { useRouter } from 'next/navigation';
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator";
 import { difficulties } from '@/utils/constant';
@@ -12,31 +11,10 @@ import HistoryTable from '@/app/profile/HistoryTable';
 import { FolderClock as HistoryIcon } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
-    const router = useRouter();
     const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
     const [pastMatches, setPastMatches] = useState([]);
     const [totalNumberOfMatches, setTotalNumberOfMatches] = useState(0);
     const [skills, setSkills] = useState([]);
-
-    const handleLogout = async () => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/users/logout`, {
-                method: 'POST',
-                credentials: 'include', // Include cookies
-            });
-
-            if (response.ok) {
-                // refresh authentication status
-                await refreshAuth();
-                // redirect to home page
-                router.push('/');
-            } else {
-                console.error('Failed to log out.');
-            }
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-    };
 
     const fetchPastMatches = async () => {
     }
@@ -74,12 +52,6 @@ const ProfilePage: React.FC = () => {
                                 <p className="text-gray-600 text-xs">{user.email}</p>
                             </div>
                         </div>
-                        {/* <button
-                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button> */}
                         <Separator />
                         {/* Problems Statistics */}
                         <div className="flex flex-col gap-2">
