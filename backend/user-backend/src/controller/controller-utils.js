@@ -33,6 +33,7 @@ export async function formatPartialUserResponse(user) {
 
 export async function formatFullUserResponse(user) {
   return {
+    id: user.id,
     username: user.username,
     email: user.email,
     profileImage: await getImageSignedUrl(user),
