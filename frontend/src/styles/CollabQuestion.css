@@ -5,6 +5,7 @@
     padding: 10px 30px;
     max-width: 50%;
     margin: 0 auto;
+    text-align: left;
   }
   
   .question-header {
@@ -21,4 +22,9 @@
     word-wrap: break-word;
     text-align: left;
   }
-  
+
+  .question-subheader h3 {
+    font-size: 24;
+    word-wrap: break-word;
+    text-align: left;
+  }

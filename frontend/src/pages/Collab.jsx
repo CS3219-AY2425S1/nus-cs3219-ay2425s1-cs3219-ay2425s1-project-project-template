@@ -7,11 +7,11 @@ import { MonacoBinding } from "y-monaco";
 import io from 'socket.io-client';
 
 import CollabNavBar from "../components/navbar/CollabNavbar";
+import QuestionContainer from "../components/collaboration/QuestionContainer";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
 import useAuth from "../hooks/useAuth";
-import "../styles/collab.css";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
 const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
@@ -153,21 +153,7 @@ const Collab = () => {
                 handleQuit={handleQuit}
             />
             <div style={{ display: "flex", flex: 1 }}>
-                    <div className="question-container" >
-                        <div className="question-header" >
-                            <h2>{question.title}</h2>
-                        </div>
-                        <p>{question.description}</p>
-                        {question.images && question.images.map((image, index) => (
-                            <img key={index} src={image} alt={`Question diagram ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-                        ))}
-                        {question.leetcode_link && (
-                            <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
-                                View on LeetCode
-                            </a>
-                        )}
-                    </div>
-
+                <QuestionContainer question={question} />
                 <Editor
                     height="100%"
                     width="50%"
