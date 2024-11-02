@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from "react";
+import { USER_SERVICE } from "../Services";
 
 export const UserPage = () => {
-  const USER_SERVICE_HOST = "http://localhost:3002";
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export const UserPage = () => {
 
   const getProfile = async (id, accessToken) => {
     try {
-      const response = await axios.get(`${USER_SERVICE_HOST}/users/${id}`, {
+      const response = await axios.get(`${USER_SERVICE}/users/${id}`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`
         }

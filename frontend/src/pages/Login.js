@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles/Login.css';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { USER_SERVICE } from '../Services';
 
 export const Login = ({ onLoginSuccess }) => {
     const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export const Login = ({ onLoginSuccess }) => {
             return;
         } else {
             try {
-                const response = await axios.post('http://localhost:3002/auth/login', {
+                const response = await axios.post(`${USER_SERVICE}/auth/login`, {
                     email: email,
                     password: password,
                 });

@@ -9,20 +9,36 @@ import threading
 import socketio
 import time
 import traceback
+import ssl
 
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
 sio = socketio.Client()
-NOTIFICATION_SERVICE = NOTIFICATION_SERVICE = os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
+NOTIFICATION_SERVICE = "https://notification-service-313275155433.asia-southeast1.run.app" \
+if os.getenv('ENV') == "PROD" else os.getenv('NOTIFICATION_SERVICE', 'http://localhost:5000')
 
 PORT = int(os.environ.get('PORT', 5001))
 RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
+ssl_context = ssl.create_default_context()
 
 def produce_message(message):
     try:
-        credentials = pika.PlainCredentials('peerprep', 'peerprep')
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        if os.getenv('ENV') == "PROD":
+            credentials = pika.PlainCredentials(os.getenv('RABBITMQ_USER'), 
+                                                os.getenv('RABBITMQ_PASSWORD'))
+            parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
+                                                   port=5671,
+                                                   virtual_host=os.getenv('RABBITMQ_VHOST'), 
+                                                   credentials=credentials, 
+                                                   ssl_options=pika.SSLOptions(ssl_context))
+            connection = pika.BlockingConnection(parameters)
+        else:
+            credentials = pika.PlainCredentials('peerprep', 'peerprep')
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        print("connection ready")
+        
         channel = connection.channel()
         channel.queue_declare(queue='match_queue')
         channel.basic_publish(exchange='',
@@ -55,6 +71,7 @@ def match_user(request):
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
             sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty} and topic: {topic}"))
             pending_requests.remove(pending)
+            print("Sent match found event", file=sys.stderr)
             return
         elif pending['topic'] == topic:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
@@ -95,11 +112,21 @@ def consume_messages():
     time.sleep(30)
     print("Attempting connection")
     try:
-        credentials = pika.PlainCredentials('peerprep', 'peerprep')
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+        if os.getenv('ENV') == "PROD":
+            credentials = pika.PlainCredentials(os.getenv('RABBITMQ_USER'), 
+                                                os.getenv('RABBITMQ_PASSWORD'))
+            parameters = pika.ConnectionParameters(host=RABBITMQ_HOST, 
+                                                   virtual_host=os.getenv('RABBITMQ_VHOST'), 
+                                                   credentials=credentials, 
+                                                   ssl_options=pika.SSLOptions(ssl_context))
+            connection = pika.BlockingConnection(parameters)
+        else:
+            credentials = pika.PlainCredentials('peerprep', 'peerprep')
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
         print("connection ready")
-        channel = connection.channel()
 
+        channel = connection.channel()
         channel.queue_declare(queue='match_queue')
 
         def callback(ch, method, properties, body):
@@ -127,6 +154,12 @@ def disconnect():
 def home():
     return f"Server is running on port {PORT}"
 
+@app.route('/enqueue', methods=['OPTIONS'])
+def handle_options():
+    response = jsonify({})
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, PUT, PATCH"
+    return response, 200
+
 @app.route('/enqueue', methods=['POST'])
 def queue():
     data = json.dumps(request.get_json())
@@ -146,7 +179,7 @@ if __name__ == '__main__':
     
     while True:
         try:
-            print("Attempting to connect to notification service...")
+            print(f"Attempting to connect to notification service at {NOTIFICATION_SERVICE}")
             sio.connect(NOTIFICATION_SERVICE)
             print("Successfully connected to notification service!")
             break
