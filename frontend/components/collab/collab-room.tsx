@@ -18,7 +18,7 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
       <div className="flex flex-1">
         <div className="w-2/5 p-4 flex flex-col space-y-4">
           <QuestionDisplay />
-          <Chat />
+          <Chat roomId={roomId} />
         </div>
         <CodeEditor />
       </div>
