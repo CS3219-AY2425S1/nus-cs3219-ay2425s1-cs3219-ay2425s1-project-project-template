@@ -11,7 +11,7 @@ services:
       - ./backend/collaboration/.env
     networks:
       - peer-prep-network
-  
+
   signaling:
     build: ./backend/signaling
     container_name: signaling-container
@@ -22,7 +22,6 @@ services:
       - /app/node_modules
     networks:
       - peer-prep-network
-
 
   matching:
     build: ./backend/matching
@@ -57,6 +56,18 @@ services:
       - ./backend/websocket/.env # Env file for matching service, to test in prod
     volumes:
       - ./backend/websocket/src:/app/src
+    networks:
+      - peer-prep-network
+
+  websocketchat:
+    build: ./backend/websocketchat
+    container_name: websocket-chat-container
+    ports:
+      - "3007:3007"
+    env_file:
+      - ./backend/websocketchat/.env # Env file for matching service, to test in prod
+    volumes:
+      - ./backend/websocketchat/src:/app/src
     networks:
       - peer-prep-network
 

@@ -80,6 +80,8 @@ const SOCKET_URL =
   process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
   "http://localhost:3005/matching-websocket";
 
+console.log(SOCKET_URL);
+
 const CURRENT_USER = getBaseUserData().username; // Username is unique
 
 const FindPeer = () => {
