@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Question } from './schema/question.schema';
-import { CreateQuestionDto, GetQuestionsResponse } from './dto';
+import { CreateQuestionDto, GetQuestionsResponse, TestCase } from './dto';
 import { RpcException } from '@nestjs/microservices';
 import { QUESTION_CATEGORIES } from './constants/question-categories.constant';
 
@@ -144,6 +144,29 @@ export class AppService {
         .findOneAndUpdate(
           { _id: new Types.ObjectId(id) },
           { title, description, difficulty, categories },
+          { new: true },
+        )
+        .exec();
+
+      if (!updatedQuestion) {
+        throw new RpcException('Question not found');
+      }
+
+      return updatedQuestion;
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  async updateQuestionTestCases(
+    id: string,
+    testCases: TestCase[],
+  ): Promise<Question> {
+    try {
+      const updatedQuestion = await this.questionModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(id) },
+          { testCases },
           { new: true },
         )
         .exec();

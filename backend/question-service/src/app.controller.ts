@@ -8,6 +8,7 @@ import {
   GetQuestionsDto,
   UpdateQuestionDto,
   FindQuestionByIdDto,
+  UpdateQuestionTestCasesDto,
 } from './dto';
 
 @Controller()
@@ -52,6 +53,12 @@ export class AppController {
   async updateQuestion(@Payload() data: UpdateQuestionDto) {
     const { id, updatedQuestionInfo } = data;
     return this.appService.updateQuestion(id, updatedQuestionInfo);
+  }
+
+  @MessagePattern({ cmd: 'update-question-testcases' })
+  async updateQuestionTestCases(@Payload() data: UpdateQuestionTestCasesDto) {
+    const { id, testCases } = data;
+    return this.appService.updateQuestionTestCases(id, testCases);
   }
 
   @MessagePattern({ cmd: 'get-categories' })
