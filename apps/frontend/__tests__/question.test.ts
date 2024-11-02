@@ -85,6 +85,12 @@ const QUESTIONS = [
     }
 ]
 
+jest.mock("@/app/services/login-store", () => {
+    return {
+        __esModule: true,
+        getToken: jest.fn(() => TOKEN)
+    };
+})
 
 function createMockResponse(obj: any): Response {
     // @ts-ignore don't need the whole response
@@ -96,10 +102,6 @@ function createMockResponse(obj: any): Response {
 }
 
 const TOKEN = "mockjwttoken"
-
-beforeEach(() => {
-    window.localStorage["TOKEN"] = TOKEN
-})
 
 describe("GetQuestions", () => {
     beforeEach(() => {
