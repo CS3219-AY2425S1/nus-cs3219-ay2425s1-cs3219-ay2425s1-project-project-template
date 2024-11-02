@@ -18,7 +18,7 @@ const submitUserCode = async (
     req: CodeSubmissionRequest,
     res: Response,
 ): Promise<Response> => {
-    const { questionId, collaborators, code, language } = req.body
+    const { questionId, matchId, code, language } = req.body
 
     if (!questionId || !code || !language) {
         return res
@@ -112,7 +112,7 @@ const submitUserCode = async (
 
     try {
         const submission = new Submission({
-            collaborators,
+            matchId,
             questionId,
             code,
             language,
