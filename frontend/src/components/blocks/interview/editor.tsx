@@ -2,6 +2,7 @@ import { ChevronLeftIcon } from '@radix-ui/react-icons';
 import { useWindowSize } from '@uidotdev/usehooks';
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
+import { Bot, User } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -22,9 +23,11 @@ const MIN_EDITOR_HEIGHT = 350;
 
 type EditorProps = {
   room: string;
+  onAIClick: () => void;
+  onPartnerClick: () => void;
 };
 
-export const Editor = ({ room }: EditorProps) => {
+export const Editor = ({ room, onAIClick, onPartnerClick }: EditorProps) => {
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
   const {
@@ -43,7 +46,7 @@ export const Editor = ({ room }: EditorProps) => {
   }, [theme]);
 
   return (
-    <div className='flex flex-col gap-4 p-4'>
+    <div className='flex w-full flex-col gap-4 p-4'>
       {isLoading ? (
         <div className='flex h-[60px] w-full flex-row justify-between pt-3'>
           <div className='flex h-10 flex-row gap-4'>
@@ -104,6 +107,24 @@ export const Editor = ({ room }: EditorProps) => {
                 </div>
               ))}
             </div>
+            <Button
+              variant='outline'
+              size='sm'
+              className='group flex items-center !px-2 !py-1'
+              onClick={onAIClick}
+            >
+              <Bot className='mr-1 size-4' />
+              <span>AI Assistant</span>
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              className='group flex items-center !px-2 !py-1'
+              onClick={onPartnerClick}
+            >
+              <User className='mr-1 size-4' />
+              <span>Chat</span>
+            </Button>
             <Button variant='destructive' size='sm' className='group flex items-center !px-2 !py-1'>
               <ChevronLeftIcon className='transition-transform duration-200 ease-in-out group-hover:-translate-x-px' />
               <span>Disconnect</span>

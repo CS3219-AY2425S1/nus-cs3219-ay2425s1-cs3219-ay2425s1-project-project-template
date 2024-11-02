@@ -36,6 +36,8 @@ spec:
               value: http://collab-service:9003
             - name: VITE_MATCHING_SERVICE
               value: http://matching-service:9004
+            - name: VITE_CHAT_SERVICE
+              value: http://chat-service:9005
           command:
             - /bin/sh
             - -c
@@ -60,6 +62,11 @@ spec:
                 sleep 2
               done &
 
+              until wget --no-verboser --tries=1 --spider "$VITE_CHAT_SERVICE/health"; do
+                echo "Waiting for Chat Service"
+                sleep 2
+              done &
+
               wait
               echo "All services healthy"
       
@@ -81,6 +88,8 @@ spec:
               value: http://collab-service:9003
             - name: VITE_MATCHING_SERVICE
               value: http://matching-service:9004
+            - name: VITE_CHAT_SERVICE
+              value: http://chat-service:9005
           ports:
             - name: frontend-ctr
               containerPort: 3000
