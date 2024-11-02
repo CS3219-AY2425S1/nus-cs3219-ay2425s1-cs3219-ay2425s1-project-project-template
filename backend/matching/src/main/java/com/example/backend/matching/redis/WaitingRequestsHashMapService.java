@@ -18,15 +18,12 @@ public class WaitingRequestsHashMapService {
     }
 
     public String getAndRemoveWaitingRequest(String matchCriteriaKey) {
-        // Retrieve the value for the key
         String value = jedis.hget(WAITING_MATCH_REQUESTS, matchCriteriaKey);
 
-        // Remove the key from the hash map if it exists
         if (value != null) {
             jedis.hdel(WAITING_MATCH_REQUESTS, matchCriteriaKey);
         }
 
-        // Return the retrieved value
         return value;
     }
     

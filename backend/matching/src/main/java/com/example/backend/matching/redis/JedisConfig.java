@@ -11,6 +11,6 @@ public class JedisConfig {
 
     @Bean
     public Jedis jedis() {
-        return new Jedis(REDIS_HOST, REDIS_PORT); // Adjust host and port if needed
+        return new Jedis(REDIS_HOST, REDIS_PORT);
     }
 }
