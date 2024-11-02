@@ -1,26 +1,49 @@
 const WebSocket = require('ws');
 const server = new WebSocket.Server({ port: 8081 });
 
-server.on('connection', (socket) => {
-    console.log('New client connected');
+// Store the code for each session ID
+const sessionData = {};
 
+server.on('connection', (socket, request) => {
+    const sessionID = request.url.split('/').pop();
+
+    // Initialize session data if it doesn't exist
+    if (!sessionData[sessionID]) {
+        sessionData[sessionID] = { code: '' };
+    }
+
+    console.log(`Client connected to session: ${sessionID}`);
+
+    // Send the current code to the newly connected client
+    socket.send(JSON.stringify({ type: 'initialCode', content: sessionData[sessionID].code }));
+
+    // Handle incoming messages
     socket.on('message', (message) => {
-        // Ensure message is in string format
-        const stringMessage = typeof message === 'string' ? message : message.toString();
-        console.log('Received message:', stringMessage);
+        const parsedMessage = JSON.parse(message);
+        console.log(`Received message from session ${sessionID}:`, parsedMessage);
 
-        // Broadcast the message to all clients except the sender
-        server.clients.forEach((client) => {
-            if (client !== socket && client.readyState === WebSocket.OPEN) {
-                client.send(stringMessage); // Send as a string
-            }
-        });
+        if (parsedMessage.type === 'code') {
+            // Update the stored code for this session
+            sessionData[sessionID].code = parsedMessage.content;
+
+            // Broadcast the updated code to all clients in the session
+            server.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ type: 'code', content: parsedMessage.content }));
+                }
+            });
+        }
     });
 
-    socket.on('close', () => {
-        console.log('Client disconnected');
+    // Handle client disconnection
+    socket.on('close', (code, reason) => {
+        console.log(`Client disconnected from session: ${sessionID}, code: ${code}, reason: ${reason}`);
+        if (server.clients.size === 0) {
+            console.log(`All clients disconnected from session: ${sessionID}`);
+        }
     });
 
+    // Handle errors
     socket.on('error', (error) => {
         console.error('Socket error:', error);
     });
