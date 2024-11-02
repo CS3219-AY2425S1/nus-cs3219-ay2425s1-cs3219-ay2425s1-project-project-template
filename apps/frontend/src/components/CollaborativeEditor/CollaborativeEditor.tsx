@@ -1,5 +1,16 @@
 // Referenced from example in https://www.npmjs.com/package/y-codemirror.next
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  ForwardedRef,
+  forwardRef,
+  RefObject,
+  SetStateAction,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  MutableRefObject,
+} from "react";
 import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
@@ -19,9 +30,15 @@ interface CollaborativeEditorProps {
   user: string;
   collaborationId: string;
   language: string;
+  setMatchedUser: Dispatch<SetStateAction<string>>;
+  handleCloseCollaboration: (type: string) => void;
   providerRef: MutableRefObject<WebrtcProvider | null>;
-  matchedUser: string | undefined;
+  matchedUser: string;
   onCodeChange: (code: string) => void;
+}
+
+export interface CollaborativeEditorHandle {
+  endSession: () => void;
 }
 
 interface AwarenessUpdate {
@@ -31,6 +48,7 @@ interface AwarenessUpdate {
 }
 
 interface Awareness {
+  sessionEnded: boolean;
   user: {
     name: string;
     color: string;
@@ -54,199 +72,238 @@ export const usercolors = [
 export const userColor =
   usercolors[Math.floor(Math.random() * (usercolors.length - 1))];
 
-const CollaborativeEditor = (props: CollaborativeEditorProps) => {
-  const editorRef = useRef(null);
-  // const viewRef = useRef<EditorView | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState("JavaScript");
-  const [trigger, setTrigger] = useState(false);
+const CollaborativeEditor = forwardRef(
+  (
+    props: CollaborativeEditorProps,
+    ref: ForwardedRef<CollaborativeEditorHandle>
+  ) => {
+    const editorRef = useRef(null);
+    // const providerRef = useRef<WebrtcProvider | null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState("JavaScript");
+    let sessionEndNotified = false;
 
-  const languageConf = new Compartment();
+    const languageConf = new Compartment();
 
-  // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
-  const autoLanguage = EditorState.transactionExtender.of((tr) => {
-    if (!tr.docChanged) return null;
+    // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
+    const autoLanguage = EditorState.transactionExtender.of((tr) => {
+      if (!tr.docChanged) return null;
 
-    const snippet = tr.newDoc.sliceString(0, 100);
+      const snippet = tr.newDoc.sliceString(0, 100);
 
-    // Handle code change
-    props.onCodeChange(tr.newDoc.toString());
+      // Handle code change
+      props.onCodeChange(tr.newDoc.toString());
 
-    // Test for various language
-    const docIsPython = /^\s*(def|class)\s/.test(snippet);
-    const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
-      snippet
-    ); // Java has some problems
-    const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
-    const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
+      // Test for various language
+      const docIsPython = /^\s*(def|class)\s/.test(snippet);
+      const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
+        snippet
+      ); // Java has some problems
+      const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
+      const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
 
-    let newLanguage;
-    let languageType;
-    let languageLabel;
+      let newLanguage;
+      let languageType;
+      let languageLabel;
 
-    if (docIsPython) {
-      newLanguage = python();
-      languageLabel = "Python";
-      languageType = pythonLanguage;
-    } else if (docIsJava) {
-      newLanguage = java();
-      languageLabel = "Java";
-      languageType = javaLanguage;
-    } else if (docIsGo) {
-      newLanguage = go();
-      languageLabel = "Go";
-      languageType = goLanguage;
-    } else if (docIsCpp) {
-      newLanguage = cpp();
-      languageLabel = "C++";
-      languageType = cppLanguage;
-    } else {
-      newLanguage = javascript(); // Default to JavaScript
-      languageLabel = "JavaScript";
-      languageType = javascriptLanguage;
-    }
+      if (docIsPython) {
+        newLanguage = python();
+        languageLabel = "Python";
+        languageType = pythonLanguage;
+      } else if (docIsJava) {
+        newLanguage = java();
+        languageLabel = "Java";
+        languageType = javaLanguage;
+      } else if (docIsGo) {
+        newLanguage = go();
+        languageLabel = "Go";
+        languageType = goLanguage;
+      } else if (docIsCpp) {
+        newLanguage = cpp();
+        languageLabel = "C++";
+        languageType = cppLanguage;
+      } else {
+        newLanguage = javascript(); // Default to JavaScript
+        languageLabel = "JavaScript";
+        languageType = javascriptLanguage;
+      }
 
-    const stateLanguage = tr.startState.facet(language);
-    if (languageType == stateLanguage) return null;
+      const stateLanguage = tr.startState.facet(language);
+      if (languageType == stateLanguage) return null;
 
-    setSelectedLanguage(languageLabel);
+      setSelectedLanguage(languageLabel);
 
-    return {
-      effects: languageConf.reconfigure(newLanguage),
+      return {
+        effects: languageConf.reconfigure(newLanguage),
+      };
+    });
+
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const success = (message: string) => {
+      messageApi.open({
+        type: "success",
+        content: message,
+      });
     };
-  });
 
-  const [messageApi, contextHolder] = message.useMessage();
+    const info = (message: string) => {
+      messageApi.open({
+        type: "info",
+        content: message,
+      });
+    };
 
-  const success = (message: string) => {
-    messageApi.open({
-      type: "success",
-      content: message,
-    });
-  };
+    const error = (message: string) => {
+      messageApi.open({
+        type: "error",
+        content: message,
+      });
+    };
 
-  const error = (message: string) => {
-    messageApi.open({
-      type: "error",
-      content: message,
-    });
-  };
+    const warning = (message: string) => {
+      messageApi.open({
+        type: "warning",
+        content: message,
+      });
+    };
 
-  const warning = (message: string) => {
-    messageApi.open({
-      type: "warning",
-      content: message,
-    });
-  };
+    useImperativeHandle(ref, () => ({
+      endSession: () => {
+        if (props.providerRef.current) {
+          // Set awareness state to indicate session ended to notify peer about session ending
+          props.providerRef.current.awareness.setLocalStateField(
+            "sessionEnded",
+            true
+          );
+          success("Session ended. All participants will be notified.");
+        }
+      },
+    }));
 
-  // const handleLanguageChange = (val: any) => {
-  //   console.log("came in here");
-  //   console.log(val);
-  //   setSelectedLanguage(val);
+    useEffect(() => {
+      if (process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL === undefined) {
+        error("Missing Signalling Service Url");
+        return;
+      }
 
-  //   let languageExtension;
-  //   switch (val) {
-  //     case "python":
-  //       languageExtension = python();
-  //       break;
-  //     default:
-  //       languageExtension = javascript();
-  //   }
+      const ydoc = new Y.Doc();
+      const provider = new WebrtcProvider(props.collaborationId, ydoc, {
+        signaling: [process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL],
+        maxConns: 2,
+      });
 
-  //   // Update the language configuration
-  //   if (viewRef.current) {
-  //     console.log("insude here");
-  //     viewRef.current.dispatch({
-  //       effects: languageConf.reconfigure(languageExtension),
-  //     });
-  //   }
-  // };
+      props.providerRef.current = provider;
+      const ytext = ydoc.getText("codemirror");
+      const undoManager = new Y.UndoManager(ytext);
 
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL === undefined) {
-      error("Missing Signalling Service Url");
-      return;
-    }
+      provider.awareness.setLocalStateField("user", {
+        name: props.user,
+        color: userColor.color,
+        colorLight: userColor.light,
+      });
 
-    const ydoc = new Y.Doc();
-    const provider = new WebrtcProvider(props.collaborationId, ydoc, {
-      signaling: [process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL],
-    });
-    props.providerRef.current = provider;
-    const ytext = ydoc.getText("codemirror");
-    const undoManager = new Y.UndoManager(ytext);
+      // Check initial awareness states
+      const states = provider.awareness.getStates();
+      for (const [clientID, state] of Array.from(states)) {
+        if (state.user && state.user.name !== props.user) {
+          props.setMatchedUser(state.user.name);
+          break;
+        }
+      }
 
-    provider.awareness.setLocalStateField("user", {
-      name: props.user,
-      color: userColor.color,
-      colorLight: userColor.light,
-    });
+      // Listen for awareness changes
+      provider.awareness.on("change", () => {
+        const updatedStates = provider.awareness.getStates();
+        for (const [clientID, state] of Array.from(updatedStates)) {
+          if (state.sessionEnded && state.user.name !== props.user) {
+            if (!sessionEndNotified) {
+              info(
+                `Session has been ended by another participant ${state.user.name}`
+              );
 
-    // Listener for awareness updates to receive status changes from peers
-    provider.awareness.on("update", ({ added, updated } : AwarenessUpdate) => {
-      added.concat(updated).filter(clientId => clientId !== provider.awareness.clientID).forEach((clientID) => {
-        const state = provider.awareness.getStates().get(clientID) as Awareness;
-        if (state && state.codeSavedStatus) {
-          // Display the received status message
-          messageApi.open({
-            type: "success",
-            content: `${props.matchedUser ?? "Peer"} saved code successfully!`,
-          });
+              props.handleCloseCollaboration("peer");
+              sessionEndNotified = true;
+              if (props.providerRef.current) {
+                props.providerRef.current.disconnect();
+              }
+              return;
+            }
+          }
+
+          if (state.user && state.user.name !== props.user) {
+            props.setMatchedUser(state.user.name);
+            break;
+          }
         }
       });
-    });
 
-    const state = EditorState.create({
-      doc: ytext.toString(),
-      extensions: [
-        basicSetup,
-        languageConf.of(javascript()),
-        autoLanguage,
-        yCollab(ytext, provider.awareness, { undoManager }),
-      ],
-    });
+      // Listener for awareness updates to receive status changes from peers
+      provider.awareness.on("update", ({ added, updated }: AwarenessUpdate) => {
+        added
+          .concat(updated)
+          .filter((clientId) => clientId !== provider.awareness.clientID)
+          .forEach((clientID) => {
+            const state = provider.awareness
+              .getStates()
+              .get(clientID) as Awareness;
+            if (state && state.codeSavedStatus && !state.sessionEnded) {
+              // Display the received status message
+              messageApi.open({
+                type: "success",
+                content: `${
+                  props.matchedUser ?? "Peer"
+                } saved code successfully!`,
+              });
+            }
+          });
+      });
 
-    const view = new EditorView({
-      state,
-      parent: editorRef.current || undefined,
-    });
+      const state = EditorState.create({
+        doc: ytext.toString(),
+        extensions: [
+          basicSetup,
+          languageConf.of(javascript()),
+          autoLanguage,
+          yCollab(ytext, provider.awareness, { undoManager }),
+        ],
+      });
 
-    // viewRef.current = new EditorView({
-    //   state: state,
-    //   parent: editorRef.current || undefined,
-    // });
+      const view = new EditorView({
+        state,
+        parent: editorRef.current || undefined,
+      });
 
-    return () => {
-      // Cleanup on component unmount
-      console.log("unmounting collaboration editor"); // TODO: remove
-      view.destroy();
-      // viewRef.current?.destroy();
-      provider.disconnect();
-      ydoc.destroy();
-    };
-  }, []);
+      return () => {
+        // Cleanup on component unmount
+        view.destroy();
+        provider.disconnect();
+        ydoc.destroy();
+      };
+    }, []);
 
-  return (
-    <>
-      {contextHolder}
-      <div className="code-second-container">
-        <div className="code-language">Select Language:</div>
-        <Select
-          className="language-select"
-          defaultValue={selectedLanguage}
-          options={ProgrammingLanguageOptions}
-          onSelect={(val) => setSelectedLanguage(val)}
-          disabled
+    return (
+      <>
+        {contextHolder}
+        <div className="code-second-container">
+          <div className="code-language">Select Language:</div>
+          <Select
+            className="language-select"
+            defaultValue={selectedLanguage}
+            options={ProgrammingLanguageOptions}
+            onSelect={(val) => setSelectedLanguage(val)}
+            disabled
+          />
+        </div>
+        <div
+          ref={editorRef}
+          style={{ height: "400px", border: "1px solid #ddd" }}
         />
-      </div>
-      <div
-        ref={editorRef}
-        style={{ height: "400px", border: "1px solid #ddd" }}
-      />
-      <div className="language-detected">
-        <strong>Current Language Detected: </strong> {selectedLanguage}
-      </div>
-    </>
-  );
-};
+        <div className="language-detected">
+          <strong>Current Language Detected: </strong> {selectedLanguage}
+        </div>
+      </>
+    );
+  }
+);
 
 export default CollaborativeEditor;

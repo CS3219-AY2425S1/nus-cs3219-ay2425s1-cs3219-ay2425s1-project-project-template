@@ -47,33 +47,7 @@ export default function QuestionPage() {
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [selectedItem, setSelectedItem] = useState("python"); // State to hold the selected language item
-
-  // used to check if user JWT is verified
-
-  const [userId, setUserId] = useState<string | undefined>(undefined);
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [username, setUsername] = useState<string | undefined>(undefined);
-  const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
-
-  useLayoutEffect(() => {
-    var isAuth = false;
-
-    ValidateUser()
-      .then((data: VerifyTokenResponseType) => {
-        setUserId(data.data.id);
-        setEmail(data.data.email);
-        setUsername(data.data.username);
-        setIsAdmin(data.data.isAdmin);
-        isAuth = true;
-      })
-      .finally(() => {
-        if (!isAuth) {
-          // cannot verify
-          router.push("/login"); // Client-side redirect using router.push
-        }
-      });
-  }, [router]);
-
+  
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
     if (!isLoading) {
@@ -102,10 +76,10 @@ export default function QuestionPage() {
                     <h3 className="problem-description-title">
                       {questionTitle}
                     </h3>
-                    <text className="problem-solve-status">
+                    <span className="problem-solve-status">
                       Solved&nbsp;
                       <CheckCircleOutlined />
-                    </text>
+                    </span>
                   </div>
                   <div className="complexity-div">
                     <Tag
@@ -125,13 +99,13 @@ export default function QuestionPage() {
                     </Tag>
                   </div>
                   <div id="tag-container" className="tag-container">
-                    <text className="topic-label">Topics: </text>
+                    <span className="topic-label">Topics: </span>
                     {categories.map((category) => (
                       <Tag key={category}>{category}</Tag>
                     ))}
                   </div>
                   <div className="description-text">
-                    <text>{description}</text>
+                    <span>{description}</span>
                   </div>
                 </div>
               </Row>
@@ -174,9 +148,9 @@ export default function QuestionPage() {
                   </div>
                   <div className="language-select">
                     <div>
-                      <text className="language-text">
+                      <span className="language-text">
                         Select Language:&nbsp;
-                      </text>
+                      </span>
                       <Select
                         className="select-language-button"
                         defaultValue={selectedItem}
@@ -206,15 +180,15 @@ export default function QuestionPage() {
                   </div>
                   <div className="session-details-text-div">
                     <div className="session-details-text">
-                      <text className="session-headers">Start Time: </text>
+                      <span className="session-headers">Start Time: </span>
                       01:23:45
                       <br />
-                      <text className="session-headers">
+                      <span className="session-headers">
                         Session Duration:{" "}
-                      </text>
+                      </span>
                       01:23:45
                       <br />
-                      <text className="session-headers">Matched with: </text>
+                      <span className="session-headers">Matched with: </span>
                       John Doe
                     </div>
                   </div>
