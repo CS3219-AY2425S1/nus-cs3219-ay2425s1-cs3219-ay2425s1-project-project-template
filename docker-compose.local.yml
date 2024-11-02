@@ -22,7 +22,7 @@ services:
             - matching-service
         command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     
-    server:
+    judgezero-server:
         image: judge0/judge0:1.13.1
         volumes:
             - ./judge0.conf:/judge0.conf:ro
@@ -31,12 +31,12 @@ services:
         privileged: true
         restart: always
         depends_on:
-            db:
+            judgezero-db:
                 condition: service_healthy
-            redis:
+            judgezero-redis:
                 condition: service_healthy
 
-    workers:
+    judgezero-workers:
         image: judge0/judge0:1.13.1
         command: ["./scripts/workers"]
         volumes:
@@ -44,16 +44,16 @@ services:
         privileged: true
         restart: always
         depends_on:
-            db:
+            judgezero-db:
                 condition: service_healthy
-            redis:
+            judgezero-redis:
                 condition: service_healthy
 
-    db:
+    judgezero-db:
         image: postgres:16.2
         env_file: judge0.conf
         volumes:
-            - judge0_data:/var/lib/postgresql/data/
+            - judgezero_data:/var/lib/postgresql/data/
         restart: always
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -61,7 +61,7 @@ services:
             retries: 5
             start_period: 5s
 
-    redis:
+    judgezero-redis:
         image: redis:7.2.4
         command: [
             "bash", "-c",
@@ -195,7 +195,7 @@ volumes:
     matching_data:
     rabbitmq_data:
     rabbitmq_log:
-    judge0_data:
+    judgezero_data:
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
