@@ -12,12 +12,7 @@ import {
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuPortal,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -109,15 +104,15 @@ const Navbar: React.FC = () => {
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuGroup>
-                                        <DropdownMenuItem onSelect={navigateToProfile}>
+                                        <DropdownMenuItem className="cursor-pointer" onSelect={navigateToProfile}>
                                             Profile
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={navigateToProfile}>
+                                        <DropdownMenuItem className="cursor-pointer" onSelect={navigateToProfile}>
                                             History
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onSelect={handleLogout}>
+                                    <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>
                                         Log out
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
