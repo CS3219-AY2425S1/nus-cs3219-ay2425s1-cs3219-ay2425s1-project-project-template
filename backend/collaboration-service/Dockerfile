@@ -15,6 +15,7 @@ COPY . .
 
 # Expose the port the app runs on
 EXPOSE 8080
+EXPOSE 2501
 
 # Run the app using ts-node
 CMD ["npx", "ts-node", "app.ts"]

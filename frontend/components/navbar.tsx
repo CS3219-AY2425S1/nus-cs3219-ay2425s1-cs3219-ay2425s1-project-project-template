@@ -29,6 +29,7 @@ export const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useUser();
+  const isAdmin = user?.isAdmin || false;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { mutate: logout } = useLogout();
@@ -41,6 +42,8 @@ export const Navbar: React.FC = () => {
       },
     });
   };
+
+  const config = siteConfig(isAdmin);
 
   useEffect(() => {
     if (user) {
@@ -63,7 +66,7 @@ export const Navbar: React.FC = () => {
         {/* Display Links to Pages only when logged in */}
         {isLoggedIn && (
           <div className="hidden lg:flex gap-4 justify-start ml-2">
-            {siteConfig.navItems.map((item) => {
+            {config.navItems.map((item) => {
               const isActive = pathname === item.href;
 
               return (
@@ -82,7 +85,7 @@ export const Navbar: React.FC = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <Link isExternal href={siteConfig.links.github} title="GitHub">
+        <Link isExternal href={config.links.github} title="GitHub">
           <GithubIcon className="text-default-500" />
         </Link>
         <ThemeSwitch />

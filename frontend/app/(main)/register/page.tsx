@@ -10,7 +10,7 @@ import { useRegister } from "@/hooks/api/auth";
 
 const RegisterPage = () => {
   const router = useRouter();
-  const { mutate: register, isPending, isError, error } = useRegister();
+  const { mutate: register, isPending } = useRegister();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const handleRegister = (
@@ -39,7 +39,7 @@ const RegisterPage = () => {
     <div className="flex items-start justify-center pt-[5vh]">
       <Card className="w-full max-w-lg p-8">
         <h2 className="text-3xl font-semibold text-center">
-          Welcome to Peerprep!
+          Welcome to PeerPrep!
         </h2>
 
         <RegistrationForm onSubmit={handleRegister} />

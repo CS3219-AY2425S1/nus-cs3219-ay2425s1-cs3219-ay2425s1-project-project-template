@@ -1,19 +1,24 @@
+import "react-toastify/dist/ReactToastify.css";
+
 import type { Metadata, Viewport } from "next";
 
 import clsx from "clsx";
 
-import { Providers } from "@/app/providers";
+import Providers from "@/app/providers";
+import { SocketProvider } from "@/context/SockerIOContext";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 import "@/styles/globals.css";
 import { Navbar } from "@/components/navbar";
 
+const config = siteConfig(false);
+
 export const metadata: Metadata = {
-  title: siteConfig.name,
-  description: siteConfig.description,
+  title: config.name,
+  description: config.description,
   openGraph: {
-    title: siteConfig.name,
-    description: siteConfig.description,
+    title: config.name,
+    description: config.description,
   },
   icons: {
     icon: "/favicon.ico",
@@ -44,8 +49,8 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
             <Navbar />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-              {children}
+            <main className="container mx-auto max-w-9xl pt-4 px-4 flex-grow">
+              <SocketProvider>{children}</SocketProvider>
             </main>
             <footer className="w-full flex items-center justify-center py-3">
               <p>PeerPrep built by Group 47</p>
