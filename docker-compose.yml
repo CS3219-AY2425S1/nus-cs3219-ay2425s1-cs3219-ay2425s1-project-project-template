@@ -10,7 +10,7 @@ services:
       - REACT_APP_USER_SVC_PORT=${USER_SVC_PORT}
       - REACT_APP_QUESTION_SVC_PORT=${QUESTION_SVC_PORT}
       - REACT_APP_MATCHING_SVC_PORT=${MATCHING_SVC_PORT}
-      - REACT_APP_PISTON_PORT=${PISTON_PORT}
+      - REACT_APP_CODE_EXECUTION_SVC_PORT=${TORK_CLIENT_ENDPOINT}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -18,7 +18,7 @@ services:
       - user-service
       - question-service
       - matching-service
-      - piston
+      - code-execution-service
 
   user-service:
     build:
@@ -69,50 +69,15 @@ services:
     container_name: redis-container
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
-  
-  # piston:
-  #   image: ghcr.io/engineer-man/piston
-  #   container_name: piston-server
-  #   platform: linux/amd64            # Image built for amd64
-  #   restart: unless-stopped
-  #   ports:
-  #     - ${PISTON_PORT}:${PISTON_PORT}
-  #   volumes:
-  #     - ./piston/packages:/piston/packages
-  #   environment:
-  #     - PISTON_DISABLE_NETWORKING=1
-  #   command: >
-  #     sh -c "
-  #       git clone https://github.com/engineer-man/piston.git /piston &&
-  #       cd /piston/cli && npm i && cd - &&
-  #       /piston/cli/index.js ppman install python=3.10.0 javascript=18.15.0 typescript=5.0.3 java=15.0.2 csharp=6.12.0 php=8.2.3
-  #     "
 
-  piston_api:
-    image: ghcr.io/engineer-man/piston:latest
-    container_name: piston_api
-    privileged: true
+  code-execution-service:
+    build:
+      context: ./backend/CodeExecutionService
     ports:
-      - "${PISTON_PORT}:${PISTON_PORT}"
-    volumes:
-      - $PWD:/piston
+      - ${TORK_CLIENT_ENDPOINT}:${TORK_CLIENT_ENDPOINT}
     environment:
-      - PISTON_DISABLE_NETWORKING=1
-      - PISTON_PORT=${PISTON_PORT}
+      - TORK_COORDINATOR_ADDRESS=${TORK_COORDINATOR_ADDRESS}
 
-  piston_cli:
-    image: node:14
-    container_name: piston_cli
-    depends_on:
-      - piston_api
     volumes:
-      - $PWD:/piston
-    command: >
-      sh -c "
-        apt-get update && apt-get install -y git &&
-        git clone https://github.com/engineer-man/piston.git /piston &&
-        cd /piston/cli && npm i && cd - &&
-        /piston/cli/index.js -u http://piston_api:${PISTON_PORT} ppman install python=3.10.0 javascript=18.15.0 typescript=5.0.3 java=15.0.2 csharp=6.12.0 php=8.2.3
-      "
-    environment:
-      - PISTON_PORT=${PISTON_PORT}
+      - ./backend/CodeExecutionService:/app
+      - /var/run/docker.sock:/var/run/docker.sock

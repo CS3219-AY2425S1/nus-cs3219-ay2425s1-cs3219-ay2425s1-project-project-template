@@ -11,7 +11,7 @@ interface OutputProps {
 }
 
 const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
-  const [output, setOutput] = useState([]);
+  const [output, setOutput] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
     if (!sourceCode) return;
     try {
       setLoading(true);
-      const { run: result } = await executeCode(language, sourceCode);
+      const result = await executeCode(language, sourceCode);
       setOutput(result.output.split("\n"));
       result.stderr ? setIsError(true) : setIsError(false);
     } catch (error) {
