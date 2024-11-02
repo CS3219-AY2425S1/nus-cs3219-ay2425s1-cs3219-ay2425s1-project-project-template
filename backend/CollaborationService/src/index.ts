@@ -4,6 +4,9 @@ import * as http from "http";
 import { ChangeSet, Text } from "@codemirror/state";
 import { Update } from "@codemirror/collab";
 import express from "express";
+import Redis from "ioredis";
+import { createAdapter } from "@socket.io/redis-adapter";
+import "dotenv/config";
 
 const app = express();
 const server = http.createServer(app);
@@ -12,30 +15,73 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World from Collaboration Service!");
 });
 
-// The updates received so far (updates.length gives the current
-// version)
-let updates: Update[] = [];
-// The current document
-let doc = Text.of(["Start document"]);
-let pending: ((value: any) => void)[] = [];
+// using ioredis for socket.io due to problems stated in documentation for socket io adapter
+const redisClient = new Redis(process.env.REDIS_URL || "");
+
+redisClient.on("connect", () => {
+  console.log("Connected to Redis:", process.env.REDIS_URL);
+});
+
+// create redis adapter for socket.io for horizontal scaling
+const subClient = redisClient.duplicate();
+const pubClient = redisClient.duplicate();
+
+// functions to update redis storage
 
 let io = new Server(server, {
   path: "/api",
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
   },
+  adapter: createAdapter(pubClient, subClient),
 });
+
+// The updates received so far (updates.length gives the current
+// version)
+let roomUpdates: { [key: string]: Update[] } = {};
+
+// The current document
+let roomDocs: { [key: string]: Text } = {};
+
+// store pull update requests when version is newer than current
+let pending: ((value: any) => void)[] = [];
 
 // listening for connections from clients
 io.on("connection", (socket: Socket) => {
-  console.log("new connection");
+  const roomId = socket.handshake.query.roomId;
+
+  if (
+    roomId === null ||
+    roomId === undefined ||
+    roomId === "" ||
+    typeof roomId !== "string"
+  ) {
+    socket.disconnect();
+    return;
+  }
+
+  socket.join(roomId);
+
+  if (!roomUpdates[roomId]) {
+    roomUpdates[roomId] = [];
+  }
+
+  if (!roomDocs[roomId]) {
+    roomDocs[roomId] = Text.of(["Start document"]);
+  }
+
+  console.log("roomUpdates", roomDocs[roomId].toString());
+
   socket.on("pullUpdates", (version: number) => {
-    if (version < updates.length) {
-      socket.emit("pullUpdateResponse", JSON.stringify(updates.slice(version)));
+    if (version < roomUpdates[roomId].length) {
+      socket.emit(
+        "pullUpdateResponse",
+        JSON.stringify(roomUpdates[roomId].slice(version))
+      );
     } else {
       pending.push((updates) => {
         socket.emit(
@@ -50,19 +96,19 @@ io.on("connection", (socket: Socket) => {
     docUpdates = JSON.parse(docUpdates);
 
     try {
-      if (version != updates.length) {
+      if (version != roomUpdates[roomId].length) {
         socket.emit("pushUpdateResponse", false);
       } else {
         for (let update of docUpdates) {
           // Convert the JSON representation to an actual ChangeSet
           // instance
           let changes = ChangeSet.fromJSON(update.changes);
-          updates.push({ changes, clientID: update.clientID });
-          doc = changes.apply(doc);
+          roomUpdates[roomId].push({ changes, clientID: update.clientID });
+          roomDocs[roomId] = changes.apply(roomDocs[roomId]);
         }
         socket.emit("pushUpdateResponse", true);
 
-        while (pending.length) pending.pop()!(updates);
+        while (pending.length) pending.pop()!(roomUpdates[roomId]);
       }
     } catch (error) {
       console.error(error);
@@ -70,7 +116,11 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("getDocument", () => {
-    socket.emit("getDocumentResponse", updates.length, doc.toString());
+    socket.emit(
+      "getDocumentResponse",
+      roomUpdates[roomId].length,
+      roomDocs[roomId].toString()
+    );
   });
 });
 

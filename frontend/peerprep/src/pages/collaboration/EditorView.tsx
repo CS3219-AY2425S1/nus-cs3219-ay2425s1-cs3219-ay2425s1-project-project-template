@@ -31,31 +31,13 @@ const EditorView: React.FC = () => {
       return;
     }
 
-    socketRef.current = io("http://localhost:8000/", {
+    socketRef.current = io("http://localhost:3004/", {
       path: "/api",
       query: { roomId },
     });
     const socket = socketRef.current;
 
     if (socket === null) return;
-
-    socket.on("connect", () => {
-      setSocketId(socket.id);
-      socket.emit("joinQueue", { username: user?.username, topic, difficulty });
-    });
-
-    socket.on("matched", (data: { message: string; room: string }) => {
-      setRoom(data.room);
-      setIsMatched(true);
-    });
-
-    socket.on("queueEntered", (data: { message: string }) => {
-      console.log("queue entered", data);
-    });
-
-    socket.on("matchFailed", (data: { error: string }) => {
-      console.log("Match failed:", data.error);
-    });
 
     socket.on("assignSocketId", (data: { socketId: string }) => {
       console.log("Socket ID assigned:", data.socketId); // Log when the socket ID is assigned
@@ -85,11 +67,6 @@ const EditorView: React.FC = () => {
         }
       }
     );
-
-    // Listen for incoming code changes
-    socket.on("codeChange", (newCode: string) => {
-      setCode(newCode);
-    });
 
     // Listen for language changes
     socket.on("languageChange", (newLanguage: string) => {
