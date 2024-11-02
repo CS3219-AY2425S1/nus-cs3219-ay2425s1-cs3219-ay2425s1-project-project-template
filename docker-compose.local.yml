@@ -22,6 +22,43 @@ services:
             - matching-service
         command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
 
+    server:
+        image: judge0/judge0:1.13.1
+        volumes:
+            - ./judge0.conf:/judge0.conf:ro
+        ports:
+            - "2358:2358" # Port for j0 api calls
+        privileged: true
+        # <<: *default-logging
+        restart: always
+
+    workers:
+        image: judge0/judge0:1.13.1
+        command: ["./scripts/workers"]
+        volumes:
+            - ./judge0.conf:/judge0.conf:ro
+        privileged: true
+        # <<: *default-logging
+        restart: always
+
+    db:
+        image: postgres:16.2
+        env_file: judge0.conf
+        volumes:
+            - judge0_data:/var/lib/postgresql/data/
+        # <<: *default-logging
+        restart: always
+
+    redis:
+        image: redis:7.2.4
+        command: [
+            "bash", "-c",
+            'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"'
+        ]
+        env_file: judge0.conf
+        # <<: *default-logging
+        restart: always
+
     matching-service:
         container_name: matching-service
         build:
@@ -142,6 +179,7 @@ volumes:
     matching_data:
     rabbitmq_data:
     rabbitmq_log:
+    judge0_data:
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
