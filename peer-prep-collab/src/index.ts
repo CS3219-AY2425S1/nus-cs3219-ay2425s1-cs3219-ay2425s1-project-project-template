@@ -33,7 +33,7 @@ const startConsume = async<T>(onMessage: (message: Message) => void) => {
 
 // To implement generation of session URL @LYNETTE @YUANTING -
 function onMessage(message: any) {
-  console.log(message.sessionId) 
+  console.log("Session id: ", message.sessionId) 
 }
 
 
