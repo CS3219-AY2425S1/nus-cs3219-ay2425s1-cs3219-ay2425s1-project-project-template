@@ -4,7 +4,10 @@
     <h2>WHERE YOU FIND YOUR MATCH, MASTER THE CHALLENGE</h2>
     <div *ngIf="!isLoggedIn()" class="button-container">
       <button (click)="goToLoginPage()" class="home-button">
-        Login / Create account
+        Login
+      </button>
+      <button (click)="goToCreateAccountPage()" class="home-button">
+        Create account
       </button>
     </div>
   </div>

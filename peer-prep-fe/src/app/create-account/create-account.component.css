@@ -71,6 +71,10 @@ input.ng-valid.ng-touched {
   z-index: -2;
 }
 
+.submit:hover {
+  background-color: yellow;
+}
+
 button:disabled {
   background-color: grey;
   cursor: not-allowed;
