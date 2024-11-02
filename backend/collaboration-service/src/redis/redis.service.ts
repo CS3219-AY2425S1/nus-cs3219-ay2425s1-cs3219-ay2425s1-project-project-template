@@ -37,6 +37,7 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
   async getCollabSessionData(matchId: string): Promise<any> {
     const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
     const data = await this.redis.get(key);
+    this.logger.log(`data from collab redis of matchId ${matchId}: ${data}`);
 
     return data ? JSON.parse(data) : null;
   }
@@ -62,9 +63,15 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
 
   async getCollabQuestion(matchId: string): Promise<any> {
     const value = await this.getCollabSessionData(matchId);
-    const question = value.question;
+    if (value) {
+      return {
+        question: value.question || null,
+        topic: value.topic || null,
+        difficulty: value.difficulty || null,
+      };
+    }
 
-    return question ? question : null;
+    return { question: null, topic: null, difficulty: null };
   }
 
   async getQuestionIds(matchId: string): Promise<string[]> {
@@ -112,4 +119,16 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
     const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
     await this.redis.del(key);
   }
+
+  // async removeWebSocketId(matchId: string, webSocketId: string): Promise<void> {
+  //   const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
+  //   const value = await this.getCollabSessionData(matchId);
+  //   if (value) {
+  //     value.webSockets = value.webSockets.filter(
+  //       (id: any) => id !== webSocketId,
+  //     );
+  //     this.logger.debug(value.webSockets);
+  //     await this.redis.set(key, JSON.stringify(value));
+  //   }
+  // }
 }

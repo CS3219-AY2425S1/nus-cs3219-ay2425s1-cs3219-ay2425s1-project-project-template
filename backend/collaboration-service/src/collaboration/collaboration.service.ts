@@ -86,4 +86,8 @@ export class CollabService {
 
     return initQuestion;
   }
+
+  // async handleDisconnect(matchId: string, webSocketId: string): Promise<void> {
+  //   await this.collabRedisService.removeWebSocketId(matchId, webSocketId);
+  // }
 }

@@ -38,6 +38,7 @@ export class CollabGateway implements OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected from collab service: ${client.id}`);
+    // this.collabService.handleDisconnect(client.data.matchId, client.id);
   }
 
   @SubscribeMessage('joinCollabSession')
@@ -53,6 +54,7 @@ export class CollabGateway implements OnGatewayDisconnect {
       if (!data.matchId) {
         throw new WsException('MatchId is missing');
       }
+      client.data.matchId = data.matchId;
 
       await this.collabService.registerWSToSession(data.matchId, client.id);
       const questionData = await this.collabService.getSessionQuestion(
@@ -64,7 +66,7 @@ export class CollabGateway implements OnGatewayDisconnect {
       } else {
         client.emit('newQuestionError', {
           message:
-            'No questions with the specified parameters. Please try again with different parameters.',
+            'No questions with the specified parameters. Please try again with different parameters (BUT THIS SHOULD NOT HAPPEN, USE ALGO + EASY).',
           timestamp: new Date().toISOString(),
         });
       }
@@ -101,9 +103,13 @@ export class CollabGateway implements OnGatewayDisconnect {
       if (newQuestion) {
         const webSocketIds =
           await this.collabService.getCollabSessionWebSockets(matchId);
+        const dataToSend = await this.collabService.getSessionQuestion(
+          data.matchId,
+        );
+
         this.logger.debug(webSocketIds);
         for (const ids of webSocketIds) {
-          this.server.to(ids).emit('question', newQuestion);
+          this.server.to(ids).emit('question', dataToSend);
           this.logger.log(`New question sent to ${ids}`);
         }
         this.logger.log(`New question sent for session: ${matchId}`);
