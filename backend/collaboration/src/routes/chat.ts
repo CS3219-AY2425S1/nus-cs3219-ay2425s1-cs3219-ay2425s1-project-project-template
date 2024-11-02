@@ -4,6 +4,6 @@ import { queryOpenAI } from '@/controller/openai-controller';
 
 const router = express.Router();
 
-router.get('/chat', queryOpenAI);
+router.post('/chat', queryOpenAI);
 
 export default router;

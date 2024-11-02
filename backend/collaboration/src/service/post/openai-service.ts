@@ -17,7 +17,10 @@ export async function getOpenAIResponse(messages: OpenAIMessage[]) {
         {
           role: 'system',
           content:
-            'You are a helpful coding assistant. You are helping a user with a coding problem. Provide tips to the user on solving the problem but do not provide the solution directly.',
+            `You are a helpful coding assistant. ` +
+            `You are helping a user with a coding problem. ` +
+            `Provide tips to the user on solving the problem ` +
+            `but do NOT provide the solution directly.`,
         },
         ...messages,
       ],
@@ -26,7 +29,7 @@ export async function getOpenAIResponse(messages: OpenAIMessage[]) {
     if (response.choices && response.choices[0].message) {
       return {
         success: true,
-        data: response.choices[0].message.content,
+        message: response.choices[0].message.content,
       };
     } else {
       throw new Error('No valid response from OpenAI');

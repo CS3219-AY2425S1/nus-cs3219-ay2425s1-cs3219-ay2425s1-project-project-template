@@ -39,6 +39,7 @@ app.use(
   })
 );
 
+app.use('/ai', aiChatRoutes);
 app.use('/room', roomRoutes);
 
 // Health Check for Docker
@@ -55,8 +56,6 @@ export const dbHealthCheck = async () => {
     exit(1);
   }
 };
-
-app.post('/ai', aiChatRoutes);
 
 // Ensure DB service is up before running.
 app.get('/test-db', async (_req, res) => {
