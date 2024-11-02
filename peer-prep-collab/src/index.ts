@@ -1,4 +1,6 @@
 import amqp, { Channel, Connection, ConsumeMessage, Message } from "amqplib"
+import { createCollaborationService } from "./services/collaboration.services"
+import { initiateCollaboration, startCollaboration } from "./controllers/collaboration.controller"
 
 let channel: Channel
 
@@ -31,9 +33,36 @@ const startConsume = async (onMessage: (message: Message) => void) => {
 }
 
 // To implement generation of session URL @LYNETTE @YUANTING -
-function onMessage(message: any) {
+async function onMessage(message: any) {
+  
   console.log("Session id: ", message.sessionId) 
+
+  const { matchedUsers, sessionId } = message;
+  const { finalDifficulty, finalCategory } = processPreferences(matchedUsers);
+
+  // creates collaboration service 
+  await initiateCollaboration(sessionId, finalDifficulty, finalCategory);
+
 }
 
+function processPreferences(matchedUsers: any): { finalDifficulty: string, finalCategory: string } {
+
+  const difficulty1 = matchedUsers[0].difficulty;
+  const difficulty2 = matchedUsers[1].difficulty;
+
+  // return medium difficulty if they are different
+  const finalDifficulty = difficulty1 === difficulty2 ? difficulty1 : "medium";
+
+  const category1 = matchedUsers[0].topic;
+  const category2 = matchedUsers[1].topic;
+
+  // return any category if they are different
+  console.log("PROCESSING PREFERENCE - category1: ", category1);
+  console.log("PROCESSING PREFERENCE - category2: ", category2);
+  const finalCategory = category1 === category2 ? category1 : "";
+
+  return { finalDifficulty, finalCategory };
+
+}
 
 export const initConsumer = () => startConsume(onMessage)

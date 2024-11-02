@@ -37,6 +37,7 @@ export class MatchModalComponent implements OnInit {
   otherUserId: string = '';
   otherCategory: string = '';
   otherDifficulty: string = '';
+  collabSessionId: string = '';
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -89,18 +90,19 @@ export class MatchModalComponent implements OnInit {
 
     // TODO (in BE too): UI if matching process gets disrupted (e.g. rabbitmq server goes down) - avoid silent failures
     if (response.timeout) {
-      this.handleMatchResponse(response);
+      this.handleMatchResponseUi(response);
     } else {
       const isUser1 = response.matchedUsers[0].user_id === this.userId;
       this.otherCategory = isUser1 ? response.matchedUsers[1].topic : response.matchedUsers[0].topic;
       this.otherDifficulty = isUser1? response.matchedUsers[1].difficulty : response.matchedUsers[0].difficulty;
       this.otherUsername = isUser1 ? response.matchedUsers[1].username : response.matchedUsers[0].username;
+      this.collabSessionId = response.sessionId;
       // console.log('otherUsername', this.otherUsername);
-      this.handleMatchResponse(response);
+      this.handleMatchResponseUi(response);
     }
   }
 
-  handleMatchResponse(response: MatchResponse) {
+  handleMatchResponseUi(response: MatchResponse) {
     console.log('response', response);
     // if (response.timeout || this.seconds === 0) {
     if (response.timeout) {
@@ -115,7 +117,6 @@ export class MatchModalComponent implements OnInit {
       this.isCounting = false;
       this.otherUserId = response.matchedUsers[1].user_id;
       this.displayMessage = `BEST MATCH FOUND!`;
-
     }
   }
 
@@ -140,7 +141,7 @@ export class MatchModalComponent implements OnInit {
   acceptMatch() {
     this.isVisible = false;
     // Logic to navigate to the next page
-    this.router.navigate(['collab']);
+    this.router.navigate(['collab/', this.collabSessionId]);
   }
 
   async requeue() {

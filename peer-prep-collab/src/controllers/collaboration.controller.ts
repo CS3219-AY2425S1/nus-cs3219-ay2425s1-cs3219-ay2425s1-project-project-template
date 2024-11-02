@@ -1,26 +1,28 @@
 import { Request, Response, RequestHandler } from 'express';
 import { createCollaborationService, getSessionData } from '../services/collaboration.services';
 
-// Controller to handle creation of new collaboration service
-export const startCollaboration: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-    const { sessionId, difficulty, category } = req.body;
-    console.log("Parsed sessionId:", sessionId);
-    console.log("Parsed difficulty:", difficulty);
-    console.log("Parsed category:", category);
-
-    if (!difficulty || !category || !sessionId) {
-        res.status(400).json('Missing required fields');
-        return;
-    }
-
+export const initiateCollaboration = async (sessionId: string, difficulty: string, category: string) => {
     try {
         // call service to CREATE collaboration session
         const session = await createCollaborationService(sessionId, difficulty, category);
         if (!session) {
-            res.status(404).json('No suitable question found for specified difficulty and category');
-            return;
+            console.log('No suitable question found for specified difficulty and category');
+            return null;
         }
-        res.status(201).json(session);
+        return session;
+    } catch (error) {
+        console.error('Error starting collaboration', error);
+        return null;
+    }
+}
+
+// Controller to handle creation of new collaboration service - kept for testing
+export const startCollaboration: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+    const { sessionId, difficulty, category } = req.body;
+    try {
+        // Call service to create collaboration service
+        const session = await initiateCollaboration(sessionId, difficulty, category);
+        res.status(200).json(session);
         return;
     } catch (error) {
         console.error('Error starting collaboration', error);

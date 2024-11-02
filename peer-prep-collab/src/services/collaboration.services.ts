@@ -46,6 +46,10 @@ export const getQuestion = async (
         console.log(`Fetching questions for category: ${category}`);
         console.log(`Fetching questions for difficulty: ${difficulty}`);   
 
+        if (!category) {
+            category = '';
+        }
+
         // fetch questions based on difficulty and category from questions service 
         const response = await axios.get<QuestionsApiResponse>(
             `${config.questionsServiceUrl}/questions?filterBy=question_categories&filterValues=${category}`
