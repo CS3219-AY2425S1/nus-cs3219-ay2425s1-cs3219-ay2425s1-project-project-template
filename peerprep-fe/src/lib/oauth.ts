@@ -10,7 +10,6 @@ export const oAuthConfig = {
     authorizeUrl: 'https://github.com/login/oauth/authorize',
     clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
     scope: 'user:email',
-    redirectUri: `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/v1/auth/oauth/github/callback`,
   },
 };
 
