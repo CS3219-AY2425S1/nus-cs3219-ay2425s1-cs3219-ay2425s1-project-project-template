@@ -113,7 +113,11 @@ export default function Page() {
         {/* Editor Section */}
         <div className="flex-[3_3_0%] p-4 border-r border-gray-700">
           <VoiceChat />
-          <CodeEditor setOutput={setOutput} language={language} />
+          <CodeEditor
+            language={language}
+            roomId={roomId as string}
+            setOutput={setOutput}
+          />
         </div>
 
         {/* Output Section */}

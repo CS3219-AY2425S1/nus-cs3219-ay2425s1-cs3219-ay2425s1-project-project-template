@@ -10,6 +10,38 @@ import mongoose from "mongoose";
 import { checkAuthorisedUser, getQuestionHandler } from "./controllers/controller";
 import axios from "axios";
 
+import { WebSocketServer } from "ws";
+
+// set up y-server, y-server needs request parameter which socket.io does not offer
+const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
+
+const yServer = createServer((_request, response) => {
+  response.writeHead(200, { "Content-Type": "text/plain" });
+  response.end("Binded");
+});
+const wss = new WebSocketServer({ server: yServer });
+
+function onError(error: Error) {
+  console.log("error", error);
+}
+
+function onListening() {
+  console.log(`Listening on port ${process.env.Y_SERVER_PORT_NUM}`);
+}
+
+yServer.on("error", onError);
+yServer.on("listening", onListening);
+
+// Handle code editor.
+wss.on("connection", async (ws, req) => {
+  setupWSConnection(ws, req);
+  console.log("y-server-connected");
+});
+
+yServer.listen(process.env.Y_SERVER_PORT_NUM, () => {
+  console.log(`y-server Started on port ${process.env.Y_SERVER_PORT_NUM}`)
+});
+
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const MONGO_URI_CS = process.env.MONGO_URI_CS;
 
