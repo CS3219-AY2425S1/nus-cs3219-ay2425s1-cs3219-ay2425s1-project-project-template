@@ -69,6 +69,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       added.concat(updated).forEach((clientId) => {
         if (clientId !== provider.awareness.clientID) {
           const state = provider.awareness.getStates().get(clientId);
+          console.log(state);
           if (state && state.webrtc) {
             handleSignalingMessage(state.webrtc, clientId);
           }
@@ -82,6 +83,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             remoteVideoRef.current.srcObject = null;
             remoteStreamRef.current = null;
             setRemoteVideoSourceObject(false);
+            startCall();
           } else {
             setVideoStart(false);
           }
@@ -91,27 +93,9 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     };
 
     provider.awareness.on("change", awarenessListener);
-    const handleReconnect = async () => {
-      if (peerConnectionRef.current) {
-        const state = provider.awareness.getLocalState();
-        if (state && state.webrtc) {
-          handleSignalingMessage(state.webrtc, provider.awareness.clientID);
-        }
-        if (localStreamRef.current) {
-          localStreamRef.current
-            .getTracks()
-            .forEach((track) =>
-              peerConnectionRef.current.addTrack(track, localStreamRef.current)
-            );
-        }
-      }
-    };
-
-    provider.on("sync", handleReconnect);
 
     return () => {
       provider.awareness.off("change", awarenessListener);
-      provider.off("sync", handleReconnect);
     };
   }, [provider]);
 
@@ -120,6 +104,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       switch (message.type) {
         case "offer":
           console.log("Received offer:", message.offer);
+          console.log(peerConnectionRef.current.signalingState);
           await peerConnectionRef.current.setRemoteDescription(
             new RTCSessionDescription(message.offer)
           );
@@ -134,6 +119,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           break;
         case "answer":
           console.log("Received answer:", message.answer);
+          console.log(peerConnectionRef.current.signalingState);
           await peerConnectionRef.current.setRemoteDescription(
             new RTCSessionDescription(message.answer)
           );
