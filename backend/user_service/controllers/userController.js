@@ -26,7 +26,7 @@ const addToUserCollection = async (req, res) => {
 const removeFromUserCollection = async (req, res) => {
     const { uid } = req.body;
     if (!uid) {
-        return res.status(400).json({ error: "User ID (uid) is required." });
+        return res.status(400).json({ message: "User ID (uid) is required." });
     }
 
     try {
@@ -35,7 +35,7 @@ const removeFromUserCollection = async (req, res) => {
         const userDoc = await userRef.get();
 
         if (!userDoc.exists) {
-            return res.status(404).json({ error: "User not found." });
+            return res.status(404).json({ message: "User not found." });
         }
 
         await userRef.delete();
@@ -43,7 +43,7 @@ const removeFromUserCollection = async (req, res) => {
         return res.status(200).json({ message: "User successfully removed from the collection." });
     } catch (error) {
         console.error("Error removing user:", error);
-        return res.status(500).json({ error: "Failed to remove user from the collection." });
+        return res.status(500).json({ message: "Failed to remove user from the collection." });
     }
 };
 
@@ -56,7 +56,7 @@ const checkAdminStatus = async (req, res) => {
         // Fetch user data from Firestore
         const userDoc = await db.collection('users').doc(uid).get();
         if (!userDoc.exists) {
-            return res.status(404).json('User not found');
+            return res.status(404).json({ message: 'User not found'});
         }
 
         const userData = userDoc.data();
