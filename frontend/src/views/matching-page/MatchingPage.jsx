@@ -61,7 +61,6 @@ const MatchingPage = () => {
         deleteUserFromQueue();
         setSelectedFindingMatch(false);
         localStorage.removeItem('timerStarted');
-        //localStorage.setItem('requestCanceled', 'true');
     };
 
     const handleTimeout = () => {
@@ -149,7 +148,7 @@ const MatchingPage = () => {
                     </div>
 
                     <div className={styles.topicsSection}>
-                        <h3>Select One or More Topics</h3>
+                        <h3>Select a Topic</h3>
                         <div className={styles.topicsContainer}>
                             {topics.map((topic) => (
                                 <button
