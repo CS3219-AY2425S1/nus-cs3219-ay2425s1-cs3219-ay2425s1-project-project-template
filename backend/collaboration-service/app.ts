@@ -8,6 +8,8 @@ import { startRabbitMQ } from "./consumer";
 import { authenticateAccessToken } from "./utils/jwt";
 import mongoose from "mongoose";
 import { checkAuthorisedUser, getQuestionHandler } from "./controllers/controller";
+import axios from "axios";
+
 import { WebSocketServer } from "ws";
 
 // set up y-server, y-server needs request parameter which socket.io does not offer
@@ -60,6 +62,57 @@ const io = new Server(httpServer, {
 
 app.get("/api/check-authorization", checkAuthorisedUser);
 app.get("/api/get-question", getQuestionHandler);
+
+// POST endpoint to submit code for execution
+app.post("/api/code-execute", async (req: Request, res: Response) => {
+  try {
+    const { source_code, language_id } = req.body; // Extract language_id from the request body
+    const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
+
+    const response = await axios.post(
+      url,
+      { source_code, language_id },
+      {
+        params: { base64_encoded: "false", fields: "*" }, // Set base64_encoded to "false" for plain text output
+        headers: {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST!,
+          "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY!,
+        },
+      }
+    );
+
+    const token = response.data.token;
+    res.json({ token });
+  } catch (err) {
+    console.error("Error submitting code:", err);
+    res.status(500).json({
+      errors: [{ msg: "Something went wrong while submitting code." }],
+    });
+  }
+});
+
+
+// GET endpoint to check code execution status
+app.get("/api/code-execute/:token", async (req: Request, res: Response) => {
+  try {
+    const token = req.params.token;
+    const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions/${token}`;
+    const response = await axios.get(url, {
+      params: { base64_encoded: "false", fields: "*" },
+      headers: {
+        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST!,
+        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY!,
+      },
+    });
+    res.send(response.data);
+  } catch (err) {
+    console.error("Error fetching code execution result:", err);
+    res.status(500).json({
+      errors: [{ msg: "Something went wrong while fetching code execution result." }],
+    });
+  }
+});
 
 interface UsersAgreedEnd {
   [roomId: string]: Record<string, boolean>;

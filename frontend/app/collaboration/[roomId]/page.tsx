@@ -19,6 +19,7 @@ import QuestionDescription from "@/components/questions/QuestionDescription";
 import { SocketContext } from "@/context/SockerIOContext";
 import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
+import VoiceChat from "@/components/collaboration/VoiceChat";
 
 const mockQuestion: Question = {
   title: "Fibonacci Number",
@@ -31,6 +32,7 @@ const mockQuestion: Question = {
 };
 
 export default function Page() {
+  const [output, setOutput] = useState("Your output will appear here...");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId;
@@ -110,7 +112,15 @@ export default function Page() {
           <QuestionDescription isCollab={true} question={mockQuestion} />
         </div>
         <div className="flex-[3_3_0%]">
-          <CodeEditor roomId={roomId as string} />
+          {/* Render the VoiceChat component */}
+          <VoiceChat />
+
+          {/* Render the CodeEditor */}
+          <CodeEditor roomId={roomId as string} setOutput={setOutput} />
+          <div style={{ marginTop: "20px" }}>
+            <h3>Output:</h3>
+            <pre>{output}</pre>
+          </div>
         </div>
       </div>
 

@@ -5,7 +5,7 @@ export interface Question {
   category: string[]; // Category or topic to which the question belongs
   description: string; // Detailed description of the question
   examples: string;
-  constraints: string;
+  constraints?: string;
   index?: number;
 }
 

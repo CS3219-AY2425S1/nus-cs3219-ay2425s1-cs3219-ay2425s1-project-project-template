@@ -214,10 +214,10 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 
 			// Send match result to WebSocket clients
 			socket.BroadcastMatch(socket.MatchMessage{
-				User1: matchingInfo.SocketID,
-				User2: matchedUser.SocketID,
+				User1:  matchingInfo.SocketID,
+				User2:  matchedUser.SocketID,
 				RoomId: matchResult.RoomID,
-				State: "Matched",
+				State:  "Matched",
 			})
 
 			log.Printf("User %s and User %s have been matched and published to RabbitMQ", matchingInfo.UserID, matchedUser.UserID)

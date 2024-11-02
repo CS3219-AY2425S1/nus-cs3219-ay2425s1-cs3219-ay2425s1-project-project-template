@@ -5,6 +5,8 @@ services:
       context: ./frontend
     ports:
       - "3000:3000"
+    env_file:
+      - ./frontend/.env # Load frontend environment variables
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=http://nginx
@@ -68,18 +70,28 @@ services:
       - app-network
 
   voice-service:
-    build:
-      context: ./backend/voice-service
+    build: ./backend/voice-service
     ports:
-      - "8081:8081"
+      - "8085:8085"              # Exposes the backend on localhost:8085
     environment:
-      - NODE_ENV=production
+      - PORT=8085
     networks:
       - app-network
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
 
+  peer-server:
+    build: ./backend/peer-server
+    ports:
+      - "9000:9000"              # Exposes PeerJS server on localhost:9000
+    networks:
+      - app-network
+    environment:
+      - PEER_PORT=9000
+      - PEER_PATH=/
+      - PEER_KEY=peerjs
+      - PEER_CONFIG_FILE=/config.json
+    volumes:
+      - ./backend/peer-server/config.json:/config.json
+  
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -107,7 +119,7 @@ services:
       - question-service
       - matching-service
       - collaboration-service
-      - voice-service
+      # - voice-service
     networks:
       - app-network
 
