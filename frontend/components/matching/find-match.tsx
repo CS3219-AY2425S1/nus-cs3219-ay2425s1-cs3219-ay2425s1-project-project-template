@@ -37,9 +37,13 @@ export default function FindMatch() {
     };
   }, [isSearching]);
 
-  const fetchRoomAndRedirect = async (user1_id: string, user2_id: string) => {
+  const fetchRoomAndRedirect = async (
+    user1_id: string,
+    user2_id: string,
+    question_id: string
+  ) => {
     try {
-      const res = await fetchRoom(user1_id, user2_id);
+      const res = await fetchRoom(user1_id, user2_id, question_id);
       console.log(res.status);
 
       switch (res.status) {
@@ -144,7 +148,7 @@ export default function FindMatch() {
             description: "Successfully matched",
             variant: "success",
           });
-          await fetchRoomAndRedirect(user1_id, user2_id);
+          await fetchRoomAndRedirect(user1_id, user2_id, question_id);
         } else {
           toast({
             title: "Error",
@@ -181,7 +185,7 @@ export default function FindMatch() {
               isMatched = true;
               setIsSearching(false);
               clearTimeout(queueTimeout);
-              await fetchRoomAndRedirect(user1_id, user2_id);
+              await fetchRoomAndRedirect(user1_id, user2_id, question_id);
             }
           } catch (error) {
             toast({
@@ -207,7 +211,8 @@ export default function FindMatch() {
       case 404:
         toast({
           title: "Error",
-          description: "No question with specified difficulty level and complexity exists!",
+          description:
+            "No question with specified difficulty level and complexity exists!",
           variant: "destructive",
         });
         return;
