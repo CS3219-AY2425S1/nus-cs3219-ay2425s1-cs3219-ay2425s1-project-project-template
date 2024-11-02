@@ -21,7 +21,7 @@ spec:
         app: question-service
     spec:
       containers:
-        - image: m1oojv/question_service:latest
+        - image: docker_username/question_service:latest
           imagePullPolicy: IfNotPresent
           name: question-service
           resources:

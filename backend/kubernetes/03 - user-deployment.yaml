@@ -21,7 +21,7 @@ spec:
         app: user-service
     spec:
       containers:
-        - image: m1oojv/user_service:latest
+        - image: docker_username/user_service:latest
           imagePullPolicy: IfNotPresent
           name: user-service
           resources:
