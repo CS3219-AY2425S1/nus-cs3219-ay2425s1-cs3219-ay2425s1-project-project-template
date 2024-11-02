@@ -1,14 +1,14 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Request, Response } from 'express';
-import database from '../config/firebaseConfig';
-import { ref, get, set, update } from 'firebase/database';
+import { v4 as uuidv4 } from "uuid";
+import { Request, Response } from "express";
+import database from "../config/firebaseConfig";
+import { ref, get, set, update } from "firebase/database";
 import { Room } from "../models/room-model";
 
 export const joinRoom = async (req: Request, res: Response) => {
   try {
     const userId = req.body.userId;
 
-    if (!userId || typeof userId !== 'string') {
+    if (!userId || typeof userId !== "string") {
       return res.status(400).json({ message: "Invalid or missing userId." });
     }
 
@@ -30,23 +30,27 @@ export const joinRoom = async (req: Request, res: Response) => {
 
     const roomData = roomSnapshot.val() as Room;
 
-    if (roomData.status !== 'active') {
+    if (roomData.status !== "active") {
       return res.status(403).json({ message: "Room is not active." });
     }
 
     // authentication checks without jwt, can remove after implementing jwt
     if (!(userId in roomData.users)) {
-      return res.status(403).json({ message: "User is not allowed to join this room." });
+      return res
+        .status(403)
+        .json({ message: "User is not allowed to join this room." });
     }
 
     const updatedUsers = {
       ...roomData.users,
-      [userId]: true
+      [userId]: true,
     };
 
     await update(roomRef, { users: updatedUsers });
 
-    return res.status(200).json({ message: "Joined room successfully.", roomId });
+    return res
+      .status(200)
+      .json({ message: "Joined room successfully.", roomId });
   } catch (error) {
     console.error("Error joining room:", error);
     return res.status(500).json({ message: "Failed to join room." });
@@ -60,7 +64,7 @@ export const createRoom = async (req: Request, res: Response) => {
     const roomId = uuidv4();
 
     const roomRef = ref(database, `rooms/${roomId}`);
-    
+
     // checking if by chance a roomId that already exists is generated
     const roomSnapshot = await get(roomRef);
     if (roomSnapshot.exists()) {
@@ -68,7 +72,9 @@ export const createRoom = async (req: Request, res: Response) => {
     }
 
     if (userId1 === userId2) {
-      res.status(400).json({ message: "Cannot create room with 2 same User ID." });
+      res
+        .status(400)
+        .json({ message: "Cannot create room with 2 same User ID." });
     }
 
     const newRoom: Room = {
@@ -76,12 +82,12 @@ export const createRoom = async (req: Request, res: Response) => {
       code: "// Enter your code here:",
       users: {
         [userId1]: false,
-        [userId2]: false
+        [userId2]: false,
       },
       createdAt: Date.now(),
       selectedQuestionId: 0, // default number when not selected yet
-      status: 'active'
-  };
+      status: "active",
+    };
 
     await set(roomRef, newRoom);
 
@@ -92,7 +98,9 @@ export const createRoom = async (req: Request, res: Response) => {
     await set(userRoomsRef2, roomId);
 
     res.status(201).json({ message: "Room created successfully", roomId });
-    console.log(`Room ID ${roomId} created for users ${userId1} and ${userId2}`);
+    console.log(
+      `Room ID ${roomId} created for users ${userId1} and ${userId2}`
+    );
   } catch (error) {
     console.error("Error creating room:", error);
     res.status(500).json({ message: "Failed to create room" });
@@ -104,7 +112,7 @@ export const getRoomData = async (req: Request, res: Response) => {
   try {
     const userId = req.body.userId;
 
-    if (!userId || typeof userId !== 'string') {
+    if (!userId || typeof userId !== "string") {
       res.status(400).json({ message: "Invalid userId." });
     }
 
@@ -112,7 +120,7 @@ export const getRoomData = async (req: Request, res: Response) => {
     const userRoomSnapshot = await get(userRoomRef);
 
     if (!userRoomSnapshot.exists()) {
-      res.status(404).json({ message: "User is not in a room."});
+      res.status(404).json({ message: "User is not in a room." });
     }
     const id = userRoomSnapshot.val() as string;
 
@@ -135,7 +143,7 @@ export const setRoomInactive = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.body;
 
-    if (!roomId || typeof roomId !== 'string') {
+    if (!roomId || typeof roomId !== "string") {
       res.status(400).json({ message: "Invalid roomId." });
     }
 
@@ -148,11 +156,11 @@ export const setRoomInactive = async (req: Request, res: Response) => {
 
     const roomData = roomSnapshot.val() as Room;
 
-    if (roomData.status === 'inactive') {
+    if (roomData.status === "inactive") {
       res.status(400).json({ message: "Room is already inactive." });
     }
 
-    await update(roomRef, { status: 'inactive' });
+    await update(roomRef, { status: "inactive" });
 
     res.status(200).json({ message: "Room has been set to inactive.", roomId });
   } catch (error) {
@@ -166,7 +174,7 @@ export const getRoomId = async (req: Request, res: Response) => {
   try {
     const userId = req.body.userId;
 
-    if (!userId || typeof userId !== 'string') {
+    if (!userId || typeof userId !== "string") {
       res.status(400).json({ message: "Invalid userId." });
     }
 
@@ -174,7 +182,7 @@ export const getRoomId = async (req: Request, res: Response) => {
     const userRoomSnapshot = await get(userRoomRef);
 
     if (!userRoomSnapshot.exists()) {
-      res.status(404).json({ message: "User is not in a room."});
+      res.status(404).json({ message: "User is not in a room." });
     }
 
     const roomId = userRoomSnapshot.val() as string;
@@ -183,4 +191,54 @@ export const getRoomId = async (req: Request, res: Response) => {
     console.error("Error fetching current room id:", error);
     res.status(500).json({ message: "Failed to fetch the current room." });
   }
-}
+};
+
+// function for users to leave room
+export const leaveRoom = async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    if (!userId || typeof userId !== "string") {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    const userRoomRef = ref(database, `userRooms/${userId}`);
+    const userRoomSnapshot = await get(userRoomRef);
+
+    if (!userRoomSnapshot.exists()) {
+      return res.status(404).json({ message: "User is not in a room" });
+    }
+
+    // get room data
+    const roomId = userRoomSnapshot.val() as string;
+    const roomRef = ref(database, `rooms/${roomId}`);
+    const roomSnapshot = await get(roomRef);
+
+    if (!roomSnapshot.exists()) {
+      return res.status(404).json({ message: "Room does not exist" });
+    }
+
+    const roomData = roomSnapshot.val() as Room;
+
+    // check if user is in room's list
+    if (!(userId in roomData.users)) {
+      return res
+        .status(403)
+        .json({ message: "User is not a member of this room" });
+    }
+
+    const updatedUsers = { ...roomData.users };
+    delete updatedUsers[userId]; // remove curr user
+
+    // update room users or set room status to inactive
+    if (Object.keys(updatedUsers).length === 0) {
+      await update(roomRef, { users: updatedUsers, status: "inactive" });
+    } else {
+      await update(roomRef, { users: updatedUsers });
+    }
+
+    await set(userRoomRef, null);
+    res.status(200).json({ message: "User has left the room", roomId });
+  } catch (error: any) {
+    console.error("Error leaving room:", error);
+    res.status(500).json({ message: "Failed to leave room" });
+  }
+};
