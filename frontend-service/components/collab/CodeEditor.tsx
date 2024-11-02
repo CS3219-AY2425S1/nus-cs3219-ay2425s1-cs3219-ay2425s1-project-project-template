@@ -22,8 +22,12 @@ const languageType: { [key: string]: string } = {
   csharp: '// Start writing your C# code here...',
 }
 
-const CodeEditor: React.FC = () => {
-  const { roomId } = useParams<{ roomId: string }>();
+interface CodeEditorProps {
+  roomId: string
+}
+
+const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
+  // const { roomId } = useParams<{ roomId: string }>();
   const [code, setCode] = useState('//Start writing your code here..')
   const [codeLanguage, setCodeLanguage] = useState('Javascript')
   const [question, setQuestion] = useState<Question | null>(null)

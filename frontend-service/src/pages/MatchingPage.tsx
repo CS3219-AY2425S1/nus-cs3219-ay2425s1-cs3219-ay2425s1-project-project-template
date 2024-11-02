@@ -72,8 +72,9 @@ const MatchingPage: React.FC = () => {
       } else if (matchStatus == "isMatching") {
         setStage(STAGE.COUNTDOWN);
       } else if (matchStatus == "isMatched") {
-        console.log("Matched! Room ID:", result.roomId);
-        handleMatchFound(result.roomId);
+        // console.log("Matched! Room ID:", result.roomId); // TODO: result.roomId does not exist
+        // handleMatchFound(result.roomId);
+        handleMatchFound();
       } else if (matchStatus == "unsuccessful") {
         handleMatchUnsuccess();
       }
@@ -94,10 +95,15 @@ const MatchingPage: React.FC = () => {
     }
   };
 
-  const handleMatchFound = (roomId: string) => {
-    console.error("Room ID:", roomId);
+  // const handleMatchFound = (roomId: string) => {
+  //   console.error("Room ID:", roomId);
+  //   setStage(STAGE.SUCCESS);
+  //   navigate(`/editor/${roomId}`);
+  // };
+
+  const handleMatchFound = () => {
     setStage(STAGE.SUCCESS);
-    navigate(`/editor/${roomId}`);
+    navigate("/room");
   };
 
   const handleMatchUnsuccess = () => {

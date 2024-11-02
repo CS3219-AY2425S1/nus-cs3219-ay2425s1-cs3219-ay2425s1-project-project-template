@@ -9,14 +9,14 @@ export const joinRoom = async (req: Request, res: Response) => {
     const userId = req.body.userId;
 
     if (!userId || typeof userId !== 'string') {
-      res.status(400).json({ message: "Invalid or missing userId." });
+      return res.status(400).json({ message: "Invalid or missing userId." });
     }
 
     const userRoomRef = ref(database, `userRooms/${userId}`);
     const userRoomSnapshot = await get(userRoomRef);
 
     if (!userRoomSnapshot.exists()) {
-      res.status(404).json({ message: "User is not in a room." });
+      return res.status(404).json({ message: "User is not in a room." });
     }
 
     const roomId = userRoomSnapshot.val() as string;
@@ -25,18 +25,18 @@ export const joinRoom = async (req: Request, res: Response) => {
     const roomSnapshot = await get(roomRef);
 
     if (!roomSnapshot.exists()) {
-      res.status(404).json({ message: "Room does not exist." });
+      return res.status(404).json({ message: "Room does not exist." });
     }
 
     const roomData = roomSnapshot.val() as Room;
 
     if (roomData.status !== 'active') {
-      res.status(403).json({ message: "Room is not active." });
+      return res.status(403).json({ message: "Room is not active." });
     }
 
     // authentication checks without jwt, can remove after implementing jwt
     if (!(userId in roomData.users)) {
-      res.status(403).json({ message: "User is not allowed to join this room." });
+      return res.status(403).json({ message: "User is not allowed to join this room." });
     }
 
     const updatedUsers = {
@@ -46,10 +46,10 @@ export const joinRoom = async (req: Request, res: Response) => {
 
     await update(roomRef, { users: updatedUsers });
 
-    res.status(200).json({ message: "Joined room successfully.", roomId });
+    return res.status(200).json({ message: "Joined room successfully.", roomId });
   } catch (error) {
     console.error("Error joining room:", error);
-    res.status(500).json({ message: "Failed to join room." });
+    return res.status(500).json({ message: "Failed to join room." });
   }
 };
 

@@ -39,6 +39,7 @@ function App() {
 
       if (!token) {
         console.log("No token in localStorage found");
+        setLoading(false);
         return;
       }
 
