@@ -37,7 +37,7 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/question-service
-          go test
+          go test ./...
 
   test:
     runs-on: ubuntu-latest
