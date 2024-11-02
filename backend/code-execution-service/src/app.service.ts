@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ExecuteCodeDto } from './dto';
 import { runCode } from './utils/code-runner.util';
-// import { runCode } from "./utils/code-runner.util";
 
 // (Submit Operation)
 // Collaboration service -> Receive code, language, input, timeout
@@ -14,7 +13,7 @@ import { runCode } from './utils/code-runner.util';
 // These inputs and expected outputs will be based on the question Maximum Swap
 
 // The expected format would be that they have to print the output
-// We still have to somehow inject the inputs and expected outputs into the code
+// We still have to inject the inputs and expected outputs into the code
 
 @Injectable()
 export class AppService {
