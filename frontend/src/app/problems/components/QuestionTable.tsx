@@ -33,7 +33,7 @@ const QuestionTable = (props: QuestionTableProps) => {
     return (
         <Table className="table-auto">
             <TableHeader>
-                <TableRow>
+                <TableRow className="hover:bg-transparent">
                     <TableHead>Id</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Description</TableHead>

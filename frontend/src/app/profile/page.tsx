@@ -33,10 +33,10 @@ const ProfilePage: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-grow items-center justify-center bg-gray-100 w-screen">
+        <div className="flex flex-grow items-center justify-center w-screen">
             <div className="flex-col h-full py-12 w-5/6 2xl:w-3/5 space-y-8">
                 <div className="flex flex-grow gap-8">
-                    <div className="min-w-fit w-1/4 p-4 bg-white rounded-lg space-y-4">
+                    <div className="min-w-fit w-1/4 p-4 bg-white rounded-lg space-y-4 shadow-lg">
                         {/* Profile Card */}
                         <div className="flex">
                             <img
@@ -77,7 +77,7 @@ const ProfilePage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col flex-1 bg-white rounded-lg p-6">
+                    <div className="flex flex-col flex-1 bg-white rounded-lg p-6 shadow-lg">
                         <div className="flex items-center gap-2 mb-2">
                             <HistoryIcon size={20} />
                             <h2 className="text-md font-semibold">History</h2>
