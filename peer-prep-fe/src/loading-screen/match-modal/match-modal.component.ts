@@ -1,11 +1,10 @@
-import {Component, Inject, Injectable, Input, OnInit} from '@angular/core';
-import { interval, Subscription, take } from 'rxjs';
+import {Component, Injectable, Input, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import { NgClass, NgIf } from "@angular/common";
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatchService } from '../../services/match.service';
 import { MatchResponse } from '../../app/models/match.model';
 import {UserService} from '../../app/userService/user-service';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-match-modal',
@@ -38,7 +37,6 @@ export class MatchModalComponent implements OnInit {
   otherUserId: string = '';
   otherCategory: string = '';
   otherDifficulty: string = '';
-  // seconds: number = 30;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -76,8 +74,7 @@ export class MatchModalComponent implements OnInit {
   // }
 
   async findMatch() {
-    // start timer for 30 seconds
-    // this.startCountDown();
+
     this.isVisible = true;
     this.isCounting = true;
     this.matchFound = false;
@@ -90,16 +87,15 @@ export class MatchModalComponent implements OnInit {
     console.log('RESPONSE FROM FINDMATCH ', response);
     console.log('TIMEOUT FROM FINDMATCH ', response.timeout);
 
-    // TO ADD (in BE too): UI if matching process gets disrupted (e.g. rabbitmq server goes down)
+    // TODO (in BE too): UI if matching process gets disrupted (e.g. rabbitmq server goes down) - avoid silent failures
     if (response.timeout) {
       this.handleMatchResponse(response);
     } else {
       const isUser1 = response.matchedUsers[0].user_id === this.userId;
       this.otherCategory = isUser1 ? response.matchedUsers[1].topic : response.matchedUsers[0].topic;
       this.otherDifficulty = isUser1? response.matchedUsers[1].difficulty : response.matchedUsers[0].difficulty;
-      console.log('GETTING OTHER USERNAME NOW, IN FINDMATCH METHOD');
       this.otherUsername = isUser1 ? response.matchedUsers[1].username : response.matchedUsers[0].username;
-      console.log('otherUsername', this.otherUsername);
+      // console.log('otherUsername', this.otherUsername);
       this.handleMatchResponse(response);
     }
   }
@@ -118,9 +114,6 @@ export class MatchModalComponent implements OnInit {
       this.matchFound = true;
       this.isCounting = false;
       this.otherUserId = response.matchedUsers[1].user_id;
-      // console.log(' setting usernames now');
-      // this.setUsernames();
-      // console.log('usernames set');
       this.displayMessage = `BEST MATCH FOUND!`;
 
     }
@@ -144,33 +137,6 @@ export class MatchModalComponent implements OnInit {
     });
   }
 
-  // SETTING USERNAMES --> directly retrieve other username from response from the POST request
-
-  // setUsernames() {
-  //   this.userService.getUser(this.userId).subscribe({
-  //     next: (data: any) => {
-  //       this.myUsername = data.data.username;
-  //       console.log('data itself ', data);
-  //       console.log('myUsername', this.myUsername);
-  //     },
-  //     error: (e) => {
-  //       console.error("Error fetching: ", e);
-  //     },
-  //     complete: () => console.info("fetched all users")
-  //   });
-  //   this.userService.getUser(this.otherUserId).subscribe({
-  //     next: (data: any) => {
-  //       this.otherUsername = data.data.username;
-  //       console.log('data itself ', data);
-  //       console.log('otherUsername', this.myUsername);
-  //     },
-  //     error: (e) => {
-  //       console.error("Error fetching: ", e);
-  //     },
-  //     complete: () => console.info("fetched all users")
-  //   });
-  // }
-
   acceptMatch() {
     this.isVisible = false;
     // Logic to navigate to the next page
@@ -182,6 +148,7 @@ export class MatchModalComponent implements OnInit {
     this.findMatch();
   }
 
+  // TODO: HANDLE CANCEL MATCH - SYNC W MATCHING SVC BE PEEPS @KERVYN @IVAN 
   cancelMatch() {
     this.isVisible = false;
     if (this.countdownSubscription) {
