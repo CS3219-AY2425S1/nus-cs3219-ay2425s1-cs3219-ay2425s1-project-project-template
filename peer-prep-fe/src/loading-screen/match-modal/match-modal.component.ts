@@ -45,7 +45,7 @@ export class MatchModalComponent implements OnInit {
     private matchService: MatchService,
     private userService: UserService) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Placeholder for component initialization if needed
     this.route.queryParams.subscribe(params => {
       this.category = params['category'];
@@ -53,8 +53,10 @@ export class MatchModalComponent implements OnInit {
       this.userId = params['userId'];
       this.queueName = params['queueName'];
     });
-    this.setMyUsername();
+    await this.setMyUsername();
+    console.log('curr username', this.myUsername);
     this.userData = {difficulty: this.difficulty, topic: this.category, user_id: this.userId, username: this.myUsername};
+    console.log('userData', this.userData);
     this.findMatch();
   }
 
@@ -95,7 +97,9 @@ export class MatchModalComponent implements OnInit {
       const isUser1 = response.matchedUsers[0].user_id === this.userId;
       this.otherCategory = isUser1 ? response.matchedUsers[1].topic : response.matchedUsers[0].topic;
       this.otherDifficulty = isUser1? response.matchedUsers[1].difficulty : response.matchedUsers[0].difficulty;
+      console.log('GETTING OTHER USERNAME NOW, IN FINDMATCH METHOD');
       this.otherUsername = isUser1 ? response.matchedUsers[1].username : response.matchedUsers[0].username;
+      console.log('otherUsername', this.otherUsername);
       this.handleMatchResponse(response);
     }
   }
@@ -114,25 +118,29 @@ export class MatchModalComponent implements OnInit {
       this.matchFound = true;
       this.isCounting = false;
       this.otherUserId = response.matchedUsers[1].user_id;
-      console.log(' setting usernames now');
+      // console.log(' setting usernames now');
       // this.setUsernames();
-      console.log('usernames set');
+      // console.log('usernames set');
       this.displayMessage = `BEST MATCH FOUND!`;
 
     }
   }
 
-  setMyUsername() {
-    this.userService.getUser(this.userId).subscribe({
-      next: (data: any) => {
-        this.myUsername = data.data.username;
-        console.log('data itself ', data);
-        console.log('myUsername', this.myUsername);
-      },
-      error: (e) => {
-        console.error("Error fetching: ", e);
-      },
-      complete: () => console.info("fetched my username!")
+  async setMyUsername(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.userService.getUser(this.userId).subscribe({
+        next: (data: any) => {
+          this.myUsername = data.data.username;
+          console.log('data itself ', data);
+          console.log('myUsername', this.myUsername);
+          resolve();
+        },
+        error: (e) => {
+          console.error("Error fetching: ", e);
+          reject(e);
+        },
+        complete: () => console.info("fetched my username!")
+      });
     });
   }
 
