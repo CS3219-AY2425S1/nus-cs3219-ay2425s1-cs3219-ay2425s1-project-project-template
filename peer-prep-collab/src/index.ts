@@ -14,7 +14,7 @@ export const connectToRabbitMQ = async () => {
 }
 
 
-const startConsume = async<T>(onMessage: (message: Message) => void) => {
+const startConsume = async(onMessage: (message: Message) => void) => {
   try {
     await channel.assertQueue('collab_queue', {
       durable: false,
