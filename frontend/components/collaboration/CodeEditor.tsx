@@ -10,7 +10,6 @@ interface CodeEditorProps {
   roomId: string;
 }
 var randomColor = require("randomcolor"); // import the script
-const RandomColor = randomColor(); // a hex code for an attractive color
 
 export default function CodeEditor({ roomId }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
@@ -37,62 +36,60 @@ export default function CodeEditor({ roomId }: CodeEditorProps) {
         // get the text from the monaco editor
         const yDocTextMonaco = ydoc.getText("monaco");
 
-        const editor =
-          monaco.editor.getEditors()[0] ||
-          monaco.editor.createModel("Hello World", "javaScript");
-        // const userColor = RandomColor();
+        const editor = monaco.editor.getEditors()[0];
+        const userColor = randomColor();
 
-        // awareness.setLocalStateField("user", {
-        //   name: user?.username,
-        //   userId: user?.id,
-        //   email: user?.email,
-        //   color,
-        // });
+        yAwareness.setLocalStateField("user", {
+          name: "PeerPrep",
+          userId: "1234",
+          email: "peerprep@gmail.com",
+          color: userColor,
+        });
 
-        // yAwareness.on(
-        //   "change",
-        //   (changes: {
-        //     added: number[];
-        //     updated: number[];
-        //     removed: number[];
-        //   }) => {
-        //     const awarenessStates = yAwareness.getStates();
+        yAwareness.on(
+          "change",
+          (changes: {
+            added: number[];
+            updated: number[];
+            removed: number[];
+          }) => {
+            const awarenessStates = yAwareness.getStates();
 
-        //     dispatch(setAwareness(awareness as AwarenessUser));
-        //     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        //     changes.added.forEach((clientId) => {
-        //       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        //       const state = awarenessStates.get(clientId)?.user;
-        //       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-        //       const color = state?.color;
-        //       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-        //       const username = state?.name;
-        //       const cursorStyleElem = document.head.appendChild(
-        //         document.createElement("style"),
-        //       );
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            changes.added.forEach((clientId) => {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              console.log(awarenessStates);
+              const state = awarenessStates.get(clientId)?.user;
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+              const color = state?.color;
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+              const username = state?.name;
+              const cursorStyleElem = document.head.appendChild(
+                document.createElement("style"),
+              );
 
-        //       cursorStyleElem.innerHTML = `.yRemoteSelectionHead-${clientId} { border-left: ${color} solid 2px;}`;
-        //       const highlightStyleElem = document.head.appendChild(
-        //         document.createElement("style"),
-        //       );
+              cursorStyleElem.innerHTML = `.yRemoteSelectionHead-${clientId} { border-left: ${color} solid 2px;}`;
+              const highlightStyleElem = document.head.appendChild(
+                document.createElement("style"),
+              );
 
-        //       highlightStyleElem.innerHTML = `.yRemoteSelection-${clientId} { background-color: ${color}9A;}`;
-        //       const styleElem = document.head.appendChild(
-        //         document.createElement("style"),
-        //       );
+              highlightStyleElem.innerHTML = `.yRemoteSelection-${clientId} { background-color: ${color}9A;}`;
+              const styleElem = document.head.appendChild(
+                document.createElement("style"),
+              );
 
-        //       styleElem.innerHTML = `.yRemoteSelectionHead-${clientId}::after { background-color: ${color}; color: black; content: '${username}'}`;
-        //     });
-        //   },
-        // );
+              styleElem.innerHTML = `.yRemoteSelectionHead-${clientId}::after { transform: translateY(5); margin-left: 5px; border-radius: 5px; opacity: 80%; background-color: ${color}; color: black; content: '${username}'}`;
+            });
+          },
+        );
 
         // create the monaco binding to the yjs doc
         new MonacoBinding(
           yDocTextMonaco,
-          editor.getModel() || monaco.editor.createModel("", "javaScript"),
+          editor?.getModel() || monaco.editor.createModel("", "javaScript"),
           // @ts-expect-error TODO: fix this
           new Set([editor]),
-          provider.awareness,
+          yAwareness,
         );
       }
     }
