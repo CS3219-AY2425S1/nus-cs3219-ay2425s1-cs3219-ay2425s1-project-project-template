@@ -3,16 +3,28 @@ const server = new WebSocket.Server({ port: 8081 });
 
 // Store the code for each session ID
 const sessionData = {};
-
+const activeUsers = {};
 server.on('connection', (socket, request) => {
-    const sessionID = request.url.split('/').pop();
+    const urlParts = request.url.split('/');
+    const sessionID = urlParts.pop().split('?')[0];
+    const userID = new URLSearchParams(request.url.split('?')[1]).get('userID');
 
     // Initialize session data if it doesn't exist
     if (!sessionData[sessionID]) {
         sessionData[sessionID] = { code: '' };
     }
 
-    console.log(`Client connected to session: ${sessionID}`);
+    if (!activeUsers[sessionID]) {
+        activeUsers[sessionID] = {};
+    }
+
+    activeUsers[sessionID][userID] = socket;
+    console.log(`User ${userID} connected to session ${sessionID}`);
+
+    broadcastToSession(sessionID, {
+        type: 'userConnected',
+        userID,
+    });
 
     // Send the current code to the newly connected client
     socket.send(JSON.stringify({ type: 'initialCode', content: sessionData[sessionID].code }));
@@ -20,33 +32,46 @@ server.on('connection', (socket, request) => {
     // Handle incoming messages
     socket.on('message', (message) => {
         const parsedMessage = JSON.parse(message);
-        console.log(`Received message from session ${sessionID}:`, parsedMessage);
+        console.log(`Received message from user ${userID} in session ${sessionID}:`, parsedMessage);
 
         if (parsedMessage.type === 'code') {
             // Update the stored code for this session
             sessionData[sessionID].code = parsedMessage.content;
 
             // Broadcast the updated code to all clients in the same session
-            server.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN && client !== socket) {
-                    client.send(JSON.stringify({ type: 'code', content: parsedMessage.content }));
-                }
-            });
+            broadcastToSession(sessionID, {
+                type: 'code',
+                content: parsedMessage.content
+            }, socket);
         }
     });
 
     // Handle client disconnection
     socket.on('close', (code, reason) => {
-        console.log(`Client disconnected from session: ${sessionID}, code: ${code}, reason: ${reason}`);
-        if (server.clients.size === 0) {
-            console.log(`All clients disconnected from session: ${sessionID}`);
-        }
+        console.log(`User ${userID} disconnected from session ${sessionID}, code: ${code}, reason: ${reason}`);
+
+        // Remove the user from the active users list
+        delete activeUsers[sessionID][userID];
+
+        broadcastToSession(sessionID, {
+            type: 'userDisconnected',
+            userID,
+        });
     });
 
     // Handle errors
     socket.on('error', (error) => {
-        console.error('Socket error:', error);
+        console.error(`Socket error for user ${userID} in session ${sessionID}:`, error);
     });
 });
+
+
+function broadcastToSession(sessionID, message, excludeSocket = null) {
+    Object.values(activeUsers[sessionID]).forEach((clientSocket) => {
+        if (clientSocket.readyState === WebSocket.OPEN && clientSocket !== excludeSocket) {
+            clientSocket.send(JSON.stringify(message));
+        }
+    });
+}
 
 console.log('WebSocket server is running on ws://localhost:8081');
