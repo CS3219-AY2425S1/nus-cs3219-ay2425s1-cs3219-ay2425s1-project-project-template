@@ -46,7 +46,7 @@ const UserModelSchema = new Schema({
     required: false,
   },
   history: {
-    type: Array,
+    type: [String],
     required: true,
     default: [],
   },

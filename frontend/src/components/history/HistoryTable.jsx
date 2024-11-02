@@ -3,7 +3,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePag
 import useAuth from "../../hooks/useAuth";
 
 const columns = [
-  { id: 'index', label: 'ID', minWidth: 10 },
+  { id: 'index', label: 'idx', minWidth: 10 },
   { id: 'question', label: 'Question', minWidth: 170 },
   { id: 'partner', label: 'Partner', minWidth: 80 },
   { id: 'status', label: 'Status', minWidth: 50 },
@@ -73,7 +73,9 @@ export default function HistoryTable() {
                       </Button>
                     </TableCell>
 
-                    <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>{row.partner}</TableCell>
+                    <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
+                      {row.partner}
+                    </TableCell>
 
                     <TableCell 
                       style={{
@@ -89,7 +91,9 @@ export default function HistoryTable() {
                       {row.status}
                     </TableCell>
                     
-                    <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>{row.datetime}</TableCell>
+                    <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
+                      {row.datetime}
+                    </TableCell>
                   </TableRow>
                 );
               })}

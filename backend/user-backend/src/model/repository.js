@@ -95,10 +95,10 @@ export async function updateUserTempPasswordById(userId, tempPassword) {
 
 // =======================  ADDS   ================================ //
 
-export async function addHistoryById(userId, newHistory) {
+export async function addHistoryById(userId, historyId) {
   return UserModel.findByIdAndUpdate(
     userId,
-    { $addToSet: { history: newHistory }},
+    { $addToSet: { history: historyId }},
     { new: true },  // return the updated user
   );
 }
@@ -125,10 +125,10 @@ export async function deleteTempPasswordById(userId) {
   ); 
 }
 
-export async function deleteHistoryById(userId, delHistory) {
+export async function deleteHistoryById(userId, historyId) {
   return UserModel.findByIdAndUpdate(
     userId,
-    { $pull: { history: delHistory }},
+    { $pull: { history: historyId }},
     { new: true },  // return the updated user
   );
 }

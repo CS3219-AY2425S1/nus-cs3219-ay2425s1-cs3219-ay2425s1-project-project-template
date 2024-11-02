@@ -265,10 +265,10 @@ export async function deleteUser(req, res) {
 
 export async function addHistory(req, res) {
   const userId = req.params.id;
-  const { question, partner, status, datetime } = req.body;
+  const { historyId } = req.body;
 
-  if (!(question && partner && status && datetime))
-    return res.status(400).json({ message: "Missing one or more of the required fields" });
+  if (!historyId)
+    return res.status(400).json({ message: "Missing history id field" });
 
   try {
     if (!isValidObjectId(userId))
@@ -278,26 +278,21 @@ export async function addHistory(req, res) {
     if (!user)
       return res.status(404).json({ message: `User ${userId} not found` });
 
-    const partnerUser = await _findUserByUsername(partner);
-    if (!partnerUser)
-      return res.status(404).json({ message: `Partner "${partner}" not found` });
-
-    const newHistory = { question, partner, status, datetime };
-    await _addHistoryById(user.id, newHistory);
+    await _addHistoryById(user.id, historyId);
     return res.status(200).json({ message: "Successfully added question history" });
 
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ message: "Unknown error when adding question history!" });
   }
 }
 
 export async function deleteHistory(req, res) {
   const userId = req.params.id;
-  const { question, partner, status, datetime } = req.body;
+  const { historyId } = req.body;
 
-  if (!(question && partner && status && datetime))
-    return res.status(400).json({ message: "Missing one or more of the required fields" });
+  if (!historyId)
+    return res.status(400).json({ message: "Missing history id field" });
 
   try {
     if (!isValidObjectId(userId))
@@ -307,8 +302,7 @@ export async function deleteHistory(req, res) {
     if (!user)
       return res.status(404).json({ message: `User ${userId} not found` });
 
-    const delHistory = { question, partner, status, datetime };
-    await _deleteHistoryById(user.id, delHistory);
+    await _deleteHistoryById(user.id, historyId);
     return res.status(200).json({ message: "Successfully deleted question history" });
 
   } catch (err) {
