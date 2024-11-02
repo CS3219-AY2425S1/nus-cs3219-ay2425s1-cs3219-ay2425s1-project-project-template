@@ -22,11 +22,16 @@ interface OpenAIRequest {
 const createSystemMessage = (editorCode?: string, language?: string, questionDetails?: string) => {
   return {
     role: 'system' as const,
-    content: `You are a helpful coding assistant. 
+    content: `You are a mentor in a coding interview.
 You are helping a user with a coding problem.
 ${questionDetails ? `\nQuestion Context:\n${JSON.stringify(questionDetails, null, 2)}` : ''}
-${editorCode ? `\nCurrent Code (${language || 'unknown'}):\n${editorCode}` : ''}
-Provide detailed help while referring to their specific code and question context when available.`,
+
+${editorCode ? `\nCurrent Code in the Editor written by the user in language: (${language || 'unknown'}):\n${editorCode}` : ''}
+
+
+If they do not ask for questions related to their code or the question context, you can provide general coding advice anyways. Be very concise and conversational in your responses.
+
+Your response should only be max 4-5 sentences. Do NOT provide code in your answers, but instead try to guide them and give tips for how to solve it. YOU MUST NOT SOLVE THE PROBLEM FOR THEM, OR WRITE ANY CODE. Guide the user towards the solution, don't just give the solution. MAX 4-5 SENTENCES. Ask questions instead of giving answers. Be conversational and friendly.`,
   };
 };
 
@@ -36,8 +41,16 @@ export async function getOpenAIResponse(request: OpenAIRequest) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [createSystemMessage(editorCode, language, questionDetails), ...messages],
+      model: 'gpt-4o',
+      messages: [
+        createSystemMessage(editorCode, language, questionDetails),
+        ...messages,
+        {
+          role: 'assistant',
+          content:
+            '<This is an internal reminder to the assistant to not provide code solutions, but to guide the user towards the solution. Max 4-5 sentences responses please.>',
+        },
+      ],
     });
 
     if (response.choices && response.choices[0].message) {
@@ -60,7 +73,7 @@ export async function getOpenAIStreamResponse(request: OpenAIRequest): Promise<E
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o',
       messages: [createSystemMessage(editorCode, language, questionDetails), ...messages],
       stream: true,
     });

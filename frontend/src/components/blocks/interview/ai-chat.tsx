@@ -1,5 +1,5 @@
 import { type LanguageName } from '@uiw/codemirror-extensions-langs';
-import React, { useRef,useState } from 'react';
+import React, { useEffect,useRef, useState } from 'react';
 
 import { sendChatMessage } from '@/services/collab-service';
 
@@ -14,6 +14,13 @@ interface AIChatProps {
   questionDetails?: string;
 }
 
+const STORAGE_KEY = 'ai_chat_history';
+
+interface StoredChat {
+  messages: ChatMessageType[];
+  questionDetails: string;
+}
+
 export const AIChat: React.FC<AIChatProps> = ({
   isOpen,
   onClose,
@@ -25,6 +32,50 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const streamingTextRef = useRef<string>('');
+  const prevQuestionRef = useRef<string>(questionDetails);
+
+  useEffect(() => {
+    const loadMessages = () => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+
+      if (stored) {
+        const { messages: storedMessages, questionDetails: storedQuestion } = JSON.parse(
+          stored
+        ) as StoredChat;
+
+        // If question has changed, clear the history
+        if (storedQuestion !== questionDetails) {
+          localStorage.removeItem(STORAGE_KEY);
+          setMessages([]);
+        } else {
+          // Convert stored timestamps back to Date objects
+          const messagesWithDates = storedMessages.map((msg) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+          setMessages(messagesWithDates);
+        }
+      }
+    };
+
+    loadMessages();
+    prevQuestionRef.current = questionDetails;
+  }, [questionDetails]);
+
+  const handleClearHistory = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setMessages([]);
+  };
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const dataToStore: StoredChat = {
+        messages,
+        questionDetails,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+    }
+  }, [messages, questionDetails]);
 
   const handleSend = async (userMessage: string): Promise<void> => {
     if (!userMessage.trim() || isLoading) return;
@@ -119,6 +170,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       isLoading={isLoading}
       error={error}
       title='AI Assistant'
+      onClearHistory={handleClearHistory}
     />
   );
 };

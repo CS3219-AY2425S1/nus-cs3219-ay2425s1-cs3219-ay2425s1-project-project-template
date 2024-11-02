@@ -1,7 +1,18 @@
-import { Loader2, MessageSquare, Send, X } from 'lucide-react';
+import { Loader2, MessageSquare, Send, Trash2, X } from 'lucide-react';
 import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +27,7 @@ interface ChatLayoutProps {
   isLoading: boolean;
   error: string | null;
   title: string;
+  onClearHistory?: () => void;
 }
 
 export const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -26,6 +38,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   isLoading,
   error,
   title,
+  onClearHistory,
 }) => {
   const [input, setInput] = useState<string>('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -35,7 +48,6 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Focus and scroll to bottom on window open
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
@@ -43,12 +55,10 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     }
   }, [isOpen]);
 
-  // Scroll to bottom on reception of messages
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Resize textarea on input, up to a maximum height
   useEffect(() => {
     const textAreaEl = inputRef.current;
 
@@ -82,6 +92,32 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
           <h2 className='font-semibold'>{title}</h2>
         </div>
         <div className='flex items-center gap-2'>
+          {onClearHistory && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='hover:bg-secondary rounded-full'
+                  disabled={messages.length === 0}
+                >
+                  <Trash2 className='size-4' />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Chat History</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to clear the chat history? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onClearHistory}>Clear History</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button
             variant='ghost'
             size='icon'
