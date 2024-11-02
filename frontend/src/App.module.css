@@ -10,6 +10,11 @@ button {
     font-size: 0.9rem;
 }
 
+select {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+}
+
 .App {
     background-color: #1b1f24;
     display: flex;

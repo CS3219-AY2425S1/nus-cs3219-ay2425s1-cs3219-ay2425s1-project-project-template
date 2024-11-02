@@ -3,19 +3,21 @@ import io from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCookies } from "react-cookie";
 import Question from '../../components/Question';
-import Editor from '@monaco-editor/react'; 
+import CodeEditor from './CodeEditor';
 import PartnerDisplay from '../../components/PartnerDisplay';
 
 import styles from './CollaborationPage.module.css';
 
 const CollaborationPage = () => {
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
-    const { roomId } = useParams(); 
+    const { roomId } = useParams();
     const [question, setQuestion] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [content, setContent] = useState('');
     const [partnerUsername, setPartnerUsername] = useState('');
     const [isConnected, setIsConnected] = useState(false);
+    const [language, setLanguage] = useState("javascript");
+    const [theme, setTheme] = useState("githubLight");
 
     const navigate = useNavigate();
     const socketRef = useRef(null);
@@ -34,7 +36,7 @@ const CollaborationPage = () => {
             console.log('Emitting first_username');
             socketRef.current.emit('first_username', { roomId, username: cookies.username });
         }
-        
+
         socketRef.current.on('collaboration_ready', (data) => {
             setQuestion(data.question);
             setIsLoading(false);
@@ -66,10 +68,15 @@ const CollaborationPage = () => {
             setPartnerUsername(data.username);
             setIsConnected(true);
         });
-        
+
         socketRef.current.on('documentUpdate', (data) => {
             console.log('documentUpdate event received: ', data.content);
             setContent(data.content);
+        });
+
+        socketRef.current.on('languageUpdate', (data) => {
+            console.log('languageUpdate event received: ', data.language);
+            setLanguage(data.language);
         });
 
         socketRef.current.on('partner_disconnect', (data) => {
@@ -77,7 +84,7 @@ const CollaborationPage = () => {
             console.log(`partner_disconnect event received for user: ${data.username}`);
             setIsConnected(false);
         });
-        
+
         return () => {
             console.log('Disconnecting socket');
             socketRef.current.disconnect();
@@ -98,30 +105,42 @@ const CollaborationPage = () => {
         socketRef.current.disconnect();
     };
 
+    const handleLanguageChange = (newLanguage) => {
+        setLanguage(newLanguage.target.value);
+        console.log('Language change: ', newLanguage.target.value);
+        socketRef.current.emit('editLanguage', { roomId, language: newLanguage.target.value });
+    }
+
+    const handleThemeChange = (newTheme) => {
+        setTheme(newTheme.target.value);
+    }
+
     return (
         <div className={styles.CollaborationContainer}>
             {isLoading ? (
                 <p>Loading...</p>
             ) : (
                 <>
-                    <div className="editorContainer">
-                        <Editor
-                            height="100%"
-                            theme="light"
-                            value={content}
-                            onChange={handleEditorChange}
-                            options={{
-                                lineNumbers: "on",
-                                minimap: { enabled: false },
-                                fontSize: 16,
-                                wordWrap: "on",
-                                scrollBeyondLastLine: false,
-                                renderIndentGuides: true,
-                                automaticLayout: true,
-                                cursorBlinking: "smooth",
-                                padding: { top: 10 },
-                                folding: true,
-                            }}
+                    <div className={styles.editorContainer}>
+                        <div className={styles.toolbar}>
+                            <select value={language} onChange={handleLanguageChange}>
+                                <option value="javascript">JavaScript</option>
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                            </select>
+
+                            <select value={theme} onChange={handleThemeChange}>
+                                <option value="githubLight">Light</option>
+                                <option value="githubDark">Dark</option>
+                            </select>
+                        </div>
+
+                        <CodeEditor
+                            currentLanguage={language}
+                            currentTheme={theme}
+                            currentCode={content}
+                            setCurrentCode={handleEditorChange}
                         />
                     </div>
 

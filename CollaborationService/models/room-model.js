@@ -4,11 +4,16 @@ class Room {
         this.users = [user1Id, user2Id]; 
         this.question = question; 
         this.documentContent = ''; 
+        this.language = 'javascript', // set javascript as the default
         this.cursors = {}; 
     }
 
     updateContent(content) {
         this.documentContent = content;
+    }
+
+    updateLanguage(language) {
+        this.language = language;
     }
 
     updateCursorPosition(userId, position) {
@@ -21,6 +26,7 @@ class Room {
             users: this.users,
             question: this.question,
             documentContent: this.documentContent,
+            language: this.language,
             cursors: this.cursors
         };
     }
