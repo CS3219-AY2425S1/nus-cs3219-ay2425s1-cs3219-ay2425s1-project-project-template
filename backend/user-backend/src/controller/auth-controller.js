@@ -12,7 +12,13 @@ import {
   deleteTempEmailById as _deleteTempEmailById,
   deleteTempPasswordById as _deleteTempPasswordById,
 } from "../model/repository.js";
-import { hashPassword, formatFullUserResponse, sendEmailVerification, sendPasswordVerification, validatePassword } from "./controller-utils.js";
+import {
+  hashPassword,
+  formatFullUserResponse,
+  sendEmailVerification,
+  sendPasswordVerification,
+  validatePassword
+} from "./controller-utils.js";
 
 export async function handleLogin(req, res) {
   const { username, email, password } = req.body;
@@ -55,7 +61,7 @@ export async function handleLogin(req, res) {
 
 export async function handleVerifyToken(req, res) {
   try {
-    const verifiedUser = req.user;
+    const verifiedUser = await formatFullUserResponse(req.user);
     return res.status(200).json({ message: "Token verified", data: verifiedUser });
   } catch (err) {
     return res.status(500).json({ message: err.message });
