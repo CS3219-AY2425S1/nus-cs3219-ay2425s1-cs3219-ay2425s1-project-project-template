@@ -21,7 +21,7 @@ export async function removeUserFromCollection(): Promise<SuccessObject> {
         uid: uid
     }
     const res = await callFunction(HTTP_SERVICE_USER, "user/removeFromUserCollection", "POST", userData);
-    return res
+    return res;
 }
 
 export const fetchAdminStatus = async () => {
