@@ -225,7 +225,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
   };
 
   return (
-    <div>
+    <div className="absolute bottom-0 right-0 mb-2 mr-8">
       <div className="flex flex-row gap-2">
         <div>
           <video
@@ -234,7 +234,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             autoPlay
             playsInline
             muted
-            style={{ width: "200px" }}
+            style={{ width: "180px" }}
           />
           {localVideoSourceObject && (
             <div className="mt-1">
@@ -262,7 +262,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             ref={remoteVideoRef}
             autoPlay
             muted={isRemoteMuted}
-            style={{ width: "200px" }}
+            style={{ width: "180px" }}
           />
           {remoteVideoSourceObject && (
             <div className="mt-1">

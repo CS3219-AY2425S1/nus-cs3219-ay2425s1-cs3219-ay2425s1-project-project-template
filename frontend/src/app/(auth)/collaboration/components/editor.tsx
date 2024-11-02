@@ -77,7 +77,10 @@ function Collaboration({ room, language }: Props) {
     }
   }, [room]);
 
-  function handleEditorDidMount(editor: { onDidChangeCursorPosition: (arg0: (e: any) => void) => void; }, monaco: any) {
+  function handleEditorDidMount(
+    editor: { onDidChangeCursorPosition: (arg0: (e: any) => void) => void },
+    monaco: any
+  ) {
     editorRef.current = editor;
 
     if (providerRef.current && docRef.current) {
@@ -102,7 +105,10 @@ function Collaboration({ room, language }: Props) {
 
   // Save session before page unload
   useEffect(() => {
-    const handleBeforeUnload = async (e: { preventDefault: () => void; returnValue: string; }) => {
+    const handleBeforeUnload = async (e: {
+      preventDefault: () => void;
+      returnValue: string;
+    }) => {
       e.preventDefault();
       await saveSession();
       e.returnValue = ""; // Chrome requires returnValue to be set
@@ -147,7 +153,7 @@ function Collaboration({ room, language }: Props) {
       <Toolbar editor={editorRef.current} language={language} saving={saving} />
       <div className="w-full h-[1px] bg-primary-1000 mx-auto my-2"></div>
       <Editor
-        height="50vh"
+        height="65vh"
         width="full"
         theme="vs-dark"
         defaultLanguage={language}
@@ -155,7 +161,7 @@ function Collaboration({ room, language }: Props) {
         onMount={handleEditorDidMount}
         options={{ wordWrap: "on" }}
       />
-      <div className="w-full h-[50vh] bg-editor">
+      <div className="w-full bg-editor">
         {providerRef.current && <VideoCall provider={providerRef.current} />}
       </div>
     </div>
