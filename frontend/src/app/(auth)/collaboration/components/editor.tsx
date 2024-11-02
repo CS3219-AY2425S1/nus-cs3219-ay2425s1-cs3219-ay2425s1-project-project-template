@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { MonacoBinding } from "y-monaco";
@@ -91,8 +93,8 @@ function Collaboration({ room, language }: Props) {
       );
     }
 
-    editor.onDidChangeCursorPosition((e: any) => {
-      var selection = editorRef.current.getSelection();
+    editor.onDidChangeCursorPosition(() => {
+      const selection = editorRef.current.getSelection();
       if (selection) {
         setSelectionRange(selection);
       }
