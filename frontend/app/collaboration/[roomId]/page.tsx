@@ -33,6 +33,7 @@ const mockQuestion: Question = {
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
+  const [language, setLanguage] = useState("JavaScript");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId;
@@ -50,7 +51,7 @@ export default function Page() {
     });
 
     socket?.on("waiting-for-other-user-end", () => {
-      toast.info(`Waiting for other user to click exit.`, {
+      toast.info("Waiting for other user to click exit.", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -86,11 +87,7 @@ export default function Page() {
   }, [socket, roomId, user]);
 
   const isAvatarActive = (otherUser: string) => {
-    if (otherUser) {
-      return "success";
-    } else {
-      return "default";
-    }
+    return otherUser ? "success" : "default";
   };
 
   return (
@@ -107,23 +104,34 @@ export default function Page() {
           Exit Session
         </Button>
       </div>
-      <div className="flex">
-        <div className="flex-[2_2_0%]">
+      <div className="flex h-screen">
+        {/* Question Section */}
+        <div className="flex-[2_2_0%] p-4 border-r border-gray-700">
           <QuestionDescription isCollab={true} question={mockQuestion} />
         </div>
-        <div className="flex-[3_3_0%]">
-          {/* Render the VoiceChat component */}
-          <VoiceChat />
 
-          {/* Render the CodeEditor */}
-          <CodeEditor roomId={roomId as string} setOutput={setOutput} />
-          <div style={{ marginTop: "20px" }}>
-            <h3>Output:</h3>
-            <pre>{output}</pre>
+        {/* Editor Section */}
+        <div className="flex-[3_3_0%] p-4 border-r border-gray-700">
+          <VoiceChat />
+          <CodeEditor
+            language={language}
+            roomId={roomId as string}
+            setOutput={setOutput}
+          />
+        </div>
+
+        {/* Output Section */}
+        <div className="flex-[1_1_0%] p-4">
+          <div className="border border-gray-700 rounded-lg p-4 h-full">
+            <h3 className="font-semibold mb-2">Output:</h3>
+            <div className="overflow-auto h-full">
+              <pre>{output}</pre>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Modals */}
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (

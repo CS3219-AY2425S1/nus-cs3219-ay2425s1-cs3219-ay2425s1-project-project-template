@@ -11,6 +11,7 @@ var randomColor = require("randomcolor"); // import the script
 interface CodeEditorProps {
   roomId: string;
   setOutput: React.Dispatch<React.SetStateAction<string>>;
+  language: string;
 }
 
 const API_BASE_URL =
@@ -26,7 +27,11 @@ const LANGUAGE_MAP: Record<string, number> = {
   // Add more mappings as needed
 };
 
-export default function CodeEditor({ setOutput, roomId }: CodeEditorProps) {
+export default function CodeEditor({
+  setOutput,
+  roomId,
+  language,
+}: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
 
@@ -87,7 +92,6 @@ export default function CodeEditor({ setOutput, roomId }: CodeEditorProps) {
     }
   };
 
-  // Runs once when the component mounts
   useEffect(() => {
     if (typeof window !== "undefined" && monaco) {
       // create a yew yjs doc
@@ -169,24 +173,36 @@ export default function CodeEditor({ setOutput, roomId }: CodeEditorProps) {
   }, [monaco]);
 
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <button
+        style={{
+          alignSelf: "center",
+          padding: "8px 16px",
+          marginBottom: "8px",
+          backgroundColor: "#007bff",
+          color: "#fff",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+        onClick={executeCode}
+      >
+        Run Code
+      </button>
       <Editor
-        height="100vh"
-        language="javascript"
+        height="75vh"
+        language={language.toLowerCase()}
         options={{
           scrollBeyondLastLine: false,
           fixedOverflowWidgets: true,
           fontSize: 14,
         }}
         theme="vs-dark"
-        width="50vw"
+        width="100%"
         onMount={(editor) => {
           codeEditorRef.current = editor;
         }}
       />
-      <button style={{ marginTop: "10px" }} onClick={executeCode}>
-        Run Code
-      </button>
     </div>
   );
 }
