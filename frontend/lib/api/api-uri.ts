@@ -14,3 +14,6 @@ export const matchingServiceUri: (baseUri: string) => string = (baseUri) =>
 export const matchingServiceWebSockUri: (baseUri: string) => string = (
   baseUri
 ) => constructWebSockUri(baseUri, process.env.NEXT_PUBLIC_MATCHING_SVC_PORT);
+
+export const collabServiceUri: (baseUri: string) => string = (baseUri) =>
+  constructUri(baseUri, process.env.NEXT_PUBLIC_COLLAB_SVC_PORT);

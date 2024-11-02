@@ -9,6 +9,7 @@ import { joinMatchQueue } from "@/lib/join-match-queue";
 import { leaveMatchQueue } from "@/lib/leave-match-queue";
 import { subscribeMatch } from "@/lib/subscribe-match";
 import { useRouter } from "next/navigation";
+import { collabServiceUri } from "@/lib/api/api-uri";
 
 export default function FindMatch() {
   const router = useRouter();
@@ -35,6 +36,52 @@ export default function FindMatch() {
       clearInterval(interval);
     };
   }, [isSearching]);
+
+  const fetchRoomAndRedirect = async (user1_id: string, user2_id: string) => {
+    try {
+      const res = await fetch(
+        `${collabServiceUri(window.location.hostname)}/collab/create-room`, 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user1: user1_id, user2: user2_id }),
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.roomId) {
+          toast({
+            title: "Matched",
+            description: "Successfully matched",
+            variant: "success",
+          });
+          router.push(`/app/collab/${data.roomId}`);
+        } else {
+          toast({
+            title: "Error",
+            description: "Room ID not found in response",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create or retrieve the room",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to connect to the collaboration service",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSearch = async () => {
     if (!selectedDifficulty || !selectedTopic) {
@@ -91,15 +138,16 @@ export default function FindMatch() {
           responseData = initialResponseData;
         }
 
-        if (responseData.room_id) {
+        if (responseData) {
           isMatched = true;
-          const roomId = responseData.room_id;
+          const user1_id = responseData.user1;
+          const user2_id = responseData.user2;
           toast({
             title: "Matched",
             description: "Successfully matched",
             variant: "success",
           });
-          router.push(`/app/collab/${roomId}`);
+          await fetchRoomAndRedirect(user1_id, user2_id);
         } else {
           toast({
             title: "Error",
@@ -121,38 +169,25 @@ export default function FindMatch() {
           handleCancel(true);
         }, waitTimeout);
 
-        ws.onmessage = (event) => {
-          let responseData;
-
+        ws.onmessage = async (event) => {
           try {
-            responseData = JSON.parse(event.data);
+            let responseData = JSON.parse(event.data);
             if (typeof responseData === "string") {
               responseData = JSON.parse(responseData);
+            }
+
+            const user1_id = responseData.user1;
+            const user2_id = responseData.user2;
+            if (user1_id && user2_id) {
+              isMatched = true;
+              setIsSearching(false);
+              clearTimeout(queueTimeout);
+              await fetchRoomAndRedirect(user1_id, user2_id);
             }
           } catch (error) {
             toast({
               title: "Error",
-              description: "Unexpected error occured, please try again",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          const roomId = responseData.room_id;
-          if (roomId) {
-            isMatched = true;
-            setIsSearching(false);
-            clearTimeout(queueTimeout);
-            toast({
-              title: "Matched",
-              description: "Successfully matched",
-              variant: "success",
-            });
-            router.push(`/app/collab/${roomId}`);
-          } else {
-            toast({
-              title: "Error",
-              description: "Room ID not found",
+              description: "Unexpected error occurred, please try again",
               variant: "destructive",
             });
           }
@@ -162,7 +197,6 @@ export default function FindMatch() {
           setIsSearching(false);
           clearTimeout(queueTimeout);
           if (!isMatched) {
-            // Only show this toast if no match was made
             toast({
               title: "Matching Stopped",
               description: "Matching has been stopped",
