@@ -8,20 +8,24 @@ import { GithubIcon } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { axiosClient } from '@/network/axiosClient';
 import { login } from '@/lib/auth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
 import { initiateOAuth } from '@/lib/oauth';
 
-export default function LoginForm() {
+// Add Props type for the page
+type Props = {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default function LoginForm({ searchParams }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const error = searchParams.get('error');
+    const error = searchParams?.error;
     if (error) {
       setError('email or username already exists');
     }
