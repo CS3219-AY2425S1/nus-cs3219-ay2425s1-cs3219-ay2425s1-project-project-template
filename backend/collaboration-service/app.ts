@@ -8,6 +8,7 @@ import { startRabbitMQ } from "./consumer";
 import { authenticateAccessToken } from "./utils/jwt";
 import mongoose from "mongoose";
 import { checkAuthorisedUser, getQuestionHandler, getHistoryHandler, saveCodeHandler, getSessionHandler } from "./controllers/controller";
+import { verifyAccessToken } from "./middleware/middleware";
 import axios from "axios";
 
 import { WebSocketServer } from "ws";
@@ -60,10 +61,10 @@ const io = new Server(httpServer, {
   cors: { origin: FRONTEND_URL },
 });
 
-app.get("/check-authorization", checkAuthorisedUser);
-app.get("/get-question", getQuestionHandler);
-app.get("/get-history", getHistoryHandler);
-app.get("/get-session", getSessionHandler);
+app.get("/check-authorization", verifyAccessToken, checkAuthorisedUser);
+app.get("/get-question", verifyAccessToken, getQuestionHandler);
+app.get("/get-history", verifyAccessToken, getHistoryHandler);
+app.get("/get-session", verifyAccessToken, getSessionHandler);
 app.post("/save-code", saveCodeHandler);
 
 // POST endpoint to submit code for execution
@@ -157,8 +158,9 @@ io.on("connection", (socket) => {
       socket.on("user-agreed-end", (roomId: string, userId: string) => {
         usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
         usersAgreedEnd[roomId][userId] = true;
-
+        console.log(userId + " agreed end")
         if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
+          console.log( "both agreed end")
           io.to(roomId).emit("both-users-agreed-end", roomId);
           usersAgreedEnd[roomId] = {};
         } else {
