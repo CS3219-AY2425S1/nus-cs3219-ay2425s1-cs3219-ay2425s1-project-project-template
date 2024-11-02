@@ -57,10 +57,10 @@ const ProfilePage: React.FC = () => {
                             />
                             <div className='py-1'>
                                 <div className='flex gap-2'>
-                                    <h2 className="text-lg font-bold">{user.name}</h2>
+                                    <h2 className="text-md font-bold">{user.name}</h2>
                                     {isAdmin && <Badge variant='outline'>Admin</Badge>}
                                 </div>
-                                <p className="text-gray-600 text-sm">{user.email}</p>
+                                <p className="text-gray-600 text-xs">{user.email}</p>
                             </div>
                         </div>
                         {/* <button
@@ -78,8 +78,8 @@ const ProfilePage: React.FC = () => {
                             </div>
                             <div className='grid grid-cols-3 gap-2'>
                                 {difficulties.map((difficulty) => (
-                                    <div className="flex flex-col items-center justify-center p-2 bg-gray-100 rounded-sm">
-                                        <span className="text-xs font-semibold">{difficulty}</span>
+                                    <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-sm">
+                                        <span style={{ color: `var(--color-${difficulty}-bg)` }} className={`text-xs font-semibold`}>{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</span>
                                         <span className="text-xs">count</span>
                                     </div>
                                 ))}
@@ -89,6 +89,9 @@ const ProfilePage: React.FC = () => {
                         {/* Categories Statistics */}
                         <div className="flex flex-col gap-2">
                             <h2 className="text-sm font-bold">Skills</h2>
+                            <div className='flex'>
+                                {/* Add content here */}
+                            </div>
                         </div>
                     </div>
                     <div className="flex-1 bg-white rounded-lg">
