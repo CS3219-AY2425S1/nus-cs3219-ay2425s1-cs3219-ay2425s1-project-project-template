@@ -4,6 +4,8 @@ import { UserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
+import axios from "axios";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import EditorElement from "./EditorElement";
 
 const EditorView: React.FC = () => {
@@ -22,43 +24,30 @@ const EditorView: React.FC = () => {
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic");
   const difficulty = searchParams.get("difficulty");
+  const questionId = searchParams.get("questionId");
   const [question, setQuestion] = useState<Question | null>(null);
   const api = useQuesApiContext();
 
   const roomId = searchParams.get("roomId");
 
   useEffect(() => {
-    if (roomId === null || roomId === "") {
-      // || topic === null ||
-      // difficulty === null ||
-      // topic === "" ||
-      // difficulty === "" ||
-      navigate("/dashboard");
-      return;
-    }
+    // if (roomId === null || roomId === "" || questionId === null || questionId === "") {
+    //   navigate("/dashboard");
+    //   return;
+    // }
+    
+    // fetchQuestion(questionId);
 
-    socketRef.current = io("http://localhost:8080/");
+    socketRef.current = io("http://localhost:3004/", {
+      path: "/api",
+      query: { roomId },
+    });
     const socket = socketRef.current;
 
     if (socket === null) return;
 
     socket.on("connect", () => {
       setSocketId(socket.id);
-      socket.emit("joinQueue", { username: user?.username, topic, difficulty });
-    });
-
-    socket.on("matched", async (data: { message: string; room: string; questionId: string }) => {
-      setRoom(data.room);
-      setIsMatched(true);
-      await fetchQuestion(data.questionId); // Fetch the question using the questionId
-    });
-
-    socket.on("queueEntered", (data: { message: string }) => {
-      console.log("queue entered", data);
-    });
-
-    socket.on("matchFailed", (data: { error: string }) => {
-      console.log("Match failed:", data.error);
     });
 
     socket.on("assignSocketId", (data: { socketId: string }) => {

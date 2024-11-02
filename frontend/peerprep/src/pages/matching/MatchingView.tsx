@@ -4,13 +4,12 @@ import Timer from "./Timer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { useUserContext } from "../../context/UserContext";
+import { useQuesApiContext } from "../../context/ApiContext";
 
 const MatchingView: React.FC = () => {
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
   const [queueStatus, setQueueStatus] = useState<string>("loading"); // loading, matched, timeout
-  // const [isMatched, setIsMatched] = useState<boolean>(false);
-  // const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const [elapsedTime, setElapsedTime] = useState<number>(0); // Track elapsed time
   const [status, setStatus] = useState<string>("");
 
@@ -30,13 +29,13 @@ const MatchingView: React.FC = () => {
   // };
 
   // Success handler for match found
-  const handleMatchFound = (room: string) => {
+  const handleMatchFound = (room: string, questionId: string) => {
     setQueueStatus("matched");
     // setIsMatched(true); // Set match status
     setTimeout(() => {
       // Redirect to the collaboration room
       navigate(
-        `/editor?topic=${topic}&difficulty=${difficulty}&room=${room}`
+        `/editor?topic=${topic}&difficulty=${difficulty}&room=${room}&questionId=${questionId}`
       );
     }, 1000);
   };
@@ -98,12 +97,11 @@ const MatchingView: React.FC = () => {
     });
 
     // Listen for a match success from the server
-    socket.on("matched", (data: { message: string; room: string }) => {
+    socket.on("matched", (data: { message: string; room: string; questionId: string }) => {
       console.log("Matched and assigned to room:", data.room);
       setStatus(data.message);
-
       handleStopTimer();
-      handleMatchFound(data.room); // Handle match found with the room name
+      handleMatchFound(data.room , data.questionId); // Handle match found with the room name
     });
 
     // Listen for a match failure from the server

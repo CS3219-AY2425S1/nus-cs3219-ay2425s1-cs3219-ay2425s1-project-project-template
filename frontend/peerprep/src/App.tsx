@@ -15,7 +15,6 @@ import RegistrationController from "./pages/user/controllers/RegistrationControl
 import PrivateRoutes from "./utils/PrivateRoutes";
 import DashboardView from "./pages/dashboard/DashboardView";
 import ProfileView from "./pages/profile/ProfileView";
-import CollaborationView from "./pages/collaboration/CollaborationView";
 import { initApi, authApi, questionApi } from "./utils/api";
 import MatchingView from "./pages/matching/MatchingView";
 import EditorView from "./pages/collaboration/EditorView";
@@ -50,7 +49,6 @@ const App: React.FC = () => {
             <Route path="/questions" element={<QuestionController />} />
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/profile" element={<ProfileView />} />
-            <Route path="/collaboration" element={<CollaborationView />} />
             <Route path="/matching" element={<MatchingView />} />
             <Route path="/editor" element={<EditorView />} />
           </Route>
