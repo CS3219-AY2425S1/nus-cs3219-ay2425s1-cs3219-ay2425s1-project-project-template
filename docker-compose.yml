@@ -49,9 +49,11 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=$REDIS_PORT
       - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
+      - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
     depends_on:
       - redis
       - question-service
+      - collab-service
 
   redis:
     image: redis:7.4-alpine

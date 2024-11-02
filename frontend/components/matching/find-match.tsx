@@ -9,7 +9,6 @@ import { joinMatchQueue } from "@/lib/join-match-queue";
 import { leaveMatchQueue } from "@/lib/leave-match-queue";
 import { subscribeMatch } from "@/lib/subscribe-match";
 import { useRouter } from "next/navigation";
-import { fetchRoom } from "@/lib/api/collab-service/fetch-room";
 
 export default function FindMatch() {
   const router = useRouter();
@@ -36,50 +35,6 @@ export default function FindMatch() {
       clearInterval(interval);
     };
   }, [isSearching]);
-
-  const fetchRoomAndRedirect = async (
-    user1_id: string,
-    user2_id: string,
-    question_id: string
-  ) => {
-    try {
-      const res = await fetchRoom(user1_id, user2_id, question_id);
-
-      switch (res.status) {
-        case 201:
-          const data = await res.json();
-          if (data.roomId) {
-            toast({
-              title: "Matched",
-              description: "Successfully matched",
-              variant: "success",
-            });
-            router.push(`/app/collab/${data.roomId}`);
-          } else {
-            toast({
-              title: "Error",
-              description: "Room ID not found in response",
-              variant: "destructive",
-            });
-          }
-          break;
-
-        default:
-          toast({
-            title: "Error",
-            description: "Failed to create or retrieve the room",
-            variant: "destructive",
-          });
-          break;
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to connect to the collaboration service",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSearch = async () => {
     if (!selectedDifficulty || !selectedTopic) {
@@ -138,15 +93,13 @@ export default function FindMatch() {
 
         if (responseData) {
           isMatched = true;
-          const user1_id = responseData.user1;
-          const user2_id = responseData.user2;
-          const question_id = responseData.question_id;
+          const room_id = responseData.room_id;
           toast({
             title: "Matched",
             description: "Successfully matched",
             variant: "success",
           });
-          await fetchRoomAndRedirect(user1_id, user2_id, question_id);
+          router.push(`/app/collab/${room_id}`);
         } else {
           toast({
             title: "Error",
@@ -177,13 +130,12 @@ export default function FindMatch() {
 
             const user1_id = responseData.user1;
             const user2_id = responseData.user2;
-            const question_id = responseData.question_id;
-            console.log(question_id);
+            const room_id = responseData.room_id;
             if (user1_id && user2_id) {
               isMatched = true;
               setIsSearching(false);
               clearTimeout(queueTimeout);
-              await fetchRoomAndRedirect(user1_id, user2_id, question_id);
+              router.push(`/app/collab/${room_id}`);
             }
           } catch (error) {
             toast({

@@ -11,11 +11,15 @@ import httpx
 QUESTION_SVC_PORT = os.getenv("QUESTION_SVC_PORT")
 QUESTION_SVC_URL = f"http://question-service:{QUESTION_SVC_PORT}"
 
+COLLAB_SVC_PORT = os.getenv("COLLAB_SVC_PORT")
+COLLAB_SVC_URL = f"http://collab-service:{COLLAB_SVC_PORT}"
+
 async def find_match_else_enqueue(
     user_id: str,
     topic: str,
     difficulty: str
 ) -> Union[Response, JSONResponse]:
+    # Try to fetch a random question with specified criteria from question service
     try:
         question_id = await fetch_random_question(topic, difficulty)
     except Exception as e:
@@ -54,13 +58,22 @@ async def find_match_else_enqueue(
     logger.debug(_get_queue_state_message(topic, difficulty, queue, False))
     await release_lock(redis_client, queue_key)
     
+    # Try to create a common room for the matched users
+    try:
+        room_id = await create_room(user_id, matched_user, question_id)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Failed to create room"}
+        )
     
     response = MatchModel(
         user1=matched_user,
         user2=user_id,
         topic=topic,
         difficulty=difficulty,
-        question_id=question_id
+        question_id=question_id,
+        room_id = room_id
     )
     await manager.broadcast(matched_user, topic, difficulty, response.json())
     await manager.disconnect_all(matched_user, topic, difficulty)
@@ -121,3 +134,20 @@ async def fetch_random_question(topic: str, difficulty: str) -> str:
         question_data = response.json()
         return question_data["id"]
 
+async def create_room(user1: str, user2: str, question_id: str) -> str:
+    logger.debug("Test!")
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{COLLAB_SVC_URL}/collab/create-room",
+            json={
+                "user1": user1,
+                "user2": user2,
+                "question_id": question_id
+            }
+        )
+        
+        if response.status_code != 201:
+                raise Exception(f"Failed to create room")
+        
+    room_data = response.json()
+    return room_data["roomId"]
