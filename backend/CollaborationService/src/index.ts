@@ -19,7 +19,11 @@ app.get("/", (req, res) => {
 });
 
 // using ioredis for socket.io due to problems stated in documentation for socket io adapter
-const redisClient = new Redis(process.env.REDIS_URL || "");
+const redisClient = new Redis(
+  process.env.ENV === "DEV"
+    ? process.env.REDIS_URL || ""
+    : "redis://127.0.0.1:6379"
+);
 
 redisClient.on("connect", () => {
   console.log("Connected to Redis:", process.env.REDIS_URL);
