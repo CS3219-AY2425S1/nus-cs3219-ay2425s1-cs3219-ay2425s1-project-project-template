@@ -21,6 +21,13 @@ export async function handleCodeUpdates(socket: Socket, { roomId, code }: { room
   socket.to(roomId).emit("code_update", { code });
 }
 
+export async function handleSendMessage(socket: Socket, { roomId, userName, message }: {roomId: string; userName: string; message: string}) {
+  const chatMessage = { userName, message, timestamp: Date.now() };
+  console.log(`User ${userName} sent a message in room ${roomId}`);
+  await redis.rpush(`chat:${roomId}`, JSON.stringify(chatMessage));
+  socket.to(roomId).emit("receive_message", chatMessage);  
+}
+
 export async function handleLeaveRoom(socket: Socket, { roomId, userName }: { roomId: string; userName: string }) {
   socket.leave(roomId);
   console.log(`User ${userName} left room ${roomId}`);
