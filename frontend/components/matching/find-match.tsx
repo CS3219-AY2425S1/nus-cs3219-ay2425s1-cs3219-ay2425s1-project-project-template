@@ -9,7 +9,7 @@ import { joinMatchQueue } from "@/lib/join-match-queue";
 import { leaveMatchQueue } from "@/lib/leave-match-queue";
 import { subscribeMatch } from "@/lib/subscribe-match";
 import { useRouter } from "next/navigation";
-import { collabServiceUri } from "@/lib/api/api-uri";
+import { fetchRoom } from "@/lib/api/collab-service/fetch-room";
 
 export default function FindMatch() {
   const router = useRouter();
@@ -39,42 +39,37 @@ export default function FindMatch() {
 
   const fetchRoomAndRedirect = async (user1_id: string, user2_id: string) => {
     try {
-      const res = await fetch(
-        `${collabServiceUri(window.location.hostname)}/collab/create-room`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ user1: user1_id, user2: user2_id }),
-        }
-      );
+      const res = await fetchRoom(user1_id, user2_id);
+      console.log(res.status);
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.roomId) {
-          toast({
-            title: "Matched",
-            description: "Successfully matched",
-            variant: "success",
-          });
-          router.push(`/app/collab/${data.roomId}`);
-        } else {
+      switch (res.status) {
+        case 201:
+          const data = await res.json();
+          if (data.roomId) {
+            toast({
+              title: "Matched",
+              description: "Successfully matched",
+              variant: "success",
+            });
+            router.push(`/app/collab/${data.roomId}`);
+          } else {
+            toast({
+              title: "Error",
+              description: "Room ID not found in response",
+              variant: "destructive",
+            });
+          }
+          break;
+
+        default:
           toast({
             title: "Error",
-            description: "Room ID not found in response",
+            description: "Failed to create or retrieve the room",
             variant: "destructive",
           });
-        }
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to create or retrieve the room",
-          variant: "destructive",
-        });
+          break;
       }
     } catch (error) {
-      console.error(error);
       toast({
         title: "Error",
         description: "Failed to connect to the collaboration service",
