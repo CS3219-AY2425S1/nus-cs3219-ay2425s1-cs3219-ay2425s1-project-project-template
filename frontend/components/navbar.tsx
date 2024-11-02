@@ -16,10 +16,11 @@ import { Avatar } from "@nextui-org/avatar";
 import { Link } from "@nextui-org/link";
 import NextLink from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 
 import NavLink from "@/components/navLink";
 import { useLogout } from "@/hooks/api/auth";
+import { UserContext } from "@/context/UserContext";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";
@@ -28,6 +29,8 @@ import { useUser } from "@/hooks/users";
 export const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const userContext = useContext(UserContext);
+  const isAdmin = userContext?.user?.isAdmin || false;
   const { user, setUser } = useUser();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -41,6 +44,8 @@ export const Navbar: React.FC = () => {
       },
     });
   };
+
+  const config = siteConfig(isAdmin);
 
   useEffect(() => {
     if (user) {
@@ -63,7 +68,7 @@ export const Navbar: React.FC = () => {
         {/* Display Links to Pages only when logged in */}
         {isLoggedIn && (
           <div className="hidden lg:flex gap-4 justify-start ml-2">
-            {siteConfig.navItems.map((item) => {
+            {config.navItems.map((item) => {
               const isActive = pathname === item.href;
 
               return (
@@ -82,7 +87,7 @@ export const Navbar: React.FC = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <Link isExternal href={siteConfig.links.github} title="GitHub">
+        <Link isExternal href={config.links.github} title="GitHub">
           <GithubIcon className="text-default-500" />
         </Link>
         <ThemeSwitch />
