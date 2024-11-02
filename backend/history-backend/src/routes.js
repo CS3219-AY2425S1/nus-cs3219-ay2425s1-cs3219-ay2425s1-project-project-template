@@ -7,6 +7,6 @@ router.post("/single/", addHistory);
 router.get("/single/:id", getHistory);
 router.delete("/single/:id", deleteHistory);
 
-router.get("/bulk", getSomeHistory);
+router.post("/bulk", getSomeHistory);
 
 export default router;

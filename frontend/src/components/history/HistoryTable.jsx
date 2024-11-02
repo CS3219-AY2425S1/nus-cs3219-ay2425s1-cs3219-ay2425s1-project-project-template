@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Button } from '@mui/material';
+import questionService from '../../services/question-service';
+import userService from '../../services/user-service';
 import useAuth from "../../hooks/useAuth";
 
 const columns = [
@@ -11,9 +14,41 @@ const columns = [
 ];
 
 export default function HistoryTable() {
-  const { history } = useAuth();
+  const { userId, cookies } = useAuth();
+  const [history, setHistory] = useState([]);
+  const [currentHistory, setCurrentHistory] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
+
+  useEffect(() => {
+    const fetchUserHistory = async () => {
+      const user = await userService.getUserById(userId, cookies.token);
+      const { data } = await axios.post(`http://localhost:3004/bulk`, {
+        "ids": user.history,
+        withCredentials: true,
+      });
+
+      setHistory(data.data);
+    };
+
+    userId && fetchUserHistory().catch(err => console.error(err));
+  }, [userId, cookies]);
+
+  useEffect(() => { // updates table whenever page and/or rowsperpage changes
+    const updatedCurrentHistory = new Array(rowsPerPage);
+    Promise.all(history
+      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      .map(async (each, index) => {
+        updatedCurrentHistory[index] = {
+          index: index + page * rowsPerPage + 1,
+          question: await questionService.getQuestionById(each.question, cookies),
+          partner: await userService.getUserById(each.partner, cookies.token),
+          status: each.status,
+          datetime: each.datetime,
+        };
+      })).then(() => setCurrentHistory(updatedCurrentHistory));
+
+  }, [page, rowsPerPage, history]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -42,13 +77,16 @@ export default function HistoryTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {history
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            {currentHistory
               .map((row, index) => {
-                const rowIndex = index + page * rowsPerPage + 1;
                 const isEvenRow = index % 2 === 0;
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex} style={{ backgroundColor: isEvenRow ? '#EBEBEB' : '#F7F7F7' }}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.index} style={{ backgroundColor: isEvenRow ? '#EBEBEB' : '#F7F7F7' }}>
+                    
+                    <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
+                      {row.index}
+                    </TableCell>
+
                     <TableCell>
                       <Button 
                         color="primary" 
@@ -69,12 +107,12 @@ export default function HistoryTable() {
                             textDecoration: 'underline',
                           }
                         }}>
-                        {row.question}
+                        {row.question.title}
                       </Button>
                     </TableCell>
 
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
-                      {row.partner}
+                      {row.partner.username}
                     </TableCell>
 
                     <TableCell 
