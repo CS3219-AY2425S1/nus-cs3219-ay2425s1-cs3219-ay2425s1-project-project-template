@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  overflow: hidden; /* Prevents unintended scrolling */
+  overflow: hidden;
 }
 
 .editor-top-bar {
@@ -15,9 +15,15 @@
   padding: 8px 16px;
   background-color: #2b2b2b;
   color: #ffffff;
-  font-size: 14px;
-  height: 40px; /* Fixed height for the top bar */
+  font-size: 15px;
+  height: 40px;
   box-sizing: border-box;
+  font-family: "Tourney", sans-serif;
+}
+
+.symbol {
+  color: green;
+  font-size: 20px;
 }
 
 .editor-language {
@@ -45,6 +51,38 @@ ngx-monaco-editor {
   color: #ffffff;
   font-size: 12px;
   text-align: right;
-  height: 30px; /* Fixed height for the bottom bar */
+  height: 30px;
   box-sizing: border-box;
 }
+
+.format-button {
+  font-family: 'Signika Negative', sans-serif;
+  gap: 0.3rem;
+  border-radius: 15px;
+  border: none;
+  flex-direction: row;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: lightseagreen;
+  color: white;
+}
+
+
+.notification-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #333;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.notification-panel {
+  margin-bottom: 5px;
+  margin-right: 20%;
+  background-color: red;
+}
+
+
+

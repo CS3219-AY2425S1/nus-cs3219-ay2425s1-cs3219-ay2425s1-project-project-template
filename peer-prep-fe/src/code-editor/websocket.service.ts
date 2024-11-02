@@ -10,15 +10,15 @@ export class WebSocketService {
 
   constructor() {}
 
-  connect(sessionId: string): void {
+  connect(sessionId: string, userId: string): void {
     if (this.socket$) {
       this.disconnect();
     }
-    this.socket$ = webSocket(`ws://localhost:8081/${sessionId}`); // Replace with your WebSocket server URL if different
+    this.socket$ = webSocket(`ws://localhost:8081/${sessionId}?userID=${userId}`);
   }
 
   sendMessage(message: any): void {
-    this.socket$.next(message); // Send the message as an object
+    this.socket$.next(message);
   }
 
   getMessages(): Observable<any> {
@@ -26,6 +26,8 @@ export class WebSocketService {
   }
 
   disconnect(): void {
-    this.socket$.complete(); // Close the WebSocket connection
+    if (this.socket$) {
+      this.socket$.complete();
+    }
   }
 }

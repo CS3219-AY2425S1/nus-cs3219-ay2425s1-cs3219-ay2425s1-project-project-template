@@ -1,11 +1,18 @@
 <div class="editor-container">
-  <!-- Top Bar with Language and Format Button -->
   <div class="editor-top-bar">
-    <span class="editor-language">&lt;/&gt; JavaScript</span>
-    <button (click)="formatCode()">Format Code</button>
+    <div class = "editor-language">
+      <span class="symbol">&lt;/&gt;</span>
+      <span>  JavaScript</span>
+    </div>
+    <button class="format-button" (click)="formatCode()">Format Code</button>
   </div>
 
-  <!-- Editor Component -->
+  <div *ngIf="notifications.length > 0" class="notification-panel">
+    <div *ngFor="let notification of notifications" class="notification">
+      {{ notification }}
+    </div>
+  </div>
+
   <ngx-monaco-editor
     [options]="editorOptions"
     [(ngModel)]="code"
@@ -13,7 +20,6 @@
     (onInit)="onEditorInit($event)"
   ></ngx-monaco-editor>
 
-  <!-- Bottom Bar with Line and Column Position -->
   <div class="editor-bottom-bar">
     Ln {{ line }}, Col {{ column }}
   </div>

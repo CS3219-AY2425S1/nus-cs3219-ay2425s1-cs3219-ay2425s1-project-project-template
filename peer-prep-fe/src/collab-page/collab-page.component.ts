@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 })
 export class CollabPageComponent implements OnInit, OnDestroy {
   sessionId!: string;
+  userId!: string;
   question!: Question;
   private routeSubscription!: Subscription;
   private sessionSubscription!: Subscription;
@@ -28,14 +29,19 @@ export class CollabPageComponent implements OnInit, OnDestroy {
     private webSocketService: WebSocketService
   ) {}
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
     // Get session ID from route parameters
     this.routeSubscription = this.route.params.subscribe(params => {
       this.sessionId = params['sessionId'];
+
+      // @Lynnettee getUserID
+      this.userId = this.route.snapshot.queryParamMap.get('userID') || '';
+
+
       this.fetchSessionData();
 
       // Connect to editor
-      this.webSocketService.connect(this.sessionId);
+      this.webSocketService.connect(this.sessionId, this.userId);
     })
   }
 
@@ -70,7 +76,7 @@ export class CollabPageComponent implements OnInit, OnDestroy {
     // this.endSession();
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
-    } 
+    }
     if (this.sessionSubscription) {
       this.sessionSubscription.unsubscribe();
     }
