@@ -1,38 +1,39 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Timer } from "lucide-react";
-import {
-  MATCH_TIMEOUT_DURATION,
-  MATCH_FOUND_MESSAGE_TYPE,
-  MATCH_TIMEOUT_MESSAGE_TYPE,
-  MATCH_FOUND_STATUS,
-  MATCH_TIMEOUT_STATUS,
-  MATCH_ERROR_STATUS,
-  MATCH_WAITING_STATUS,
-  MATCH_IDLE_STATUS,
-  MATCH_FOUND_SOUND_PATH,
-} from '@/lib/consts';
+} from '@/components/ui/select';
 import { useQuestionCategories } from '@/hooks/useQuestions';
-import { getToken } from "@/lib/utils";
+import {
+  MATCH_ERROR_STATUS,
+  MATCH_FOUND_MESSAGE_TYPE,
+  MATCH_FOUND_SOUND_PATH,
+  MATCH_FOUND_STATUS,
+  MATCH_IDLE_STATUS,
+  MATCH_TIMEOUT_DURATION,
+  MATCH_TIMEOUT_MESSAGE_TYPE,
+  MATCH_TIMEOUT_STATUS,
+  MATCH_WAITING_STATUS,
+} from '@/lib/consts';
+import { getToken } from '@/lib/utils';
+import { ArrowRight, Loader2, Timer } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-const difficultyLevels = ["Easy", "Medium", "Hard"];
+const difficultyLevels = ['Easy', 'Medium', 'Hard'];
 
 interface IdleViewProps {
   onStartMatching: (topic: string, difficulty: string) => void;
 }
 
 const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
-  const [topic, setTopic] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [topic, setTopic] = useState('');
+  const [difficulty, setDifficulty] = useState('');
   const [showErrors, setShowErrors] = useState(false);
 
   const { data: topics, isLoading } = useQuestionCategories();
@@ -48,24 +49,24 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <p className="mt-2">Loading...</p>
+      <div className='flex flex-col items-center justify-center h-full'>
+        <Loader2 className='w-8 h-8 animate-spin' />
+        <p className='mt-2'>Loading...</p>
       </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className='w-full max-w-md mx-auto'>
       <CardHeader>
         <CardTitle>Find a Coding Partner</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className='space-y-4'>
           <div>
             <Select onValueChange={setTopic}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a topic" />
+                <SelectValue placeholder='Select a topic' />
               </SelectTrigger>
               <SelectContent>
                 {topics &&
@@ -77,14 +78,14 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
               </SelectContent>
             </Select>
             {showErrors && !topic && (
-              <p className="text-sm text-red-500 mt-1">Please select a topic</p>
+              <p className='text-sm text-red-500 mt-1'>Please select a topic</p>
             )}
           </div>
 
           <div>
             <Select onValueChange={setDifficulty}>
               <SelectTrigger>
-                <SelectValue placeholder="Select difficulty" />
+                <SelectValue placeholder='Select difficulty' />
               </SelectTrigger>
               <SelectContent>
                 {difficultyLevels.map((d) => (
@@ -95,13 +96,13 @@ const IdleView: React.FC<IdleViewProps> = ({ onStartMatching }) => {
               </SelectContent>
             </Select>
             {showErrors && !difficulty && (
-              <p className="text-sm text-red-500 mt-1">
+              <p className='text-sm text-red-500 mt-1'>
                 Please select a difficulty level
               </p>
             )}
           </div>
 
-          <Button onClick={handleStartMatching} className="w-full">
+          <Button onClick={handleStartMatching} className='w-full'>
             Start Matching
           </Button>
         </div>
@@ -132,18 +133,18 @@ const WaitingView: React.FC<WaitingViewProps> = ({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className='w-full max-w-md mx-auto'>
       <CardHeader>
         <CardTitle>Finding a Match</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <div className='space-y-4'>
+          <div className='flex justify-center'>
+            <Loader2 className='h-12 w-12 animate-spin text-primary' />
           </div>
           <Alert>
             <AlertTitle>Searching for a match</AlertTitle>
@@ -151,15 +152,15 @@ const WaitingView: React.FC<WaitingViewProps> = ({
               Your position in queue: {queuePosition}
             </AlertDescription>
           </Alert>
-          <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-            <Timer className="h-4 w-4" />
+          <div className='flex items-center justify-center space-x-2 text-sm text-muted-foreground'>
+            <Timer className='h-4 w-4' />
             <span>Elapsed time: {formatTime(elapsedTime)}</span>
           </div>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className='text-center text-sm text-muted-foreground'>
             Please wait while we find a coding partner for you. This may take up
             to 30 seconds.
           </p>
-          <Button onClick={onCancel} variant="outline" className="w-full">
+          <Button onClick={onCancel} variant='outline' className='w-full'>
             Cancel Matching
           </Button>
         </div>
@@ -174,25 +175,33 @@ interface MatchedViewProps {
 }
 
 const MatchedView: React.FC<MatchedViewProps> = ({ roomId, onNewMatch }) => (
-  <Card className="w-full max-w-md mx-auto">
+  <Card className='w-full max-w-md mx-auto'>
     <CardHeader>
       <CardTitle>Match Found!</CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="space-y-4">
+      <div className='space-y-4'>
         <Alert>
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>
-            Your room ID is: <span className="font-bold">{roomId}</span>
+            Your room ID is: <span className='font-bold'>{roomId}</span>
           </AlertDescription>
         </Alert>
-        <p className="text-center text-sm text-muted-foreground">
+        <p className='text-center text-sm text-muted-foreground'>
           You've been matched with a coding partner. Use the room ID to join
           your collaborative session.
         </p>
-        <Button onClick={onNewMatch} className="w-full">
-          Find Another Match
-        </Button>
+        <div className='space-y-4'>
+          <Button asChild className='w-full group'>
+            <Link to={`/room/${roomId}`}>
+              Join Room
+              <ArrowRight className='w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform' />
+            </Link>
+          </Button>
+          <Button onClick={onNewMatch} variant='outline' className='w-full'>
+            Find Another Match
+          </Button>
+        </div>
       </div>
     </CardContent>
   </Card>
@@ -203,23 +212,23 @@ interface TimeoutViewProps {
 }
 
 const TimeoutView: React.FC<TimeoutViewProps> = ({ onRetry }) => (
-  <Card className="w-full max-w-md mx-auto">
+  <Card className='w-full max-w-md mx-auto'>
     <CardHeader>
       <CardTitle>Matching Timed Out</CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="space-y-4">
-        <Alert variant="destructive">
+      <div className='space-y-4'>
+        <Alert variant='destructive'>
           <AlertTitle>No Match Found</AlertTitle>
           <AlertDescription>
             We couldn't find a match within the time limit.
           </AlertDescription>
         </Alert>
-        <p className="text-center text-sm text-muted-foreground">
+        <p className='text-center text-sm text-muted-foreground'>
           Don't worry! This can happen when there aren't many users online. Feel
           free to try again.
         </p>
-        <Button onClick={onRetry} className="w-full">
+        <Button onClick={onRetry} className='w-full'>
           Try Again
         </Button>
       </div>
@@ -232,23 +241,23 @@ interface ErrorViewProps {
 }
 
 const ErrorView: React.FC<ErrorViewProps> = ({ onRetry }) => (
-  <Card className="w-full max-w-md mx-auto">
+  <Card className='w-full max-w-md mx-auto'>
     <CardHeader>
       <CardTitle>Error Occurred</CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="space-y-4">
-        <Alert variant="destructive">
+      <div className='space-y-4'>
+        <Alert variant='destructive'>
           <AlertTitle>Something went wrong</AlertTitle>
           <AlertDescription>
             An error occurred while trying to find a match.
           </AlertDescription>
         </Alert>
-        <p className="text-center text-sm text-muted-foreground">
+        <p className='text-center text-sm text-muted-foreground'>
           This could be due to a network issue or a problem with our servers.
           Please try again later.
         </p>
-        <Button onClick={onRetry} className="w-full">
+        <Button onClick={onRetry} className='w-full'>
           Retry
         </Button>
       </div>
@@ -257,10 +266,10 @@ const ErrorView: React.FC<ErrorViewProps> = ({ onRetry }) => (
 );
 
 export default function DiscussRoute() {
-  const [matchStatus, setMatchStatus] = React.useState("idle");
+  const [matchStatus, setMatchStatus] = React.useState('idle');
   const [queuePosition, setQueuePosition] = React.useState(0);
-  const [roomId, setRoomId] = React.useState("");
-  const [userId] = React.useState(Math.random().toString().split(".")[1]);
+  const [roomId, setRoomId] = React.useState('');
+  const [userId] = React.useState(Math.random().toString().split('.')[1]);
 
   const ws = useRef<WebSocket | null>(null);
   const matchSound = useRef<HTMLAudioElement | null>(null);
@@ -271,17 +280,17 @@ export default function DiscussRoute() {
     );
 
     ws.current.onopen = () => {
-      console.log("WebSocket Connected");
+      console.log('WebSocket Connected');
     };
 
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log("Received message:", message);
+      console.log('Received message:', message);
 
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
-        matchSound.current?.play().catch(error => {
+        matchSound.current?.play().catch((error) => {
           console.error('Error playing match sound:', error);
         });
       } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
@@ -295,13 +304,13 @@ export default function DiscussRoute() {
     // };
 
     ws.current.onclose = (event) => {
-      console.log("WebSocket closed:", event);
+      console.log('WebSocket closed:', event);
       if (event.wasClean) {
         console.log(
           `Closed cleanly, code=${event.code}, reason=${event.reason}`
         );
       } else {
-        console.error("Connection died");
+        console.error('Connection died');
       }
     };
 
@@ -322,10 +331,10 @@ export default function DiscussRoute() {
   ) => {
     setMatchStatus(MATCH_WAITING_STATUS);
     try {
-      const response = await fetch("http://localhost:8080/api/match", {
-        method: "POST",
+      const response = await fetch('http://localhost:8080/api/match', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
@@ -336,11 +345,11 @@ export default function DiscussRoute() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to start matching");
+        throw new Error('Failed to start matching');
       }
 
       const result = await response.json();
-      console.log("Matching request sent:", result);
+      console.log('Matching request sent:', result);
 
       // Start a 30-second timeout
       const timeoutId = setTimeout(() => {
@@ -352,7 +361,7 @@ export default function DiscussRoute() {
       // Clear the timeout if the component unmounts or if we get a match
       return () => clearTimeout(timeoutId);
     } catch (error) {
-      console.error("Error starting match:", error);
+      console.error('Error starting match:', error);
       setMatchStatus(MATCH_ERROR_STATUS);
     }
   };
@@ -362,7 +371,7 @@ export default function DiscussRoute() {
       const response = await fetch(
         `http://localhost:8080/api/match/${userId}`,
         {
-          method: "DELETE",
+          method: 'DELETE',
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
@@ -370,12 +379,12 @@ export default function DiscussRoute() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to cancel matching");
+        throw new Error('Failed to cancel matching');
       }
 
       setMatchStatus(MATCH_IDLE_STATUS);
     } catch (error) {
-      console.error("Error cancelling match:", error);
+      console.error('Error cancelling match:', error);
       setMatchStatus(MATCH_ERROR_STATUS);
     }
   };
@@ -384,7 +393,7 @@ export default function DiscussRoute() {
   const resetState = () => {
     setMatchStatus(MATCH_IDLE_STATUS);
     setQueuePosition(0);
-    setRoomId("");
+    setRoomId('');
 
     // Close existing WebSocket connection
     if (ws.current) {
@@ -397,17 +406,17 @@ export default function DiscussRoute() {
 
     // Re-attach event listeners
     ws.current.onopen = () => {
-      console.log("WebSocket Reconnected");
+      console.log('WebSocket Reconnected');
     };
 
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log("Received message:", message);
+      console.log('Received message:', message);
 
       if (message.type === MATCH_FOUND_MESSAGE_TYPE) {
         setMatchStatus(MATCH_FOUND_STATUS);
         setRoomId(message.roomId);
-        matchSound.current?.play().catch(error => {
+        matchSound.current?.play().catch((error) => {
           console.error('Error playing match sound:', error);
         });
       } else if (message.type === MATCH_TIMEOUT_MESSAGE_TYPE) {
@@ -416,13 +425,13 @@ export default function DiscussRoute() {
     };
 
     ws.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      console.error('WebSocket error:', error);
       setMatchStatus(MATCH_ERROR_STATUS);
     };
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className='container mx-auto p-4'>
       {matchStatus === MATCH_IDLE_STATUS && (
         <IdleView onStartMatching={startMatching} />
       )}
