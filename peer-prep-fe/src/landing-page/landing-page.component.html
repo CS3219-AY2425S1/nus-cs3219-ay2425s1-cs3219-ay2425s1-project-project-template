@@ -8,9 +8,9 @@
 </div>
 
 <div class="categories">
-    <button (click)="handleDifficulty('EASY')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'EASY'}">EASY</button>
-    <button (click)="handleDifficulty('MEDIUM')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'MEDIUM'}">MEDIUM</button>
-    <button (click)="handleDifficulty('HARD')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'HARD'}">HARD</button>
+    <button (click)="handleDifficulty('EASY'); onDifficultySelected('EASY')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'Easy'}">EASY</button>
+    <button (click)="handleDifficulty('MEDIUM'); onDifficultySelected('MEDIUM')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'Medium'}">MEDIUM</button>
+    <button (click)="handleDifficulty('HARD'); onDifficultySelected('HARD')" [ngClass]="{'difficulty-selected': selectedDifficulty === 'Hard'}">HARD</button>
 </div>
 
 <hr style="width: 50%; margin: 0 auto; border: 1px solid #ccc;">
@@ -27,20 +27,25 @@
        'width': '55%',
      }">
 
-<div class="categories">
-  <div class="category-list">
-    <div *ngFor="let line of categoryLines">
-    <div class="category-line">
-      <button *ngFor="let category of line" 
-          (click)="selectCategory(category.name)" 
-          [ngClass]="{'category-selected': category.selected}"
-          class="cat-buttons">
-      {{ category.name.toUpperCase() }}
-      </button>
+     <div *ngIf="categoryLines.length > 0" class="categories">
+      <div class="category-list">
+        <div *ngFor="let line of categoryLines">
+          <div class="category-line">
+
+            <button *ngFor="let category of line"
+                    (click)="toggleCategory(category)"
+                    [ngClass]="{
+                        'category-selected': selectedCategory && selectedCategory === category,
+                        'highlight-selected': selectedCategory && selectedCategory === category && selectedDifficulty
+                    }"
+                    class="cat-buttons">
+                {{ category.toUpperCase() }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
-  </div>
-</div>
+    
 
 <div>
     <button class="match-button"  
