@@ -22,10 +22,10 @@ const Question = ({ collabid }: { collabid: string }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const userID = getBaseUserData().id;
+    const userID = getBaseUserData().username; // Change me
     setUserID(userID);
 
-    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`);
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
@@ -69,6 +69,7 @@ const Question = ({ collabid }: { collabid: string }) => {
       const message = {
         message: inputMessage,
         collabID: collabid,
+        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
       };
       stompClientRef.current.publish({
         destination: "/app/sendMessage",
