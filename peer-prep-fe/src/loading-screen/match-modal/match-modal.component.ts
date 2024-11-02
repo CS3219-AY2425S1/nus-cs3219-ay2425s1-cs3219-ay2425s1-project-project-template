@@ -53,8 +53,8 @@ export class MatchModalComponent implements OnInit {
       this.userId = params['userId'];
       this.queueName = params['queueName'];
     });
-    this.userData = {difficulty: this.difficulty, topic: this.category, user_id: this.userId};
-
+    this.setMyUsername();
+    this.userData = {difficulty: this.difficulty, topic: this.category, user_id: this.userId, username: this.myUsername};
     this.findMatch();
   }
 
@@ -81,16 +81,21 @@ export class MatchModalComponent implements OnInit {
     this.matchFound = false;
     this.timeout = false;
     this.displayMessage = 'Finding Suitable Match...';
+    
+    // response - MatchResponse structure, contains matchedUsers[2], sessionId, timeout
     const response = await this.matchService.sendMatchRequest(this.userData, this.queueName);
+    
     console.log('RESPONSE FROM FINDMATCH ', response);
     console.log('TIMEOUT FROM FINDMATCH ', response.timeout);
-    // set other user's category & difficulty based on matched results
+
+    // TO ADD (in BE too): UI if matching process gets disrupted (e.g. rabbitmq server goes down)
     if (response.timeout) {
       this.handleMatchResponse(response);
     } else {
       const isUser1 = response.matchedUsers[0].user_id === this.userId;
       this.otherCategory = isUser1 ? response.matchedUsers[1].topic : response.matchedUsers[0].topic;
       this.otherDifficulty = isUser1? response.matchedUsers[1].difficulty : response.matchedUsers[0].difficulty;
+      this.otherUsername = isUser1 ? response.matchedUsers[1].username : response.matchedUsers[0].username;
       this.handleMatchResponse(response);
     }
   }
@@ -110,14 +115,14 @@ export class MatchModalComponent implements OnInit {
       this.isCounting = false;
       this.otherUserId = response.matchedUsers[1].user_id;
       console.log(' setting usernames now');
-      this.setUsernames();
+      // this.setUsernames();
       console.log('usernames set');
       this.displayMessage = `BEST MATCH FOUND!`;
 
     }
   }
 
-  setUsernames() {
+  setMyUsername() {
     this.userService.getUser(this.userId).subscribe({
       next: (data: any) => {
         this.myUsername = data.data.username;
@@ -127,20 +132,36 @@ export class MatchModalComponent implements OnInit {
       error: (e) => {
         console.error("Error fetching: ", e);
       },
-      complete: () => console.info("fetched all users")
-    });
-    this.userService.getUser(this.otherUserId).subscribe({
-      next: (data: any) => {
-        this.otherUsername = data.data.username;
-        console.log('data itself ', data);
-        console.log('otherUsername', this.myUsername);
-      },
-      error: (e) => {
-        console.error("Error fetching: ", e);
-      },
-      complete: () => console.info("fetched all users")
+      complete: () => console.info("fetched my username!")
     });
   }
+
+  // SETTING USERNAMES --> directly retrieve other username from response from the POST request
+
+  // setUsernames() {
+  //   this.userService.getUser(this.userId).subscribe({
+  //     next: (data: any) => {
+  //       this.myUsername = data.data.username;
+  //       console.log('data itself ', data);
+  //       console.log('myUsername', this.myUsername);
+  //     },
+  //     error: (e) => {
+  //       console.error("Error fetching: ", e);
+  //     },
+  //     complete: () => console.info("fetched all users")
+  //   });
+  //   this.userService.getUser(this.otherUserId).subscribe({
+  //     next: (data: any) => {
+  //       this.otherUsername = data.data.username;
+  //       console.log('data itself ', data);
+  //       console.log('otherUsername', this.myUsername);
+  //     },
+  //     error: (e) => {
+  //       console.error("Error fetching: ", e);
+  //     },
+  //     complete: () => console.info("fetched all users")
+  //   });
+  // }
 
   acceptMatch() {
     this.isVisible = false;
@@ -150,11 +171,6 @@ export class MatchModalComponent implements OnInit {
 
   async requeue() {
     this.isVisible = true;
-    const userData = {
-      difficulty: this.difficulty,
-      topic: this.category,
-      user_id: this.userId,
-    }
     this.findMatch();
   }
 

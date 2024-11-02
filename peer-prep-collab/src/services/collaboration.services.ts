@@ -88,3 +88,5 @@ export const getSessionData = async (sessionId: string): Promise<Session | null>
         return null;
     }
 }
+
+// note: current implementation doesn't delete the session record from activeSessions
