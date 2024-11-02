@@ -4,11 +4,18 @@ import "./login.css";
 import signupGraphic from "../../assets/images/signup_graphic.png";
 import { useToast } from "@chakra-ui/react";
 
-interface LoginProps {
-  updateAuthStatus: React.Dispatch<React.SetStateAction<boolean>>;
+interface UserData {
+  id: string
+  username: string
+  email: string
+  isAdmin: boolean
 }
 
-const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
+interface LoginProps {
+  handleLoginSuccess: React.Dispatch<React.SetStateAction<UserData>>;
+}
+
+const Login: React.FC<LoginProps> = ({ handleLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -34,7 +41,7 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
         console.log("Stored token:", localStorage.getItem("token"))
         console.log("Stored userId:", localStorage.getItem("userId"))
         console.log("Stored email:", localStorage.getItem("email"))
-        updateAuthStatus(true);
+        handleLoginSuccess(data.data);
         navigate("/questions");
       } else {
         toast({
@@ -90,7 +97,7 @@ const Login: React.FC<LoginProps> = ({ updateAuthStatus }) => {
                 <input name="checkbox" type="checkbox" />
                 Remember me
               </label>
-              <a href="#" className="forgot-password">
+              <a href="/forgot-password" className="forgot-password">
                 Forgot Password?
               </a>
             </div>

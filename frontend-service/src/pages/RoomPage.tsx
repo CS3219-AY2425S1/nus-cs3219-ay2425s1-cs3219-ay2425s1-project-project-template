@@ -3,7 +3,7 @@ import CodeEditor from '../../components/collab/CodeEditor'
 
 const RoomPage: React.FC = () => {
   const roomId = "3ae88cf5-8458-436f-a72e-be9e011e355e"
-  const userId = localStorageStorage.getItem('userId')
+  const userId = localStorage.getItem('userId')
   console.log(userId)
 
   return (
