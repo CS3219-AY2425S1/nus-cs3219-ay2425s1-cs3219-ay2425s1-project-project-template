@@ -16,7 +16,7 @@ import {
   topicsList,
 } from "@/utils/constants";
 import Swal from "sweetalert2";
-import { checkSession, createSession, fetchSession } from "@/api/collaboration";
+import { checkSession, createSession } from "@/api/collaboration";
 // import { createRoot } from "react-dom/client";
 
 interface FindMatchFormOutput {
@@ -59,7 +59,7 @@ const showLoadingSpinner = (onCancel: () => void) => {
       const timer = Swal.getPopup()!.querySelector("#timer");
       setInterval(() => {
         timer!.textContent = `${
-          TIMEOUT_TIMER - Math.ceil(Swal.getTimerLeft() / 1000)
+          TIMEOUT_TIMER - Math.ceil((Swal.getTimerLeft() || 0) / 1000)
         }`;
       }, 100);
     },
@@ -261,7 +261,7 @@ const FindPeer = () => {
 
     // Repackage user filter data
     const userMatchRequest: FindMatchSocketMessage = {
-      userEmail: CURRENT_USER,
+      userEmail: CURRENT_USER || "",
       topics: userFilter.questionTopics,
       programmingLanguages: userFilter.preferredLanguages,
       difficulties: userFilter.questionDifficulties,

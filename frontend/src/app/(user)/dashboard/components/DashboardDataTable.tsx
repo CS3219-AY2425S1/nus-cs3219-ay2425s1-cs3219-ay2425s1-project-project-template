@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TCombinedSession } from "@/types/dashboard";
-import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { cn } from "@/lib/utils";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";

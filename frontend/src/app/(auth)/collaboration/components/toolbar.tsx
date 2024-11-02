@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { editor } from "monaco-editor";
 import styles from "./toolbar.module.css";
 import UndoIcon from "./icon/UndoIcon";
