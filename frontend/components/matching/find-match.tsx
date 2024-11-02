@@ -44,7 +44,6 @@ export default function FindMatch() {
   ) => {
     try {
       const res = await fetchRoom(user1_id, user2_id, question_id);
-      console.log(res.status);
 
       switch (res.status) {
         case 201:
@@ -142,7 +141,6 @@ export default function FindMatch() {
           const user1_id = responseData.user1;
           const user2_id = responseData.user2;
           const question_id = responseData.question_id;
-          console.log(question_id);
           toast({
             title: "Matched",
             description: "Successfully matched",
