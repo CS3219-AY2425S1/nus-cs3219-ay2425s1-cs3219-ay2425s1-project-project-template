@@ -32,11 +32,14 @@ export default function Chat({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (!auth?.user?.id) return; // Don't connect if user is not authenticated
 
-    const socketInstance = io(process.env.NEXT_PUBLIC_COLLAB_SERVICE_URL || "http://localhost:3002", {
-      auth: {
-        userId: own_user_id
+    const socketInstance = io(
+      process.env.NEXT_PUBLIC_COLLAB_SERVICE_URL || "http://localhost:3002",
+      {
+        auth: {
+          userId: own_user_id,
+        },
       }
-    });
+    );
 
     socketInstance.on("connect", () => {
       console.log("Connected to Socket.IO");
@@ -51,7 +54,7 @@ export default function Chat({ roomId }: { roomId: string }) {
 
     socketInstance.on("chatMessage", (message: Message) => {
       if (message.userId !== own_user_id) {
-        setPartnerMessages(prev => [...prev, message]);
+        setPartnerMessages((prev) => [...prev, message]);
       }
     });
 
@@ -81,28 +84,28 @@ export default function Chat({ roomId }: { roomId: string }) {
       id: crypto.randomUUID(),
       userId: own_user_id,
       text: newMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     if (chatTarget === "partner") {
       socket.emit("sendMessage", {
         roomId,
         userId: own_user_id,
-        text: newMessage
+        text: newMessage,
       });
-      
-      setPartnerMessages(prev => [...prev, message]);
+
+      setPartnerMessages((prev) => [...prev, message]);
     } else {
-      setAiMessages(prev => [...prev, message]);
+      setAiMessages((prev) => [...prev, message]);
     }
-    
+
     setNewMessage("");
   };
 
   const formatTimestamp = (date: Date) => {
-    return new Date(date).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -110,13 +113,15 @@ export default function Chat({ roomId }: { roomId: string }) {
     <div
       key={message.id}
       className={`p-2 rounded-lg mb-2 max-w-[80%] ${
-        isOwnMessage 
-          ? 'ml-auto bg-blue-500 text-white' 
-          : 'bg-gray-100 dark:bg-gray-800'
+        isOwnMessage
+          ? "ml-auto bg-blue-500 text-white"
+          : "bg-gray-100 dark:bg-gray-800"
       }`}
     >
       <div className="text-sm">{message.text}</div>
-      <div className={`text-xs ${isOwnMessage ? 'text-blue-100' : 'text-gray-500'}`}>
+      <div
+        className={`text-xs ${isOwnMessage ? "text-blue-100" : "text-gray-500"}`}
+      >
         {formatTimestamp(message.timestamp)}
       </div>
     </div>
@@ -131,7 +136,9 @@ export default function Chat({ roomId }: { roomId: string }) {
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           Chat
-          <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <span
+            className={`h-2 w-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
@@ -147,7 +154,9 @@ export default function Chat({ roomId }: { roomId: string }) {
           <TabsContent value="partner" className="h-full">
             <ScrollArea className="h-[calc(70vh-280px)]">
               <div className="pr-4 space-y-2">
-                {partnerMessages.map((msg) => renderMessage(msg, msg.userId === own_user_id))}
+                {partnerMessages.map((msg) =>
+                  renderMessage(msg, msg.userId === own_user_id)
+                )}
                 <div ref={lastMessageRef} />
               </div>
             </ScrollArea>
@@ -155,7 +164,9 @@ export default function Chat({ roomId }: { roomId: string }) {
           <TabsContent value="ai" className="h-full">
             <ScrollArea className="h-[calc(70vh-280px)]">
               <div className="pr-4 space-y-2">
-                {aiMessages.map((msg) => renderMessage(msg, msg.userId === own_user_id))}
+                {aiMessages.map((msg) =>
+                  renderMessage(msg, msg.userId === own_user_id)
+                )}
                 <div ref={lastMessageRef} />
               </div>
             </ScrollArea>

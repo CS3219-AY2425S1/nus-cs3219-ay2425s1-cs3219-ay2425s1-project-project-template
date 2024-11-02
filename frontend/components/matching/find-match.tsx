@@ -40,7 +40,7 @@ export default function FindMatch() {
   const fetchRoomAndRedirect = async (user1_id: string, user2_id: string) => {
     try {
       const res = await fetch(
-        `${collabServiceUri(window.location.hostname)}/collab/create-room`, 
+        `${collabServiceUri(window.location.hostname)}/collab/create-room`,
         {
           method: "POST",
           headers: {
