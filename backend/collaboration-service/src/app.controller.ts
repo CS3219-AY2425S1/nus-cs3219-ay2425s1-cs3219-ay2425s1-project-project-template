@@ -27,4 +27,10 @@ export class AppController {
     const review = await this.codeReviewService.reviewCode(sessionId, code);
     return review;
   }
+
+  @MessagePattern({cmd: 'get-user-session-history'})
+  async handleGetUserSessionHistory(@Payload() data: {userId: string}) {
+    const sessionHistory = await this.appService.getUserSessionHistory(data.userId);
+    return sessionHistory;
+  }
 }

@@ -34,6 +34,15 @@ export class CollaborationController {
     // To implement middleware to check for session authentication if needed (similar to getSessionDetailsById)
     return this.collaborationClient.send({ cmd: 'review-code' }, dto);
   }
+
+  @Get('history')
+  @ApiOkResponse({ description: 'Get user session history successfully' })
+  async getUserSessionHistory(@GetCurrentUserId() currentUserId) {
+    return this.collaborationClient.send(
+      { cmd: 'get-user-session-history' },
+      { userId: currentUserId },
+    );
+  }
   
   // Get session details by id
   @Get(':id')
