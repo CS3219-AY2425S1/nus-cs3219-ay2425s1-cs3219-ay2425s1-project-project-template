@@ -1,3 +1,6 @@
+import { Request } from 'express'
+import { Types } from 'mongoose'
+
 export interface TimedMatchRequest {
     userId: string
     userName: string
@@ -33,4 +36,11 @@ export interface MatchSession {
         language: string;
         categories: string[];
     };
+}
+
+export interface CreateMatchRequest extends Request {
+    body: {
+        collaborators: Types.ObjectId[];
+        questionId: number;
+    }
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import SuccessfulMatch from '../models/match'
-import { CreateMatchRequest } from '../models/types'
-import logger from '../utils/logger'
+import { CreateMatchRequest } from '../../collab-service/models/types'
+import logger from '../../collab-service/utils/logger'
 
 const addMatch = async (req: CreateMatchRequest, res: Response) => {
     const { collaborators, questionId } = req.body
