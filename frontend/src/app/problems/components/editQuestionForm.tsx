@@ -126,6 +126,13 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         console.log("val", values)
 
         var hasError = false;
+        const parsedValues = {
+          ...values,
+          testCases: values.testCases.map((testCase) => ({
+            input: JSON.parse(testCase.input),
+            expected: JSON.parse(testCase.expected),
+          })),
+        }
 
         try {
             if (!isDirty) {
@@ -138,20 +145,20 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
             const updatedFields: any = {}
 
             if (dirtyFields.title) {
-              updatedFields.title = values.title;
+              updatedFields.title = parsedValues.title;
             }
 
             if (dirtyFields.description) {
-              updatedFields.description = values.description;
+              updatedFields.description = parsedValues.description;
             }
 
             if (dirtyFields.categories) {
-              values.categories!.sort();
-              updatedFields.categories = values.categories;
+              parsedValues.categories!.sort();
+              updatedFields.categories = parsedValues.categories;
             }
 
             if (dirtyFields.difficulty) {
-              updatedFields.difficulty = values.difficulty;
+              updatedFields.difficulty = parsedValues.difficulty;
             }
 
             console.log('updatedFields', updatedFields);

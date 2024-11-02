@@ -53,23 +53,12 @@ const MatchingFilters = () => {
         { label: "Databases", value: "Databases" },
         { label: "Arrays", value: "Arrays" },
         { label: "Brainteaser", value: "Brainteaser" },
+        { label: "Dynamic Programming", value: "Dynamic Programming" },
     ]
     const difficultyList = [
         { label: "Easy", value: "Easy" },
         { label: "Medium", value: "Medium" },
         { label: "Hard", value: "Hard" },
-    ]
-    const questionsList = [
-        { label: "Question 1", value: "Question 1" },
-        { label: "Question 2", value: "Question 2" },
-        { label: "Question 3", value: "Question 3" },
-        { label: "Question 4", value: "Question 4" },
-        { label: "Question 5", value: "Question 5" },
-        { label: "Question 6", value: "Question 6" },
-        { label: "Question 7", value: "Question 7" },
-        { label: "Question 8", value: "Question 8" },
-        { label: "Question 9", value: "Question 9" },
-        { label: "Question 10", value: "Question 10" },
     ]
 
     // Setup socket connection and event handlers

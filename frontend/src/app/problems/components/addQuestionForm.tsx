@@ -92,6 +92,14 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     let hasError = false;
+    const parsedValues = {
+      ...values,
+      testCases: values.testCases.map((testCase) => ({
+        input: JSON.parse(testCase.input),
+        expected: JSON.parse(testCase.expected),
+      })),
+    }
+
     console.log(values)
     if (values.categories) {
       values.categories.sort();
@@ -102,7 +110,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(values)
+        body: JSON.stringify(parsedValues)
       });
 
       if (response.ok) {
