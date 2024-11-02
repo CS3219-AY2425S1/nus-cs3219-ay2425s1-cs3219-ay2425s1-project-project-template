@@ -29,7 +29,7 @@ export const MatchedView: React.FC<MatchedViewProps> = ({ roomId, onNewMatch }) 
         </p>
         <div className='space-y-4'>
           <Button asChild className='w-full group'>
-            <Link to={`/room/${roomId}`}>
+            <Link to={`/rooms/${roomId}`}>
               Join Room
               <ArrowRight className='w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform' />
             </Link>
