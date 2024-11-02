@@ -2,10 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 
-export type QuestionHistoryDocument = HydratedDocument<QuestionHistory>;
+export type QuestionHistoryDocument = HydratedDocument<QuestionSubmission>;
 
 @Schema({ collection: 'questionhistories', timestamps: true })
-export class QuestionHistory {
+export class QuestionSubmission {
   _id: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Session', required: true })
@@ -24,4 +24,4 @@ export class QuestionHistory {
   testCasesPassed: Boolean[];
 }
 
-export const QuestionHistorySchema = SchemaFactory.createForClass(QuestionHistory);
+export const QuestionHistorySchema = SchemaFactory.createForClass(QuestionSubmission);

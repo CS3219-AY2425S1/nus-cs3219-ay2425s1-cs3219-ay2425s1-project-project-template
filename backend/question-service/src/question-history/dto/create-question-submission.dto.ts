@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString, IsDate, IsMongoId, IsArray, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateQuestionHistoryDto {
+export class CreateQuestionSubmissionDto {
   @IsMongoId()
   @IsNotEmpty()
   sessionId: string;

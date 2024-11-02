@@ -1,31 +1,31 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateQuestionHistoryDto } from './dto/create-question-history.dto';
-import { UpdateQuestionHistoryDto } from './dto/update-question-history.dto';
-import { QuestionHistory, QuestionHistoryDocument } from './schemas/question-history.schema';
+import { CreateQuestionSubmissionDto } from './dto/create-question-submission.dto';
+import { UpdateQuestionSubmissionDto } from './dto/update-question-submission.dto';
+import { QuestionSubmission, QuestionHistoryDocument } from './schemas/question-history.schema';
 
 @Injectable()
 export class QuestionHistoryDB {
   constructor(
-    @InjectModel(QuestionHistory.name) private questionHistoryModel: Model<QuestionHistoryDocument>,
+    @InjectModel(QuestionSubmission.name) private questionHistoryModel: Model<QuestionHistoryDocument>,
   ) {}
 
-  async createQuestionHistory(createQuestionHistoryDto: CreateQuestionHistoryDto): Promise<QuestionHistory> {
-    // const questionHistory = new this.questionHistoryModel(createQuestionHistoryDto);
-    // return questionHistory.save();
+  async createQuestionHistory(CreateQuestionSubmissionDto: CreateQuestionSubmissionDto): Promise<QuestionSubmission> {
+    // const QuestionSubmission = new this.questionHistoryModel(CreateQuestionSubmissionDto);
+    // return QuestionSubmission.save();
     try {
-      const questionHistory = new this.questionHistoryModel(createQuestionHistoryDto);
-      return await questionHistory.save();
+      const QuestionSubmission = new this.questionHistoryModel(CreateQuestionSubmissionDto);
+      return await QuestionSubmission.save();
     } catch (error) {
       throw new InternalServerErrorException(`Failed to create question history`);
     }
   }
   
-  async updateQuestionHistory(id: string, updateQuestionHistoryDto: UpdateQuestionHistoryDto): Promise<QuestionHistory> {
-    return this.questionHistoryModel.findByIdAndUpdate(id, updateQuestionHistoryDto, { new: true }).exec();
+  async updateQuestionHistory(id: string, UpdateQuestionSubmissionDto: UpdateQuestionSubmissionDto): Promise<QuestionSubmission> {
+    return this.questionHistoryModel.findByIdAndUpdate(id, UpdateQuestionSubmissionDto, { new: true }).exec();
   }
-  async getAllQuestionHistory(): Promise<QuestionHistory[]> {
+  async getAllQuestionHistory(): Promise<QuestionSubmission[]> {
     try {
       const questionHistories = await this.questionHistoryModel.find().exec();
       if (!questionHistories || questionHistories.length === 0) {
@@ -37,7 +37,7 @@ export class QuestionHistoryDB {
     }
   }
     
-  async getQuestionHistoryBySession(sessionId: string): Promise<QuestionHistory[]> {
+  async getQuestionHistoryBySession(sessionId: string): Promise<QuestionSubmission[]> {
     try {
       const questionHistories = await this.questionHistoryModel.find({ sessionId }).exec();
       if (!questionHistories || questionHistories.length === 0) {
@@ -49,13 +49,13 @@ export class QuestionHistoryDB {
     }
   }
 
-  async getSingleQuestionHistory(sessionId: string, questionId: string): Promise<QuestionHistory> {
+  async getSingleQuestionHistory(sessionId: string, questionId: string): Promise<QuestionSubmission> {
     try {
-      const questionHistory = await this.questionHistoryModel.findOne({ sessionId, questionId }).exec();
-      if (!questionHistory) {
+      const QuestionSubmission = await this.questionHistoryModel.findOne({ sessionId, questionId }).exec();
+      if (!QuestionSubmission) {
         throw new NotFoundException(`Question history not found for sessionId ${sessionId} and questionId ${questionId}`);
       }
-      return questionHistory;
+      return QuestionSubmission;
     } catch (error) {
       throw new InternalServerErrorException(`Failed to get question history for sessionId ${sessionId} and questionId ${questionId}`);
     }

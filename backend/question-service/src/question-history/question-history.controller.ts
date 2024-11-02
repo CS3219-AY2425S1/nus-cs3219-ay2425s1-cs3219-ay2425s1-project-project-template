@@ -1,25 +1,25 @@
 import { Controller, Post, Body, Get, Param, Patch, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { QuestionHistoryService } from './question-history.service';
-import { CreateQuestionHistoryDto } from './dto/create-question-history.dto';
-import { UpdateQuestionHistoryDto } from './dto/update-question-history.dto';
+import { CreateQuestionSubmissionDto } from './dto/create-question-submission.dto';
+import { UpdateQuestionSubmissionDto } from './dto/update-question-submission.dto';
 
 @Controller('questionhistories')
 export class QuestionHistoryController {
   constructor(private readonly questionHistoryService: QuestionHistoryService) {}
 
   @Post()
-  async createQuestionHistory(@Body() createQuestionHistoryDto: CreateQuestionHistoryDto) {
+  async createQuestionHistory(@Body() CreateQuestionSubmissionDto: CreateQuestionSubmissionDto) {
     try {
-      return await this.questionHistoryService.create(createQuestionHistoryDto);
+      return await this.questionHistoryService.create(CreateQuestionSubmissionDto);
     } catch (error) {
       throw new InternalServerErrorException(`Failed to log question attempt`);
     }
   }
 
   @Patch(':id')
-  async updateQuestionHistory(@Param('id') id: string, @Body() updateQuestionHistoryDto: UpdateQuestionHistoryDto) {
+  async updateQuestionHistory(@Param('id') id: string, @Body() UpdateQuestionSubmissionDto: UpdateQuestionSubmissionDto) {
     try {
-      return await this.questionHistoryService.update(id, updateQuestionHistoryDto);
+      return await this.questionHistoryService.update(id, UpdateQuestionSubmissionDto);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
