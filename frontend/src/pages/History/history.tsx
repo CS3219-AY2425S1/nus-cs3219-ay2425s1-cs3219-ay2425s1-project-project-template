@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { AuthContext } from "../../hooks/AuthContext";
+import { AuthContext } from "../../contexts/AuthContext";
 import {
   MaterialReactTable,
   type MRT_ColumnDef,

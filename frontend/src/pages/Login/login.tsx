@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useContext, useState } from "react";
-import { AuthContext, authState } from "../../hooks/AuthContext";
+import { AuthContext, authState } from "../../contexts/AuthContext";
 
 export default function LoginPage() {
   const { user, setUser, setIsAuthenticated } = useContext(AuthContext);

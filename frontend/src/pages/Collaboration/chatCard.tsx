@@ -7,52 +7,58 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import io, { Socket } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+import { useSocket } from "../../contexts/SocketContext";
+import { useNavigate } from "react-router-dom";
 
 interface ChatCardProps {
   roomId: string;
   username: string;
+  userId: string;
 }
 
-const ChatCard: React.FC<ChatCardProps> = ({ roomId, username }) => {
+const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
   const [messages, setMessages] = useState<{ user: string; text: string }[]>(
     []
   );
+  const { commSocket } = useSocket();
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const chatBoxRef = useRef<HTMLDivElement | null>(null); // Create a ref for the chat box
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; // Scroll to the bottom
     }
   }, [messages]);
+  useEffect(() => {
+    if (!commSocket) {
+      return;
+    }
 
-  //   useEffect(() => {
-  //     const newSocket = io("http://localhost:5000");
-  //     setSocket(newSocket);
 
-  //     newSocket.emit("joinRoom", roomId);
+    // Listen for incoming messages and add them to the chat
+    commSocket.on("chatMessage", (message) => {
+      console.log("Received message:", message); // Debugging log
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
 
-  //     newSocket.on("chatMessage", (message) => {
-  //       setMessages((prevMessages) => [...prevMessages, message]);
-  //     });
-
-  //     return () => {
-  //       newSocket.disconnect();
-  //     };
-  //   }, [roomId]);
+    // Clean up the socket connection on component unmount
+    return () => {
+      commSocket.disconnect();
+    };
+  }, [commSocket]);
 
   const handleSendMessage = () => {
-    // if (input.trim() && socket) {
+    if (input.trim() && commSocket) {
+      // Emit the chat message with the correct structure
+      console.log("Sending message:", input);
+      console.log("Emitting message with data:", { roomId, message: input });
 
-    if (input.trim()) {
-      //   socket.emit("chatMessage", { roomId, message: input, username });
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { user: "You", text: input },
-      ]);
-      setInput("");
+      commSocket.emit("chatMessage", { roomId, text: input });
+
+      setInput(""); // Clear input field
     }
   };
 
@@ -98,20 +104,24 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username }) => {
               variant="body1" // Increase the font size here
               className="text-gray-300"
               sx={{
-                textAlign: "left", // Align messages to the left
-                fontSize: "1.1rem", // Increase font size for visibility
+                textAlign: "left",
+                fontSize: "1.1rem",
                 mb: 1,
               }}
             >
               <strong>{msg.user}</strong>:{" "}
               {/* Replace newlines with <br /> for rendering */}
-              {msg.text.split("\n").map((line, lineIndex) => (
-                <React.Fragment key={lineIndex}>
-                  {line}
-                  {lineIndex < msg.text.split("\n").length - 1 && <br />}{" "}
-                  {/* Add <br /> for each line except the last one */}
-                </React.Fragment>
-              ))}
+              {/* Check if msg.text is defined before calling split */}
+              {msg.text ? (
+                msg.text.split("\n").map((line, lineIndex) => (
+                  <React.Fragment key={lineIndex}>
+                    {line}
+                    {lineIndex < msg.text.split("\n").length - 1 && <br />}
+                  </React.Fragment>
+                ))
+              ) : (
+                <span>No message content</span> // Fallback for undefined messages
+              )}
             </Typography>
           ))}
         </Box>

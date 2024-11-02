@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import React, { useContext } from 'react'
 import toast from 'react-hot-toast';
-import { AuthContext } from '../../hooks/AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, handleSuccessChange }: { open: boolean, handleDialogCloseFn: () => void, data: Record<string, string>, handleSuccessChange: () => void }) {
 

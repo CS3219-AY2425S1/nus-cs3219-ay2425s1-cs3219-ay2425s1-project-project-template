@@ -10,6 +10,8 @@ services:
       - REACT_APP_USER_SVC_PORT=${USER_SVC_PORT}
       - REACT_APP_QUESTION_SVC_PORT=${QUESTION_SVC_PORT}
       - REACT_APP_MATCHING_SVC_PORT=${MATCHING_SVC_PORT}
+      - REACT_APP_COLLAB_SVC_PORT=${COLLAB_SVC_PORT}
+      - REACT_APP_COMM_SVC_PORT=${COMM_SVC_PORT}
       - REACT_APP_CODE_EXECUTION_SVC_PORT=${TORK_CLIENT_ENDPOINT}
       - REACT_APP_HISTORY_SVC_PORT=${HISTORY_SVC_PORT}
     volumes:
@@ -19,6 +21,8 @@ services:
       - user-service
       - question-service
       - matching-service
+      - collaboration-service
+      - communication-service
       - code-execution-service
       - history-service
 
@@ -77,6 +81,32 @@ services:
     container_name: redis-container
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
+  
+  collaboration-service:
+    build:
+      context: ./backend/CollaborationService
+      target: ${BUILD_ENV}
+    ports:
+      - ${COLLAB_SVC_PORT}:${COLLAB_SVC_PORT}
+    environment:
+      - PORT=${COLLAB_SVC_PORT}
+      - TORK_CLIENT_ENDPOINT=${TORK_CLIENT_ENDPOINT}
+      - TORK_COORDINATOR_ADDRESS=${TORK_COORDINATOR_ADDRESS}
+    volumes:
+      - ./backend/CollaborationService:/app
+      - /app/node_modules
+  
+  communication-service:
+    build:
+      context: ./backend/CommunicationService
+      target: ${BUILD_ENV}
+    ports:
+      - ${COMM_SVC_PORT}:${COMM_SVC_PORT}
+    environment:
+      - PORT=${COMM_SVC_PORT}
+    volumes:
+      - ./backend/CommunicationService:/app
+      - /app/node_modules
 
   code-execution-service:
     build:

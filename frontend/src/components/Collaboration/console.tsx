@@ -1,20 +1,58 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Box, Snackbar } from "@mui/material"
 import { LoadingButton } from '@mui/lab';
 import Text from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { executeCode } from "../../pages/Collaboration/consoleExecute";
+import { useSocket } from "../../contexts/SocketContext";
+import { useParams } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
+import axios from "axios";
 
 interface OutputProps {
   editorRef: React.RefObject<any>;
   language: string;
+  qid: Number;
 }
 
-const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
-  const [output, setOutput] = useState<string[]>([]);
+const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
+  const { user } = useContext(AuthContext);
+  const { collabSocket } = useSocket();
+  const { roomId } = useParams();
+  const [output, setOutput] = useState<Array<string>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!collabSocket) {
+      return;
+    }
+
+    // if (!collabSocket.connected) {
+    //   collabSocket = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`);
+    // }
+    
+    collabSocket.on("sync-console", (qid: Number, consoleResults: Array<string>) => {
+      setOutput(consoleResults);
+      if (qid !== 0) {
+        const attempt = { userId: user.id, qid: qid };
+        // console.log(attempt);
+        axios.post(`http://localhost:${process.env.REACT_APP_HISTORY_SVC_PORT}/api/history`, attempt);
+      }
+    });
+
+    collabSocket.on("sync-load", (isLoading: boolean) => {
+      setLoading(isLoading);
+    });
+
+    return () => {
+      if (collabSocket && collabSocket.connected) {
+        collabSocket.removeAllListeners();
+        collabSocket.disconnect();
+      }  
+    }
+  }, [collabSocket])
 
   const runCode = async () => {
     const sourceCode = editorRef.current.getValue();
@@ -22,7 +60,10 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
     try {
       setLoading(true);
       const result = await executeCode(language, sourceCode);
-      setOutput(result.output.split("\n"));
+      const consoleResults = result.output.split("\n");
+      collabSocket?.emit("console-load", roomId, true);
+      setOutput(consoleResults);
+      collabSocket?.emit("console-change", roomId, qid, consoleResults);
       result.stderr ? setIsError(true) : setIsError(false);
     } catch (error) {
       console.log(error);
@@ -32,6 +73,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language }) => {
         message="An error occurred."
         />
     } finally {
+      collabSocket?.emit("console-load", roomId, false);
       setLoading(false);
     }
   };
