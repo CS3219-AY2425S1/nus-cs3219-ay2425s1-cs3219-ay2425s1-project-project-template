@@ -27,6 +27,7 @@ import {
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
+  const [language, setLanguage] = useState("JavaScript");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId || "";
@@ -55,7 +56,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!isAuthorisationPending && !isAuthorisedUser?.authorised) {
-      router.push("/403");
+      // router.push("/403");
     }
   }, [isAuthorisationPending, isAuthorisedUser, router]);
 
@@ -116,11 +117,7 @@ export default function Page() {
   }, [socket, roomId, user]);
 
   const isAvatarActive = (otherUser: string) => {
-    if (otherUser) {
-      return "success";
-    } else {
-      return "default";
-    }
+    return otherUser ? "success" : "default";
   };
 
   return (
@@ -130,8 +127,8 @@ export default function Page() {
       ) : isError ? (
         <p>Had trouble authorising user!</p>
       ) : (
-        <>
-          <div className="flex items-end justify-end mt-4">
+        <div>
+          <div className="flex items-end justify-end mb-1">
             <Avatar
               isBordered
               color={isAvatarActive(otherUser)}
@@ -148,22 +145,29 @@ export default function Page() {
             </Button>
           </div>
           <div className="flex">
-            <div className="flex-[2_2_0%]">
+            {/* Question Section */}
+            <div className="flex-[2_2_0%] border-r border-gray-700">
               <QuestionDescription isCollab={true} question={question} />
             </div>
-            <div className="flex-[3_3_0%]">
-              {/* Render the VoiceChat component */}
-              <VoiceChat />
 
-              {/* Render the CodeEditor */}
-              <CodeEditor setOutput={setOutput} />
-              <div style={{ marginTop: "20px" }}>
-                <h3>Output:</h3>
-                <pre>{output}</pre>
+            {/* Editor Section */}
+            <div className="flex-[2_2_0%] p-2 border-r border-gray-700">
+              <VoiceChat />
+              <CodeEditor language={language} setOutput={setOutput} />
+            </div>
+
+            {/* Output Section */}
+            <div className="flex-[1_1_0%] p-2 overflow-x-auto">
+              <div className="border border-gray-700 rounded-lg p-2">
+                <h3 className="font-semibold mb-2">Output:</h3>
+                <div className="overflow-x-auto">
+                  <pre>{output}</pre>
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Modals */}
           <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
             <ModalContent>
               {(onClose) => (
@@ -223,7 +227,7 @@ export default function Page() {
               )}
             </ModalContent>
           </Modal>
-        </>
+        </div>
       )}
     </>
   );
