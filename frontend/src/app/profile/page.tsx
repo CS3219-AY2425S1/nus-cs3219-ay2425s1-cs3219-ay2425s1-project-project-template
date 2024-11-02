@@ -8,13 +8,15 @@ import { useRouter } from 'next/navigation';
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator";
 import { difficulties } from '@/utils/constant';
+import HistoryTable from '@/app/profile/HistoryTable';
+import { FolderClock as HistoryIcon } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
     const router = useRouter();
     const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
-    const [ pastMatches, setPastMatches ] = useState([]);
-    const [ totalNumberOfMatches, setTotalNumberOfMatches ] = useState(0);
-    const [ skills, setSkills ] = useState([]);
+    const [pastMatches, setPastMatches] = useState([]);
+    const [totalNumberOfMatches, setTotalNumberOfMatches] = useState(0);
+    const [skills, setSkills] = useState([]);
 
     const handleLogout = async () => {
         try {
@@ -103,8 +105,12 @@ const ProfilePage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex-1 bg-white rounded-lg">
-                        History
+                    <div className="flex flex-col flex-1 bg-white rounded-lg p-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <HistoryIcon size={20} />
+                            <h2 className="text-md font-semibold">History</h2>
+                        </div>
+                        <HistoryTable matches={pastMatches} />
                     </div>
                 </div>
             </div>
