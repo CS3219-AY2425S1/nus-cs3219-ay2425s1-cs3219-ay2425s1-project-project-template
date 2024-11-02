@@ -2,6 +2,7 @@ import { check } from "express-validator";
 
 export const createSessionValidators = [
   check("collabid").isString().isLength({ min: 1 }),
+  check("language").isString().isLength({ min: 1 }),
   check("question_id").isInt(),
   //custom validation for users
   check("users").custom((users) => {
@@ -18,24 +19,6 @@ export const createSessionValidators = [
       )
     ) {
       throw new Error("Users must be non-empty");
-    }
-    return true;
-  }),
-  // custom validation for language
-  check("language").custom((language) => {
-    if (!Array.isArray(language) || language.length === 0) {
-      throw new Error("Language must be a non-empty array");
-    }
-    //check if array contains only non-empty strings and trim whitespace
-    if (
-      !language.every(
-        (element) =>
-          typeof element === "string" &&
-          element.length > 0 &&
-          element.trim().length > 0
-      )
-    ) {
-      throw new Error("Language must contain only non-empty strings");
     }
     return true;
   }),
