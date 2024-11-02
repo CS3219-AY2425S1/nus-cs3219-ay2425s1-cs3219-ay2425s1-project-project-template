@@ -1,5 +1,20 @@
-<ngx-monaco-editor
-  [options]="editorOptions"
-  [(ngModel)]="code"
-  (ngModelChange)="onEditorChange($event)"
-></ngx-monaco-editor>
+<div class="editor-container">
+  <!-- Top Bar with Language and Format Button -->
+  <div class="editor-top-bar">
+    <span class="editor-language">&lt;/&gt; JavaScript</span>
+    <button (click)="formatCode()">Format Code</button>
+  </div>
+
+  <!-- Editor Component -->
+  <ngx-monaco-editor
+    [options]="editorOptions"
+    [(ngModel)]="code"
+    (ngModelChange)="onEditorChange($event)"
+    (onInit)="onEditorInit($event)"
+  ></ngx-monaco-editor>
+
+  <!-- Bottom Bar with Line and Column Position -->
+  <div class="editor-bottom-bar">
+    Ln {{ line }}, Col {{ column }}
+  </div>
+</div>

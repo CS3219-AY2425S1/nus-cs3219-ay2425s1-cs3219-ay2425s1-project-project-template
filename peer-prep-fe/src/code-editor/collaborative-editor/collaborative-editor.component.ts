@@ -1,8 +1,13 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { WebSocketService } from '../websocket.service';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { Subscription } from 'rxjs';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {WebSocketService} from '../websocket.service';
+import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
+import {Subscription} from 'rxjs';
+import * as monaco from 'monaco-editor';
+import babelPlugin from "prettier/plugins/babel";
+import estreePlugin from "prettier/plugins/estree";
+import {format} from "prettier";
+
 
 @Component({
   selector: 'app-collaborative-editor',
@@ -22,25 +27,57 @@ export class CollaborativeEditorComponent implements OnInit, OnDestroy {
     }
   };
   code: string = '';
+  line: number = 1;
+  column: number = 1;
   private messageSubcription!: Subscription;
+  private editor!: monaco.editor.IStandaloneCodeEditor;
 
   constructor(private webSocketService: WebSocketService) {}
 
   ngOnInit() {
-    // Subscribe to messages from the WebSocket and update code in real-time
-
+    // Connect to WebSocket and subscribe to messages
     this.webSocketService.connect(this.sessionId);
 
-    this.webSocketService.getMessages().subscribe((message) => {
-      if (message && message.type === 'code') {
-        this.code = message.content; // Update the editor content with the received message
+    this.messageSubcription = this.webSocketService.getMessages().subscribe((message) => {
+      if (message) {
+        if (message.type === 'initialCode') {
+          // Set the initial code on reconnect
+          this.code = message.content;
+        } else if (message.type === 'code') {
+          // Update the editor content with live updates
+          this.code = message.content;
+        }
       }
     });
   }
 
+
   onEditorChange(content: string) {
     // Send updated content to the WebSocket server
     this.webSocketService.sendMessage({ type: 'code', content });
+  }
+
+  onEditorInit(editor: monaco.editor.IStandaloneCodeEditor) {
+    this.editor = editor;
+    editor.onDidChangeCursorPosition((e) => {
+      this.line = e.position.lineNumber;
+      this.column = e.position.column;
+    });
+  }
+
+  async formatCode() {
+    if (this.editor) {
+      try {
+        this.code = await format(this.code, {
+          parser: 'babel',
+          plugins: [babelPlugin, estreePlugin],
+          singleQuote: true,
+          semi: true
+        });
+      } catch (error) {
+        console.error('Error formatting code:', error);
+      }
+    }
   }
 
   ngOnDestroy(): void {
