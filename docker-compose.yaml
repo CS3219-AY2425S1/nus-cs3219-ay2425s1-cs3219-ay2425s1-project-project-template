@@ -294,6 +294,12 @@ services:
       matching-service:
         condition: service_healthy
         restart: true
+      collab-service:
+        condition: service_healthy
+        restart: true
+      chat-service:
+        condition: service_healthy
+        restart: true
     networks:
       - user-api-network
       - question-api-network
