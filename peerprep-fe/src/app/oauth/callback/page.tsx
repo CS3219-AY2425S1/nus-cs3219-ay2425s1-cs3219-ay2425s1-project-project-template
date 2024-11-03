@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { LoadingSpinner } from '@/components/ui/loading';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
@@ -10,8 +10,19 @@ function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const hasProcessed = useRef(false);
 
+  /**
+   * Known issue: in dev mode, this will be called twice
+   * Github OAuth code is single use to prevent abuse from malicious users,
+   * so when `handleOAuthCallback` is called twice, one of the calls will succeed
+   * and the other will fail. To prevent this, we have a ref to force it to only
+   * execute once
+   */
   useEffect(() => {
+    if (hasProcessed.current) return;
+    hasProcessed.current = true;
+
     const code = searchParams.get('code');
 
     if (!code) {

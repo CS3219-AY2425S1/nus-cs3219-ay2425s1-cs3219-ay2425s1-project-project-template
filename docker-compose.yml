@@ -15,7 +15,7 @@ services:
       target: development
     volumes:
       - ./peerprep-fe:/app
-      - ./peerprep-fe/node_modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "3000:3000"
     networks:
@@ -79,7 +79,7 @@ services:
       target: development
     volumes:
       - ./session-service:/app
-      - ./session-service/node_modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "4444:4444"
     networks:
