@@ -5,6 +5,10 @@ import { MatchService } from '../services/match.service';
 import { QUEUE_NAMES, DIFFICULTY } from '../app/constants/queue-constants';
 import { UserService } from '../app/userService/user-service';
 import { MatchModalComponent } from '../loading-screen/match-modal/match-modal.component';
+import { QuestionService } from "../services/question.service"; 
+import { CategoryService } from '../services/category.service';
+// import { Category } from "../app/models/category.model"
+import { Question } from "../app/models/question.model"
 
 @Component({
   selector: 'app-landing-page',
@@ -16,19 +20,22 @@ import { MatchModalComponent } from '../loading-screen/match-modal/match-modal.c
 
 export class LandingPageComponent {
   @ViewChild(MatchModalComponent) matchModal!: MatchModalComponent;
-  selectedDifficulty: string | null = null;
+  selectedDifficulty: string = '';
   selectedCategory: string | null = null;
+  question_categories: string[] = [];
+  questions: Question[] = []; 
   sendingPopup: boolean = false;
-  question_categories = [
-    { name: "Algorithms", selected: false },
-    { name: "Arrays", selected: false },
-    { name: "Bit Manipulation", selected: false },
-    { name: "Brainteaser", selected: false },
-    { name: "Databases", selected: false },
-    { name: "Data Structures", selected: false },
-    { name: "Recursion", selected: false },
-    { name: "Strings", selected: false }
-  ];
+  categoriesToDisplay: string[][] = [];
+  // question_categories = [
+  //   { name: "Algorithms", selected: false },
+  //   { name: "Arrays", selected: false },
+  //   { name: "Bit Manipulation", selected: false },
+  //   { name: "Brainteaser", selected: false },
+  //   { name: "Databases", selected: false },
+  //   { name: "Data Structures", selected: false },
+  //   { name: "Recursion", selected: false },
+  //   { name: "Strings", selected: false }
+  // ];
 
   categoryLines: any[] = []; 
   errorMessage: string | null = null;
@@ -37,11 +44,13 @@ export class LandingPageComponent {
   constructor(
     private matchService: MatchService, 
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private questionService: QuestionService,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit() {
-    this.categoryLines = this.distributeCategories();
+    //this.categoryLines = this.distributeCategoriesIntoLines();
   }
 
 
@@ -123,9 +132,10 @@ export class LandingPageComponent {
     }
   }
 
-  
-  toggleCategory(category: any) {
-    category.selected = !category.selected; // Toggle the selected state
+  toggleCategory(category: string) {
+    this.selectedCategory = category
+    console.log("selectedCategory", this.selectedCategory)
+    //console.log(category.category_name)
     this.checkSelections();
     
   }
@@ -151,45 +161,84 @@ export class LandingPageComponent {
         this.yPosition = '-5%';
     }
     this.selectedDifficulty = difficulty; // Update the selected difficulty
+    //this.showCategories();
+    console.log(this.selectedDifficulty)
     this.checkSelections();
   
   }
 
-  // only one category can be selected, click on another means give up current
-  selectCategory(categoryName: string) {
-    this.question_categories.forEach(category => {
-      category.selected = category.name === categoryName;
-    });
+  onDifficultySelected(difficulty: string): void {
+    difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+    console.log(difficulty);
+    this.selectedDifficulty = difficulty;
   
-    this.selectedCategory = categoryName;
-    this.checkSelections();
+    // Fetch questions filtered by the selected difficulty
+    this.questionService.getFilteredQuestions('question_complexity', difficulty)
+      .subscribe((response: any) => {
+        const questionsData = response?.data?.data; // Access the nested data
+        console.log('questionsData:', questionsData);
+  
+        // Check if questionsData is an array
+        if (Array.isArray(questionsData)) {
+          this.questions = questionsData;
+          console.log('questions:', this.questions);
+  
+          // Extract unique categories from the filtered questions
+          const categories = new Set<string>();
+          this.questions.forEach(question => {
+            question.question_categories.forEach(category => categories.add(category));
+          });
+          this.question_categories = Array.from(categories).map(name => name);
+          
+          console.log(this.question_categories);
+          this.showCategories();
+        } else {
+          console.error('Unexpected data format or empty result:', response);
+        }
+      });
   }
+  
+  showCategories(): void {
+    if (this.selectedDifficulty) {
+      // Distribute categories into lines for display
+      this.categoryLines = this.distributeCategoriesIntoLines();
+    } else {
+      this.categoryLines = [];
+    }
+  }
+  
+  distributeCategoriesIntoLines(): string[][] {
+    const lines: string[][] = [];
+    let currentLine: string[] = [];
+    let count = 0;
+    console.log('question_categories', this.question_categories);
 
-  distributeCategories() {
-    const lines = [];
-    let currentLine = []; 
-    let count = 0; 
+    for (const category of this.question_categories) {
+        currentLine.push(category);
 
-    for (let j = 0; j < this.question_categories.length; j++) {
-      currentLine.push(this.question_categories[j]);
-      if ((count % 2 === 0 && currentLine.length === 4) || (count % 2 !== 0 && currentLine.length === 3)) {
-        lines.push(currentLine);  
-        currentLine = [];         
-        count++;                  
-      }
+        // Adjust line length based on line count
+        if ((count % 2 === 0 && currentLine.length === 4) || (count % 2 !== 0 && currentLine.length === 3)) {
+            lines.push([...currentLine]);
+            currentLine = [];
+            count++;
+        }
     }
 
     if (currentLine.length > 0) {
-      lines.push(currentLine);
+        lines.push(currentLine);
     }
-    console.log(lines)
+
     return lines;
-  }
+}
+  
+
 
   checkSelections() {
     const hasSelectedDifficulty = this.selectedDifficulty !== null;
+    console.log("hasSelectedDifficulty", hasSelectedDifficulty)
     // const hasSelectedTopics = this.question_categories.some(topic => topic.selected);
     const hasSelectedTopics = this.selectedCategory !== null;
+    console.log("hasSelectedTopics", hasSelectedTopics)
     this.matchButtonActive = hasSelectedDifficulty && hasSelectedTopics;
   }
 
@@ -203,7 +252,7 @@ export class LandingPageComponent {
     if (!hasSelectedDifficulty && !hasSelectedTopics) {
       this.displayError("Please select one difficulty and at least one topic.");
     } else if (!hasSelectedDifficulty && hasSelectedTopics) {
-      this.displayError("Please select a difficulty.");
+      this.displayError("Please select a difficulty before selecting a topic.");
     } else if (hasSelectedDifficulty && !hasSelectedTopics) {
       this.displayError("Please select at least one topic.");   
     }  

@@ -27,20 +27,25 @@
        'width': '55%',
      }">
 
-<div class="categories">
-  <div class="category-list">
-    <div *ngFor="let line of categoryLines">
-    <div class="category-line">
-      <button *ngFor="let category of line" 
-          (click)="selectCategory(category.name)" 
-          [ngClass]="{'category-selected': category.selected}"
-          class="cat-buttons">
-      {{ category.name.toUpperCase() }}
-      </button>
+     <div *ngIf="categoryLines.length > 0" class="categories">
+      <div class="category-list">
+        <div *ngFor="let line of categoryLines">
+          <div class="category-line">
+
+            <button *ngFor="let category of line"
+                    (click)="toggleCategory(category)"
+                    [ngClass]="{
+                        'category-selected': selectedCategory && selectedCategory === category,
+                        'highlight-selected': selectedCategory && selectedCategory === category && selectedDifficulty
+                    }"
+                    class="cat-buttons">
+                {{ category.toUpperCase() }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
-  </div>
-</div>
+    
 
 <div>
     <button class="match-button"  
