@@ -79,7 +79,7 @@ export default function QuestionPage() {
       basicSetup,
       languageConf.of(javascript()),
       EditorView.theme({
-        "&": { height: "100%", overflow: "hidden" }, // Enable scroll
+        "&": { height: "100%", overflow: "hidden" }, // Enable Scroll
       }),
     ],
   });
@@ -241,6 +241,7 @@ export default function QuestionPage() {
                         pageSize: paginationParams.limit,
                         onChange: onPageJump,
                       }}
+                      scroll={{ y: 200 }}
                     />
                   </div>
                 </div>
@@ -279,7 +280,7 @@ export default function QuestionPage() {
                       <div
                         style={{
                           margin: "10px",
-                          height: "40vh",
+                          height: "35vh",
                         }}
                       >
                         <div
