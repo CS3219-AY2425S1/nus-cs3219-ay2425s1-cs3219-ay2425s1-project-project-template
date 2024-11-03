@@ -4,8 +4,6 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^3.0.1",
-    "@cloudinary/react": "^1.13.0",
-    "@cloudinary/url-gen": "^1.21.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.1.0",
@@ -31,7 +29,6 @@
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
-    "react": "^18.3.1",
     "remark-gfm": "^4.0.0",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
