@@ -11,6 +11,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (request.nextUrl.pathname === '/login' && isTokenValid) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   const isAdmin = request.cookies.get("isAdmin")?.value;
   if (!isAdmin && request.nextUrl.pathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/401', request.url));

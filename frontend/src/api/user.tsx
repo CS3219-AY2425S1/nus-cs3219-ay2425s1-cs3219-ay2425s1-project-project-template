@@ -55,6 +55,18 @@ export const verifyToken = async (token: string) => {
     }
   );
 
+  if (response.status !== 200) {
+    Cookie.remove("token");
+    Cookie.remove("username");
+    Cookie.remove("id");
+    Cookie.remove("isAdmin");
+    return false;
+  }
+
+  const data = await response.json();
+  setUsername(data.data.username);
+  setIsAdmin(data.data.isAdmin);
+  setUserId(data.data.id);
   return response.status === 200;
 };
 
@@ -129,7 +141,6 @@ export const register = async (
 export const getUser = async (userId = "") => {
   const token = getToken();
   const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`
-  console.log(url);
   const response = await fetch(url, {
     method: "GET",
     headers: {
