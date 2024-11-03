@@ -5,7 +5,6 @@ import { SubmissionRequestDto, SubmissionResponseDto } from '@repo/submission-ty
 import { CollabDto } from '../types/CollabDto'
 import { createSession, getSessionById } from '../models/collab.repository'
 import judgeZero from '../services/judgezero.service'
-import config from '../common/config.util'
 
 export async function createSessionRequest(request: ITypedBodyRequest<CollabDto>, response: Response): Promise<void> {
     const collabDto = CollabDto.fromRequest(request)
@@ -61,7 +60,7 @@ export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto
         return
     }
 
-    const res = await judgeZero.post(config.JUDGE_ZERO_SUBMIT_CONFIG, request.body)
+    const res = await judgeZero.post('/submissions?base64_encoded=false&wait=true', request.body)
 
     if (!res) {
         response.status(400).json('Failed to submit code. Please try again.').send()
