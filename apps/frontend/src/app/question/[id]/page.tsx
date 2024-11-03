@@ -81,6 +81,7 @@ export default function QuestionPage() {
       EditorView.theme({
         "&": { height: "100%", overflow: "hidden" }, // Enable Scroll
       }),
+      EditorView.editable.of(false), // Disable editing
     ],
   });
 
