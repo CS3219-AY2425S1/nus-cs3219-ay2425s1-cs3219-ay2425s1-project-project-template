@@ -4,6 +4,5 @@
         "rootDir": "./src",
         "outDir": "./dist"
     },
-    "include": ["src/**/*", "../../packages/submission-types/src/SubmissionRequestDto.ts"],
-    "exclude": ["**/*.test.ts", "**/*.html"]
+    "include": ["src/**/*"]
 }
