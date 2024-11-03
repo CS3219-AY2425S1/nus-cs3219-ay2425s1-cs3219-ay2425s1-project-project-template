@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 
 import { twMerge } from 'tailwind-merge';
+import { EMAIL_REGEX, PASSWORD_RULES } from './constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -24,3 +25,43 @@ export function getDifficultyString(difficulty: number) {
       return 'Unknown';
   }
 }
+
+export const validatePassword = (
+  password: string,
+  confirmPassword?: string,
+): string[] => {
+  const errors: string[] = [];
+
+  if (password.length < PASSWORD_RULES.minLength) {
+    errors.push(
+      `Password must be at least ${PASSWORD_RULES.minLength} characters long`,
+    );
+  }
+  // Add more password validation rules here if needed
+
+  if (confirmPassword && password !== confirmPassword) {
+    errors.push('Passwords do not match');
+  }
+
+  return errors;
+};
+
+export const validateEmail = (email: string): string[] => {
+  const errors: string[] = [];
+
+  if (!email) {
+    errors.push('Email is required');
+  } else if (!EMAIL_REGEX.test(email)) {
+    errors.push('Please enter a valid email address');
+  }
+
+  return errors;
+};
+
+export const validateUsername = (username: string): string[] => {
+  const errors: string[] = [];
+  if (!username.trim()) {
+    errors.push('Username is required');
+  }
+  return errors;
+};

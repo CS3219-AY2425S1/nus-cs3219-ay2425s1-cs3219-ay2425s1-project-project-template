@@ -17,7 +17,15 @@ import { useAuthStore } from '@/state/useAuthStore';
 import { axiosClient } from '@/network/axiosClient';
 import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { validateEmail, validatePassword, validateUsername } from '@/lib/utils';
+import { ValidationError } from '@/types/validation';
 
+/**
+ * ValidationError: For the form validation errors
+ * ProfileMessage: For the profile related API response message
+ * PasswordMessage: For the password related API response message
+ * @returns profile component
+ */
 const ProfilePage = () => {
   const { user, setUser, clearAuth } = useAuthStore();
   const router = useRouter();
@@ -61,6 +69,8 @@ const ProfilePage = () => {
     confirmPassword: false,
   });
 
+  const [validationErrors, setValidationErrors] = useState<ValidationError>({});
+
   // Add function to check if form data has changed
   const hasProfileChanges = () => {
     return (
@@ -68,12 +78,53 @@ const ProfilePage = () => {
     );
   };
 
+  const validateProfileForm = (): boolean => {
+    const errors: ValidationError = {};
+    let isValid = true;
+
+    // Validate email
+    const emailErrors = validateEmail(formData.email);
+    if (emailErrors.length > 0) {
+      errors.email = emailErrors;
+      isValid = false;
+    }
+
+    // Validate username
+    const usernameErrors = validateUsername(formData.username);
+    if (usernameErrors.length > 0) {
+      errors.username = ['Username is required'];
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    return isValid;
+  };
+
+  const validatePasswordForm = (): boolean => {
+    const errors: ValidationError = {};
+    let isValid = true;
+
+    // Validate new password
+    const passwordErrors = validatePassword(
+      passwordData.newPassword,
+      passwordData.confirmPassword,
+    );
+    if (passwordErrors.length > 0) {
+      errors.newPassword = passwordErrors;
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    return isValid;
+  };
+
   // Add form handlers
   const handleProfileSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setProfileMessage(null);
+    setValidationErrors({});
 
-    if (!user) return;
+    if (!user || !validateProfileForm()) return;
 
     try {
       const result = await axiosClient.patch(`/users/${user.id}`, {
@@ -108,16 +159,9 @@ const ProfilePage = () => {
   const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setPasswordMessage(null);
+    setValidationErrors({});
 
-    if (!user) return;
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordMessage({
-        type: 'error',
-        text: 'New password and confirm password do not match',
-      });
-      return;
-    }
+    if (!user || !validatePasswordForm()) return;
 
     try {
       const verifyResult = await axiosClient.post(
@@ -135,25 +179,21 @@ const ProfilePage = () => {
         password: passwordData.newPassword,
       });
 
-      // throw error if result is not 200
       if (result.status !== 200) {
         throw new Error(result.data.message);
       }
 
-      // Sucess state
       setPasswordMessage({
         type: 'success',
         text: 'Password updated successfully',
       });
 
-      // reset the fields
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
 
-      // Clear message after 5 seconds
       setTimeout(() => {
         setPasswordMessage(null);
       }, 5000);
@@ -168,13 +208,15 @@ const ProfilePage = () => {
   const handleDeleteAccount = async () => {
     const res = await axiosClient.delete(`/users/${user?.id}`);
     if (res.status === 200) {
-      const res = await logout();
+      const resLogout = await logout();
 
-      if (res) {
-        clearAuth();
-        router.push('/');
+      if (!resLogout) {
         return;
       }
+
+      clearAuth();
+      router.push('/');
+      return;
     }
   };
 
@@ -198,12 +240,23 @@ const ProfilePage = () => {
                 <Input
                   id="username"
                   placeholder="Enter username"
-                  className="border-slate-700 bg-slate-900 text-slate-200"
+                  className={`border-slate-700 bg-slate-900 text-slate-200 ${
+                    validationErrors.username ? 'border-red-500' : ''
+                  }`}
                   value={formData.username}
                   onChange={(e) =>
                     setFormData({ ...formData, username: e.target.value })
                   }
                 />
+                {validationErrors.username && (
+                  <div className="mt-1 space-y-1">
+                    {validationErrors.username.map((error, index) => (
+                      <p key={index} className="text-xs text-red-500">
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-slate-200">
@@ -213,12 +266,23 @@ const ProfilePage = () => {
                   id="email"
                   type="email"
                   placeholder="Enter email"
-                  className="border-slate-700 bg-slate-900 text-slate-200"
+                  className={`border-slate-700 bg-slate-900 text-slate-200 ${
+                    validationErrors.email ? 'border-red-500' : ''
+                  }`}
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
                 />
+                {validationErrors.email && (
+                  <div className="mt-1 space-y-1">
+                    {validationErrors.email.map((error, index) => (
+                      <p key={index} className="text-xs text-red-500">
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
               <Button
                 type="submit"
@@ -279,6 +343,7 @@ const ProfilePage = () => {
                   </button>
                 </div>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="new-password" className="text-slate-200">
                   New Password
@@ -287,7 +352,9 @@ const ProfilePage = () => {
                   <Input
                     id="new-password"
                     type={showPasswords.newPassword ? 'text' : 'password'}
-                    className="border-slate-700 bg-slate-900 text-slate-200"
+                    className={`border-slate-700 bg-slate-900 text-slate-200 ${
+                      validationErrors.newPassword ? 'border-red-500' : ''
+                    }`}
                     value={passwordData.newPassword}
                     onChange={(e) =>
                       setPasswordData({
@@ -313,7 +380,17 @@ const ProfilePage = () => {
                     )}
                   </button>
                 </div>
+                {validationErrors.newPassword && (
+                  <div className="mt-1 space-y-1">
+                    {validationErrors.newPassword.map((error, index) => (
+                      <p key={index} className="text-xs text-red-500">
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="confirm-password" className="text-slate-200">
                   Confirm New Password
@@ -322,7 +399,7 @@ const ProfilePage = () => {
                   <Input
                     id="confirm-password"
                     type={showPasswords.confirmPassword ? 'text' : 'password'}
-                    className="border-slate-700 bg-slate-900 text-slate-200"
+                    className={`border-slate-700 bg-slate-900 text-slate-200`}
                     value={passwordData.confirmPassword}
                     onChange={(e) =>
                       setPasswordData({
@@ -349,6 +426,7 @@ const ProfilePage = () => {
                   </button>
                 </div>
               </div>
+
               <Button
                 type="submit"
                 className="bg-[#4ADE80] text-slate-900 hover:bg-[#4ADE80]/90"
@@ -358,7 +436,11 @@ const ProfilePage = () => {
             </form>
             {passwordMessage && (
               <div
-                className={`mt-2 text-sm ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-green-500'}`}
+                className={`mt-2 text-sm ${
+                  passwordMessage.type === 'error'
+                    ? 'text-red-500'
+                    : 'text-green-500'
+                }`}
               >
                 {passwordMessage.text}
               </div>

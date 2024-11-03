@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { axiosClient } from '@/network/axiosClient';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
 import Link from 'next/link';
 import { login } from '@/lib/auth';
+import { validateEmail, validatePassword } from '@/lib/utils';
+import { ValidationError } from '@/types/validation';
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
@@ -17,16 +19,38 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<ValidationError>({});
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  const validateForm = (): boolean => {
+    const errors: ValidationError = {};
+    let isValid = true;
+
+    // Validate email
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      errors.email = emailErrors;
+      isValid = false;
+    }
+
+    // Validate password
+    const passwordErrors = validatePassword(password, confirmPassword);
+    if (passwordErrors.length > 0) {
+      errors.newPassword = passwordErrors;
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    return isValid;
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setValidationErrors({});
 
-    // const type = 'user';
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    if (!validateForm()) {
       return;
     }
 
@@ -52,15 +76,16 @@ export default function SignUpPage() {
         email: email,
         password: password,
       });
+
       if (loginResult.request.status !== 200) {
         setError('Unable to login');
         return;
       }
 
       const data = loginResult.data.data;
-
       const token = data.accessToken;
       const res = await login(token);
+
       if (res) {
         setAuth(true, token, data);
         router.push('/');
@@ -79,8 +104,6 @@ export default function SignUpPage() {
       <div className="w-full max-w-md space-y-6 rounded-lg bg-gray-800 p-8 shadow-xl">
         {error && (
           <Alert variant="destructive" className="mb-4">
-            {/* <AlertCircle className="h-4 w-4" /> */}
-            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -110,8 +133,19 @@ export default function SignUpPage() {
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full rounded-md border ${
+                validationErrors.email ? 'border-red-500' : 'border-gray-600'
+              } bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
+            {validationErrors.email && (
+              <div className="mt-1 space-y-1">
+                {validationErrors.email.map((error, index) => (
+                  <p key={index} className="text-xs text-red-500">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <Input
@@ -119,8 +153,21 @@ export default function SignUpPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full rounded-md border ${
+                validationErrors.newPassword
+                  ? 'border-red-500'
+                  : 'border-gray-600'
+              } bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
+            {validationErrors.newPassword && (
+              <div className="mt-1 space-y-1">
+                {validationErrors.newPassword.map((error, index) => (
+                  <p key={index} className="text-xs text-red-500">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <Input
@@ -128,7 +175,7 @@ export default function SignUpPage() {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full rounded-md border bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
           <div className="flex items-center">
