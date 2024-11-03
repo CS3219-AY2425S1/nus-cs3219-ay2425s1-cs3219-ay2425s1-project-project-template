@@ -24,10 +24,10 @@ export default async function middleware(request: NextRequest) {
     return REDIRECT_TO_LOGIN;
   }
   
-  if (!await isValidToken(TOKEN.value)) {
-    REDIRECT_TO_LOGIN.cookies.delete("TOKEN");
-    return REDIRECT_TO_LOGIN;
-  }
+  // if (!await isValidToken(TOKEN.value)) {
+  //   REDIRECT_TO_LOGIN.cookies.delete("TOKEN");
+  //   return REDIRECT_TO_LOGIN;
+  // }
 
   return NextResponse.next();
   

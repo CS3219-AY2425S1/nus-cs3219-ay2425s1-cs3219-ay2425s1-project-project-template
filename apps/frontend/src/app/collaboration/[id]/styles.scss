@@ -22,12 +22,12 @@
 }
 
 .question-row {
-  height: 60%;
+  height: 50%;
   padding: 1rem 0.25rem 0.25rem;
 }
 
 .test-row {
-  height: 40%;
+  height: 50%;
   padding: 0.25rem;
 }
 
@@ -196,4 +196,40 @@
 
 .info-modal-icon {
   color: red;
+}
+
+.test-button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-left: 10px;
+
+  .spinner-container {
+    width: 24px;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.test-result-container {
+  margin-top: 10px;
+}
+
+.hidden-test-icon {
+  margin-right: 5px;
+}
+
+.error-message {
+  overflow-x: auto;
+  overflow-y: auto; // Allows vertical scroll if content exceeds max-height
+  white-space: nowrap;
+  max-width: 100%;
+  padding: 4px;
+  min-height: 50px; // Adjust height as needed
+  max-height: 150px; // Adjust max height for scrollable area
+  border: 1px solid #ddd; // Optional: add a border for visibility
+  border-radius: 4px; // Optional: round the corners slightly
+  background-color: #f9f9f9; // Optional: light background color
 }
