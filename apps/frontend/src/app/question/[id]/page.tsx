@@ -21,7 +21,7 @@ import {
   HistoryOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion } from "../../services/question";
 import React from "react";
 import TextArea from "antd/es/input/TextArea";
@@ -29,6 +29,13 @@ import { useSearchParams } from "next/navigation";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import { useRouter } from "next/navigation";
 import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
+import CollaborativeEditor, {
+  CollaborativeEditorHandle,
+} from "@/components/CollaborativeEditor/CollaborativeEditor";
+import { WebrtcProvider } from "y-webrtc";
+import { Compartment, EditorState } from "@codemirror/state";
+import { basicSetup, EditorView } from "codemirror";
+import { javascript } from "@codemirror/lang-javascript";
 
 export default function QuestionPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
@@ -44,6 +51,9 @@ export default function QuestionPage() {
   };
 
   const router = useRouter();
+  const editorRef = useRef(null);
+  const providerRef = useRef<WebrtcProvider | null>(null);
+  const languageConf = new Compartment();
 
   // Retrieve the docRefId from query params during page navigation
   const searchParams = useSearchParams();
@@ -55,7 +65,17 @@ export default function QuestionPage() {
   const [complexity, setComplexity] = useState<string | undefined>(undefined);
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
-  const [selectedItem, setSelectedItem] = useState("python"); // State to hold the selected language item
+
+  const state = EditorState.create({
+    doc: "TODO: parse from code",
+    extensions: [
+      basicSetup,
+      languageConf.of(javascript()),
+      EditorView.theme({
+        "&": { height: "100%", overflow: "hidden" }, // Enable scroll
+      }),
+    ],
+  });
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
@@ -73,6 +93,16 @@ export default function QuestionPage() {
       .finally(() => {
         setIsLoading(false);
       });
+
+    const view = new EditorView({
+      state,
+      parent: editorRef.current || undefined,
+    });
+
+    return () => {
+      // Cleanup on component unmount
+      view.destroy();
+    };
   }, [docRefId]);
 
   // TODO: retrieve history
@@ -144,14 +174,22 @@ export default function QuestionPage() {
                       Submitted Code
                     </div>
                   </div>
+
+                  {/* TODO: add details of attempt here */}
                   {/* TODO: set value of code, refactor to look like collab editor but not editable */}
-                  <div style={{ margin: "10px" }}>
-                    <Input.TextArea
-                      className="code-viewer"
-                      readOnly
-                      placeholder="Empty submission"
-                      rows={20}
-                      value="TODO"
+                  <div
+                    style={{
+                      margin: "10px",
+                      height: "40vh",
+                    }}
+                  >
+                    <div
+                      ref={editorRef}
+                      style={{
+                        height: "100%",
+                        overflow: "scroll",
+                        border: "1px solid #ddd",
+                      }}
                     />
                   </div>
                 </div>
