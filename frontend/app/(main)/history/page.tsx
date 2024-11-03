@@ -4,10 +4,12 @@ import { useState } from "react";
 
 import { useHistory } from "@/hooks/api/history";
 import HistoryTable from "@/components/history/HistoryTable";
+import { useUser } from "@/hooks/users";
 
 export default function Page() {
   const [pageNumber, setPageNumber] = useState<number>(1);
-  const { data: historyList, isLoading, isError } = useHistory(pageNumber);
+  const { user } = useUser();
+  const { data: historyList, isLoading, isError } = useHistory(user?.username || "", pageNumber);
   const handleOnPageClick = (page: number) => {
     setPageNumber(page);
   };

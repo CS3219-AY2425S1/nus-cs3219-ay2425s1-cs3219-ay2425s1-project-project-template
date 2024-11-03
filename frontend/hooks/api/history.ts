@@ -14,7 +14,7 @@ const fetchHistoryFromPage = async (username: string, page: number) : Promise<Hi
 };
 
 // Hook to fetch history
-export const useHistory = (page: number, username: string) => {
+export const useHistory = (username: string, page: number) => {
     return useQuery<HistoryList, AxiosError>({
       queryKey: ["history", page, username],
       queryFn: () => fetchHistoryFromPage(username, page),
