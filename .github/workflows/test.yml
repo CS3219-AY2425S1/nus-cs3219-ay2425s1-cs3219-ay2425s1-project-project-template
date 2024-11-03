@@ -54,15 +54,21 @@ jobs:
           go test ./...
 
   frontend-unit-tests:
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '22'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Setup .env
         run: |
           cd ./apps/frontend
           cp .env.example  .env
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
 
       - name: Install pnpm
         run: npm i -g pnpm
