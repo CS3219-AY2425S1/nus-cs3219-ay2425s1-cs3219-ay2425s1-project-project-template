@@ -22,7 +22,16 @@ jobs:
       
       - name: Set up .env
         run: |
-          echo ./apps/question-service/.env.example > .env
+          cd ./apps/question-service
+          echo .env.example > .env
+      
+      - name: Set up credentials
+        env:
+          QUESTION_FIREBASE_JSON: ${{ secrets.QUESTION_SERVICE_FIREBASE_CREDENTIAL }}
+          QUESTION_FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+        run: |
+          cd ./apps/question-service
+          echo "$QUESTION_FIREBASE_JSON" > "./$QUESTION_FIREBASE_CREDENTIAL_PATH"
 
       - name: Setup Go
         uses: actions/setup-go@v5
