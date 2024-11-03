@@ -5,6 +5,7 @@ import QuestionDialog from './QuestionDialog';
 import CodeDialog from './CodeDialog';
 import questionService from '../../services/question-service';
 import userService from '../../services/user-service';
+import historyService from '../../services/history-service';
 import useAuth from "../../hooks/useAuth";
 
 const columns = [
@@ -34,6 +35,7 @@ export default function HistoryTable() {
         withCredentials: true,
       });
 
+      historyService.sortByLatestDate(data.data);
       setHistory(data.data);
     };
 
@@ -161,7 +163,7 @@ export default function HistoryTable() {
                     </TableCell>
                     
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
-                      {row.datetime}
+                      {historyService.formatDatetime(row.datetime)}
                     </TableCell>
                   </TableRow>
                 );
