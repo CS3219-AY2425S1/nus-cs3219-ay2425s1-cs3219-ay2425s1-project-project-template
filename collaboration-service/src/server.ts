@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
-import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom, handleRunCode, changeLanguage } from "./service/collaboration-service";
+import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom, handleSendMessage, handleRunCode, changeLanguage } from "./service/collaboration-service";
 
 const PORT = process.env.PORT || 3003;
 const app = express();
@@ -29,6 +29,10 @@ io.on("connection", (socket) => {
   // Handle code updates
   socket.on("code_change", (data) => {
     handleCodeUpdates(socket, data);
+  });
+
+  socket.on("send_message", (data) => {
+    handleSendMessage(socket, data); 
   });
 
   socket.on("leave_collab", (data) => {
