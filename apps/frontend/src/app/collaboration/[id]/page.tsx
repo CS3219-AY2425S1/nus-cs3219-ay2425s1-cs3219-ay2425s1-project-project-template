@@ -152,7 +152,7 @@ export default function CollaborationPage(props: CollaborationProps) {
         language: selectedLanguage,
         user: currentUser ?? "",
         matchedUser: matchedUser ?? "",
-        matchId: collaborationId ?? "",
+        historyDocRefId: collaborationId ?? "",
         matchedTopics: matchedTopics ?? [],
         questionDocRefId: questionDocRefId ?? "",
         questionDifficulty: complexity ?? "",
