@@ -175,6 +175,12 @@ const CollaborativeEditor = forwardRef(
             true
           );
           success("Session ended. All participants will be notified.");
+
+          // Event when peer disconnected, in between 0-15s user decides to end session before auto end session is triggered from inactivity
+          if (sessionEndTimeout) {
+            clearTimeout(sessionEndTimeout);
+            sessionEndTimeout = null;
+          }
         }
       },
     }));
