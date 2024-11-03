@@ -26,20 +26,6 @@ export default function WorkSpace() {
   const [result, setResult] = useState<CodeExecutionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // useEffect(() => {
-    // Fetch supported languages when component mounts
-    // const fetchLanguages = async () => {
-    //   try {
-    //     const languages = await fetchSupportedLanguages();
-    //     setSupportedLanguages(languages);
-    //   } catch (err) {
-    //     console.error('Failed to fetch languages:', err);
-    //   }
-    // };
-
-    // fetchLanguages();
-  // }, []);
-
   // const handleCodeChange = (newCode) => {
   //   setCode(newCode);
   //   if (collaborative && onCodeChange) {
