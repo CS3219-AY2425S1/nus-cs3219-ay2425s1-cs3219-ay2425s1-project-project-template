@@ -141,9 +141,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         ))}
         {isLoading && (
           <div className='mb-4 flex justify-start'>
-            <div className='rounded-lg bg-gray-50 px-4 py-2'>
-              <Loader2 className='size-5 animate-spin text-gray-500' />
-            </div>
+            <Loader2 className='size-5 animate-spin text-gray-500' />
           </div>
         )}
         {error && (
