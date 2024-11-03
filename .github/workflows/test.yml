@@ -46,6 +46,7 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/question-service
+          tree .
           go test ./...
 
   test:
