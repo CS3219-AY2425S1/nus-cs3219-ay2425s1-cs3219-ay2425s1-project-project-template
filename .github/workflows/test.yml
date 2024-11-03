@@ -21,9 +21,14 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Set up .env
+        env:
+          QUESTION_FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           cd ./apps/question-service
-          cp .env.example .env
+          
+          echo "FIREBASE_CREDENTIAL_PATH=$QUESTION_FIREBASE_CREDENTIAL_PATH" >> .env
+          echo "JWT_SECRET=$JWT_SECRET" >> .env
       
       - name: Set up credentials
         env:
