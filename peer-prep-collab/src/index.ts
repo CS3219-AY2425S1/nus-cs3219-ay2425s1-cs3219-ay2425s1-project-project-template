@@ -1,6 +1,5 @@
-import amqp, { Channel, Connection, ConsumeMessage, Message } from "amqplib"
-import { createCollaborationService } from "./services/collaboration.services"
-import { initiateCollaboration, startCollaboration } from "./controllers/collaboration.controller"
+import amqp, { Channel, Message } from "amqplib"
+import { initiateCollaboration } from "./controllers/collaboration.controller"
 
 let channel: Channel
 

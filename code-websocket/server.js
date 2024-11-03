@@ -53,16 +53,31 @@ server.on('connection', (socket, request) => {
         // Remove the user from the active users list
         delete activeUsers[sessionID][userID];
 
+        // Log the remaining users in the session
+        const remainingUsers = Object.keys(activeUsers[sessionID]);
+        console.log(`Remaining users in session ${sessionID}: ${remainingUsers.length > 0 ? remainingUsers.join(', ') : 'None'}`);
+
+
         broadcastToSession(sessionID, {
             type: 'userDisconnected',
             userID,
         });
+
+        if (remainingUsers.length === 0) {
+            console.log(`All users disconnected from session ${sessionID}. Removing session data.`);
+
+            // Remove the session data and active users entry for this session
+            delete sessionData[sessionID];
+            delete activeUsers[sessionID];
+        }
     });
 
     // Handle errors
     socket.on('error', (error) => {
         console.error(`Socket error for user ${userID} in session ${sessionID}:`, error);
     });
+
+
 });
 
 

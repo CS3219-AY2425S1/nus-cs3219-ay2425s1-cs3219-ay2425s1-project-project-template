@@ -1,5 +1,4 @@
 import axios from 'axios';
-import {v4 as uuidv4} from 'uuid';
 import {config} from '../config/config';
 import {Question} from '../models/question.model';
 import {Session} from '../models/session.model';
