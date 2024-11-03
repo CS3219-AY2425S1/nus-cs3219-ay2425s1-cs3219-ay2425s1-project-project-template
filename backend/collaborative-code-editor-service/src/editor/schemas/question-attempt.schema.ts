@@ -7,9 +7,6 @@ export class QuestionAttempt {
   @Prop({ required: true })
   questionId: string;
 
-  @Prop({ required: true })
-  sessionId: string;
-
   @Prop({ type: [QuestionSubmissionSchema] })
   submissions: QuestionSubmission[];
 

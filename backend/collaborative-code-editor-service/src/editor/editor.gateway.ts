@@ -36,11 +36,16 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     const sessionId = client.handshake.query.sessionId as string;
     const questionId = client.handshake.query.questionId as string;
+    const userId = client.handshake.query.userId as string;
     
     try {
-      await this.editorService.addUserToSession(sessionId, client.id);
+      await this.editorService.addUserToSession(sessionId, userId);
       
-      const session = await this.editorService.getSession(sessionId);
+      let session = await this.editorService.getSessionIfActive(sessionId);
+      // TODO: Remove later
+      if (!session) {
+        session = await this.editorService.createSession(sessionId);
+      }
       if (session) {
         const questionAttempt = session.questionAttempts.find(
           qa => qa.questionId === questionId
@@ -56,11 +61,9 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
         
         const activeUsers = await this.editorService.getActiveUsers(sessionId);
-        this.server.to(sessionId).emit('activeUsers', activeUsers);
+        client.join(`${sessionId}:${questionId}`);
+        this.server.to(`${sessionId}:${questionId}`).emit('activeUsers', activeUsers);
       }
-      
-      client.join(`${sessionId}:${questionId}`);
-      client.to(`${sessionId}:${questionId}`).emit('userJoined', client.id);
     } catch (error) {
       console.error('Error in handleConnection:', error);
       client.disconnect();
@@ -70,14 +73,18 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const sessionId = client.handshake.query.sessionId as string;
     const questionId = client.handshake.query.questionId as string;
+    const userId = client.handshake.query.userId as string;
     
     try {
-      await this.editorService.removeUserFromSession(sessionId, client.id);
+      await this.editorService.removeUserFromSession(sessionId, userId);
       
       const activeUsers = await this.editorService.getActiveUsers(sessionId);
       this.server.to(`${sessionId}:${questionId}`).emit('activeUsers', activeUsers);
-      
+      if (activeUsers.length === 0) {
+        await this.editorService.completeSession(sessionId);
+      }
       client.leave(`${sessionId}:${questionId}`);
+      client.disconnect();
     } catch (error) {
       console.error('Error in handleDisconnect:', error);
     }
@@ -104,11 +111,9 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.editorService.submitQuestionAttempt(sessionId, questionId, {
         code,
         language,
-        submittedBy: client.id,
       });
       
       this.server.to(`${sessionId}:${questionId}`).emit('submissionMade', {
-        submittedBy: client.id,
         timestamp: new Date()
       });
     } catch (error) {

@@ -10,11 +10,11 @@ export class Session {
   @Prop({ type: [String], default: [] })
   activeUsers: string[];
 
-  @Prop()
-  lastModified: Date;
-
   @Prop({ type: [QuestionAttemptSchema] })
   questionAttempts: QuestionAttempt[];
+
+  @Prop({ type: Boolean, default: false })
+  isCompleted: boolean;
 }
 
 export type SessionDocument = HydratedDocument<Session>;

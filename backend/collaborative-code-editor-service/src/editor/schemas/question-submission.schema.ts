@@ -10,15 +10,9 @@ export class QuestionSubmission {
   language: string;
 
   @Prop()
-  submittedBy: string;
-
-  @Prop()
   submittedAt: Date;
 
-  @Prop({ type: Map, of: String })
-  testResults?: Map<string, string>;
-
-  @Prop({ default: 'pending' })
+  @Prop({ type: String, default: 'pending' })
   status: 'pending' | 'accepted' | 'rejected';
 }
 

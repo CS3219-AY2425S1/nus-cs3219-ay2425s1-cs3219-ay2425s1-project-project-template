@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Users } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useRouter } from 'next/navigation';
+import { verifyToken } from '@/lib/api-user';
 
 interface CodeEditorProps {
   sessionId: string;
@@ -21,48 +23,77 @@ const CollaborativeEditor = ({ sessionId, questionId, initialLanguage = 'javascr
   const [activeUsers, setActiveUsers] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
+  const router = useRouter();
 
   // Initialize socket connection
   useEffect(() => {
-    const socketInstance = io(process.env.NEXT_PUBLIC_COLLAB_API_URL, {
-      query: {
-        sessionId,
-        questionId,
-      },
-    });
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        router.push('/login')
+        return
+      }
+      try {
+        const res = await verifyToken(token) as { data: { username: string, email: string } }
+        const username = res.data.username;
+        return username
+        console.log('User name is', username);
+      } catch (error) {
+        console.error('Token verification failed:', error)
+        router.push('/login')
+      }
+    }
 
-    socketInstance.on('connect', () => {
-      setIsConnected(true);
-      setError('');
-    });
+    let socketInstance: Socket;
 
-    socketInstance.on('disconnect', () => {
-      setIsConnected(false);
-      setError('Disconnected from server');
-    });
+    fetchUserData().then((username) => {
+      if (!username) {
+        console.log('Username not found');
+        router.push('/login')
+        return;
+      }
+      socketInstance = io(process.env.NEXT_PUBLIC_COLLAB_API_URL, {
+        query: {
+          sessionId,
+          questionId,
+          userId: username,
+        },
+      });
 
-    socketInstance.on('error', (errorMessage: string) => {
-      setError(errorMessage);
-    });
+      socketInstance.on('connect', () => {
+        setIsConnected(true);
+        setError('');
+      });
 
-    socketInstance.on('codeChange', ({ code: newCode, language: newLanguage }) => {
-      setCode(newCode);
-      setLanguage(newLanguage);
-    });
+      socketInstance.on('disconnect', () => {
+        setIsConnected(false);
+        setError('Disconnected from server');
+      });
 
-    socketInstance.on('activeUsers', (users: string[]) => {
-      setActiveUsers(users);
-    });
+      socketInstance.on('error', (errorMessage: string) => {
+        setError(errorMessage);
+      });
 
-    socketInstance.on('submissionMade', ({ submittedBy, timestamp }) => {
-      console.log(`Code submitted by ${submittedBy} at ${timestamp}`);
-    });
+      socketInstance.on('codeChange', ({ code: newCode, language: newLanguage }) => {
+        setCode(newCode);
+        setLanguage(newLanguage);
+      });
 
-    setSocket(socketInstance);
+      socketInstance.on('activeUsers', (users: string[]) => {
+        setActiveUsers(users);
+      });
+
+      socketInstance.on('submissionMade', ({ timestamp }) => {
+        console.log(`Code submitted at ${timestamp}`);
+      });
+
+      setSocket(socketInstance);
+    });
 
     return () => {
-      socketInstance.disconnect();
+      socketInstance?.disconnect();
     };
+
   }, [sessionId, questionId]);
 
   // Debounced code change handler
@@ -76,7 +107,7 @@ const CollaborativeEditor = ({ sessionId, questionId, initialLanguage = 'javascr
           language: newLanguage,
         });
       }
-    }, 1000),
+    }, 400),
     [socket, sessionId, questionId]
   );
 
@@ -124,7 +155,7 @@ const CollaborativeEditor = ({ sessionId, questionId, initialLanguage = 'javascr
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="min-h-[500px] border rounded-md overflow-hidden">
             <MonacoEditor
               height="500px"
