@@ -89,38 +89,38 @@ function VideoCall({ communicationSocket, roomId }: VideoCallSectionProps) {
 
   return (
     <Paper>
-      <Group>
+    <Group justify="center" gap="10px" grow>
         <video
-          ref={localVideoRef}
-          autoPlay
-          playsInline
-          muted
-          style={{
-            width: '300px',  // Fixed width
-            height: '200px', // Fixed height
+        ref={localVideoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{
+            width: '245px',  // Fixed width
+            height: '160px', // Fixed height
             borderRadius: '8px',
-            border: '1px solid #ddd',
             objectFit: 'cover', // Maintain aspect ratio and fill the box
-          }}
+            border: '1px solid rgba(0, 0, 0, 0.2)', // Optional faint outline
+        }}
         />
         <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          style={{
-            width: '300px',  // Fixed width
-            height: '200px', // Fixed height
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        style={{
+            width: '245px',  // Adjusted to match local video for better alignment
+            height: '160px', // Fixed height
             borderRadius: '8px',
-            border: '1px solid #ddd',
             objectFit: 'cover', // Maintain aspect ratio and fill the box
-          }}
+            border: '1px solid rgba(0, 0, 0, 0.2)', // Optional faint outline
+        }}
         />
-      </Group>
-      <Group>
+    </Group>
+    <Group justify="center">
         <Button onClick={startCall} disabled={isCallStarted} color="blue">
-          {isCallStarted ? 'Call Started' : 'Start Call'}
+        {isCallStarted ? 'Call Started' : 'Start Call'}
         </Button>
-      </Group>
+    </Group>
     </Paper>
   );
 };
