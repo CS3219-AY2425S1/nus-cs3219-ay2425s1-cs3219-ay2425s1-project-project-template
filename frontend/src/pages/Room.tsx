@@ -6,10 +6,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
+import { executeCode } from '../apis/CodeExecutionApi';
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
 import ConfirmationModal from '../components/modal/ConfirmationModal';
 import RoomTabs from '../components/tabs/RoomTabs';
 import config from '../config';
+import {
+  CodeExecutionInput,
+  CodeExecutionResponse,
+  SupportedLanguage,
+} from '../types/CodeExecutionType';
 
 function Room() {
   const [
@@ -18,6 +24,9 @@ function Room() {
   ] = useDisclosure(false);
 
   const [code, setCode] = useState('');
+  const [language, setLanguage] = useState<SupportedLanguage>('python');
+  const [isRunningCode, setIsRunningCode] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const sessionData = location.state;
@@ -68,15 +77,17 @@ function Room() {
         cursorLine = pos.number - 1; // Adjusting for 0-based index
         cursorColumn = head - pos.from;
       }
-    
+
       // Update the code with the new content
       isRemoteUpdateRef.current = true;
       setCode(newCode);
-    
+
       // Restore line and column position after the code has been updated
       setTimeout(() => {
         if (viewUpdateRef.current) {
-          const line = viewUpdateRef.current.view.state.doc.line(cursorLine + 1); // Adjusting back to 1-based
+          const line = viewUpdateRef.current.view.state.doc.line(
+            cursorLine + 1,
+          ); // Adjusting back to 1-based
           const newPos = line.from + cursorColumn;
           viewUpdateRef.current.view.dispatch({
             selection: { anchor: newPos, head: newPos },
@@ -84,8 +95,6 @@ function Room() {
         }
       }, 5); // the delay to be set may vary from device to device
     });
-    
-    
 
     socketRef.current.on('user-joined', () => {
       notifications.show({
@@ -118,6 +127,30 @@ function Room() {
     navigate('/dashboard');
   };
 
+  const handleRunCode = () => {
+    setIsRunningCode(true);
+    const codeExecutionInput: CodeExecutionInput = {
+      code,
+      language,
+    };
+    executeCode(codeExecutionInput).then(
+      (response: CodeExecutionResponse) => {
+        // TODO: Update display of response
+        setIsRunningCode(false);
+      },
+      (error: any) => {
+        notifications.show({
+          title: 'Code Execution Error',
+          message:
+            'We were unable to execute your code. Please try again later.',
+          color: 'red',
+        });
+        console.log(error);
+        setIsRunningCode(false);
+      },
+    );
+  };
+
   return (
     <>
       <Group h="100vh" bg="slate.8" gap="10px" p="10px">
@@ -133,6 +166,10 @@ function Room() {
           openLeaveSessionModal={openLeaveSessionModal}
           code={code}
           setCode={setCode}
+          language={language}
+          setLanguage={setLanguage}
+          isRunningCode={isRunningCode}
+          handleRunCode={handleRunCode}
           viewUpdateRef={viewUpdateRef}
         />
       </Group>

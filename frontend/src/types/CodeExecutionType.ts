@@ -10,3 +10,8 @@ export type CodeExecutionInput = {
   language: SupportedLanguage;
   input?: string;
 };
+
+export type CodeExecutionResponse = {
+  output: string;
+  is_error: boolean;
+};

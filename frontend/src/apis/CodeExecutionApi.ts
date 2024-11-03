@@ -1,9 +1,11 @@
-import { CodeExecutionInput } from '../types/CodeExecutionType';
-import { SessionResponse } from '../types/CollaborationType';
+import {
+  CodeExecutionInput,
+  CodeExecutionResponse,
+} from '../types/CodeExecutionType';
 import { api } from './ApiClient';
 
 export const executeCode = async (
   data: CodeExecutionInput,
-): Promise<SessionResponse> => {
+): Promise<CodeExecutionResponse> => {
   return api.post('/codex', data);
 };

@@ -12,6 +12,10 @@ interface CodeEditorLayoutProps {
   openLeaveSessionModal: () => void;
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
+  language: string;
+  setLanguage: React.Dispatch<React.SetStateAction<SupportedLanguage>>;
+  handleRunCode: () => void;
+  isRunningCode: boolean;
   viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
 }
 
@@ -21,9 +25,12 @@ function CodeEditorLayout({
   openLeaveSessionModal,
   code,
   setCode,
+  language,
+  setLanguage,
+  isRunningCode,
+  handleRunCode,
   viewUpdateRef,
 }: CodeEditorLayoutProps) {
-  const [language, setLanguage] = useState<SupportedLanguage>('python');
   const [extensions, setExtensions] = useState<Extension[]>([
     langs['python'](),
   ]);
@@ -69,7 +76,11 @@ function CodeEditorLayout({
             option: classes.option,
           }}
         />
-        <Button leftSection={<IconPlayerPlayFilled size={14} />}>
+        <Button
+          loading={isRunningCode}
+          leftSection={<IconPlayerPlayFilled size={14} />}
+          onClick={handleRunCode}
+        >
           Run Code
         </Button>
         <Space style={{ flexGrow: 1 }} />
