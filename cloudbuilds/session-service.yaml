@@ -5,17 +5,17 @@ steps:
       [
         "build",
         "-t",
-        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest",
         "-f",
-        "matching-service/Dockerfile",
-        "matching-service",
+        "session-service/Dockerfile",
+        "session-service",
       ]
 
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
         "push",
-        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest",
       ]
 
   # Step 2: Clean up and deploy to GKE
@@ -25,8 +25,8 @@ steps:
   - name: "gcr.io/cloud-builders/gke-deploy"
     args:
       - run
-      - --filename=k8s/matching-service.yml
-      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest
+      - --filename=k8s/session-service.yml
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest
       - --location=asia-southeast1
       - --cluster=cs3219-g11-peerprep-kubes
 
@@ -35,11 +35,11 @@ steps:
     args:
       - "set"
       - "image"
-      - "deployment/matching-svc"
-      - "matching-svc=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest"
+      - "deployment/session-svc"
+      - "session-svc=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest"
     env:
       - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
       - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
 
 images:
-  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest"
+  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest"

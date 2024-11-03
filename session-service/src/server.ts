@@ -1,13 +1,13 @@
-import express, { Request, Response } from 'express';
-import { createServer } from 'http';
-import cors from 'cors';
-import { WebSocketServer } from 'ws';
-const setupWSConnection = require('y-websocket/bin/utils').setupWSConnection;
+import express, { Request, Response } from "express";
+import { createServer } from "http";
+import cors from "cors";
+import { WebSocketServer } from "ws";
+const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
 /**
- * CORSConfiguration
+ * CORSConfiguration.
  */
-export const allowedOrigins = ['*'];
+export const allowedOrigins = ["*"];
 
 /**
  * Server INITIALIZATION and CONFIGURATION
@@ -15,16 +15,15 @@ export const allowedOrigins = ['*'];
  * Request body parsing
  */
 const app = express();
-app.use(cors(
-  {
+app.use(
+  cors({
     origin: allowedOrigins,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Content-Type",
-    credentials: true
-  }
-));
+    credentials: true,
+  })
+);
 app.use(express.json());
-
 
 /**
  * Create an http server
@@ -34,18 +33,18 @@ export const httpServer = createServer(app);
 /**
  * Create a wss (Web Socket Secure) server
  */
-export const wss = new WebSocketServer({server: httpServer})
+export const wss = new WebSocketServer({ server: httpServer });
 
 function onError(error: any) {
   console.error(error);
 }
 
 function onListening() {
-  console.log("Listening")
+  console.log("Listening");
 }
 
-httpServer.on('error', onError);
-httpServer.on('listening', onListening);
+httpServer.on("error", onError);
+httpServer.on("listening", onListening);
 
 const PORT = process.env.PORT; // or any port you prefer
 
@@ -54,9 +53,9 @@ httpServer.listen(PORT, () => {
 });
 
 /**
-* On connection, use the utility file provided by y-websocket
-*/
-wss.on('connection', (ws, req) => {
+ * On connection, use the utility file provided by y-websocket
+ */
+wss.on("connection", (ws, req) => {
   console.log("wss:connection");
   setupWSConnection(ws, req);
-})
+});
