@@ -23,7 +23,7 @@ jobs:
       - name: Set up .env
         run: |
           cd ./apps/question-service
-          echo .env.example > .env
+          cp .env.example .env
       
       - name: Set up credentials
         env:
@@ -46,7 +46,7 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/question-service
-          tree .
+          tree -a .
           go test ./...
 
   test:
