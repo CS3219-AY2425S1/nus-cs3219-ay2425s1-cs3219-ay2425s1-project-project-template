@@ -59,9 +59,9 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
     if (!sourceCode) return;
     try {
       setLoading(true);
+      collabSocket?.emit("console-load", roomId, true);
       const result = await executeCode(language, sourceCode);
       const consoleResults = result.output.split("\n");
-      collabSocket?.emit("console-load", roomId, true);
       setOutput(consoleResults);
       collabSocket?.emit("console-change", roomId, qid, consoleResults);
       result.stderr ? setIsError(true) : setIsError(false);
