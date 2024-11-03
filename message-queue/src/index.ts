@@ -1,14 +1,13 @@
-import amqp, { Channel, Connection, ConsumeMessage } from "amqplib"
+import amqp, { Channel, Connection } from "amqplib"
 import cors from "cors"
 import dotenv from "dotenv"
 import express, { Express, Request, Response } from "express"
+import { ChangeStream } from "mongodb"
 
-import { DIFFICULTY_QUEUE_MAPPING, DIFFICULTY_ROUTING_KEYS, DIFFICULTY_ROUTING_MAPPING, EXCHANGE, COLLAB_EXCHANGE, COLLAB_KEY } from "./constants"
+import { COLLAB_EXCHANGE, COLLAB_KEY, EXCHANGE } from "./constants"
 import { connectToMongoDB, db } from "./db"
-import { deepEqual, getRandomIntegerInclusive, sleep, generateSessionId } from "./helper"
-import { addUser, findUsersByCriteria, getUsersCollection, updateUserStatus } from "./models/user"
-import { UserData, CollabExchangeData } from "./types"
-import { MessageEvent } from "http"
+import { generateSessionId } from "./helper"
+import { CollabExchangeData, UserData } from "./types"
 
 const app: Express = express()
 
@@ -17,14 +16,11 @@ dotenv.config()
 app.use(express.json())
 app.use(cors())
 
-let users: UserData[] = []
-
 let connection: Connection, channel: Channel
+const amqpServer = process.env.AMQP_SERVER
 
 const connectRabbitMQ = async () => {
   try {
-    const amqpServer = process.env.AMQP_SERVER
-    console.log(amqpServer)
     connection = await amqp.connect(amqpServer)
     channel = await connection.createChannel()
     await channel.assertExchange(EXCHANGE, "topic", { durable: true })
@@ -38,19 +34,6 @@ const connectRabbitMQ = async () => {
 connectRabbitMQ()
 connectToMongoDB()
 
-const handleIncomingNotification = (msg: string) => {
-  try {
-    const parsedMessage = JSON.parse(msg)
-
-    // console.log(`Received Notification`, parsedMessage)
-    users.push(parsedMessage)
-    console.log(">>USERS: ", users)
-    return parsedMessage
-  } catch (error) {
-    console.error(`Error while parsing the message`)
-  }
-}
-
 // Decide again if needs to be asynchronous
 const addDataToExchange = (userData: UserData, key: string) => {
   channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
@@ -60,43 +43,10 @@ const addDataToCollabExchange = (data: CollabExchangeData, key: string) => {
   channel.publish(COLLAB_EXCHANGE, key, Buffer.from(JSON.stringify(data)))
 }
 
-// async function pullDataFromExchange(queue) {
-//   // Pull data from RabbitMQ
-//   channel.consume(queue, async (msg) => {
-//     const userData = JSON.parse(msg.content.toString());
-//     await findMatch(userData); // Try to find a match
-//   });
-// }
-
-async function pullDataFromExchange(queue: string) {
-  console.log(">> QUEUE TO LISTEN: ", queue)
-  try {
-    await channel.assertQueue(queue, {
-      durable: true
-    })
-
-    channel.consume(queue, async (message) => {
-      if (message) {
-        const user = JSON.parse(message.content.toString())
-        const collection = await getUsersCollection()
-        const existingUser = collection.findOne({ user_id: user.user_id })
-
-        if (!existingUser) {
-          await collection.insertOne(user)
-        }
-
-        channel.ack(message)
-      }
-    })
-  } catch (error) {
-    console.error("Error in pullDataFromExchange:", error)
-  }
-}
-
 let waitingUsers: { [key: string]: (data: any) => void } = {}
 
-async function matchUsers(userData: any, key: string): Promise<{ matchedUsers: any[] }> {
-  let changeStream: any = null
+const matchUsers = async (userData: any, key: string): Promise<{ matchedUsers: any[] }> => {
+  let changeStream: ChangeStream = null
   try {
     // Check for a matching user in the queue based on difficulty and topic
     const matchQuery = {
@@ -274,7 +224,8 @@ app.post("/match", async (req: Request, res: Response) => {
         matchedUsers: response.matchedUsers,
         sessionId: sessionId
       }
-      if (userData === response.matchedUsers[0]) { // First user in response.matchedUser to push to Collab exchange
+      if (userData === response.matchedUsers[0]) {
+        // First user in response.matchedUser to push to Collab exchange
         addDataToCollabExchange(dataToExchange, COLLAB_KEY) //Send to exchange
       }
       res.json({
@@ -298,30 +249,6 @@ app.post("/match", async (req: Request, res: Response) => {
   }
 })
 
-app.post("/match/delete", (req: Request, res: Response) => {
-  users = users.filter((user) => {
-    return user.user_id != req.body.user_id
-  })
-
-  res.json({
-    message: "User removed from the queue"
-  })
-})
-
-app.use((req: Request, res: Response, next) => {
-  const error: Error = new Error("Route Not Found")
-  next(error)
-})
-
-app.use((error, req: Request, res: Response, next) => {
-  res.status(error.status || 500)
-  res.json({
-    error: {
-      message: error.message
-    }
-  })
-})
-
 app.listen(3002, () => {
-  console.log("Publisher running.")
+  console.log("Matching service running.")
 })
