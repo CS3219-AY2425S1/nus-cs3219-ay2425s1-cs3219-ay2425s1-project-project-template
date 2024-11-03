@@ -8,7 +8,7 @@ import { getBaseUserData } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
-import { MessageBox } from "react-chat-elements";
+import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 
 const CHAT_SOCKET_URL =
@@ -21,6 +21,16 @@ interface Message {
   title: string;
   text: string;
 }
+
+const lorem =
+  "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
+
+const sampleMessage = {
+  position: "right",
+  type: "text",
+  title: "You",
+  text: "Hello, how can I help you?",
+};
 
 const Question = ({ collabid }: { collabid: string }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
@@ -119,45 +129,49 @@ const Question = ({ collabid }: { collabid: string }) => {
   }, [collabid]);
 
   return (
-    <div className="px-12 pb-20">
-      <div className="grid grid-rows-3">
-        <div className="row-span-1 grid grid-rows-1 grid-cols-[75%_25%]">
-          <div className="flex flex-col justify-end">
-            <h1 className="text-yellow-500 text-4xl font-bold pb-2">
-              {question?.title}
-            </h1>
-            <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-              {question?.category.map((category) => (
-                <Pill key={category} text={category} />
-              ))}
-              <ComplexityPill complexity={question?.complexity || ""} />
-            </span>
-            <h2 className="text-grey-300 text-s pt-3 leading-[0]">
-              Your collaborator: {collaborator}
-            </h2>
-          </div>
-          <Button
-            className="self-end"
-            variant="destructive"
-            onClick={handleExit}
-          >
-            Exit Room
-          </Button>
+    <div className="px-12 grid grid-rows-[20%_50%_30%] gap-5 grid-cols-1 h-full items-start">
+      <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
+        <div className="flex flex-col">
+          <h1 className="text-yellow-500 text-4xl font-bold pb-2">
+            {question?.title}
+          </h1>
+          <span className="flex flex-wrap gap-1.5 my-1 pb-2">
+            {question?.category.map((category) => (
+              <Pill key={category} text={category} />
+            ))}
+            <ComplexityPill complexity={question?.complexity || ""} />
+          </span>
+          <h2 className="text-grey-300 text-s pt-3 leading-[0]">
+            Your collaborator: {collaborator}
+          </h2>
         </div>
-        <p className="text-white py-8 text-md">{question?.description}</p>
-        <form>
-          {messages.map((message, idx) => {
-            return <MessageBox key={idx} {...message} />;
-          })}
-          <input
-            name="inputMessage"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-          />
-          <Button onClick={handleClick} type="submit">
-            Send Message
-          </Button>
-        </form>
+        <Button className="self-end" variant="destructive" onClick={handleExit}>
+          Exit Room
+        </Button>
+      </div>
+      {/* <p className="text-white py-8 text-md">{question?.description}</p> */}
+      <p className="row-span-1 text-primary-300 text-md max-h-[100%] overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3 rounded-md">
+        <span className="text-yellow-500 font-bold">Question Description</span>
+        <p>{lorem}</p>
+      </p>
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full">
+        <MessageList
+          className="max-h-[60%] min-h-[60%] overflow-y-auto"
+          lockable={true}
+          dataSource={messages}
+        />
+        <Input
+          className="self-end"
+          placeholder="Type here..."
+          rightButtons={<Button onClick={handleClick}>Send</Button>}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyDown={(e) => {
+            console.log(e);
+            if (e.key === "Enter") {
+              handleClick(e);
+            }
+          }}
+        />
       </div>
     </div>
   );
