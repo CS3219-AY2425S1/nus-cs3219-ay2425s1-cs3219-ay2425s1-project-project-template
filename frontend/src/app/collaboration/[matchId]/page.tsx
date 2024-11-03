@@ -14,6 +14,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import { useRouter } from 'next/navigation';
+import { verifyToken } from '@/lib/api-user'
+import { timeStamp } from 'console';
+import toast from 'react-hot-toast';
+// import AgoraChat from 'agora-chat'
+
 
 interface CollaborationPageProps {
     params: {
@@ -27,16 +33,52 @@ interface QuestionData {
     difficulty: string,
 }
 
+interface MessageData {
+    sender: string,
+    content: string,
+    timestamp: number,
+}
+
 const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     const { matchId } = params;
     const [error, setError] = useState<string | null>(null);
+    const [userData, setUserData] = useState({
+        username: "",
+        email: "",
+      });
+
     const [socket, setSocket] = useState<Socket | null>(null);
     const [formError, setFormError] = useState<string | null>(null)
     const [topic, setTopic] = useState<string>("");
     const [difficulty, setDifficulty] = useState<string>("");
     const [question, setQuestion] = useState<Question | null>(null);
 
+    const [messages, setMessages] = useState<MessageData[]>([]);
+    const [messageInput, setMessageInput] = useState("");
+    // const [agoraClient, setAgoraClient] = useState<any>(null);
+
     const { control, handleSubmit, reset } = useForm();
+    const router = useRouter();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+          const token = localStorage.getItem('token')
+          if (!token) {
+            router.push('/login')
+            return
+          }
+          try {
+            const res = await verifyToken(token)
+            console.log(res)
+            setUserData({ username: res.data.username, email: res.data.email })
+          } catch (error) {
+            console.error('Token verification failed:', error)
+            router.push('/login') 
+          }
+        }
+    
+        fetchUserData()
+    }, [router])
 
     useEffect(() => {
         const newSocket = io(process.env.NEXT_PUBLIC_COLLAB_API_URL);
@@ -51,6 +93,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                 setDifficulty(data.difficulty);
                 setTopic(data.topic);
                 setFormError(null);
+                toast.success(`Question updated!`)
             } 
         });
 
@@ -62,10 +105,40 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             setError(data.message);
         });
 
+        newSocket.on('message', (data: MessageData) => {
+          setMessages((prev) => [
+            ...prev, data
+          ])
+          if (data.sender !== userData.username) {
+            toast(`${data.sender}: ${data.content}`, {
+              duration: 3000,
+              position: 'bottom-left',
+              style: {
+                background: '#333',
+                color: '#fff',
+              },
+              icon: '💬',
+            });
+          }
+        })
+
         return () => {
             newSocket.disconnect();
         };
-    }, [matchId]);
+    }, [matchId, userData.username]);
+
+    const handleSendMessage = async () => {
+      if (socket) {
+        const messageData = {
+          sender: userData.username,
+          content: messageInput,
+          timestamp: Date.now(), 
+          matchId: matchId,
+        }
+        socket.emit('sendMessage', messageData)
+        setMessageInput('')
+      }
+    }
 
     const requestNewQuestion = (data: { topic: string; difficulty: string }) => {
         if (socket) {
@@ -195,7 +268,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                                     />
                                 </div>
                                 <div className="grid gap-2 text-xs">
-                                    <Label htmlFor="difficulty" className="text-xs">Difficulty</Label>
+                                    <Label htmlFor="difficulty" className="text-xs mt-2">Difficulty</Label>
                                     <Controller
                                         name="difficulty"
                                         control={control}
@@ -274,57 +347,45 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
           </TabsContent>
           <TabsContent value="feedback" className="flex-1 pb-1">
             <Card className="flex flex-col p-2 mt-1 h-full min-h-full">
-              <div className="space-y-4 p-4 flex-1">
-                <div className="flex items-start gap-4">
-                  <Avatar className="w-10 h-10 border">
-                    <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                    <AvatarFallback>AC</AvatarFallback>
-                  </Avatar>
-                  <div className="grid gap-1">
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold">Olivia</div>
-                      <div className="text-xs text-muted-foreground">2 minutes ago</div>
+              <div className="space-y-4 p-4 flex-1 flex flex-col">
+                <div
+                  className="flex-1 overflow-y-auto"
+                  style={{
+                    maxHeight: '400px', // Adjust as needed to contain the scrollable area
+                  }}
+                >
+                  {messages.map((msg, index) => (
+                    <div key={index} className="flex items-start gap-4 mb-2">
+                      <Avatar className="w-10 h-10 border">
+                        <AvatarFallback>{msg.sender.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="grid gap-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold">{msg.sender}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </div>
+                        </div>
+                        <div className="text-sm">{msg.content}</div>
+                      </div>
                     </div>
-                    <div className="text-sm">
-                      Can improve communication skills by asking more questions. Sharing thoughts while coding is important.
-                    </div>
-                  </div>
+                  ))}
                 </div>
-                <div className="flex items-start gap-4">
-                  <Avatar className="w-10 h-10 border">
-                    <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                    <AvatarFallback>IN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid gap-1">
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold">Isabella</div>
-                      <div className="text-xs text-muted-foreground">5 minutes ago</div>
-                    </div>
-                    <div className="text-sm">
-                      You have great knowledge of algorithms. You came to the solution with ease.
-                    </div>
-                  </div>
-                </div>
-                <div className="h-4"></div>
-                <div className="flex flex-col items-start gap-2 border-neutral-200 border rounded-md p-2">
+                <div className="border-neutral-200 border rounded-md p-2 w-full">
                   <Textarea
-                    placeholder="Add your feedback here..."
-                    className="flex-1 rounded-md border border-muted px-4 py-2 text-sm"
+                    placeholder="Type your message here..."
+                    className="w-full rounded-md border border-muted px-4 py-2 text-sm"
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
                   />
-                  <div className="flex justify-end gap-2 w-full">
-                  <Select>
-                    <SelectTrigger className="w-[160px] text-xs h-fit py-2">
-                      <SelectValue placeholder="Select Person" />
-                    </SelectTrigger>
-                    <SelectContent className="text-xs">
-                      <SelectGroup>
-                        <SelectItem value="isabella" className="text-xs">Isabella</SelectItem>
-                        <SelectItem value="olivia" className="text-xs">Olivia</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                    <Button variant="outline" size="sm" className="bg-black text-white">
-                      Submit
+                  <div className="flex justify-end mt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-black text-white"
+                      onClick={handleSendMessage}
+                    >
+                      Send
                     </Button>
                   </div>
                 </div>
@@ -476,18 +537,6 @@ Found indices: [0, 1]
               </Tabs>
             </CardContent>
           </Card>
-        </div>
-      </div>
-      <div className="absolute bottom-4 left-4 flex space-x-2">
-        <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-          <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-            <div className="flex items-center justify-center w-full h-full text-4xl font-bold">AC</div>
-          </div>
-        </div>
-        <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-          <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-            <div className="flex items-center justify-center w-full h-full text-4xl font-bold">IN</div>
-          </div>
         </div>
       </div>
     </div>

@@ -83,6 +83,38 @@ export class CollabGateway implements OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('sendMessage')
+  async handleNewMessage(
+    @MessageBody()
+    data: {
+      sender: string;
+      content: string;
+      timestamp: number;
+      matchId: string;
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { sender, content, timestamp, matchId } = data;
+    if (!sender || !content || !timestamp || !matchId) {
+      throw new WsException('Missing parameters');
+    }
+    client.data.matchId = data.matchId;
+
+    const messageData = {
+      sender: sender,
+      content: content,
+      timestamp: timestamp,
+    };
+    await this.collabService.updateMessage(matchId, messageData);
+    const webSocketIds =
+      await this.collabService.getCollabSessionWebSockets(matchId);
+
+    for (const ids of webSocketIds) {
+      this.server.to(ids).emit('message', messageData);
+      this.logger.log(`New question sent to ${ids}`);
+    }
+  }
+
   @SubscribeMessage(`generateNewQuestion`)
   async handleNewQuestionRequest(
     @MessageBody() data: { matchId: string; topic: string; difficulty: string },

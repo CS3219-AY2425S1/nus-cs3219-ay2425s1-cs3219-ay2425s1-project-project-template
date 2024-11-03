@@ -54,6 +54,7 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
       topic: topic,
       difficulty: difficulty,
       questionIds: [],
+      messages: [],
     };
 
     await this.redis.set(key, JSON.stringify(value));
@@ -118,6 +119,17 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
   async endSession(matchId: string): Promise<void> {
     const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
     await this.redis.del(key);
+  }
+
+  async updateMessage(matchId: string, messageData: any) {
+    const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
+    const value = await this.getCollabSessionData(matchId);
+    if (value) {
+      this.logger.debug(messageData);
+      value.messages.push(messageData);
+      this.logger.debug(`New message pushed ${value}`);
+      await this.redis.set(key, JSON.stringify(value));
+    }
   }
 
   // async removeWebSocketId(matchId: string, webSocketId: string): Promise<void> {
