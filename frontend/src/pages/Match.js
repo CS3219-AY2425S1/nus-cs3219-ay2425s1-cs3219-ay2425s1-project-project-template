@@ -138,6 +138,7 @@ export const Match = () => {
   const completeMatching = async () => {
     if (socket?.connected) socket.disconnect();
     setIsMatching(false);
+    navigate("/collab");
     setTimer(0);
   }
 

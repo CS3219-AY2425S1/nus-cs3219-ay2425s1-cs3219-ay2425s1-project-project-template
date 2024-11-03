@@ -1,63 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import CodeMirror from '@uiw/react-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
-import { python } from '@codemirror/lang-python';
-import { cpp } from '@codemirror/lang-cpp';
-import { java } from '@codemirror/lang-java';
-import { sql } from '@codemirror/lang-sql';
 import '../styles/Collaboration.css';
+import SharedSpace from '../components/SharedSpace';
 
 const socket = io('http://localhost:3002'); // replace with your server URL
 
 export const Collaboration = () => {
-    const [upperText, setUpperText] = useState('');
-    const [codeText, setCodeText] = useState('');
-    const [language, setLanguage] = useState('JavaScript');
     const [chatMessages, setChatMessages] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-
-    // Sync upper text
-    useEffect(() => {
-        socket.on('syncUpperText', (text) => setUpperText(text));
-        return () => socket.off('syncUpperText');
-    }, []);
-
-    const handleUpperTextChange = (e) => {
-        setUpperText(e.target.value);
-        socket.emit('syncUpperText', e.target.value);
-    };
-
-    const getLanguageExtension = () => {
-        switch (language) {
-            case 'JavaScript':
-                return javascript();
-            case 'Python':
-                return python();
-            case 'C++':
-                return cpp();
-            case 'Java':
-                return java();
-            case 'SQL':
-                return sql();
-            default:
-                return javascript();
-        }
-    }
-
-    // Sync code text
-    useEffect(() => {
-        socket.on('syncCodeText', (text) => setCodeText(text));
-        return () => socket.off('syncCodeText');
-    }, []);
-
-    const handleCodeTextChange = (e) => {
-        setCodeText(e.target.value);
-        socket.emit('syncCodeText', e.target.value);
-    };
 
     // Sync chat
     useEffect(() => {
@@ -90,7 +43,7 @@ export const Collaboration = () => {
     }
  
     const handleKeyDown = (e) => {
-      if (e.key == 'Enter') {
+      if (e.key === 'Enter') {
         handleSendMessage();
       }
     };
@@ -98,35 +51,12 @@ export const Collaboration = () => {
     return (
         <div className="collaboration-container">
           <div className="question-and-whiteboard">
+            <h2 className="subheading">Question</h2>
             <div className="question">
               <h3>Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0. A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.For example, "ace" is a subsequence of "abcde". A common subsequence of two strings is a subsequence that is common to both strings. </h3>
             </div>
             <div className="whiteboard">
-                <div className="text-area">
-                    <textarea
-                        value={upperText}
-                        onChange={handleUpperTextChange}
-                        placeholder="Write your notes and solutions here..."
-                    />
-                </div>
-                <div className="code-area">
-                    <select className="language" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                        <option value="JavaScript">JavaScript</option>
-                        <option value="Python">Python</option>
-                        <option value="C++">C++</option>
-                        <option value="Java">Java</option>
-                        <option value="SQL">SQL</option>
-                    </select>
-                    <CodeMirror
-                        value={codeText}
-                        extensions={[getLanguageExtension()]}
-                        onChange={handleCodeTextChange}
-                        options={{
-                            lineNumbers: true,
-                        }}
-                        placeholder="Write your code here..."
-                    />
-                </div>
+                <SharedSpace />
             </div>
           </div>
           <div className="chat-box-and-button">

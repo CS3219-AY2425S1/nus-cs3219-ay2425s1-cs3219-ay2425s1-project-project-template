@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   frontend:
@@ -43,8 +43,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'
+      - '15672:15672'
     environment:
       RABBITMQ_DEFAULT_USER: peerprep
       RABBITMQ_DEFAULT_PASS: peerprep
@@ -54,7 +54,7 @@ services:
   matching-service:
     build: ./backend/matching-service
     ports:
-      - "5001:5001"
+      - '5001:5001'
     depends_on:
       - rabbitmq
       - notification-service
@@ -63,6 +63,14 @@ services:
     networks:
       - peerprep-network
 
+  collaboration-service:
+    build: ./backend/collaboration-service
+    ports:
+      - '5002:5002'
+    env_file:
+      - ./collaboration-service.env
+    networks:
+      - peerprep-network
 networks:
   peerprep-network:
     driver: bridge
