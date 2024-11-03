@@ -1,6 +1,6 @@
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
 import { ITestcase, LanguageMode, getCodeMirrorLanguage } from '@/types'
-import { mockChatData, mockTestCaseData, mockUserData } from '@/mock-data'
+import { mockTestCaseData } from '@/mock-data'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -18,51 +18,20 @@ import { Category, IMatch, SortedComplexity } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { getMatchDetails } from '@/services/matching-service-api'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
+import Chat from './chat'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
 
-interface ICollaborator {
-    name: string
-    email: string
-}
-
-const userData: ICollaborator = mockUserData
-const initialChatData = mockChatData
 const testCasesData: ITestcase[] = mockTestCaseData
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
 }
 
-const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()
-}
-
-const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') => {
-    let format = ''
-    if (currUser.email === userData.email) {
-        format = 'items-end ml-5'
-        // Add more format based on the type
-        if (type === 'text') {
-            format += ' bg-theme-600 rounded-xl text-white'
-        }
-    } else {
-        format = 'items-start text-left mr-5'
-        // Add more format based on the type
-        if (type === 'text') {
-            format += ' bg-slate-100 rounded-xl p-2 text-slate-900'
-        }
-    }
-
-    return format
-}
-
 export default function Code() {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
-    const [chatData, setChatData] = useState(initialChatData)
     const { id } = router.query
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
@@ -128,36 +97,9 @@ export default function Code() {
         }
     }, [])
 
-    // Ref for autoscroll the last chat message
-    const chatEndRef = useRef<HTMLDivElement | null>(null)
-
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
     }
-
-    // TODO: create message service to handle messages
-    const sendMessage = (message: string) => {
-        const newMessage = {
-            user: userData,
-            message,
-            timestamp: new Date().toISOString(),
-        }
-        setChatData([...chatData, newMessage])
-    }
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
-            sendMessage(e.currentTarget.value)
-            e.currentTarget.value = ''
-        }
-    }
-
-    // Scroll to the bottom of the chat box when new messages are added
-    useEffect(() => {
-        if (chatEndRef.current) {
-            chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
-        }
-    }, [chatData])
 
     const handleLanguageModeSelect = (value: string) => {
         socketRef.current?.emit('change-language', value)
@@ -228,39 +170,7 @@ export default function Code() {
                             />
                         </Button>
                     </div>
-                    {isChatOpen && (
-                        <>
-                            <div className="overflow-y-auto p-3 pb-0">
-                                {chatData.map((chat, index) => (
-                                    <div
-                                        key={index}
-                                        className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.user, 'label')}`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="text-xs font-medium">{chat.user.name}</h4>
-                                            <span className="text-xs text-slate-400">
-                                                {formatTimestamp(chat.timestamp)}
-                                            </span>
-                                        </div>
-                                        <div
-                                            className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.user, 'text')}`}
-                                        >
-                                            {chat.message}
-                                        </div>
-                                    </div>
-                                ))}
-                                <div ref={chatEndRef}></div>
-                            </div>
-                            <div className="m-3 px-3 py-1 border-[1px] rounded-xl text-sm">
-                                <input
-                                    type="text"
-                                    className="w-full bg-transparent border-none focus:outline-none"
-                                    placeholder="Send a message..."
-                                    onKeyDown={handleKeyDown}
-                                />
-                            </div>
-                        </>
-                    )}
+                    {isChatOpen && <Chat socketRef={socketRef} />}
                 </div>
             </section>
             <section className="w-2/3 flex flex-col h-fullscreen">
