@@ -82,7 +82,7 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     cell: ({ row }) => {
       return (
         <Cell>
-          <Link className="group grid p-2 rounded-xl hover:bg-white hover:text-primary-900 mx-auto" href={`/collab/${row.getValue('collabid')}`} key={row.getValue('collabid')}>
+          <Link className="group grid p-2 rounded-xl hover:bg-white hover:text-primary-900 mx-auto" href={`/collaboration/${row.getValue('collabid')}`} key={row.getValue('collabid')}>
             <FaExternalLinkAlt size={20} className="mx-auto"/>
           </Link>
         </Cell>
