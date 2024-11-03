@@ -6,8 +6,8 @@ import { getQuestionAttempts } from '@/services/question-service';
 import { useAuthedRoute } from '@/stores/auth-store';
 import { IPostGetQuestionAttemptsResponse } from '@/types/question-types';
 
-import { columns } from './question-attempts-columns';
-import { QuestionAttemptsTable } from './question-attempts-table';
+import { columns } from './columns';
+import { QuestionAttemptsTable } from './table';
 
 type QuestionAttemptsProps = {
   questionId: number;

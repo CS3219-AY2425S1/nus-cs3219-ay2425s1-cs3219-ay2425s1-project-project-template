@@ -6,7 +6,7 @@ import { WithNavBanner, WithNavBlocker } from '@/components/blocks/authed';
 import { AIChat } from '@/components/blocks/interview/ai-chat';
 import { Editor } from '@/components/blocks/interview/editor';
 import { PartnerChat } from '@/components/blocks/interview/partner-chat';
-import { QuestionAttemptsPane } from '@/components/blocks/interview/room/question-attempts';
+import { QuestionAttemptsPane } from '@/components/blocks/interview/question-attempts';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
