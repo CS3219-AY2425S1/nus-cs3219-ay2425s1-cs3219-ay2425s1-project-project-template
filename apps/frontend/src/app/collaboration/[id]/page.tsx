@@ -35,6 +35,7 @@ import CollaborativeEditor, {
 import { CreateOrUpdateHistory } from "@/app/services/history";
 import { Language } from "@codemirror/language";
 import { WebrtcProvider } from "y-webrtc";
+import VideoPanel from "@/components/VideoPanel/VideoPanel";
 
 interface CollaborationProps {}
 
@@ -459,7 +460,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                   <MessageOutlined className="title-icons" />
                   Chat
                 </div>
-
+                <VideoPanel />
                 <div className="chat-message-box">
                   <div className="chat-header-message">
                     Matched with {matchedUser}
