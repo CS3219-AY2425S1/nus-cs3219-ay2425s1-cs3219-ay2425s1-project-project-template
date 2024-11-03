@@ -117,8 +117,11 @@ export default function VoiceChat({
       <CardBody>
         <h2>PeerJS Voice Chat</h2>
         <p>Room: {roomID}</p>
-        <p>Your Peer ID: {peerID}</p>
-        <p>Connected to: {connectionPeerID || "Waiting for peer..."}</p>
+        {connectionPeerID && <p>Your Peer ID: {peerID}</p>}
+        <p className={!connectionPeerID ? "animate-pulse" : ""}>
+          {!connectionPeerID ? "Connecting: " : "Connected to: "}
+          {connectionPeerID || "Waiting for peer..."}
+        </p>
       </CardBody>
       <CardFooter>
         {/* Disable the specific ESLint rule for the audio element */}
