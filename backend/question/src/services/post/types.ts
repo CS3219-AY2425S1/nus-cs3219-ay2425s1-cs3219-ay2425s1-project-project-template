@@ -2,7 +2,7 @@ export interface ICreateQuestionPayload {
   title: string;
   description: string;
   difficulty: string;
-  topics: string[];
+  topics: Array<string>;
 }
 
 export interface IUpdateQuestionPayload extends ICreateQuestionPayload {
@@ -17,7 +17,7 @@ export interface Question {
   id: number;
   title: string;
   difficulty: string;
-  topic: string[];
+  topic: Array<string>;
   description: string;
   createdAt: Date;
   updatedAt: Date;

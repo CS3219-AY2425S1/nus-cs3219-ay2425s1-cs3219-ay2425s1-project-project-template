@@ -10,7 +10,7 @@ import { fetchDifficulties, fetchTopics } from '@/services/question-service';
 import { useAuthedRoute } from '@/stores/auth-store';
 
 export interface MatchFormData {
-  selectedTopics: string[];
+  selectedTopics: Array<string>;
   difficulty: string;
 }
 

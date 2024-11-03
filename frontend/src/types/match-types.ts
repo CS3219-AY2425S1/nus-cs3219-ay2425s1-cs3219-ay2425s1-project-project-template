@@ -1,6 +1,6 @@
 export type IRequestMatchPayload = {
   userId: string;
-  topic: string[];
+  topic: Array<string>;
   difficulty: string;
 };
 

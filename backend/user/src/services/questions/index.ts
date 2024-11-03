@@ -6,7 +6,7 @@ import { users } from '@/lib/db/schema';
 
 interface IGetAttemptedQuestionsResponse {
   code: StatusCodes;
-  data?: number[];
+  data?: Array<number>;
   error?: Error;
 }
 
@@ -17,7 +17,7 @@ interface IAddAttemptedQuestionResponse {
 }
 
 export const addAttemptedQuestionService = async (
-  userIds: string[],
+  userIds: Array<string>,
   questionId: number
 ): Promise<IAddAttemptedQuestionResponse> => {
   try {

@@ -18,7 +18,7 @@ const API_URL = 'https://api.openai.com/v1/chat/completions';
 const API_KEY = process.env.OPENAI_API_KEY;
 
 export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
+  const [messages, setMessages] = useState<Array<ChatMessageType>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 

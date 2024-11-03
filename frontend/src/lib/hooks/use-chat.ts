@@ -25,7 +25,7 @@ interface UseChatProps {
 
 export const useChat = ({ roomId }: UseChatProps) => {
   const { userId } = useAuthedRoute();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Array<Message>>([]);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -54,7 +54,7 @@ export const useChat = ({ roomId }: UseChatProps) => {
       console.log(`Joined room: ${roomId}`);
     });
 
-    socket.on(WS_EVENT.MESSAGE_HISTORY, (data: Message[]) => {
+    socket.on(WS_EVENT.MESSAGE_HISTORY, (data: Array<Message>) => {
       setMessages(data);
       console.log(`Retrieved Message history`);
     });

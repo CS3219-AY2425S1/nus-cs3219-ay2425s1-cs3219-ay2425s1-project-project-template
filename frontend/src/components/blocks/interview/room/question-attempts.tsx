@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { useAuthedRoute } from '@/stores/auth-store';
@@ -7,6 +8,11 @@ type QuestionAttemptsProps = {
 };
 
 export const QuestionAttemptsPane: React.FC<QuestionAttemptsProps> = ({ questionId: _q }) => {
-  const { userId: _ } = useAuthedRoute();
+  const { userId } = useAuthedRoute();
+  const { data: _ } = useQuery({
+    queryKey: ['question', 'attempts', userId],
+    enabled: false,
+    queryFn: async () => {},
+  });
   return <div />;
 };

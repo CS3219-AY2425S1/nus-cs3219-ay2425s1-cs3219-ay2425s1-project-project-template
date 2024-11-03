@@ -10,7 +10,7 @@ export type IRequestMatchRESTPayload = {
 };
 
 export type IRequestMatchWSPayload = {
-  topic: string | string[];
+  topic: string | Array<string>;
   difficulty: string;
 };
 
@@ -61,9 +61,10 @@ export interface IQuestion {
 }
 
 export interface IGetRandomQuestionPayload {
-  attemptedQuestions: number[];
+  userId1: string;
+  userId2: string;
   difficulty?: string;
-  topic?: Array<string>;
+  topics?: Array<string>;
 }
 
 export interface IMatchItemsResponse {

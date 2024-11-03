@@ -31,11 +31,11 @@ export const questionAttempts = pgTable(
     timestamp: timestamp('timestamp', { precision: 6, withTimezone: true }).defaultNow(),
     language: varchar('language', { length: 50 }).notNull(),
   },
-  (questAttempt) => ({
+  (questionAttempt) => ({
     uniqueUsersAttempt: uniqueIndex('unique_users_attempt').on(
-      questAttempt.questionId,
-      questAttempt.userId1,
-      questAttempt.userId2
+      questionAttempt.questionId,
+      questionAttempt.userId1,
+      questionAttempt.userId2
     ),
   })
 );

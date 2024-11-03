@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
-import { addAttempt } from '../services/post/addAttempt';
+import { logger } from '@/lib/utils';
+import { isValidUUID } from '@/lib/uuid';
+import { getQuestionAttempts } from '@/services/get/get-attempts';
+import { addAttempt } from '@/services/post/addAttempt';
 
 // Define the expected request body structure
 interface AddAttemptRequestBody {
@@ -34,14 +38,40 @@ export const createAttempt = async (
     });
 
     // Respond with success
-    res.status(201).json({ message: 'Attempt added successfully', result });
-  } catch (error) {
-    console.error('Error adding attempt:', error);
+    res.status(StatusCodes.OK).json({ message: 'Attempt added successfully', result });
+  } catch (err) {
+    const { name, message, stack, cause } = err as Error;
+    logger.error({ name, message, stack, cause }, 'Error adding attempt');
 
     // Enhanced error response with error details
     res.status(500).json({
       error: 'Error adding attempt',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: err instanceof Error ? err.message : 'Unknown error',
+    });
+  }
+};
+
+export const getAttempts = async (
+  req: Request<unknown, unknown, Partial<Parameters<typeof getQuestionAttempts>[0]>, unknown>,
+  res: Response
+) => {
+  const { questionId, userId, limit, offset } = req.body;
+
+  if (!questionId || isNaN(questionId) || !userId || !isValidUUID(userId)) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed Request');
+  }
+
+  try {
+    const result = await getQuestionAttempts({ questionId, userId, limit, offset });
+    return res.status(StatusCodes.OK).json(result);
+  } catch (err) {
+    const { name, message, stack, cause } = err as Error;
+    logger.error({ name, message, stack, cause }, 'Error retrieving attempts');
+
+    // Enhanced error response with error details
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: 'Error retrieving attempts',
+      details: err instanceof Error ? err.message : 'Unknown error',
     });
   }
 };
