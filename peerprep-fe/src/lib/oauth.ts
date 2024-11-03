@@ -30,13 +30,14 @@ export const handleOAuthCallback = async (
   setAuth: (isAuth: boolean, token: string | null, user: User | null) => void,
 ): Promise<boolean> => {
   try {
-    const res = await login(code);
-    if (!res) return false;
-
     const { data } = await axiosClient.get(
       `auth/${provider}/callback?code=${code}`,
     );
-    setAuth(true, data.data.token, data.data.user);
+
+    const res = await login(data.data.accessToken);
+    if (!res) return false;
+
+    setAuth(true, data.data.accessToken, data.data);
     return true;
   } catch {
     return false;
