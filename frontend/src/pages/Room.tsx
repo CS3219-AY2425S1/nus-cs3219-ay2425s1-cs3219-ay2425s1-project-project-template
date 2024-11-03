@@ -126,7 +126,7 @@ function Room() {
             <Skeleton h="150px" w="calc(50% - 5px)" />
             <Skeleton h="150px" w="calc(50% - 5px)" />
           </Group>
-          <RoomTabs questionId={sessionData.questionId} />
+          <RoomTabs questionId={sessionData?.questionId} />
         </Stack>
 
         <CodeEditorLayout
