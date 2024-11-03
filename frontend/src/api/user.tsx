@@ -28,17 +28,17 @@ export const getUserId = () => {
   return Cookie.get("id");
 }
 
-export const setIsAdmin = (isAdmin: string) => {
-  Cookie.set("isAdmin", isAdmin, { expires: 1 });
+export const setIsAdmin = (isAdmin: boolean) => {
+  Cookie.set("isAdmin", isAdmin ? "Y" : "N", { expires: 1 });
 }
 
-export const getIsAdmin = () => {
-  return Cookie.get("isAdmin");
+export const getIsAdmin = (): boolean => {
+  return Cookie.get("isAdmin") == "Y";
 }
 
 export const getAuthStatus = () => {
   if (!getToken()) return AuthStatus.UNAUTHENTICATED;
-  if (getIsAdmin() === "true") return AuthStatus.ADMIN;
+  if (getIsAdmin()) return AuthStatus.ADMIN;
   return AuthStatus.AUTHENTICATED;
 }
 
@@ -140,7 +140,7 @@ export const register = async (
 // optional userId parameter
 export const getUser = async (userId = "") => {
   const token = getToken();
-  const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`
+  const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`;
   const response = await fetch(url, {
     method: "GET",
     headers: {

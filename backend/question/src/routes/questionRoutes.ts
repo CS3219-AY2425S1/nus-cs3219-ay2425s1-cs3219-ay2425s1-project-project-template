@@ -102,9 +102,7 @@ router.post("/all", async (req: Request, res: Response) => {
 
 // Retrieve all questions based on a list of question ids
 router.post("/all-ids", async (req: Request, res: Response) => {
-  console.log(req.body);
   const questionIds = req.body.questionIds;
-  console.log(questionIds);
 
   try {
     const questions = await Question.find(

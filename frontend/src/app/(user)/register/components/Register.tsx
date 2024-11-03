@@ -14,7 +14,8 @@ import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   username: z.string()
-    .min(5, "Username must be at least 5 characters"),
+    .min(5, "Username must be at least 5 characters")
+    .max(20, "Username must be at most 20 characters"),
   email: z.string()
     .email("Invalid email"),
   password: z.string()
