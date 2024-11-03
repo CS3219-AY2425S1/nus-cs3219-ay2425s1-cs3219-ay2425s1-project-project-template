@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session-svc
+  labels:
+    type: backend
+    app: session-svc
+spec:
+  selector:
+    matchLabels:
+      type: backend
+      app: session-svc
+  template:
+    metadata:
+      name: session-svc
+      labels:
+        type: backend
+        app: session-svc
+    spec:
+      containers:
+        - name: session-svc
+          image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5001
+          envFrom:
+            - secretRef:
+                name: session-service-config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+      dnsPolicy: ClusterFirst
+---
+# This is an internal service, not exposed
+apiVersion: v1
+kind: Service
+metadata:
+  name: session-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5001
+      targetPort: 5001
+  selector:
+    type: backend
+    app: session-svc
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: session-svc
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: session-svc
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
