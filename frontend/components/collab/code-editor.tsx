@@ -84,7 +84,7 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
   useEffect(() => {
     // Update language when languageMap changes
     const handleLanguageChange = () => {
-      const newLanguage = languageMap.get("selectedLanguage");
+      const newLanguage = languageMap.get("selectedLanguage") as string;
       if (newLanguage && newLanguage !== language) {
         setLanguage(newLanguage);
       }
