@@ -27,10 +27,13 @@ import {
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
+  const [code, setCode] = useState(""); // Store the latest code
   const [language, setLanguage] = useState("JavaScript");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId || "";
+  // Todo: Should be removed
+  const API_BASE_URL = process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
 
   const socket = useContext(SocketContext);
   const { user } = useUser();
@@ -45,6 +48,28 @@ export default function Page() {
     examples: "",
     constraints: "",
   });
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+  };
+
+  const saveCodeAndEndSession = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/save-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, code })
+      });
+      
+      if (!response.ok) throw new Error("Failed to save code");
+
+      toast.success("Code saved successfully");
+      router.push("/match"); // Redirect after saving
+    } catch (error) {
+      console.error("Error saving code:", error);
+      toast.error("Error saving code");
+    }
+  };
 
   const { data: matchedQuestion, isPending: isQuestionPending } =
     useGetMatchedQuestion(roomId as string);
@@ -75,7 +100,7 @@ export default function Page() {
     });
 
     socket?.on("both-users-agreed-end", () => {
-      router.push("/match");
+      saveCodeAndEndSession(); // Call function to save code and redirect
     });
   };
 
@@ -157,6 +182,7 @@ export default function Page() {
                 language={language}
                 roomId={roomId as string}
                 setOutput={setOutput}
+                onCodeChange={handleCodeChange}
               />
             </div>
 

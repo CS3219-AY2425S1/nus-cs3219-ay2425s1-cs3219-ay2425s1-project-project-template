@@ -9,9 +9,10 @@ import { WebsocketProvider } from "y-websocket";
 var randomColor = require("randomcolor"); // import the script
 
 interface CodeEditorProps {
-  roomId: string;
   setOutput: React.Dispatch<React.SetStateAction<string>>;
+  roomId: string;
   language: string;
+  onCodeChange?: (code: string) => void; 
 }
 
 const API_BASE_URL =
@@ -31,13 +32,8 @@ export default function CodeEditor({
   setOutput,
   roomId,
   language,
+  onCodeChange
 }: CodeEditorProps) {
-interface CodeEditorProps {
-  setOutput: React.Dispatch<React.SetStateAction<string>>;
-  onCodeChange?: (code: string) => void; 
-}
-
-export default function CodeEditor({ setOutput, onCodeChange }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
 
