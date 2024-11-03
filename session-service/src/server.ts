@@ -53,7 +53,7 @@ httpServer.listen(PORT, () => {
 });
 
 /**
- * On connection, use the utility file provided by y-websocket
+ * On connection, use the utility file provided by y-websocket.
  */
 wss.on("connection", (ws, req) => {
   console.log("wss:connection");
