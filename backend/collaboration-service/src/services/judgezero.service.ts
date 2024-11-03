@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import config from '../common/config.util'
 import { SubmissionRequestDto } from '@repo/submission-types'
 import logger from '../common/logger.util'
@@ -15,10 +15,16 @@ class JudgeZero {
         })
 
         // Request Interceptor
-        this.axiosInstance.interceptors.request.use((error) => {
-            logger.error(`[Judge-Zero] Failed to send Judge Zero API request: ${error}`)
-            return Promise.reject(error)
-        })
+        this.axiosInstance.interceptors.request.use(
+            (config: InternalAxiosRequestConfig) => {
+                console.log(`Requesting [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`)
+                return config
+            },
+            (error) => {
+                logger.error(`[Judge-Zero] Failed to send Judge Zero API request: ${error}`)
+                return Promise.reject(error)
+            }
+        )
 
         // Response Interceptor
         this.axiosInstance.interceptors.response.use(

@@ -61,7 +61,7 @@ export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto
         return
     }
 
-    const res = await judgeZero.post(config.JUDGE_ZERO_SUBMIT_CONFIG, submissionRequestDto)
+    const res = await judgeZero.post(config.JUDGE_ZERO_SUBMIT_CONFIG, request.body)
 
     if (!res) {
         response.status(400).json('Failed to submit code. Please try again.').send()
@@ -72,7 +72,7 @@ export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto
     const responseErrors = await submissionResponseDto.validate()
 
     if (responseErrors.length) {
-        const errorMessages = requestErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
+        const errorMessages = responseErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
