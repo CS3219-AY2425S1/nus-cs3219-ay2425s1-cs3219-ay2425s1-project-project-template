@@ -41,11 +41,8 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinCollabSessionRequestDto,
   ) {
-    console.log(`Received payload ${payload}`);
     const { userId, sessionId } = payload;
-    console.log(
-      `Destructured payload userId: ${userId}, sessionId: ${sessionId}`,
-    );
+
     if (!userId || !sessionId) {
       client.emit(SESSION_ERROR, 'Invalid join session request payload.');
       return;
@@ -54,8 +51,10 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     try {
       // TODO: validate session whether its active / user is allowed to be in it
 
-      this.socketUserMap.set(sessionId, userId);
+      this.socketUserMap.set(client.id, userId);
       client.join(sessionId);
+
+      this.debugFunction(`user joined`);
 
       this.server.to(sessionId).emit(SESSION_JOINED, {
         userId,
@@ -73,6 +72,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: LeaveCollabSessionRequestDto,
   ) {
+    console.log("session_leave received");
     const { userId, sessionId } = payload;
 
     if (!userId || !sessionId) {
@@ -123,6 +123,27 @@ export class CollaborationGateway implements OnGatewayDisconnect {
   handleDisconnect(@ConnectedSocket() client: Socket) {
     // When client disconnects from the socket
     console.log(`User: ${this.socketUserMap.get(client.id)} disconnected`);
+    this.debugFunction(`disconnect`);
     this.socketUserMap.delete(client.id);
+  }
+
+  debugFunction(eventName: string) {
+    try {
+      console.log(`${eventName} occured`);
+      console.log(`Socket User Map:`);
+      for (const [key, value] of this.socketUserMap) {
+        console.log(`${key} -> ${value}`);
+      }
+
+      console.log(`Adapters:`);
+      console.log(this.server.adapter['rooms']);
+      console.log(this.server.adapter['sids']);
+      // this.server
+      //   .in(`1`)
+      //   .fetchSockets()
+      //   .then((v) => console.log(`room members: ${v.toString}`));
+    } catch (e) {
+      console.log(`ERROR!!!! ${e}`);
+    }
   }
 }
