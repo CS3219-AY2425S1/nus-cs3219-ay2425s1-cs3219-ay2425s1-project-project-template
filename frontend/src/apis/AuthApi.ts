@@ -1,4 +1,4 @@
-import { AuthResponse, LoginInput, RegisterInput } from '../types/Api';
+import { AuthResponse, LoginInput, RegisterInput } from '../types/AuthType';
 import { api } from './ApiClient';
 
 export const login = async (data: LoginInput): Promise<AuthResponse> => {

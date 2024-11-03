@@ -6,13 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { checkSession } from '../../../apis/CollaborationApi';
+import config from '../../../config';
 import { useAuth } from '../../../hooks/AuthProvider';
-import { SessionResponse } from '../../../types/Collaboration';
+import { SessionResponse } from '../../../types/CollaborationType';
 import HelpModal from '../../modal/HelpModal';
 import MatchingCriteriaModal from '../../modal/MatchingCriteriaModal';
 import MatchingModal from '../../modal/MatchingModal';
 import RejoinSessionModal from '../../modal/RejoinSessionModal';
-import config from '../../../config';
 
 function PracticeLayout() {
   const [isHelpModalOpened, { open: openHelpModal, close: closeHelpModal }] =

@@ -1,4 +1,4 @@
-import { Question } from '../types/Question';
+import { Question } from '../types/QuestionType';
 import { api } from './ApiClient';
 
 export const getQuestionById = async (

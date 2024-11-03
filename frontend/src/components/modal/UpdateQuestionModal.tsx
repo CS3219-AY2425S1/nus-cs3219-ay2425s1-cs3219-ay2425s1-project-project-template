@@ -17,7 +17,7 @@ import {
   AddQuestionInput,
   Question,
   UpdateQuestionInput,
-} from '../../types/Question';
+} from '../../types/QuestionType';
 
 interface UpdateQuestionModalProps {
   isUpdateQuestionModalOpened: boolean;

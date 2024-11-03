@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { login } from '../apis/AuthApi';
-import { AuthResponse, LoginInput } from '../types/Api';
+import { AuthResponse, LoginInput } from '../types/AuthType';
 
 type AuthContextProps = {
   token: string | null;

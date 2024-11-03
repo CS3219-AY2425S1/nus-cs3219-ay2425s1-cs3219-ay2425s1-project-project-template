@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import { getQuestionById } from '../../apis/QuestionApi';
-import { Question } from '../../types/Question';
+import { Question } from '../../types/QuestionType';
 import DifficultyBadge from '../badge/DifficultyBadge';
 
 interface DescriptionTabProps {
