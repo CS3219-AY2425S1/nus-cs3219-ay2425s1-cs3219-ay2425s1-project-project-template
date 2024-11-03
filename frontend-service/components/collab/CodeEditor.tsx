@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import MonacoEditor from '@monaco-editor/react'
-import { Box, Button, Select, Text } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Select, Text } from '@chakra-ui/react'
 import { FIREBASE_DB } from '../../FirebaseConfig'
 import { ref, onValue, set } from 'firebase/database'
 import axios from 'axios'
@@ -35,6 +35,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   const navigate = useNavigate()
   const [userId] = useState(localStorage.getItem('userId') || '');
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const cancelRef = useRef(null)
 
   useEffect(() => {
     const unsubscribe = onValue(codeRef, (snapshot) => {
@@ -88,6 +90,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
     } catch (error) {
       console.error("Error leaving room:", error)
     }
+  }
+
+  const handleConfirmLeave = () => {
+    setIsDialogOpen(false)
+    handleLeaveRoom()
   }
 
   const handleResetCode = () => {
@@ -151,7 +158,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
               <option value="java">Java</option>
               <option value="csharp">C#</option>
             </Select>
-            <Button size="sm" colorScheme="red" marginRight={10} onClick={handleLeaveRoom}>
+            <Button size="sm" colorScheme="red" marginRight={10} onClick={() => setIsDialogOpen(true)}>
               Leave Room
             </Button>
             <Button size="sm" colorScheme="blue" marginRight={10}>
@@ -185,6 +192,31 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
             {leaveRoomMessage}
           </Text>
         )}
+        {/* Confirmation Dialog */}
+        <AlertDialog
+          isOpen={isDialogOpen}
+          leastDestructiveRef={cancelRef}
+          onClose={() => setIsDialogOpen(false)}
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Leave Room
+              </AlertDialogHeader>
+              <AlertDialogBody>
+                Are you sure you want to leave the room? You will need to rejoin to continue.
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={() => setIsDialogOpen(false)}>
+                  No
+                </Button>
+                <Button colorScheme="red" onClick={handleConfirmLeave} ml={3}>
+                  Yes, Leave
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
       </Box>
     </Box>
   )
