@@ -17,21 +17,8 @@ import {
   SelectItem,
   SelectContent,
 } from '@/components/ui/select';
-
-interface AwarenessUser {
-  name: string;
-  color: string;
-}
-
-interface AwarenessState {
-  client: number;
-  user: AwarenessUser;
-}
-
-interface ConnectedClient {
-  id: number;
-  user: AwarenessUser;
-}
+import { AwarenessState, ConnectedClient } from '@/types/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface CollaborationEditorProps {
   language: string;
@@ -50,12 +37,14 @@ const CollaborationEditor = ({
   const [connectedClients, setConnectedClients] = useState<
     Map<number, ConnectedClient>
   >(new Map());
-  const [, setDisconnectionAlert] = useState<string | null>(null);
+  // const [, setDisconnectionAlert] = useState<string | null>(null);
   const providerRef = useRef<WebsocketProvider | null>(null);
   const bindingRef = useRef<MonacoBinding | null>(null);
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+  const prevClientsRef = useRef<Map<number, ConnectedClient>>(new Map());
   const sockServerURI =
     process.env.NEXT_PUBLIC_SOCK_SERVER_URL || 'ws://localhost:4444';
+  const { toast } = useToast();
 
   const stringToColor = (str: string) => {
     let hash = 0;
@@ -87,25 +76,60 @@ const CollaborationEditor = ({
     providerRef.current.awareness.on('change', () => {
       const states = providerRef.current?.awareness.getStates();
       if (states) {
-        const clients = new Map<number, ConnectedClient>();
+        const newClients = new Map<number, ConnectedClient>();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         states.forEach((value: { [x: string]: any }, clientId: number) => {
           const state = value as AwarenessState;
           if (state.client) {
-            clients.set(clientId, {
+            newClients.set(clientId, {
               id: state.client,
               user: state.user,
             });
           }
         });
-        setConnectedClients(clients);
-      }
-    });
 
-    providerRef.current.on('status', ({ status }: { status: string }) => {
-      if (status === 'disconnected') {
-        setDisconnectionAlert('A user has disconnected from the room');
-        setTimeout(() => setDisconnectionAlert(null), 3000);
+        // Check for new connections
+        const newConnectedUsers = Array.from(newClients.values())
+          .filter(
+            (client) =>
+              !prevClientsRef.current.has(client.id) &&
+              client.id.toString() !== user?.id,
+          )
+          .map((client) => client.user.name);
+
+        if (newConnectedUsers.length > 0) {
+          const description =
+            newConnectedUsers.length === 1
+              ? `${newConnectedUsers[0]} joined the session`
+              : `${newConnectedUsers.slice(0, -1).join(', ')} and ${newConnectedUsers.slice(
+                  -1,
+                )} joined the session`;
+
+          toast({
+            title: 'User Connected!',
+            description,
+            variant: 'success',
+          });
+        }
+
+        // Check for disconnections
+        Array.from(prevClientsRef.current.values()).forEach((prevClient) => {
+          if (
+            !Array.from(newClients.values()).some(
+              (client) => client.id === prevClient.id,
+            ) &&
+            prevClient.id.toString() !== user?.id
+          ) {
+            toast({
+              title: 'User Disconnected',
+              description: `${prevClient.user.name} left the session`,
+              variant: 'warning',
+            });
+          }
+        });
+
+        prevClientsRef.current = newClients;
+        setConnectedClients(newClients);
       }
     });
 
