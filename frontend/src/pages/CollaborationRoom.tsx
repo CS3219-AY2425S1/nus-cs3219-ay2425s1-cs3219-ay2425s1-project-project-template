@@ -8,7 +8,7 @@ import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 
-const SOCKET_SERVER_URL = import.meta.env.VITE_COLLABORATION_WS_URL;
+const SOCKET_SERVER_URL = import.meta.env.VITE_WS_URL;
 
 const CollaborativeEditor: React.FC = () => {
   const { user } = useAuth();
@@ -33,7 +33,7 @@ const CollaborativeEditor: React.FC = () => {
       return;
     }
 
-    socketRef.current = io(SOCKET_SERVER_URL);
+    socketRef.current = io(SOCKET_SERVER_URL, {path: '/socket.io/collab'});
 
     socketRef.current.emit("join_collab", { roomId, userName: user.name }, (response: { success: boolean }) => {
       if (response.success) {
