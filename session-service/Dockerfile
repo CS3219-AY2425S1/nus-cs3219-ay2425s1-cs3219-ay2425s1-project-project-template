@@ -1,36 +1,61 @@
-# Base stage for both dev and prod
-FROM node:18-alpine AS base
+# Build stage
+FROM node:18-alpine AS builder
 
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml
+# Copy package files
+COPY package.json ./
+
+# Install all dependencies (including devDependencies)
+RUN pnpm install
+
+# Copy source code and tsconfig
+COPY src ./src
+COPY tsconfig.json ./
+
+# Build the TypeScript code
+RUN pnpm build
+
+# Production stage
+FROM node:18-alpine AS production
+ENV NODE_ENV=production
+ENV PORT=4444
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json ./
+
+# Install only production dependencies
+RUN pnpm install --prod
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
+
+EXPOSE ${PORT}
+
+# Run the compiled JavaScript
+CMD ["node", "dist/server.js"]
+
+# Development stage
+FROM node:18-alpine AS development
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+WORKDIR /app
+
 COPY package.json ./
 
 RUN pnpm install
 
-# Development stage
-FROM base AS development
-
 COPY src ./src
 COPY tsconfig.json ./
-
-# Note: Don't expose ports here, Compose will handle that for us
 
 CMD ["pnpm", "dev"]
-
-
-# Production stage
-FROM base AS production
-ENV NODE_ENV=production
-ENV PORT=4444
-
-COPY src ./src
-COPY tsconfig.json ./
-
-EXPOSE ${PORT}
-
-CMD ["pnpm", "start"]
