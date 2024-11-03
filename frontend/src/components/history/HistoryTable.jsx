@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Button } from '@mui/material';
+import QuestionDialog from './QuestionDialog';
+import CodeDialog from './CodeDialog';
 import questionService from '../../services/question-service';
 import userService from '../../services/user-service';
 import useAuth from "../../hooks/useAuth";
@@ -19,6 +21,10 @@ export default function HistoryTable() {
   const [currentHistory, setCurrentHistory] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
+  const [open, setOpen] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [selectedSolution, setSelectedSolution] = useState(null);
+  
 
   useEffect(() => {
     const fetchUserHistory = async () => {
@@ -45,18 +51,34 @@ export default function HistoryTable() {
           partner: await userService.getUserById(each.partner, cookies.token),
           status: each.status,
           datetime: each.datetime,
+          solution: each.solution,
         };
       })).then(() => setCurrentHistory(updatedCurrentHistory));
 
   }, [page, rowsPerPage, history]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  const handleChangePage = (event, newPage) => setPage(newPage);
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  const handleQuestionClick = (question) => {
+    setSelectedQuestion(question); 
+    setOpen(true);
+  };
+
+  const handleSolutionClick = (question, solution) => {
+    setSelectedQuestion(question);
+    setSelectedSolution(solution);
+    setOpen(true);
+  }
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+    setSelectedQuestion(null);
+    setSelectedSolution(null);
   };
 
   return (
@@ -90,7 +112,7 @@ export default function HistoryTable() {
                     <TableCell>
                       <Button 
                         color="primary" 
-                        onClick={() => null}
+                        onClick={() => handleQuestionClick(row.question)}
                         disableRipple
                         sx={{
                           fontSize: '20px', 
@@ -115,18 +137,27 @@ export default function HistoryTable() {
                       {row.partner.username}
                     </TableCell>
 
-                    <TableCell 
-                      style={{
-                        color: 
-                          row.status.toLowerCase() === 'attempted' ? '#FFB800' :
-                          row.status.toLowerCase() === 'solved' ? '#00C000' : 'black',
-                        fontSize: 20, 
-                        fontFamily: 'Poppins', 
-                        fontWeight: '600', 
-                        wordWrap: 'break-word'
-                      }}
-                    >
-                      {row.status}
+                    <TableCell>
+                      <Button
+                        onClick={() => handleSolutionClick(row.question, row.solution)}
+                        sx={{
+                          color: 
+                            row.status.toLowerCase() === 'attempted' ? '#FFB800' :
+                            row.status.toLowerCase() === 'solved' ? '#00C000' : 'black',
+                          fontSize: 20, 
+                          fontFamily: 'Poppins', 
+                          fontWeight: '600', 
+                          wordWrap: 'break-word',
+                          textTransform: 'none',
+                          '&:hover': {
+                            backgroundColor: 'transparent',
+                          }
+                        }}
+                        disableRipple
+                      >
+                        {row.status}
+                      </Button>
+                        
                     </TableCell>
                     
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
@@ -147,6 +178,23 @@ export default function HistoryTable() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+      {selectedQuestion && !selectedSolution && (
+        <QuestionDialog 
+          open={open}
+          question={selectedQuestion} 
+          onClose={handleCloseDialog} 
+        />
+      )}
+
+      {selectedSolution && (
+        <CodeDialog 
+          open={open}
+          onClose={handleCloseDialog} 
+          question={selectedQuestion} 
+          solution={selectedSolution}
+        />
+      )}
     </Paper>
   );
 }

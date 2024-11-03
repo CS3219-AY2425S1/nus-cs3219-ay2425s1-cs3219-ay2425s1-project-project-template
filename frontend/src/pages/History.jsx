@@ -12,7 +12,10 @@ const History = () => {
       <GeneralNavbar />
       <div className="history-container">
         <h1>History</h1>
-        <p className="description">View your attempted questions and solutions.</p>
+        <p className="description">
+          View your attempted questions and solutions.
+          Click on the value at the <b>Status</b> column to see your code.
+        </p>
         <HistoryTable/>
       </div>
   </>);
