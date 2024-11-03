@@ -25,7 +25,7 @@ The server will be available at http://localhost:8083.
 To run the application via Docker, run the following command:
 
 ```bash
-docker build -t question-service .
+docker build -t execution-service .
 ```
 
 ```bash
@@ -38,7 +38,8 @@ The server will be available at http://localhost:8083.
 
 - `POST /tests/populate`
 - `GET /tests/{questionDocRefId}/`
-- `GET /tests/{questionDocRefId}/execute`
+- `POST /tests/{questionDocRefId}/execute`
+- `POST /tests/{questionDocRefId}/submit`
 
 ## Managing Firebase
 
@@ -80,7 +81,7 @@ The following json format will be returned:
 ]
 ```
 
-`GET /tests/{questionDocRefId}/execute`
+`POST /tests/{questionDocRefId}/execute`
 
 To execute test cases via a question ID without custom test cases, run the following command, with custom code and language:
 
@@ -153,6 +154,8 @@ The following json format will be returned:
   ]
 }
 ```
+
+`POST /tests/{questionDocRefId}/submit`
 
 To submit a solution and execute visible and hidden test cases via a question ID, run the following command, with custom code and language:
 
