@@ -1,9 +1,8 @@
 import { Button, Group, Select, Space, Stack } from '@mantine/core';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { langs } from '@uiw/codemirror-extensions-langs';
-import { Extension } from '@uiw/react-codemirror';
+import { Extension, ViewUpdate } from '@uiw/react-codemirror';
 import { useState } from 'react';
-
 import CodeEditor from '../../codeEditor/CodeEditor';
 import classes from './CodeEditorLayout.module.css';
 
@@ -11,16 +10,17 @@ interface CodeEditorLayoutProps {
   openLeaveSessionModal: () => void;
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
+  viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
 }
 
 type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
-
 const supportedLanguages: SupportedLanguage[] = ['python', 'java'];
 
 function CodeEditorLayout({
   openLeaveSessionModal,
   code,
   setCode,
+  viewUpdateRef
 }: CodeEditorLayoutProps) {
   const [language, setLanguage] = useState<SupportedLanguage>('python');
   const [extensions, setExtensions] = useState<Extension[]>([
@@ -77,7 +77,7 @@ function CodeEditorLayout({
         </Button>
       </Group>
 
-      <CodeEditor code={code} setCode={setCode} extensions={extensions} />
+      <CodeEditor code={code} setCode={setCode} extensions={extensions} viewUpdateRef={viewUpdateRef} />
     </Stack>
   );
 }

@@ -2,22 +2,6 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-const TestCaseSchema = new Schema({
-    input: {
-        type: String,
-        required: true,
-    },
-    answer: {
-        type: String,
-        required: true,
-    },
-    is_hidden: {
-      type: Boolean,
-      required: false,
-      default: false,
-    }
-}, { _id: false }); // Disable the automatic creation of an _id for each subdocument
-
 const QuestionSchema = new Schema({
     id: {
         type: Number,
@@ -44,10 +28,6 @@ const QuestionSchema = new Schema({
     images: {
         type: [String],
         required: false,
-    },
-    testCases: {
-        type: [TestCaseSchema],
-        required: false, // Set to true if you want to require test cases
     }
 });
 
