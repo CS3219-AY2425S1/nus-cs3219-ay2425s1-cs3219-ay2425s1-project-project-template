@@ -30,7 +30,6 @@ ENV PORT=8001
 
 COPY src ./src
 COPY tsconfig.json ./
-# COPY .env.production ./
 
 EXPOSE ${PORT}
 
