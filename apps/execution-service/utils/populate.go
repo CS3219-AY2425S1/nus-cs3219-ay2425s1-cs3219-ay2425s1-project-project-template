@@ -34,9 +34,11 @@ func RepopulateTests(ctx context.Context, client *firestore.Client,
 		{
 			QuestionTitle: "Reverse a String",
 			VisibleTestCases: `
-1
+2
 hello
 olleh
+Hannah
+hannaH
 `,
 			HiddenTestCases: `
 2
@@ -55,9 +57,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Linked List Cycle Detection",
 			VisibleTestCases: `
-1
+2
 [3,2,0,-4] -> pos = 1
 true
+[1]
+false
 `,
 			HiddenTestCases: `
 2
@@ -119,9 +123,11 @@ return inputOrOutput == "true" || inputOrOutput == "false"
 		{
 			QuestionTitle: "Roman to Integer",
 			VisibleTestCases: `
-1
+2
 III
 3
+IV
+4
 `,
 			HiddenTestCases: `
 2
@@ -147,9 +153,11 @@ return err == nil
 		{
 			QuestionTitle: "Add Binary",
 			VisibleTestCases: `
-1
+2
 "11", "1"
 "100"
+"1010", "1011"
+"10101"
 `,
 			HiddenTestCases: `
 2
@@ -170,9 +178,11 @@ return binaryRegex.MatchString(inputOrOutput)
 		{
 			QuestionTitle: "Fibonacci Number",
 			VisibleTestCases: `
-1
+2
 0
 0
+10
+55
 `,
 			HiddenTestCases: `
 2
@@ -193,9 +203,11 @@ return err == nil && num >= 0
 		{
 			QuestionTitle: "Implement Stack using Queues",
 			VisibleTestCases: `
-1
+2
 push(1), push(2), top()
 2
+push(1), empty()
+false
 `,
 			HiddenTestCases: `
 2
@@ -233,9 +245,11 @@ return err == nil
 		}, {
 			QuestionTitle: "Combine Two Tables",
 			VisibleTestCases: `
-1
+2
 Person: [(1, "Smith", "John"), (2, "Doe", "Jane")], Address: [(1, 1, "NYC", "NY"), (2, 3, "LA", "CA")]
 [("John", "Smith", "NYC", "NY"), ("Jane", "Doe", null, null)]
+Person: [(1, "White", "Mary")], Address: []
+[("Mary", "White", null, null)]
 `,
 			HiddenTestCases: `
 2
@@ -254,9 +268,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Repeated DNA Sequences",
 			VisibleTestCases: `
-1
+2
 AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT
 ["AAAAACCCCC", "CCCCCAAAAA"]
+ACGTACGTACGT
+[]
 `,
 			HiddenTestCases: `
 2
@@ -318,9 +334,11 @@ return true
 		{
 			QuestionTitle: "Course Schedule",
 			VisibleTestCases: `
-1
+2
 2, [[1,0]]
 true
+2, [[1,0],[0,1]]
+false
 `,
 			HiddenTestCases: `
 2
@@ -339,9 +357,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "LRU Cache Design",
 			VisibleTestCases: `
-1
+2
 put(1, 1), put(2, 2), get(1)
 1
+put(1, 1), put(2, 2), put(3, 3), get(2)
+-1
 `,
 			HiddenTestCases: `
 2
@@ -360,9 +380,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Longest Common Subsequence",
 			VisibleTestCases: `
-1
+2
 "abcde", "ace"
 3
+"abc", "def"
+0
 `,
 			HiddenTestCases: `
 2
@@ -381,9 +403,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Rotate Image",
 			VisibleTestCases: `
-1
+2
 [[1,2,3],[4,5,6],[7,8,9]]
 [[7,4,1],[8,5,2],[9,6,3]]
+[[1]]
+[[1]]
 `,
 			HiddenTestCases: `
 2
@@ -402,9 +426,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Airplane Seat Assignment Probability",
 			VisibleTestCases: `
-1
+2
 1
 1.00000
+3
+0.50000
 `,
 			HiddenTestCases: `
 2
@@ -423,9 +449,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Validate Binary Search Tree",
 			VisibleTestCases: `
-1
+2
 [2,1,3]
 true
+[5,1,4,null,null,3,6]
+false
 `,
 			HiddenTestCases: `
 2
@@ -444,9 +472,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Sliding Window Maximum",
 			VisibleTestCases: `
-1
+2
 [1,3,-1,-3,5,3,6,7], k=3
 [3,3,5,5,6,7]
+[9, 11], k=2
+[11]
 `,
 			HiddenTestCases: `
 2
@@ -465,9 +495,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "N-Queen Problem",
 			VisibleTestCases: `
-1
+2
 4
 [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+2
+[]
 `,
 			HiddenTestCases: `
 2
@@ -486,9 +518,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Serialize and Deserialize a Binary Tree",
 			VisibleTestCases: `
-1
+2
 [1,2,3,null,null,4,5]
 "1 2 null null 3 4 null null 5 null null"
+[]
+"null"
 `,
 			HiddenTestCases: `
 2
@@ -507,9 +541,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Wildcard Matching",
 			VisibleTestCases: `
-1
+2
 "aa", "a"
 false
+"aa", "*"
+true
 `,
 			HiddenTestCases: `
 2
@@ -528,9 +564,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Chalkboard XOR Game",
 			VisibleTestCases: `
-1
+2
 [1,1,2]
 false
+[1,2,3]
+true
 `,
 			HiddenTestCases: `
 2
@@ -549,9 +587,11 @@ return len(inputOrOutput) > 0
 		{
 			QuestionTitle: "Trips and Users",
 			VisibleTestCases: `
-1
+2
 Trips: [(1, 1, 10, 'NYC', 'completed', '2013-10-01'), (2, 2, 11, 'NYC', 'cancelled_by_driver', '2013-10-01')],Users: [(10, 'No', 'client'), (11, 'No', 'driver')]
 0.50
+Trips: [(1, 1, 10, 'NYC', 'completed', '2013-10-03'), (2, 2, 11, 'NYC', 'cancelled_by_client', '2013-10-03')],Users: [(10, 'No', 'client'), (11, 'Yes', 'driver')]
+0.00
 `,
 			HiddenTestCases: `
 2

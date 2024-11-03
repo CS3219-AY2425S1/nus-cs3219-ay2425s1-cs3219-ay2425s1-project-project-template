@@ -30,10 +30,7 @@ func ValidateTestCaseFormat(testCase string, validateInputCode string, validateO
 			len(lines))
 	}
 
-	println("test1")
-
 	for i := 1; i < len(lines); i += 2 {
-		println("test2")
 		ok, err := validateInputOrOutputFormat(validateInputCode, lines[i])
 		if err != nil {
 			return false, fmt.Errorf("error validating input: %v", err)
@@ -41,7 +38,6 @@ func ValidateTestCaseFormat(testCase string, validateInputCode string, validateO
 		if !ok {
 			return false, fmt.Errorf("test case format is incorrect, input format is invalid")
 		}
-		println("test3")
 		ok, err = validateInputOrOutputFormat(validateOutputCode, lines[i+1])
 		if err != nil {
 			return false, fmt.Errorf("error validating output: %v", err)
@@ -49,9 +45,7 @@ func ValidateTestCaseFormat(testCase string, validateInputCode string, validateO
 		if !ok {
 			return false, fmt.Errorf("test case format is incorrect, output format is invalid")
 		}
-		println("test4")
 	}
-	println("test5")
 
 	return true, nil
 }
@@ -66,8 +60,6 @@ func validateInputOrOutputFormat(validateInputOrOutputCode string, inputOrOutput
 package main
 %s
 `, validateInputOrOutputCode)
-
-	println(fullCode)
 
 	// Evaluate the function code
 	_, err := i.Eval(fullCode)

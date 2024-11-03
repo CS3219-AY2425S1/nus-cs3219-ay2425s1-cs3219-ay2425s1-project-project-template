@@ -1,11 +1,5 @@
 package models
 
-type TestResults struct {
-	VisibleTestResults []IndividualTestResult `json:"visibleTestResults"`
-	HiddenTestResults  GeneralTestResults     `json:"hiddenTestResults"`
-	CustomTestResults  []IndividualTestResult `json:"customTestResults"`
-}
-
 type ExecutionResults struct {
 	VisibleTestResults []IndividualTestResult `json:"visibleTestResults"`
 	CustomTestResults  []IndividualTestResult `json:"customTestResults"`

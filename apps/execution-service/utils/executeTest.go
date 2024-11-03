@@ -1,22 +1,10 @@
 package utils
 
 import (
+	"execution-service/constants"
 	"execution-service/execution/python"
 	"execution-service/models"
 	"fmt"
-)
-
-const (
-	JAVA       = "Java"
-	PYTHON     = "Python"
-	GOLANG     = "Golang"
-	JAVASCRIPT = "Javascript"
-	CPP        = "C++"
-)
-
-const (
-	ACCEPTED  = "Accepted"
-	ATTEMPTED = "Attempted"
 )
 
 func ExecuteVisibleAndCustomTests(code models.Code, test models.Test) (models.ExecutionResults, error) {
@@ -24,7 +12,7 @@ func ExecuteVisibleAndCustomTests(code models.Code, test models.Test) (models.Ex
 	var testResults models.ExecutionResults
 
 	switch code.Language {
-	case PYTHON:
+	case constants.PYTHON:
 		testResults, err = getVisibleAndCustomTestResults(code, test, python.RunPythonCode)
 		break
 	default:
@@ -42,7 +30,7 @@ func ExecuteVisibleAndHiddenTests(code models.Code, test models.Test) (models.Su
 	var testResults models.SubmissionResults
 
 	switch code.Language {
-	case PYTHON:
+	case constants.PYTHON:
 		testResults, err = getVisibleAndHiddenTestResults(code, test, python.RunPythonCode)
 		break
 	default:
@@ -143,14 +131,14 @@ func getVisibleAndHiddenTestResults(code models.Code, test models.Test,
 		return models.SubmissionResults{}, err
 	}
 
-	status := ACCEPTED
+	status := constants.ACCEPTED
 	if hiddenTestResults.Passed != hiddenTestResults.Total {
-		status = ATTEMPTED
+		status = constants.ATTEMPTED
 	}
-	if status == ACCEPTED {
+	if status == constants.ACCEPTED {
 		for _, testResult := range visibleTestResults {
 			if !testResult.Passed {
-				status = ATTEMPTED
+				status = constants.ATTEMPTED
 				break
 			}
 		}

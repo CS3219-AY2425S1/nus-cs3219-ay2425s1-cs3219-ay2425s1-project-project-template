@@ -3,8 +3,10 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"execution-service/constants"
 	"execution-service/models"
 	"execution-service/utils"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
 	"net/http"
@@ -22,6 +24,11 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 
 	var collab models.Collaboration
 	if err := utils.DecodeJSONBody(w, r, &collab); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := validateCollaborationFields(collab); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -104,6 +111,34 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(testResults)
+}
+
+func validateCollaborationFields(collab models.Collaboration) error {
+	if collab.Title == "" {
+		return fmt.Errorf("title is required")
+	}
+
+	if !constants.IS_VALID_LANGUAGE[collab.Language] {
+		return fmt.Errorf("invalid language")
+	}
+
+	if collab.User == "" {
+		return fmt.Errorf("user is required")
+	}
+
+	if collab.MatchedUser == "" {
+		return fmt.Errorf("matchedUser is required")
+	}
+
+	if collab.MatchID == "" {
+		return fmt.Errorf("matchId is required")
+	}
+
+	if collab.QuestionDifficulty == "" {
+		return fmt.Errorf("questionDifficulty is required")
+	}
+
+	return nil
 }
 
 //curl -X POST http://localhost:8083/tests/Yt29JjnIDpRwIlYAX8OF/submit \
