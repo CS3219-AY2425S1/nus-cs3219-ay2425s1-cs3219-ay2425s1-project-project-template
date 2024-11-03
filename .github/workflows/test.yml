@@ -10,7 +10,7 @@ on:
     branches:
       - main
       - staging
-
+  workflow_dispatch:
 
 jobs:
   question-service-tests:
@@ -52,6 +52,30 @@ jobs:
         run: |
           cd ./apps/question-service
           go test ./...
+
+  frontend-unit-tests:
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+
+      - name: Setup .env
+        run: |
+          cd ./apps/frontend
+          cp .env.example  .env
+
+      - name: Install pnpm
+        run: npm i -g pnpm
+
+      - name: Install dependencies
+        run: |
+          cd ./apps/frontend
+          pnpm i
+
+      - name: Run tests
+        run: |
+          cd ./apps/frontend
+          pnpm test
 
   test:
     runs-on: ubuntu-latest
