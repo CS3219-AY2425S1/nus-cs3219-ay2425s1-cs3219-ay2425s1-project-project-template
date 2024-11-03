@@ -1,10 +1,10 @@
 import { Request, Response, RequestHandler } from 'express';
 import { createCollaborationService, getSessionData } from '../services/collaboration.services';
 
-export const initiateCollaboration = async (sessionId: string, difficulty: string, category: string) => {
+export const initiateCollaboration = async (sessionId: string, difficulty: string, category: string, username1: string, username2: string) => {
     try {
         // call service to CREATE collaboration session
-        const session = await createCollaborationService(sessionId, difficulty, category);
+        const session = await createCollaborationService(sessionId, difficulty, category, username1, username2);
         if (!session) {
             console.log('No suitable question found for specified difficulty and category');
             return null;
@@ -18,10 +18,10 @@ export const initiateCollaboration = async (sessionId: string, difficulty: strin
 
 // Controller to handle creation of new collaboration service - kept for testing
 export const startCollaboration: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-    const { sessionId, difficulty, category } = req.body;
+    const { sessionId, difficulty, category, username1, username2 } = req.body;
     try {
         // Call service to create collaboration service
-        const session = await initiateCollaboration(sessionId, difficulty, category);
+        const session = await initiateCollaboration(sessionId, difficulty, category, username1, username2);
         res.status(200).json(session);
         return;
     } catch (error) {

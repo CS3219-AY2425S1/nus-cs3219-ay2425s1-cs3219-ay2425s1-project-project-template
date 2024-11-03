@@ -12,6 +12,8 @@ export const createCollaborationService = async (
     sessionId: string,
     difficulty: string,
     category: string,
+    username1: string,
+    username2: string
 ): Promise<Session | null> => {
     try {
         // fetch questions based on difficulty and category from questions service 
@@ -26,7 +28,7 @@ export const createCollaborationService = async (
 
         const session : Session = {
             sessionId,
-            users: [],
+            users: {username1, username2},
             question,
         };
 

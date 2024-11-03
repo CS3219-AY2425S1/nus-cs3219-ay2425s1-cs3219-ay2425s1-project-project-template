@@ -2,6 +2,6 @@ import {Question} from './question.model';
 
 export interface Session {
     sessionId: string;
-    users: {id : string}[];
+    users: {username1 : string, username2: string};
     question: Question;
 }

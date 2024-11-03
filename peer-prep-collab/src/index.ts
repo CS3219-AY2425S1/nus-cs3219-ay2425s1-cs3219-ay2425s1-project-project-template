@@ -39,9 +39,11 @@ async function onMessage(message: any) {
 
   const { matchedUsers, sessionId } = message;
   const { finalDifficulty, finalCategory } = processPreferences(matchedUsers);
+  const username1 = matchedUsers[0].username;
+  const username2 = matchedUsers[1].username;
 
   // creates collaboration service 
-  await initiateCollaboration(sessionId, finalDifficulty, finalCategory);
+  await initiateCollaboration(sessionId, finalDifficulty, finalCategory, username1, username2);
 
 }
 
