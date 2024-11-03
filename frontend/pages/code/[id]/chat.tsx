@@ -3,7 +3,7 @@ import { FC, RefObject, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
-import { getChatHistory } from '@/services/matching-service-api'
+import { getChatHistory } from '@/services/collaboration-service-api'
 
 interface ICollaborator {
     name: string
