@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import Chat from "./chat";
 import QuestionDisplay from "./question-display";
 import dynamic from "next/dynamic";
+import CodeEditor from "./code-editor";
 
 const MonacoEditor = dynamic(
   () => import("@/components/collab/monaco-editor"),
@@ -27,7 +28,7 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
           <QuestionDisplay roomId={roomId} />
           <Chat roomId={roomId} />
         </div>
-        <MonacoEditor roomId={roomId} />
+        <CodeEditor roomId={roomId} />
       </div>
     </div>
   );
