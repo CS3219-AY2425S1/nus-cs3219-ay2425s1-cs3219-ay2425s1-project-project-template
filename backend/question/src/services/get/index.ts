@@ -1,8 +1,8 @@
-import { and, arrayOverlaps, eq, ilike, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
 
 import { db } from '@/lib/db/index';
-import { questions } from '@/lib/db/schema';
+import { questionAttempts, questions } from '@/lib/db/schema';
 
 import type {
   IGetDifficultiesResponse,
@@ -16,7 +16,7 @@ import type {
 export const getQuestionsService = async (
   payload: IGetQuestionsPayload
 ): Promise<IGetQuestionsResponse> => {
-  const { questionName, difficulty, topic, pageNum = 0, recordsPerPage = 20 } = payload;
+  const { questionName, difficulty, topic, pageNum = 0, recordsPerPage = 20, userId } = payload;
   const offset = pageNum * recordsPerPage;
 
   const whereClause = [];
@@ -34,9 +34,20 @@ export const getQuestionsService = async (
   }
 
   const query = db
-    .select()
+    .select({
+      ...getTableColumns(questions),
+      attempted: sql`COALESCE(COUNT(${questionAttempts.attemptId}), 0)`.as('attempted'),
+    })
     .from(questions)
+    .leftJoin(
+      questionAttempts,
+      and(
+        eq(questionAttempts.questionId, questions.id),
+        or(eq(questionAttempts.userId1, userId), eq(questionAttempts.userId2, userId))
+      )
+    )
     .where(and(...whereClause))
+    .groupBy(questions.id)
     .limit(recordsPerPage)
     .offset(offset)
     .orderBy(questions.id);
@@ -58,6 +69,7 @@ export const getQuestionsService = async (
         title: q.title,
         difficulty: q.difficulty,
         topic: q.topic,
+        attempted: (q.attempted as number) > 0,
       })),
       totalQuestions: totalCount,
     },

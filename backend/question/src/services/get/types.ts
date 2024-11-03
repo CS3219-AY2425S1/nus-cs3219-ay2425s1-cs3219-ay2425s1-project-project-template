@@ -5,6 +5,7 @@ import type { IServiceResponse } from '@/types';
 //=============================================================================
 export type IGetQuestionsPayload = {
   // Filters
+  userId: string;
   questionName?: string;
   difficulty?: string;
   topic?: Array<string>;

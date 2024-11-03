@@ -21,13 +21,14 @@ import type {
 } from '@/services/post/types';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
-  const { questionName, difficulty, topic, pageNum, recordsPerPage } = req.query;
+  const { questionName, difficulty, topic, pageNum, recordsPerPage, userId } = req.query;
   const payload: IGetQuestionsPayload = {
     questionName: questionName as string,
     difficulty: difficulty as string,
     topic: topic as Array<string>,
     pageNum: parseInt(pageNum as string) || 0,
     recordsPerPage: parseInt(recordsPerPage as string) || 20,
+    userId: userId as string,
   };
 
   try {
