@@ -67,5 +67,5 @@ const TITLES: Record<string, string> = {
 
 export const getPageTitle = (path: string) => {
   const title = TITLES[path];
-  return title ?? 'Peerprep';
+  return title;
 };

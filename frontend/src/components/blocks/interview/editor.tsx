@@ -1,9 +1,8 @@
-import { ChevronLeftIcon } from '@radix-ui/react-icons';
 import { useWindowSize } from '@uidotdev/usehooks';
 import type { LanguageName } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
 import { Bot, User } from 'lucide-react';
-import { useEffect,useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -17,18 +16,30 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
 import { useCollab } from '@/lib/hooks/use-collab';
+import { useAuthedRoute } from '@/stores/auth-store';
+
+import { CompleteDialog } from './room/complete-dialog';
+import { OtherUserCompletingDialog } from './room/other-user-completing-dialog';
 
 const EXTENSION_HEIGHT = 250;
 const MIN_EDITOR_HEIGHT = 350;
 
 type EditorProps = {
+  questionId: number;
   room: string;
   onAIClick: () => void;
   onPartnerClick: () => void;
   onCodeChange?: (code: string, language: LanguageName) => void;
 };
 
-export const Editor = ({ room, onAIClick, onPartnerClick, onCodeChange }: EditorProps) => {
+export const Editor = ({
+  questionId,
+  room,
+  onAIClick,
+  onPartnerClick,
+  onCodeChange,
+}: EditorProps) => {
+  const { userId } = useAuthedRoute();
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
   const {
@@ -38,6 +49,8 @@ export const Editor = ({ room, onAIClick, onPartnerClick, onCodeChange }: Editor
     setLanguage,
     code,
     setCode,
+    isCompleting,
+    setIsCompleting,
     cursorPosition,
     members,
     isLoading,
@@ -61,8 +74,19 @@ export const Editor = ({ room, onAIClick, onPartnerClick, onCodeChange }: Editor
     onCodeChange?.(value, language);
   };
 
+  const [completionState, setCompletionState] = useState('');
+
+  useEffect(() => {
+    if (isCompleting.userId !== userId && isCompleting.state) {
+      setCompletionState(isCompleting.state);
+    } else {
+      setCompletionState('');
+    }
+  }, [isCompleting]);
+
   return (
     <div className='flex w-full flex-col gap-4 p-4'>
+      {completionState && <OtherUserCompletingDialog status={completionState} />}
       {isLoading ? (
         <div className='flex h-[60px] w-full flex-row justify-between pt-3'>
           <div className='flex h-10 flex-row gap-4'>
@@ -122,28 +146,41 @@ export const Editor = ({ room, onAIClick, onPartnerClick, onCodeChange }: Editor
                 </div>
               ))}
             </div>
-            <Button
-              variant='outline'
-              size='sm'
-              className='group flex items-center !px-2 !py-1'
-              onClick={onAIClick}
+            <CompleteDialog
+              {...{
+                setCompleting: setIsCompleting,
+                userId: userId as string,
+                questionId,
+                code,
+                setCode,
+                members,
+                language,
+              }}
             >
-              <Bot className='mr-1 size-4' />
-              <span>AI Assistant</span>
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              className='group flex items-center !px-2 !py-1'
-              onClick={onPartnerClick}
-            >
-              <User className='mr-1 size-4' />
-              <span>Chat</span>
-            </Button>
-            <Button variant='destructive' size='sm' className='group flex items-center !px-2 !py-1'>
-              <ChevronLeftIcon className='transition-transform duration-200 ease-in-out group-hover:-translate-x-px' />
-              <span>Disconnect</span>
-            </Button>
+              <Button size='sm' variant='destructive' disabled={!code} className='mx-4'>
+                Complete question
+              </Button>
+            </CompleteDialog>
+            <div className='flex flex-row gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='group flex items-center !px-2 !py-1'
+                onClick={onAIClick}
+              >
+                <Bot className='mr-1 size-4' />
+                <span>AI Assistant</span>
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                className='group flex items-center !px-2 !py-1'
+                onClick={onPartnerClick}
+              >
+                <User className='mr-1 size-4' />
+                <span>Chat</span>
+              </Button>
+            </div>
           </div>
         </div>
       )}

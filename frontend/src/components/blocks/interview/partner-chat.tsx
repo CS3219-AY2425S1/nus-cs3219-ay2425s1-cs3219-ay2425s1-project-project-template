@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { useChat } from '@/lib/hooks/use-chat';
-import { getUserId } from '@/services/user-service';
+import { useAuthedRoute } from '@/stores/auth-store';
 
 import { ChatLayout } from './chat/chat-layout';
 
@@ -12,6 +12,7 @@ interface PartnerChatProps {
 }
 
 export const PartnerChat: React.FC<PartnerChatProps> = ({ isOpen, onClose, roomId }) => {
+  const { userId } = useAuthedRoute();
   const { messages, sendMessage, connected, error } = useChat({ roomId });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +28,7 @@ export const PartnerChat: React.FC<PartnerChatProps> = ({ isOpen, onClose, roomI
       onClose={onClose}
       messages={messages.map((msg) => ({
         text: msg.message,
-        isUser: msg.senderId === getUserId(),
+        isUser: msg.senderId === userId,
         timestamp: new Date(msg.createdAt),
       }))}
       onSend={handleSend}

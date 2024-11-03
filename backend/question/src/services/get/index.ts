@@ -1,8 +1,8 @@
-import { and, arrayOverlaps, eq, ilike, inArray, not, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
 import { StatusCodes } from 'http-status-codes';
 
 import { db } from '@/lib/db/index';
-import { questions } from '@/lib/db/schema';
+import { questionAttempts, questions } from '@/lib/db/schema';
 
 import type {
   IGetDifficultiesResponse,
@@ -10,15 +10,13 @@ import type {
   IGetQuestionResponse,
   IGetQuestionsPayload,
   IGetQuestionsResponse,
-  IGetRandomQuestionPayload,
-  IGetRandomQuestionResponse,
   IGetTopicsResponse,
 } from './types';
 
 export const getQuestionsService = async (
   payload: IGetQuestionsPayload
 ): Promise<IGetQuestionsResponse> => {
-  const { questionName, difficulty, topic, pageNum = 0, recordsPerPage = 20 } = payload;
+  const { questionName, difficulty, topic, pageNum = 0, recordsPerPage = 20, userId } = payload;
   const offset = pageNum * recordsPerPage;
 
   const whereClause = [];
@@ -36,9 +34,20 @@ export const getQuestionsService = async (
   }
 
   const query = db
-    .select()
+    .select({
+      ...getTableColumns(questions),
+      attempted: sql`COALESCE(COUNT(${questionAttempts.attemptId}), 0)`.as('attempted'),
+    })
     .from(questions)
+    .leftJoin(
+      questionAttempts,
+      and(
+        eq(questionAttempts.questionId, questions.id),
+        or(eq(questionAttempts.userId1, userId), eq(questionAttempts.userId2, userId))
+      )
+    )
     .where(and(...whereClause))
+    .groupBy(questions.id)
     .limit(recordsPerPage)
     .offset(offset)
     .orderBy(questions.id);
@@ -60,6 +69,7 @@ export const getQuestionsService = async (
         title: q.title,
         difficulty: q.difficulty,
         topic: q.topic,
+        attempted: (q.attempted as number) > 0,
       })),
       totalQuestions: totalCount,
     },
@@ -83,65 +93,6 @@ export const getQuestionDetailsService = async (
       data: { question: null },
       error: {
         message: 'Question not found',
-      },
-    };
-  }
-
-  return {
-    code: StatusCodes.OK,
-    data: { question: result[0] },
-  };
-};
-
-export const getRandomQuestionService = async (
-  payload: IGetRandomQuestionPayload
-): Promise<IGetRandomQuestionResponse> => {
-  const { difficulty, topic, attemptedQuestions } = payload;
-  const whereClause = [];
-
-  console.log('Starting query construction');
-
-  if (difficulty) {
-    console.log(`Adding difficulty filter: ${difficulty}`);
-    whereClause.push(eq(questions.difficulty, difficulty));
-  }
-
-  const topicArray = (Array.isArray(topic) ? topic : [topic]).filter(
-    (t): t is string => t !== undefined
-  );
-
-  if (topicArray.length > 0) {
-    whereClause.push(arrayOverlaps(questions.topic, topicArray));
-  }
-
-  if (attemptedQuestions && attemptedQuestions.length > 0) {
-    console.log(`Excluding attempted questions: ${attemptedQuestions.join(', ')}`);
-    whereClause.push(not(inArray(questions.id, attemptedQuestions)));
-  }
-
-  console.log(`Where clause conditions: ${whereClause.length}`);
-
-  let query = db.select().from(questions);
-
-  if (whereClause.length > 0) {
-    query = query.where(and(...whereClause)) as typeof query;
-  }
-
-  query = (query as any).orderBy(sql`RANDOM()`).limit(1);
-
-  console.log('Executing query');
-  console.log(query.toSQL()); // This will log the SQL query
-
-  const result = await query;
-
-  console.log(`Query result: ${JSON.stringify(result)}`);
-
-  if (result.length === 0) {
-    return {
-      code: StatusCodes.NOT_FOUND,
-      data: { question: null },
-      error: {
-        message: 'No matching questions found',
       },
     };
   }
@@ -228,8 +179,13 @@ export const getDifficultiesService = async (): Promise<IGetDifficultiesResponse
     };
   }
 
-  const uniqueDifficulties = results.map((result) => result.difficulty);
-
+  const uniqueDifficulties = results
+    .map((result) => result.difficulty)
+    .sort((a, b) => {
+      if (a === 'Hard' || b === 'Easy') return 1;
+      if (b === 'Hard' || a === 'Easy') return -1;
+      return 0;
+    });
   return {
     code: StatusCodes.OK,
     data: {

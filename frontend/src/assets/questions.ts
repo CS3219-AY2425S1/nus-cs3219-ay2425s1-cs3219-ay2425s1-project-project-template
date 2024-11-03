@@ -179,7 +179,7 @@ export const questionDetails = [
   },
 ];
 
-export const questions: Question[] = questionDetails.map((question) => ({
+export const questions: Array<Question> = questionDetails.map((question) => ({
   id: parseInt(question.id),
   title: question.title,
   difficulty: question.difficulty as 'Easy' | 'Medium' | 'Hard',

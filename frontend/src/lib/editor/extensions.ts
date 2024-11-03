@@ -17,7 +17,7 @@ export const languages = [
   'rust',
   'typescript',
   'tsx',
-] as LanguageName[];
+] as Array<LanguageName>;
 
 const loaded: Record<string, boolean> = {};
 const langExtensions = Object.fromEntries(languages.map((v) => [v, langs[v]()]));

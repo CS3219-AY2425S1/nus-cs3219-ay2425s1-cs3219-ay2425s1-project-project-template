@@ -2,22 +2,15 @@ import { useEffect, useRef } from 'react';
 
 import { getPageTitle } from '@/lib/routes';
 
-export const usePageTitle = (path: string) => {
-  const isDocumentDefined = typeof document !== 'undefined';
-  const originalTitle = useRef(isDocumentDefined ? document.title : null);
-  useEffect(() => {
-    if (!isDocumentDefined) {
-      return;
-    }
+export const usePageTitle = (path: string, customTitle?: string) => {
+  const defaultTitle = useRef(document.title);
+  const title = customTitle ?? getPageTitle(path);
 
-    if (document.title !== path) {
-      document.title = getPageTitle(path);
-    }
+  useEffect(() => {
+    document.title = title;
 
     return () => {
-      if (originalTitle.current) {
-        document.title = originalTitle.current;
-      }
+      document.title = defaultTitle.current;
     };
-  }, []);
+  }, [title]);
 };

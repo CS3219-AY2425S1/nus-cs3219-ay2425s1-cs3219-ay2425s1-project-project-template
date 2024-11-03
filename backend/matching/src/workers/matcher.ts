@@ -73,7 +73,7 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = await getMatchItems(
+      const matchItems = await getMatchItems(
         searchIdentifier,
         topic,
         difficulty,

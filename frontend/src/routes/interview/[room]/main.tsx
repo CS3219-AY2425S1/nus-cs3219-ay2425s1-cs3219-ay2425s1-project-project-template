@@ -7,9 +7,11 @@ import { WithNavBanner, WithNavBlocker } from '@/components/blocks/authed';
 import { AIChat } from '@/components/blocks/interview/ai-chat';
 import { Editor } from '@/components/blocks/interview/editor';
 import { PartnerChat } from '@/components/blocks/interview/partner-chat';
+import { QuestionAttemptsPane } from '@/components/blocks/interview/question-attempts';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
-import { useCrumbs } from '@/lib/hooks';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useCrumbs, usePageTitle } from '@/lib/hooks';
 import { questionDetailsQuery } from '@/lib/queries/question-details';
 import { ROUTES } from '@/lib/routes';
 
@@ -27,6 +29,7 @@ export const loader =
   };
 
 export const InterviewRoom = () => {
+  usePageTitle(ROUTES.INTERVIEW);
   const { questionId, roomId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { crumbs } = useCrumbs();
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
@@ -58,10 +61,23 @@ export const InterviewRoom = () => {
       <WithNavBanner crumbs={crumbs}>
         <div className='flex flex-1 overflow-hidden'>
           <Card className='border-border m-4 flex w-[500px] overflow-hidden p-4 md:w-2/5'>
-            <QuestionDetails {...{ questionDetails }} />
+            <Tabs defaultValue='details' className='size-full'>
+              <TabsList className=''>
+                <TabsTrigger value='details'>Question Details</TabsTrigger>
+                <TabsTrigger value='attempts'>Past Attempts</TabsTrigger>
+              </TabsList>
+              <TabsContent value='details' className=''>
+                <QuestionDetails {...{ questionDetails }} />
+              </TabsContent>
+              <TabsContent value='attempts' className='flex h-[calc(100%-44px)]'>
+                <QuestionAttemptsPane questionId={questionId} />
+              </TabsContent>
+            </Tabs>
           </Card>
+
           <div className='flex w-full'>
             <Editor
+              questionId={questionId}
               room={roomId as string}
               onAIClick={handleAIClick}
               onPartnerClick={handlePartnerClick}

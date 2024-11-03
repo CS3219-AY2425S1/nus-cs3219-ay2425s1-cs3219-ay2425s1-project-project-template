@@ -1,11 +1,5 @@
 import { Loader2, MessageSquare, Send, Trash2, X } from 'lucide-react';
-import React, {
-  ChangeEvent,
-  KeyboardEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -32,7 +26,7 @@ type CustomElemProps = {
 interface ChatLayoutProps {
   isOpen: boolean;
   onClose: () => void;
-  messages: ChatMessageType[];
+  messages: Array<ChatMessageType>;
   onSend: (message: string) => void;
   isLoading: boolean;
   error: string | null;

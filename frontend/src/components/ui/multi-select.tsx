@@ -1,7 +1,5 @@
 // https://github.com/BelkacemYerfa/shadcn-extension
 
-'use client';
-
 import { Command as CommandPrimitive } from 'cmdk';
 import { Check, X as RemoveIcon } from 'lucide-react';
 import React, {
@@ -18,13 +16,13 @@ import { Command, CommandEmpty, CommandItem, CommandList } from '@/components/ui
 import { cn } from '@/lib/utils';
 
 interface MultiSelectorProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive> {
-  values: string[];
-  onValuesChange: (value: string[]) => void;
+  values: Array<string>;
+  onValuesChange: (value: Array<string>) => void;
   loop?: boolean;
 }
 
 interface MultiSelectContextProps {
-  value: string[];
+  value: Array<string>;
   onValueChange: (value: any) => void;
   open: boolean;
   setOpen: (value: boolean) => void;

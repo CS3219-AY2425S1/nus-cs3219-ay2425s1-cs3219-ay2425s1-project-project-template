@@ -5,6 +5,7 @@ import type { IServiceResponse } from '@/types';
 //=============================================================================
 export type IGetQuestionsPayload = {
   // Filters
+  userId: string;
   questionName?: string;
   difficulty?: string;
   topic?: Array<string>;
@@ -51,18 +52,3 @@ export type IGetQuestionResponse = IServiceResponse<{
 //=============================================================================
 // /random (For matching)
 //=============================================================================
-export type IGetRandomQuestionPayload = {
-  attemptedQuestions?: number[];
-  difficulty?: string;
-  topic?: string[];
-};
-
-export type IGetRandomQuestionResponse = IServiceResponse<{
-  question: {
-    id: number; // question's unique identifier or number
-    title: string; // name or title of the question
-    description: string; // question description
-    difficulty: string; // difficulty level (e.g., 'easy', 'medium', 'hard')
-    topic: Array<string>; // array of topics the question belongs to
-  } | null;
-}>;

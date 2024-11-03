@@ -180,11 +180,11 @@ export const questionDetails = [
 interface Question {
   title: string;
   difficulty: string;
-  topic: string[];
+  topic: Array<string>;
   description: string;
 }
 
-export const questionData: Question[] = questionDetails.map((question) => ({
+export const questionData: Array<Question> = questionDetails.map((question) => ({
   title: question.title,
   description: question.description,
   difficulty: question.difficulty as 'Easy' | 'Medium' | 'Hard',

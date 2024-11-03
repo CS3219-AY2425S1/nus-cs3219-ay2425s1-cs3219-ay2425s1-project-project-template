@@ -1,7 +1,7 @@
 import { routes, userServiceClient } from './_hosts';
 
-export async function fetchAttemptedQuestions(userId: string): Promise<number[]> {
-  const response = await userServiceClient.post<number[]>(
+export async function fetchAttemptedQuestions(userId: string): Promise<Array<number>> {
+  const response = await userServiceClient.post<Array<number>>(
     routes.USER_SERVICE.ATTEMPTED_QNS.GET.path,
     {
       userId,
