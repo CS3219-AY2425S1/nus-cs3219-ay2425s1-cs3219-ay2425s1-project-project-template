@@ -19,7 +19,7 @@ spec:
           image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 5001
+            - containerPort: 4444
           envFrom:
             - secretRef:
                 name: session-service-config
@@ -40,8 +40,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 5001
-      targetPort: 5001
+    - port: 4444
+      targetPort: 4444
   selector:
     app: session-svc
 ---
