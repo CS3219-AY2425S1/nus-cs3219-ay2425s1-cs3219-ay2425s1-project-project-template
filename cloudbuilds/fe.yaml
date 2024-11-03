@@ -12,6 +12,8 @@ steps:
         "NEXT_PUBLIC_API_GATEWAY_URL=${_NEXT_PUBLIC_API_GATEWAY_URL}",
         "--build-arg",
         "NEXT_PUBLIC_GITHUB_CLIENT_ID=${_NEXT_PUBLIC_GITHUB_CLIENT_ID}",
+        "--build-arg",
+        "NEXT_PUBLIC_SOCK_SERVER_URL=${_NEXT_PUBLIC_SOCK_SERVER_URL}",
         "-f",
         "peerprep-fe/Dockerfile",
         "peerprep-fe",
@@ -52,6 +54,7 @@ steps:
 substitutions:
   _NEXT_PUBLIC_API_GATEWAY_URL: ""
   _NEXT_PUBLIC_GITHUB_CLIENT_ID: ""
+  _NEXT_PUBLIC_SOCK_SERVER_URL: ""
 
 options:
   dynamic_substitutions: true
