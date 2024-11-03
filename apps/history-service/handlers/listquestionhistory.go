@@ -39,7 +39,7 @@ func (s *Service) ListUserQuestionHistories(w http.ResponseWriter, r *http.Reque
 			http.Error(w, "Failed to map history data for user", http.StatusInternalServerError)
 			return
 		}
-		history.MatchID = doc.Ref.ID
+		history.HistoryDocRefID = doc.Ref.ID
 
 		histories = append(histories, history)
 	}
@@ -59,7 +59,7 @@ func (s *Service) ListUserQuestionHistories(w http.ResponseWriter, r *http.Reque
 			http.Error(w, "Failed to map history data for matched user", http.StatusInternalServerError)
 			return
 		}
-		history.MatchID = doc.Ref.ID
+		history.HistoryDocRefID = doc.Ref.ID
 
 		histories = append(histories, history)
 	}

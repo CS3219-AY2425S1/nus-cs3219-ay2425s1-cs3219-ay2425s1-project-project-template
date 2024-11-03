@@ -69,7 +69,7 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	updatedHistory.MatchID = doc.Ref.ID
+	updatedHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

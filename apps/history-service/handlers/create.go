@@ -22,7 +22,7 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Document reference ID in firestore mapped to the match ID in model
-	docRef := s.Client.Collection("collaboration-history").Doc(collaborationHistory.MatchID)
+	docRef := s.Client.Collection("collaboration-history").Doc(collaborationHistory.HistoryDocRefID)
 
 	_, err := docRef.Set(ctx, map[string]interface{}{
 		"title":              collaborationHistory.Title,
@@ -58,7 +58,7 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.MatchID = doc.Ref.ID
+	collaborationHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

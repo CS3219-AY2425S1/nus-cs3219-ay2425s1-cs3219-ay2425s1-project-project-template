@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"google.golang.org/api/iterator"
 	"history-service/models"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"google.golang.org/api/iterator"
 )
 
 func (s *Service) ListUserHistories(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +39,7 @@ func (s *Service) ListUserHistories(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to map history data for user", http.StatusInternalServerError)
 			return
 		}
-		history.MatchID = doc.Ref.ID
+		history.HistoryDocRefID = doc.Ref.ID
 
 		histories = append(histories, history)
 	}
@@ -58,7 +59,7 @@ func (s *Service) ListUserHistories(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to map history data for matched user", http.StatusInternalServerError)
 			return
 		}
-		history.MatchID = doc.Ref.ID
+		history.HistoryDocRefID = doc.Ref.ID
 
 		histories = append(histories, history)
 	}
