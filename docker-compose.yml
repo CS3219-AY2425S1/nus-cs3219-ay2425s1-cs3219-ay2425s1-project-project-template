@@ -73,6 +73,22 @@ services:
     env_file:
       - ./matching-service/.env.dev
 
+  session-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest
+    build:
+      context: ./session-service
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./session-service:/app
+      - ./session-service/node_modules:/app/node_modules
+    ports:
+      - "4444:4444"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./session-service/.env.dev
+
   api-gateway:
     image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/api-gateway:latest
     build:

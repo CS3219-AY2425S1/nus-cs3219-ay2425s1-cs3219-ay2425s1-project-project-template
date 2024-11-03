@@ -8,6 +8,7 @@ import {
 } from "../model/userModel";
 import { User } from "../types";
 import { sendToQueue } from "./rabbitMqService";
+import { generateMatchId } from "../lib/hasher";
 /**
  * Check match in queue, if there is a match, we will remove that user from the queue, and return
  * a response to rabbit.
@@ -54,12 +55,15 @@ export const processOldUsers = async (): Promise<void> => {
       const match = await checkMatch(`difficulty:${user.difficulty}`);
       if (match) {
         // Send to user subscribed queues if there is a match
+        const matchId = generateMatchId(match._id, user._id)
         await sendToQueue(match._id, {
           status: "matched",
+          matchId: matchId,
           match: user,
         });
         await sendToQueue(user._id, {
           status: "matched",
+          matchId: matchId,
           match: match,
         });
 
@@ -96,15 +100,17 @@ export const processOldUsers = async (): Promise<void> => {
 export const processNewMessage = async (user: User): Promise<void> => {
   if (user.type == "match") {
     const match = await checkMatch(`topic:${user.topic}`);
-
     // match found
     if (match) {
+      const matchId = generateMatchId(match._id, user._id)
       await sendToQueue(match._id, {
         status: "matched",
+        matchId: matchId,
         match: user,
       });
       await sendToQueue(user._id, {
         status: "matched",
+        matchId: matchId,
         match: match,
       });
     } else {

@@ -1,5 +1,6 @@
 'use client';
 
+import ProblemCodeEditor from '@/components/problems/ProblemCodeEditor';
 import ProblemDescriptionPanel from '@/components/problems/ProblemDescriptionPanel';
 import ProblemTable from '@/components/problems/ProblemTable';
 import { Button } from '@/components/ui/button';
@@ -10,25 +11,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import { DEFAULT_CODE, SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
-import { UserCircle } from 'lucide-react';
+import { UserCircle, UserX } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { MonacoBinding } from 'y-monaco'
+import { editor as MonacoEditor } from 'monaco-editor';
 
 const CollaborationPage = () => {
-  const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
-    null,
-  );
-  const [code, setCode] = useState(DEFAULT_CODE);
+  const [selectionProblem, setSelectionProblem] = useState<Problem | null>(null);
+  const searchParams = useSearchParams();
+  const matchId = searchParams.get('matchId');
   const [language, setLanguage] = useState(SUPPORTED_PROGRAMMING_LANGUAGES[0]);
   const { problems, isLoading } = useFilteredProblems();
+  const [connectedClients, setConnectedClients] = useState<Set<number>>(new Set());
+  const [disconnectionAlert, setDisconnectionAlert] = useState<string | null>(null);
 
   // Layout states
   const [leftWidth, setLeftWidth] = useState(50);
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const providerRef = useRef<WebsocketProvider | null>(null);
+  const bindingRef = useRef<MonacoBinding | null>(null);
+  const editorRef = React.useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+  const sockServerURI = process.env.SOCK_SERVER_URL || "ws://localhost:4444";
 
   // Handle dragging of the divider
   const handleMouseDown = useCallback(() => {
@@ -56,13 +66,86 @@ const CollaborationPage = () => {
     };
   }, [handleMouseMove, handleMouseUp]);
 
-  // Handle selection of a problem
+  const handleEditorMount = (editor: any, monaco: any) => {
+    if (!matchId) {
+      console.error("Cannot mount editor: Match ID is undefined");
+      return;
+    }
+    editorRef.current = editor;
+    const doc = new Y.Doc();
+    providerRef.current = new WebsocketProvider(sockServerURI, matchId, doc);
+    const type = doc.getText("monaco");
+
+    // Set up awareness handling
+    providerRef.current.awareness.setLocalState({
+      client: Math.floor(Math.random() * 1000000), // Generate random client ID
+      user: {
+        name: `User ${Math.floor(Math.random() * 100)}`, // You can replace this with actual user info
+        color: `#${Math.floor(Math.random()*16777215).toString(16)}` // Random color
+      }
+    });
+
+    // Handle client updates
+    providerRef.current.awareness.on('change', () => {
+      const states = providerRef.current?.awareness.getStates();
+      if (states) {
+        const clients = new Set<number>();
+        states.forEach((state: any) => {
+          if (state.client) {
+            clients.add(state.client);
+          }
+        });
+        setConnectedClients(clients);
+      }
+    });
+
+    // Handle disconnections
+    providerRef.current.on('status', ({ status }: { status: string }) => {
+      if (status === 'disconnected') {
+        setDisconnectionAlert('A user has disconnected from the room');
+        // Auto-hide the alert after 3 seconds
+        setTimeout(() => setDisconnectionAlert(null), 3000);
+      }
+    });
+
+    const model = editorRef.current?.getModel();
+    if (editorRef.current && model) {
+      bindingRef.current = new MonacoBinding(
+        type, 
+        model, 
+        new Set([editorRef.current]), 
+        providerRef.current.awareness
+      );
+    } else {
+      console.error("Monaco editor model is null");
+    }
+  };
+
   const handleCallback = (id: number) => {
     const problem = problems.find((p) => p._id === id);
     if (problem) {
       setSelectionProblem(problem);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (bindingRef.current) {
+        bindingRef.current.destroy();
+        bindingRef.current = null;
+      }
+
+      if (providerRef.current) {
+        providerRef.current.destroy();
+        providerRef.current = null;
+      }
+
+      if (editorRef.current) {
+        editorRef.current.dispose();
+        editorRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -114,35 +197,23 @@ const CollaborationPage = () => {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-8 w-8 rounded-full"
-              onClick={() => {
-                console.log('Clicked user');
-              }}
-            >
-              <UserCircle className="h-6 w-6 text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-8 w-8 rounded-full"
-              onClick={() => {
-                console.log('Clicked user');
-              }}
-            >
-              <UserCircle className="h-6 w-6 text-gray-300" />
-            </Button>
+          <div className="flex gap-2">
+            {Array.from(connectedClients).map((clientId) => (
+              <Button
+                key={clientId}
+                variant="ghost"
+                size="icon"
+                className="relative h-8 w-8 rounded-full"
+                title={`User ${clientId}`}
+              >
+                <UserCircle className="h-6 w-6 text-gray-300" />
+              </Button>
+            ))}
           </div>
         </div>
 
-        <Textarea
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="flex-grow overflow-y-auto bg-gray-900 font-mono text-gray-100"
-          style={{ resize: 'none', height: 'calc(100% - 3rem)' }}
+        <ProblemCodeEditor
+          onMount={handleEditorMount}
         />
       </div>
     </div>

@@ -58,6 +58,7 @@ interface UserMatchingRequest {
 
 interface UserMatchingResponse {
   status: string;
+  matchId: string;
   match: UserMatchingRequest;
 }
 
