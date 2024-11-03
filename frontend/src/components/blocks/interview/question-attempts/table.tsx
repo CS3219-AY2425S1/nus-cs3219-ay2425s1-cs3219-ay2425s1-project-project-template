@@ -36,16 +36,18 @@ interface QuestionTableProps<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
   data: Array<TData>;
   isError: boolean;
+  pageSize?: number;
 }
 
 export function QuestionAttemptsTable<TValue>({
   columns,
   data,
   isError,
+  pageSize,
 }: QuestionTableProps<IQuestionAttempt, TValue>) {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: pageSize ?? 10,
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
