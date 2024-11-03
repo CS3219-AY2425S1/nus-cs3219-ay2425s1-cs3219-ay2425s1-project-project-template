@@ -3,6 +3,7 @@ import { FC, RefObject, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
+import { getChatHistory } from '@/services/matching-service-api'
 
 interface ICollaborator {
     name: string
@@ -27,6 +28,19 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
     const router = useRouter()
     const [value, setValue] = useState('')
     const { id: roomId } = router.query
+
+    useEffect(() => {
+        ;(async () => {
+            const matchId = router.query.id as string
+            if (!matchId) {
+                return
+            }
+            const response = await getChatHistory(matchId).catch((_) => {
+                router.push('/')
+            })
+            setChatData(response)
+        })()
+    }, [router])
 
     useEffect(() => {
         if (socketRef?.current) {
