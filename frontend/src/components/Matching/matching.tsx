@@ -80,7 +80,7 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
           const response = await axios.get(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/random/${match.match.difficultyLevel}/${match.match.category}`);
           console.log('API response:', response);
           const question = response.data;
-          navigate(`/collaboration/${match.uuid}`);
+          navigate(`/collaboration/${match.uuid}`, {state:{question}});
         } catch (error) {
           toast.error("Failed to create room (Unable to fetch question)");
           console.error(error);
