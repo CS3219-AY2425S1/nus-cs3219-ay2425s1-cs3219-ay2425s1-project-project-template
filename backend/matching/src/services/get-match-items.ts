@@ -3,7 +3,6 @@ import type { IMatchItemsResponse, IMatchType } from '@/types';
 
 import { createRoom } from './collab';
 import { getRandomQuestion } from './question';
-import { fetchAttemptedQuestions } from './user';
 
 export async function getMatchItems(
   searchIdentifier: IMatchType,
@@ -17,26 +16,13 @@ export async function getMatchItems(
       throw new Error('Both user IDs are required');
     }
 
-    let allAttemptedQuestions: number[] = [];
-
-    try {
-      const [attemptedQuestions1, attemptedQuestions2] = await Promise.all([
-        fetchAttemptedQuestions(userId1),
-        fetchAttemptedQuestions(userId2),
-      ]);
-      allAttemptedQuestions = [...new Set([...attemptedQuestions1, ...attemptedQuestions2])];
-    } catch (error) {
-      logger.error('Error in getMatchItems: Failed to fetch attempted questions', error);
-    }
-
     const topics = topic?.split('|') ?? [];
     const payload = {
-      attemptedQuestions: allAttemptedQuestions,
+      userId1,
+      userId2,
       ...(searchIdentifier === 'difficulty' && difficulty ? { difficulty } : {}),
-      ...(searchIdentifier === 'topic' && topic ? { topic: topics } : {}),
-      ...(searchIdentifier === 'exact match' && topic && difficulty
-        ? { topic: topics, difficulty }
-        : {}),
+      ...(searchIdentifier === 'topic' && topic ? { topics } : {}),
+      ...(searchIdentifier === 'exact match' && topic && difficulty ? { topics, difficulty } : {}),
     };
 
     // Get a random question
@@ -55,7 +41,8 @@ export async function getMatchItems(
       questionId: question.id,
     };
   } catch (error) {
-    logger.error('Error in getMatchItems:', error);
+    const { name, message, stack, cause } = error as Error;
+    logger.error(`Error in getMatchItems: ${JSON.stringify({ name, message, stack, cause })}`);
     return undefined;
   }
 }

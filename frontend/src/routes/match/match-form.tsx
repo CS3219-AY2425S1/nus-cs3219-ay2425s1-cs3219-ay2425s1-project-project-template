@@ -26,12 +26,11 @@ import { useRequestMatchForm } from './logic';
 import { WaitingRoomModal } from './waiting-room';
 
 interface MatchFormProps {
-  topics: string[];
+  topics: Array<string>;
+  difficulties: Array<string>;
 }
 
-const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
-
-export const MatchForm = ({ topics }: MatchFormProps) => {
+export const MatchForm = ({ topics, difficulties }: MatchFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { form, onSubmit, matchRequestError, isMatchRequestPending, socketPort } =
@@ -106,7 +105,7 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                           <SelectValue placeholder='Select difficulty' />
                         </SelectTrigger>
                         <SelectContent className='border-secondary-foreground/40'>
-                          {DIFFICULTIES.map((value, index) => (
+                          {difficulties.map((value, index) => (
                             <SelectItem key={index} value={value}>
                               {value}
                             </SelectItem>

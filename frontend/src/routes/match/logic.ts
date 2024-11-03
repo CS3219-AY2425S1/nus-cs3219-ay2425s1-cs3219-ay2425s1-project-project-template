@@ -6,11 +6,11 @@ import { defer, LoaderFunctionArgs } from 'react-router-dom';
 import { z } from 'zod';
 
 import { requestMatch } from '@/services/match-service';
-import { fetchTopics } from '@/services/question-service';
-import { getUserId } from '@/services/user-service';
+import { fetchDifficulties, fetchTopics } from '@/services/question-service';
+import { useAuthedRoute } from '@/stores/auth-store';
 
 export interface MatchFormData {
-  selectedTopics: string[];
+  selectedTopics: Array<string>;
   difficulty: string;
 }
 
@@ -20,11 +20,19 @@ const getTopicsQueryConfig = () =>
     queryFn: async () => fetchTopics(),
   });
 
+const getDifficultiesQueryConfig = () => {
+  return queryOptions({
+    queryKey: ['difficulties'],
+    queryFn: async () => fetchDifficulties(),
+  });
+};
+
 export const loader =
   (queryClient: QueryClient) =>
   async ({ params: _ }: LoaderFunctionArgs) => {
     return defer({
       topics: queryClient.ensureQueryData(getTopicsQueryConfig()),
+      difficulties: queryClient.ensureQueryData(getDifficultiesQueryConfig()),
     });
   };
 
@@ -36,8 +44,7 @@ const formSchema = z.object({
 export type IRequestMatchFormSchema = z.infer<typeof formSchema>;
 
 export const useRequestMatchForm = () => {
-  // TODO: Set on RouteGuard is-authed request and then query Context API
-  const userId = getUserId() as string;
+  const { userId } = useAuthedRoute();
 
   const [socketPort, setSocketPort] = useState('');
 

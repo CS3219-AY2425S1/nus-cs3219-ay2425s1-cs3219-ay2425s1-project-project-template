@@ -35,8 +35,8 @@ import {
 } from '@/components/ui/table';
 
 interface QuestionTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  columns: Array<ColumnDef<TData, TValue>>;
+  data: Array<TData>;
   isError: boolean;
 }
 

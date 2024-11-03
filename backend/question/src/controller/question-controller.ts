@@ -5,15 +5,10 @@ import {
   getDifficultiesService,
   getQuestionDetailsService,
   getQuestionsService,
-  getRandomQuestionService,
   getTopicsService,
   searchQuestionsByTitleService,
 } from '@/services/get/index';
-import type {
-  IGetQuestionPayload,
-  IGetQuestionsPayload,
-  IGetRandomQuestionPayload,
-} from '@/services/get/types';
+import type { IGetQuestionPayload, IGetQuestionsPayload } from '@/services/get/types';
 import {
   createQuestionService,
   deleteQuestionService,
@@ -26,13 +21,14 @@ import type {
 } from '@/services/post/types';
 
 export const getQuestions = async (req: Request, res: Response): Promise<Response> => {
-  const { questionName, difficulty, topic, pageNum, recordsPerPage } = req.query;
+  const { questionName, difficulty, topic, pageNum, recordsPerPage, userId } = req.query;
   const payload: IGetQuestionsPayload = {
     questionName: questionName as string,
     difficulty: difficulty as string,
-    topic: topic as string[],
+    topic: topic as Array<string>,
     pageNum: parseInt(pageNum as string) || 0,
     recordsPerPage: parseInt(recordsPerPage as string) || 20,
+    userId: userId as string,
   };
 
   try {
@@ -68,25 +64,6 @@ export const getQuestionDetails = async (req: Request, res: Response): Promise<R
 
     return res.status(result.code).json(result.data);
   } catch (error) {
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'An error occurred', error });
-  }
-};
-
-export const getRandomQuestion = async (req: Request, res: Response): Promise<Response> => {
-  const payload: IGetRandomQuestionPayload = {
-    attemptedQuestions: req.body.attemptedQuestions,
-    difficulty: req.body.difficulty,
-    topic: req.body.topic,
-  };
-
-  try {
-    const result = await getRandomQuestionService(payload);
-    return res.status(result.code).json(result);
-  } catch (error) {
-    console.log('error', error);
-
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'An error occurred', error });

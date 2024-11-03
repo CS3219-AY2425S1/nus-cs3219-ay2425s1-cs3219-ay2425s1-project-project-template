@@ -1,7 +1,5 @@
 // https://github.com/BelkacemYerfa/shadcn-extension
 
-'use client';
-
 import { Command as CommandPrimitive } from 'cmdk';
 import { Check, X as RemoveIcon } from 'lucide-react';
 import React, {
@@ -18,13 +16,13 @@ import { Command, CommandEmpty, CommandItem, CommandList } from '@/components/ui
 import { cn } from '@/lib/utils';
 
 interface MultiSelectorProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive> {
-  values: string[];
-  onValuesChange: (value: string[]) => void;
+  values: Array<string>;
+  onValuesChange: (value: Array<string>) => void;
   loop?: boolean;
 }
 
 interface MultiSelectContextProps {
-  value: string[];
+  value: Array<string>;
   onValueChange: (value: any) => void;
   open: boolean;
   setOpen: (value: boolean) => void;
@@ -221,7 +219,7 @@ const MultiSelectorTrigger = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
       <div
         ref={ref}
         className={cn(
-          'flex flex-wrap gap-1 p-1 py-2 ring-1 ring-muted whitespace-nowrap rounded-md text-sm shadow-sm rounded-lg bg-background border border-input placeholder:text',
+          'flex flex-wrap gap-1 p-1 py-2 ring-1 ring-muted whitespace-nowrap text-sm shadow-sm rounded-lg bg-background border border-input placeholder:text',
           {
             'ring-1 focus-within:ring-ring': activeIndex === -1,
           },

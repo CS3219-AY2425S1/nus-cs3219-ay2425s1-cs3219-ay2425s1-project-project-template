@@ -11,7 +11,7 @@ import { ChatMessage, ChatMessageType } from './chat-message';
 interface ChatLayoutProps {
   isOpen: boolean;
   onClose: () => void;
-  messages: ChatMessageType[];
+  messages: Array<ChatMessageType>;
   onSend: (message: string) => void;
   isLoading: boolean;
   error: string | null;

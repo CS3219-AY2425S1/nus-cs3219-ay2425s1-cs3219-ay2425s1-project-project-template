@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Question } from '@/types/question-types';
 
-export const columns: ColumnDef<Question>[] = [
+export const columns: Array<ColumnDef<Question>> = [
   {
     accessorKey: 'attempted',
     header: 'Attempted',
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Question>[] = [
     accessorKey: 'topic',
     header: 'Topics',
     cell: ({ row }) => {
-      const topics: string[] = row.getValue('topic');
+      const topics: Array<string> = row.getValue('topic');
       return (
         <div>
           {topics.map((topic) => (

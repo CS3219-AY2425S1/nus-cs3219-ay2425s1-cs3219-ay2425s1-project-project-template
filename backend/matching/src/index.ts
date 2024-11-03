@@ -5,7 +5,7 @@ import { logger } from '@/lib/utils';
 import server, { io } from '@/server';
 import { initWorker } from '@/workers';
 
-const workers: ChildProcess[] = [];
+const workers: Array<ChildProcess> = [];
 
 const port = Number.parseInt(EXPRESS_PORT || '8001');
 
