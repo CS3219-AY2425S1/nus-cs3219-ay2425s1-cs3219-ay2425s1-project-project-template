@@ -13,13 +13,19 @@ import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
 import { io } from "socket.io-client";
 import { SessionJoinRequest } from "@/types/SessionInfo";
-import { ChatMessage } from "@/types/ChatMessage";
+import {
+  ChatMessage,
+  ChatMessageSchema,
+  ChatMessageStatusEnum,
+} from "@/types/ChatMessage";
+import { v4 as uuidv4 } from "uuid";
 
 interface SessionContextType {
   isConnected: boolean;
   sessionId: string;
   userProfile: UserProfile | null;
   messages: ChatMessage[];
+  handleSendMessage: (message: string) => void;
   setSessionId: (sessionId: string) => void;
   setUserProfile: (userProfile: UserProfile) => void;
   codeReview: {
@@ -51,7 +57,33 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
   const [userProfile, setUserProfile] =
     useState<UserProfile>(initialUserProfile);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "msg1",
+      userId: "1",
+      sessionId: sessionId,
+      message: "Hello from user 1!",
+      status: ChatMessageStatusEnum.enum.sent,
+      timestamp: new Date().toISOString(),
+    },
+    {
+      id: "msg2",
+      userId: "2",
+      sessionId: sessionId,
+      message: "Hello from user 2!",
+      status: ChatMessageStatusEnum.enum.sent,
+      timestamp: new Date().toISOString(),
+    },
+    {
+      id: "msg3",
+      userId: "1",
+      sessionId: sessionId,
+      message: "Let's try bfs?",
+      status: ChatMessageStatusEnum.enum.sent,
+      timestamp: new Date().toISOString(),
+    },
+  ]);
+
   const [codeReview, setCodeReview] = useState({
     isGeneratingCodeReview: false,
     currentClientCode: "",
@@ -99,7 +131,57 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     });
   }, [socketUrl]);
 
-  const handleSendMessage = useCallback(() => {}, []);
+  const handleSendMessage = useCallback(
+    (message: string) => {
+      if (!socket.connected) return;
+
+      const newMessage: ChatMessage = {
+        id: uuidv4(),
+        userId: userProfile.id,
+        sessionId,
+        message,
+        status: ChatMessageStatusEnum.enum.sending,
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, newMessage]);
+
+      socket.emit(
+        "chatSendMessage",
+        newMessage,
+        (ack: {
+          success: boolean;
+          data: { id: string; timestamp: string };
+          error: string | undefined;
+        }) => {
+          setMessages((prev) =>
+            prev.map((message) => {
+              if (message.id !== ack.data.id) return message;
+              if (ack.success) {
+                return {
+                  ...message,
+                  status: ChatMessageStatusEnum.enum.sent,
+                };
+              } else {
+                return {
+                  ...message,
+                  status: ChatMessageStatusEnum.enum.failed,
+                };
+              }
+            })
+          );
+
+          if (ack.success) {
+            newMessage.status = ChatMessageStatusEnum.enum.sent;
+            newMessage.timestamp = ack.data.timestamp;
+          } else {
+            newMessage.status = ChatMessageStatusEnum.enum.failed;
+          }
+        }
+      );
+    },
+    [socket]
+  );
 
   const sessionJoinRequest: SessionJoinRequest = {
     userId: userProfile.id,
@@ -126,6 +208,19 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       console.log(`${userId} left`);
     });
 
+    socket.on("chatReceiveMessage", (data) => {
+      try {
+        data["status"] = ChatMessageStatusEnum.enum.sent;
+        const messageParsed = ChatMessageSchema.parse(data);
+
+        if (messageParsed.userId === userProfile.id) return;
+
+        setMessages((prev) => [...prev, messageParsed]);
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
     return () => {
       socket.emit("sessionLeave", sessionJoinRequest);
       socket.removeAllListeners();
@@ -142,6 +237,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       setUserProfile,
       messages,
       setMessages,
+      handleSendMessage,
       codeReview: {
         ...codeReview,
         setCurrentClientCode,
@@ -154,6 +250,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       sessionId,
       userProfile,
       messages,
+      handleSendMessage,
       setCurrentClientCode,
       generateCodeReview,
     ]

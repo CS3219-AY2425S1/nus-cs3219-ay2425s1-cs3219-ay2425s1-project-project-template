@@ -3,7 +3,9 @@ import { z } from "zod";
 const ChatMessageStatusEnum = z.enum(["sending", "failed", "sent"]);
 
 const ChatMessageSchema = z.object({
+  id: z.string(),
   userId: z.string(),
+  sessionId: z.string(),
   message: z.string(),
   status: ChatMessageStatusEnum,
   timestamp: z.string().datetime(),
