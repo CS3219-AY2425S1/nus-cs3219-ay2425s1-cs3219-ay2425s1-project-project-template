@@ -34,10 +34,10 @@ export const handleOAuthCallback = async (
       `auth/${provider}/callback?code=${code}`,
     );
 
-    const res = await login(data.data.token);
+    const res = await login(data.data.accessToken);
     if (!res) return false;
 
-    setAuth(true, data.data.token, data.data.user);
+    setAuth(true, data.data.accessToken, data.data);
     return true;
   } catch {
     return false;

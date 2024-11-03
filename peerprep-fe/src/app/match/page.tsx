@@ -9,6 +9,7 @@ import { axiosClient } from '@/network/axiosClient';
 
 export default function LoadingPage() {
   const { user } = useAuthStore();
+
   // Add connection status handling
   const { lastMessage, disconnect } = useWebSocket(
     process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8001',

@@ -1,10 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { findUserByUsernameOrEmail, createUser } from '../model/repository.js';
+import { formatUserResponse } from './user-controller.js';
 
 export async function handleGithubCallback(req, res) {
   const { code } = req.query;
-
-  console.log('code', code);
 
   try {
     // Exchange code for access token for user data
@@ -25,9 +24,6 @@ export async function handleGithubCallback(req, res) {
     );
 
     const tokenResponseData = await tokenResponse.json();
-
-    console.log('tokenResponseData', tokenResponseData);
-
     const { access_token } = tokenResponseData;
 
     // Get user data and emails from GitHub
@@ -53,8 +49,6 @@ export async function handleGithubCallback(req, res) {
     const userEmail =
       githubUser.email || userEmailData.find((email) => email.primary).email;
 
-    console.log('userEmail', userEmail, githubUser.login);
-
     if (!githubUser.login || !userEmail) {
       res.status(400).json({ error: 'Invalid user data' });
       return;
@@ -62,7 +56,6 @@ export async function handleGithubCallback(req, res) {
 
     // Find or create user
     let user = await findUserByUsernameOrEmail(githubUser.login, userEmail);
-    console.log('user', user);
     if (!user) {
       try {
         user = await createUser(
@@ -80,12 +73,14 @@ export async function handleGithubCallback(req, res) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: '5d',
     });
 
     // Redirect to frontend with token
-    res.status(200).json({ data: { token: token, user: user } });
+    res
+      .status(200)
+      .json({ data: { accessToken, ...formatUserResponse(user) } });
   } catch (error) {
     console.error('GitHub OAuth error:', error);
     res.status(500).json({ error: 'OAuth failed' });
