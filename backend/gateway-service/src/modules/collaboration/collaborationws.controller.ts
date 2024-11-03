@@ -12,6 +12,7 @@ import {
   CHAT_SEND_MESSAGE,
   SESSION_JOIN,
   SESSION_LEAVE,
+  SUBMIT,
 } from './collaboration.message';
 import {
   CHAT_RECIEVE_MESSAGE,
@@ -19,9 +20,16 @@ import {
   SESSION_ERROR,
   SESSION_JOINED,
   SESSION_LEFT,
+  SUBMITTED,
+  SUBMITTING,
 } from './collaborationws.event';
 import { LeaveCollabSessionRequestDto } from './dto/leave-collab-session-request.dto';
 import { ChatSendMessageRequestDto } from './dto/chat-send-message-request.dto';
+import { Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { TestResultDto } from './dto/test-result.dto';
+import { QuestionDto } from './dto/question.dto';
 
 @WebSocketGateway({
   namespace: '/collaboration',
@@ -35,6 +43,11 @@ import { ChatSendMessageRequestDto } from './dto/chat-send-message-request.dto';
 export class CollaborationGateway implements OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private socketUserMap = new Map<string, string>(); // socketId -> userId
+
+  constructor(
+    @Inject('QUESTION_SERVICE') private questionService: ClientProxy,
+    @Inject('CODE_EXECUTION_SERVICE') private codeExecutionService: ClientProxy,
+  ) {}
 
   @SubscribeMessage(SESSION_JOIN)
   async handleSessionJoin(
@@ -116,6 +129,70 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       });
     } catch (error) {
       client.emit(EXCEPTION, `Error sending chat message: ${error.message}`);
+      return;
+    }
+  }
+
+  @SubscribeMessage(SUBMIT)
+  async handleSubmit(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: {
+      userId: string;
+      sessionId: string;
+      questionId: string;
+      code: string;
+    },
+  ) {
+    const { userId, sessionId, questionId, code } = payload;
+
+    if (!userId || !sessionId || !code) {
+      client.emit(SESSION_ERROR, 'Invalid submit request payload.');
+      return;
+    }
+
+    this.server.to(sessionId).emit(SUBMITTING, {
+      message: 'Submitting code...',
+    });
+
+    // Retrieve the question
+    const question: QuestionDto = await firstValueFrom(
+      this.questionService.send(
+        { cmd: 'get-question' }, // TODO: update this to the correct command
+        { questionId: questionId },
+      ),
+    );
+
+    // Run the code against the test cases
+    const testResults: TestResultDto[] = await Promise.all(
+      question.testCases.map(async (testCase) => {
+        const result: TestResultDto = await firstValueFrom(
+          this.codeExecutionService.send(
+            { cmd: 'execute-code' },
+            {
+              code: code,
+              input: testCase.input,
+              language: 'python',
+              timeout: 5, // TODO: update this to the correct timeout, default is 5 seconds
+            },
+          ),
+        );
+        // Check statusCode == 200, if yes, then return
+        if (result.statusCode === 200) {
+          return result;
+        }
+      }),
+    );
+
+    // Send the result back to the clients
+    this.server.to(sessionId).emit(SUBMITTED, {
+      message: 'Code submitted!',
+      testResults,
+    });
+
+    try {
+    } catch (error) {
+      client.emit(EXCEPTION, `Error submitting code: ${error.message}`);
       return;
     }
   }
