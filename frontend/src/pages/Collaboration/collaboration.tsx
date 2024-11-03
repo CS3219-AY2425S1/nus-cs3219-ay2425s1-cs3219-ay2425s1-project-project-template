@@ -293,7 +293,7 @@ const CollaborationPage: FC = () => {
         onClose={handleChangeQuestionModalClose}
         onQuestionSelect={handleQuestionSelect}
       />
-      <div className="grid grid-cols-2 gap-4 p-4 h-[calc(100vh-80px)]">
+      <div className="grid grid-cols-2 gap-4 p-4">
         {/* Left Panel - Question and Chat */}
         <div className="flex flex-col gap-4">
           {/* Question */}

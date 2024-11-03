@@ -15,7 +15,7 @@ const CodeEditor = ({ qid } : { qid: Number }) => {
     const  { collabSocket }  = useSocket();
     const editorRef = useRef();
     const [value, setValue] = useState("");
-    const [language, setLanguage] = useState("javascript");
+    const [language, setLanguage] = useState("python");
     const navigate = useNavigate();
 
     const onMount = (editor: any) => {
