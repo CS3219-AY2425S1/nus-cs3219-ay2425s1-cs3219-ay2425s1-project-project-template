@@ -51,7 +51,6 @@ export async function callFunction(
 ): Promise<SuccessObject> {
   const url = `${serviceName}/${functionName}`;
   const token = sessionStorage.getItem("authToken");
-
   const response = await fetch(url, {
     method,
     headers: {
@@ -65,7 +64,6 @@ export async function callFunction(
 
   // Check for empty response
   const data = await response.json().catch(() => ({ success: true }));
-
   if (!response.ok) {
     return { success: false, error: data.message };
   }

@@ -10,7 +10,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { getAuth, signInWithEmailAndPassword, deleteUser } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, deleteUser, UserCredential } from "firebase/auth";
+import { removeUserFromCollection } from "@/services/UserFunctions";
 import "@/css/styles.css";
 
 const DeleteAccountPage: React.FC = () => {
@@ -35,7 +36,7 @@ const DeleteAccountPage: React.FC = () => {
   const confirmDeletion = async () => {
     try {
       // Reauthenticate the user before deletion
-      const userCredential = await signInWithEmailAndPassword(
+      const userCredential: UserCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
@@ -43,7 +44,9 @@ const DeleteAccountPage: React.FC = () => {
 
       // If sign-in succeeds, delete the user
       if (userCredential.user) {
+        await removeUserFromCollection();
         await deleteUser(userCredential.user); // Delete the authenticated user
+        
         sessionStorage.removeItem("authToken"); // Clear the token
         sessionStorage.removeItem("uid") // Clear the uid
         navigate("/"); // Redirect to home page after deletion
