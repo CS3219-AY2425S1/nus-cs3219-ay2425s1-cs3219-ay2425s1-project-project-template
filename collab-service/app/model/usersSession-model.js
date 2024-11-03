@@ -31,6 +31,10 @@ const usersSessionSchema = new Schema({
     type: String,
     required: true,
   },
+  questionId: {
+    type: String,
+    required: true,
+  },
   lastUpdated: {
     type: Date,
     required: true,

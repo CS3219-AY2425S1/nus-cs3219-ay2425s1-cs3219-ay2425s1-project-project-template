@@ -1,16 +1,17 @@
-import dynamic from "next/dynamic";
+import AuthPageWrapper from "@/components/auth/auth-page-wrapper";
+import CollabRoom from "@/components/collab/collab-room";
+import { Suspense } from "react";
 
-const MonacoEditor = dynamic(
-  () => import("@/components/collab/monaco-editor"),
-  {
-    ssr: false,
-  }
-);
-
-export default function CollabRoom({
+export default function CollabPage({
   params,
 }: {
   params: { room_id: string };
 }) {
-  return <MonacoEditor roomId={params.room_id} />;
+  return (
+    <AuthPageWrapper requireLoggedIn>
+      <Suspense>
+        <CollabRoom roomId={params.room_id} />
+      </Suspense>
+    </AuthPageWrapper>
+  );
 }
