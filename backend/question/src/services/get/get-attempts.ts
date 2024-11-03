@@ -1,4 +1,4 @@
-import { and, asc, eq, or } from 'drizzle-orm';
+import { and, desc, eq, or } from 'drizzle-orm';
 
 import { db, questionAttempts as QUESTION_ATTEMPTS_TABLE } from '@/lib/db';
 
@@ -23,7 +23,7 @@ export const getQuestionAttempts = async ({ questionId, userId, limit = 10, offs
     .select()
     .from(QUESTION_ATTEMPTS_TABLE)
     .where(and(...filterClauses))
-    .orderBy(asc(QUESTION_ATTEMPTS_TABLE.timestamp))
+    .orderBy(desc(QUESTION_ATTEMPTS_TABLE.timestamp))
     .offset(offset ?? 0)
     .limit(limit);
 };

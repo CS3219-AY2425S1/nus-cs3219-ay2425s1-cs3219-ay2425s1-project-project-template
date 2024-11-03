@@ -133,6 +133,7 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
                 userId: userId as string,
                 questionId,
                 code,
+                setCode,
                 members,
                 language,
               }}

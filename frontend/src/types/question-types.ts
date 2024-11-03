@@ -47,3 +47,19 @@ export type IPostAddQuestionAttemptResponse =
       error: string;
       details: string;
     };
+
+export type IPostGetQuestionAttemptsParams = {
+  questionId: number;
+  userId: string;
+  limit?: number;
+  offset?: number;
+};
+
+export type IQuestionAttempt = {
+  attemptId: string;
+  code: string;
+  language: string;
+  userId1: string;
+  userId2?: string;
+};
+export type IPostGetQuestionAttemptsResponse = Array<IQuestionAttempt>;

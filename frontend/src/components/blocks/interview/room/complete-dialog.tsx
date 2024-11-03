@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { FC, PropsWithChildren, useCallback, useState } from 'react';
+import { Dispatch, FC, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ type CompleteDialogProps = {
   code: string;
   language: string;
   members: Array<IYjsUserState['user']>;
+  setCode: Dispatch<SetStateAction<string>>;
   setCompleting: (state: string, resetId?: boolean) => void;
 };
 
@@ -31,6 +32,7 @@ export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
   questionId,
   userId,
   code,
+  setCode,
   language,
   members,
 }) => {
@@ -62,6 +64,7 @@ export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
       });
     },
     onSuccess: () => {
+      setCode('');
       setCompleting(COMPLETION_STATES.SUCCESS);
       // Navigate to home page
       setTimeout(() => {

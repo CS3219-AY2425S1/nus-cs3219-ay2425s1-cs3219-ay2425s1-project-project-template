@@ -53,15 +53,15 @@ export const InterviewRoom = () => {
       <WithNavBanner crumbs={crumbs}>
         <div className='flex flex-1 overflow-hidden'>
           <Card className='border-border m-4 flex w-[500px] overflow-hidden p-4 md:w-2/5'>
-            <Tabs defaultValue='details'>
+            <Tabs defaultValue='details' className='size-full'>
               <TabsList className=''>
                 <TabsTrigger value='details'>Question Details</TabsTrigger>
                 <TabsTrigger value='attempts'>Past Attempts</TabsTrigger>
               </TabsList>
-              <TabsContent value='details' className='flex h-full'>
+              <TabsContent value='details' className=''>
                 <QuestionDetails {...{ questionDetails }} />
               </TabsContent>
-              <TabsContent value='attempts' className='flex h-full'>
+              <TabsContent value='attempts' className='flex h-[calc(100%-44px)]'>
                 <QuestionAttemptsPane questionId={questionId} />
               </TabsContent>
             </Tabs>
