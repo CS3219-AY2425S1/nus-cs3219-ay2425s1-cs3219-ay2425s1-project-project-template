@@ -48,6 +48,7 @@ const useMatcher = (userId) => {
             setTimerStart(true);
             const response = await fetch(`${API_BASE_URL}/match`, {
                 method: 'POST',
+                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -79,6 +80,7 @@ const useMatcher = (userId) => {
         try {
             const response = await fetch(`${API_BASE_URL}/cancel`, {
                 method: 'POST',
+                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json',
                 },
