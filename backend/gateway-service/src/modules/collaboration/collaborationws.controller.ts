@@ -27,7 +27,7 @@ import { LeaveCollabSessionRequestDto } from './dto/leave-collab-session-request
 import { ChatSendMessageRequestDto } from './dto/chat-send-message-request.dto';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timestamp } from 'rxjs';
 import { TestResultDto } from './dto/test-result.dto';
 import { QuestionDto } from './dto/question.dto';
 
@@ -85,7 +85,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: LeaveCollabSessionRequestDto,
   ) {
-    console.log("session_leave received");
+    console.log('session_leave received');
     const { userId, sessionId } = payload;
 
     if (!userId || !sessionId) {
@@ -111,25 +111,39 @@ export class CollaborationGateway implements OnGatewayDisconnect {
   async handleChatSendMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ChatSendMessageRequestDto,
+    callback: (response: { success: boolean; error?: string }) => void,
   ) {
-    const { userId, sessionId, message } = payload;
+    const { id, userId, sessionId, message, timestamp } = payload;
 
-    if (!userId || !sessionId || !message) {
-      client.emit(SESSION_ERROR, 'Invalid send message request payload.');
-      return;
+    if (!id || !userId || !sessionId || !message) {
+      return {
+        success: false,
+        data: { id },
+        error: 'Failed to send chat message',
+      };
     }
 
     try {
       // TODO: add chat content inside redis memory
 
       this.server.to(sessionId).emit(CHAT_RECIEVE_MESSAGE, {
+        id,
         userId,
         sessionId,
         message,
+        timestamp,
       });
+
+      return {
+        success: true,
+        data: { id },
+      };
     } catch (error) {
-      client.emit(EXCEPTION, `Error sending chat message: ${error.message}`);
-      return;
+      return {
+        success: false,
+        data: { id },
+        error: 'Failed to send chat message',
+      };
     }
   }
 

@@ -3,6 +3,10 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class ChatSendMessageRequestDto {
   @IsString()
   @IsNotEmpty()
+  id: string;
+
+  @IsString()
+  @IsNotEmpty()
   userId: string;
 
   @IsString()
@@ -12,4 +16,8 @@ export class ChatSendMessageRequestDto {
   @IsString()
   @IsNotEmpty()
   message: string;
+
+  @IsString()
+  @IsNotEmpty()
+  timestamp: string;
 }
