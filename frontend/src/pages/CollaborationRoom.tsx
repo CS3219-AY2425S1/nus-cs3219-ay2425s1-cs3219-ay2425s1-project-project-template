@@ -202,20 +202,20 @@ const CollaborativeEditor: React.FC = () => {
             <Button
               variant="contained"
               color="secondary"
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, mb: 2 }}
               onClick={handleRunCode}
               disabled={isLoading}
             >
               Run Code
             </Button>
             {isLoading ? (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center",mt: 4 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4, mb: 2 }}>
                 <CircularProgress />
                 <Typography sx={{ ml: 2 }}>Code is running...</Typography>
               </Box>
             ) : (
               output !== null && (
-                <Box sx={{ mt: 2, p: 2, border: "1px solid #ccc", borderRadius: 4, backgroundColor: "#f5f5f5" }}>
+                <Box sx={{ mt: 2, mb: 2, p: 2, border: "1px solid #ccc", borderRadius: 4, backgroundColor: "#f5f5f5" }}>
                   <Typography variant="h6">Output:</Typography>
                   <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
                     {output}
