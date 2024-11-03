@@ -96,15 +96,15 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
     };
   }, [languageMap, language]);
 
-    // Apply language change in the editor model
-    useEffect(() => {
-      if (editor && monaco) {
-        const model = editor.getModel();
-        if (model) {
-          monaco.editor.setModelLanguage(model, languages[language]?.language);
-        }
+  // Apply language change in the editor model
+  useEffect(() => {
+    if (editor && monaco) {
+      const model = editor.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, languages[language]?.language);
       }
-    }, [language, editor, monaco]);
+    }
+  }, [language, editor, monaco]);
 
   return (
     <div className="w-3/5 p-4">
