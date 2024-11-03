@@ -1,5 +1,11 @@
 import { Loader2, MessageSquare, Send, Trash2, X } from 'lucide-react';
-import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -19,6 +25,10 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { ChatMessage, ChatMessageType } from './chat-message';
 
+type CustomElemProps = {
+  onSend: (message: string) => void;
+};
+
 interface ChatLayoutProps {
   isOpen: boolean;
   onClose: () => void;
@@ -28,9 +38,10 @@ interface ChatLayoutProps {
   error: string | null;
   title: string;
   onClearHistory?: () => void;
+  CustomPlaceHolderElem?: React.FC<CustomElemProps>;
 }
 
-export const ChatLayout: React.FC<ChatLayoutProps> = ({
+export const ChatLayout = ({
   isOpen,
   onClose,
   messages,
@@ -39,7 +50,8 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   error,
   title,
   onClearHistory,
-}) => {
+  CustomPlaceHolderElem,
+}: ChatLayoutProps) => {
   const [input, setInput] = useState<string>('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -132,8 +144,14 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
       <ScrollArea id='chat-messages' className='h-full flex-1 overflow-y-auto p-4'>
         {messages.length === 0 && (
           <div className='flex h-full flex-col items-center justify-center text-gray-500'>
-            <MessageSquare className='mb-4 size-12 opacity-50' />
-            <p className='text-center'>No messages yet. Start a conversation!</p>
+            {CustomPlaceHolderElem ? (
+              <CustomPlaceHolderElem onSend={onSend} />
+            ) : (
+              <>
+                <MessageSquare className='mb-4 size-12 opacity-50' />
+                <p className='text-center'>No messages yet. Start a conversation!</p>
+              </>
+            )}
           </div>
         )}
         {messages.map((msg, index) => (
