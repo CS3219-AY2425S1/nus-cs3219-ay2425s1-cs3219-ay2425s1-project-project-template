@@ -20,7 +20,7 @@ export const useHistory = (username: string, page: number) => {
       queryFn: () => fetchHistoryFromPage(username, page),
       enabled: !!username, // Only fetch if username is available
     });
-  };
+};
 
 // Fetch a single question
 export const useGetHistory= (id: string) => {

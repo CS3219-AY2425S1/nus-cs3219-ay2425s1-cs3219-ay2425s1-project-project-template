@@ -26,7 +26,7 @@ export default function Page() {
             handlePageOnClick={handleOnPageClick}
             isAdmin={false}
             pageNumber={pageNumber}
-            historys={historyList?.records || []}
+            sessions={historyList?.sessions || []}
             totalPages={parseInt(historyList?.totalPages || "1")}
           />
         </div>

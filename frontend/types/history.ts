@@ -9,6 +9,8 @@ export interface History {
 }
 
 export interface HistoryList {
-  questions: History[];
+  sessions: History[];
   totalPages: string;
+  currentPage: string;
+  totalSessions: string;
 }
