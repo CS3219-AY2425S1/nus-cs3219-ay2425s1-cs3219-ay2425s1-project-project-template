@@ -83,7 +83,7 @@ const CollaborationEditor = ({
       const states = providerRef.current?.awareness.getStates();
       if (states) {
         const newClients = new Map<number, ConnectedClient>();
-        // Build new clients map.
+        // Build new clients map
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         states.forEach((value: { [x: string]: any }) => {
           const state = value as AwarenessState;
