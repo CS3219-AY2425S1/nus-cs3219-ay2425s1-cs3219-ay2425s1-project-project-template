@@ -1,6 +1,6 @@
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
 import { ITestcase, LanguageMode, getCodeMirrorLanguage } from '@/types'
-import { mockChatData, mockTestCaseData, mockUserData } from '@/mock-data'
+import { mockTestCaseData } from '@/mock-data'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,6 @@ import { Category, IMatch, SortedComplexity } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { getMatchDetails } from '@/services/matching-service-api'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
-import { ReloadIcon } from '@radix-ui/react-icons'
 import Chat from './chat'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
@@ -98,9 +97,6 @@ export default function Code() {
         }
     }, [])
 
-    // Ref for autoscroll the last chat message
-    const chatEndRef = useRef<HTMLDivElement | null>(null)
-
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
     }
@@ -174,7 +170,7 @@ export default function Code() {
                             />
                         </Button>
                     </div>
-                    {isChatOpen && <Chat />}
+                    {isChatOpen && <Chat socketRef={socketRef} />}
                 </div>
             </section>
             <section className="w-2/3 flex flex-col h-fullscreen">

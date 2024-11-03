@@ -1,16 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { FC, RefObject, useEffect, useRef, useState } from 'react'
 
-import { mockUserData } from '@/mock-data'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
 
 interface ICollaborator {
     name: string
-    email: string
 }
-
-const userData: ICollaborator = mockUserData
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -18,17 +14,14 @@ const formatTimestamp = (timestamp: string) => {
 }
 
 export interface IMessage {
-    text: string
-    name: string
-    email: string
-    socketId: string
+    senderId: string
+    message: string
+    createdAt: Date
     roomId: string
-    time: string
 }
 
-const Chat = () => {
+const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef }) => {
     const [chatData, setChatData] = useState<IMessage[]>()
-    const [socket, setSocket] = useState<socketIO.Socket>()
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
     const router = useRouter()
@@ -36,26 +29,19 @@ const Chat = () => {
     const { id: roomId } = router.query
 
     useEffect(() => {
-        if (!session || !roomId) {
-            router.replace('/')
-            return
-        }
-        if (!socket) {
-            const s = socketIO.connect('ws://localhost:3010')
-            s.emit('join_room', roomId)
-            s.on('receive_message', (data: IMessage) => {
+        if (socketRef?.current) {
+            socketRef.current.on('receive_message', (data: IMessage) => {
                 console.log('Got a msg', data)
                 setChatData((prev) => {
                     return [...(prev ?? []), data]
                 })
             })
-            setSocket(s)
         }
-    }, [router, session])
+    }, [socketRef])
 
     const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') => {
         let format = ''
-        if (currUser.email === userData.email) {
+        if (currUser.name === session?.user.username) {
             format = 'items-end ml-5'
             // Add more format based on the type
             if (type === 'text') {
@@ -80,18 +66,16 @@ const Chat = () => {
     }
 
     const handleSendMessage = (message: string) => {
-        if (!session || !socket) return
+        if (!session || !socketRef?.current) return
 
         if (message.trim()) {
             const msg: IMessage = {
-                text: message,
-                name: session.user.username,
-                time: new Date().toString(),
-                socketId: socket.id || '',
+                message: message,
+                senderId: session.user.username,
+                createdAt: new Date(),
                 roomId: roomId as string,
-                email: session.user.email,
             }
-            socket.emit('send_message', msg)
+            socketRef.current.emit('send_message', msg)
         }
         setValue('')
     }
@@ -109,16 +93,18 @@ const Chat = () => {
                     Object.values(chatData).map((chat, index) => (
                         <div
                             key={index}
-                            className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat({ name: chat.name, email: chat.email }, 'label')}`}
+                            className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat({ name: chat.senderId }, 'label')}`}
                         >
                             <div className="flex items-center gap-2">
-                                <h4 className="text-xs font-medium">{chat.name}</h4>
-                                <span className="text-xs text-slate-400">{formatTimestamp(chat.time)}</span>
+                                <h4 className="text-xs font-medium">{chat.senderId}</h4>
+                                <span className="text-xs text-slate-400">
+                                    {formatTimestamp(chat.createdAt.toString())}
+                                </span>
                             </div>
                             <div
-                                className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat({ name: chat.name, email: chat.email }, 'text')}`}
+                                className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat({ name: chat.senderId }, 'text')}`}
                             >
-                                {chat.text}
+                                {chat.message}
                             </div>
                         </div>
                     ))}
