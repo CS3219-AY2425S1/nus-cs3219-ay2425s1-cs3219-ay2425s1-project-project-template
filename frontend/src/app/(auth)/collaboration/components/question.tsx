@@ -162,6 +162,7 @@ const Question = ({ collabid }: { collabid: string }) => {
         />
         <Input
           placeholder="Type here..."
+          value={inputMessage}
           rightButtons={<Button onClick={handleClick}>Send</Button>}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={(e) => {
