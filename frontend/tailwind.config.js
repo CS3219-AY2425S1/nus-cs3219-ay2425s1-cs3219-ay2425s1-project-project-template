@@ -10,6 +10,8 @@ module.exports = {
         markdown: {
           css: {
             maxWidth: "100%",
+            maxHeight: "600px",
+            overflow: "scroll",
             "p": {
               margin: "8px 0 8px 0",
             },

@@ -76,6 +76,14 @@ func buildTask(er ExecRequest) (input.Task, error) {
 	switch strings.TrimSpace(er.Language) {
 	case "":
 		return input.Task{}, errors.Errorf("require: language")
+    case "cpp":
+        image = "gcc:10.2.0"
+        filename = "program.cpp"
+        run = "g++ program.cpp -o program && ./program > $TORK_OUTPUT"
+    case "java":
+        image = "openjdk:15.0.2"
+        filename = "Main.java"
+        run = "javac Main.java && java Main > $TORK_OUTPUT"
     case "python":
         image = "python:3.10.0"
         filename = "script.py"
@@ -84,18 +92,10 @@ func buildTask(er ExecRequest) (input.Task, error) {
         image = "node:18.15.0"
         filename = "script.js"
         run = "node script.js > $TORK_OUTPUT"
-    case "java":
-        image = "openjdk:15.0.2"
-        filename = "Main.java"
-        run = "javac Main.java && java Main > $TORK_OUTPUT"
     case "php":
         image = "php:8.2.3"
         filename = "script.php"
         run = "php script.php > $TORK_OUTPUT"
-    case "cpp":
-        image = "gcc:10.2.0"
-        filename = "program.cpp"
-        run = "g++ program.cpp -o program && ./program > $TORK_OUTPUT"
     case "R":
         image = "r-base:4.1.0"
         filename = "script.R"
