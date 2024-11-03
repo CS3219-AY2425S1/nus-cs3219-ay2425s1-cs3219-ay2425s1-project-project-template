@@ -3,18 +3,15 @@ kind: Deployment
 metadata:
   name: api-gateway
   labels:
-    type: backend
     app: api-gateway
 spec:
   selector:
     matchLabels:
-      type: backend
       app: api-gateway
   template:
     metadata:
       name: api-gateway
       labels:
-        type: backend
         app: api-gateway
     spec:
       containers:
@@ -45,7 +42,6 @@ spec:
     - port: 8001
       targetPort: 8001
   selector:
-    type: backend
     app: api-gateway
 ---
 apiVersion: autoscaling/v2
