@@ -15,6 +15,7 @@ const app = express();
 
 // Middleware
 app.use(cors(config.corsOptions));
+app.options('*', cors(config.corsOptions)); // enable pre-flight for all routes
 app.use(express.json());
 
 // Logging middleware
