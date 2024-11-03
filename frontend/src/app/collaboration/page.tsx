@@ -15,6 +15,7 @@ export default function CollaborationPage() {
   const [remoteAudioEnabled, setRemoteAudioEnabled] = useState(true);
   const [localVideoEnabled, setLocalVideoEnabled] = useState(true);
   const [remoteVideoEnabled, setRemoteVideoEnabled] = useState(true);
+  const [remoteUsername, setRemoteUsername] = useState('');
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
   const [userId, setUserId] = useState<string>('');
@@ -68,7 +69,6 @@ export default function CollaborationPage() {
     });
   };
 
-
   useEffect(() => {
     playTracks();
   }, [localVideoTrack, remoteTracks, localVideoEnabled, remoteVideoEnabled]);
@@ -117,10 +117,19 @@ export default function CollaborationPage() {
           console.log('Remote user published:', user.uid, mediaType);
           await clientRef.current.subscribe(user, mediaType);
           
-          if (mediaType === 'video' && user.videoTrack) {
+          if (mediaType === 'video') {
             if (mounted) {
-              setRemoteTracks(prev => new Map(prev.set(user.uid.toString(), user.videoTrack)));
+              if (user.videoTrack) {
+                setRemoteTracks(prev => new Map(prev.set(user.uid.toString(), user.videoTrack)));
+                setRemoteVideoEnabled(true);
+              } else {
+                setRemoteVideoEnabled(false);
+              }
+              // Set remote username from user metadata if available
+              setRemoteUsername(user.uid.toString());
             }
+          } else if (mediaType === 'audio') {
+            setRemoteAudioEnabled(true);
           }
         });
 
@@ -132,6 +141,9 @@ export default function CollaborationPage() {
               newTracks.delete(user.uid.toString());
               return newTracks;
             });
+            setRemoteVideoEnabled(false);
+          } else if (mediaType === 'audio') {
+            setRemoteAudioEnabled(false);
           }
         });
 
@@ -143,6 +155,9 @@ export default function CollaborationPage() {
               newTracks.delete(user.uid.toString());
               return newTracks;
             });
+            setRemoteVideoEnabled(false);
+            setRemoteAudioEnabled(false);
+            setRemoteUsername('');
           }
         });
 
@@ -207,7 +222,7 @@ export default function CollaborationPage() {
     const [showControls, setShowControls] = useState(false);
     const isVideoEnabled = isLocal ? localVideoEnabled : remoteVideoEnabled;
     const isAudioEnabled = isLocal ? localAudioEnabled : remoteAudioEnabled;
-    const username = isLocal ? userId : 'Remote User';
+    const username = isLocal ? userId : remoteUsername;
     const videoRef = isLocal ? localVideoRef : remoteVideoRef;
 
     return (
@@ -222,7 +237,7 @@ export default function CollaborationPage() {
         />
         {!isVideoEnabled && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-2xl font-bold">
-            {getInitials(username)}
+            {getInitials(username || 'Remote User')}
           </div>
         )}
         
@@ -244,14 +259,14 @@ export default function CollaborationPage() {
                 </button>
               </>
             ) : (
-              <>
-                <span className="p-1 text-white">
+              <div className="flex space-x-2">
+                <span className={`p-1 text-white ${isVideoEnabled ? 'opacity-100' : 'opacity-50'}`}>
                   {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
                 </span>
-                <span className="p-1 text-white">
+                <span className={`p-1 text-white ${isAudioEnabled ? 'opacity-100' : 'opacity-50'}`}>
                   {isAudioEnabled ? <Mic size={20} /> : <MicOff size={20} />}
                 </span>
-              </>
+              </div>
             )}
           </div>
         )}
