@@ -1,7 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { Types } from 'mongoose';
 
 @Injectable()
 export class CodeExecutionService {
@@ -11,9 +10,8 @@ export class CodeExecutionService {
 
   async executeCode(questionId: string, language: string, code: string) {
     try {
-      const MY_OBJECT_ID = new Types.ObjectId('6727bbec45ec125ef2e6e27c');
       const job = await this.codeExecutionQueue.add('execute', {
-        MY_OBJECT_ID,
+        questionId,
         language,
         code,
       }, {

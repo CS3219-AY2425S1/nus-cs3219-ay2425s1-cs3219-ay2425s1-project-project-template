@@ -26,25 +26,21 @@ export default function WorkSpace() {
   const [result, setResult] = useState<CodeExecutionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // const handleCodeChange = (newCode) => {
-  //   setCode(newCode);
-  //   if (collaborative && onCodeChange) {
-  //     onCodeChange(newCode);
-  //   }
-  // };
-
-  const handleExecuteCode = async () => {
+  const handleExecuteCode = async (questionId: string) => {
     try {
-      const result: CodeExecutionResponse = await executeCode("python", "x = int(input())\nprint(x)");
+      const result: CodeExecutionResponse = await executeCode({
+        questionId,
+        language: "python",
+        code: "x = int(input())\nprint(x)"
+      });
       setResult(result);
-      if (result.stderr) {
-        setError(result.stderr);
+      if (result.testResults.some(test => test.error)) {
+        setError(result.testResults.find(test => test.error)?.error || 'Execution failed');
       }
     } catch (error) {
       setError((error as any).message);
     }
-  };
-
+};
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -286,7 +282,7 @@ Output: [0,1]`}</code>
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" className="bg-black text-white" onClick={handleExecuteCode} disabled={executing}>
+            <Button variant="outline" size="sm" className="bg-black text-white" onClick={() => handleExecuteCode("6727deaa8af46c7a5736b499")} disabled={executing}>
               <PlayIcon className="h-4 w-4 mr-2" />
               {executing ? 'Running...' : 'Run Code'}
             </Button>

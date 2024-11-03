@@ -37,7 +37,6 @@ export class QuestionsController {
     @Query('complexity') complexity?: QuestionComplexity
   ): Promise<Partial<Question>[]> {
     try {
-      console.log("HEREEEE")
       const filterDto: FilterQuestionDto = {};
 
       if (categories) {

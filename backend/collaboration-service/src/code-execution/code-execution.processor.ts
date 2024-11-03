@@ -2,7 +2,6 @@ import { Process, Processor } from '@nestjs/bull';
 import { Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { Job } from 'bull';
 import axios from 'axios';
-import { Types } from 'mongoose';
 
 @Processor('code-execution')
 export class CodeExecutionProcessor {
@@ -20,8 +19,7 @@ export class CodeExecutionProcessor {
     const { questionId, language, code } = job.data;
 
     try {
-      const MY_OBJECT_ID = new Types.ObjectId('6727deaa8af46c7a5736b499');
-      const response = await axios.get(`${this.QUESTION_SERVICE_URL}/${MY_OBJECT_ID}`);
+      const response = await axios.get(`${this.QUESTION_SERVICE_URL}/${questionId}`);
       const question = response.data;
 
       if (!question) {
