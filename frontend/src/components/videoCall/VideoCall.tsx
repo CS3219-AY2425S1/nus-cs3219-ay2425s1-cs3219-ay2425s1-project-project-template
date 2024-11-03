@@ -16,7 +16,7 @@ function VideoCall({ localStream, remoteStream }: VideoCallProps) {
   }, [localStream]);
 
   useEffect(() => {
-    if (remoteVideoRef.current && remoteStream) {
+    if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = remoteStream;
     }
   }, [remoteStream]);
