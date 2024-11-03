@@ -12,7 +12,7 @@ services:
       - REACT_APP_MATCHING_SVC_PORT=${MATCHING_SVC_PORT}
       - REACT_APP_COLLAB_SVC_PORT=${COLLAB_SVC_PORT}
       - REACT_APP_COMM_SVC_PORT=${COMM_SVC_PORT}
-      - REACT_APP_CODE_EXECUTION_SVC_PORT=${TORK_CLIENT_ENDPOINT}
+      - REACT_APP_CODE_EXECUTION_SVC_PORT=${CODE_EXECUTION_SVC_PORT}
       - REACT_APP_HISTORY_SVC_PORT=${HISTORY_SVC_PORT}
     volumes:
       - ./frontend:/app
@@ -90,8 +90,6 @@ services:
       - ${COLLAB_SVC_PORT}:${COLLAB_SVC_PORT}
     environment:
       - PORT=${COLLAB_SVC_PORT}
-      - TORK_CLIENT_ENDPOINT=${TORK_CLIENT_ENDPOINT}
-      - TORK_COORDINATOR_ADDRESS=${TORK_COORDINATOR_ADDRESS}
     volumes:
       - ./backend/CollaborationService:/app
       - /app/node_modules
@@ -112,9 +110,9 @@ services:
     build:
       context: ./backend/CodeExecutionService
     ports:
-      - ${TORK_CLIENT_ENDPOINT}:${TORK_CLIENT_ENDPOINT}
+      - ${CODE_EXECUTION_SVC_PORT}:${CODE_EXECUTION_SVC_PORT}
     environment:
-      - TORK_COORDINATOR_ADDRESS=${TORK_COORDINATOR_ADDRESS}
+      - TORK_COORDINATOR_ADDRESS=0.0.0.0:${CODE_EXECUTION_SVC_PORT}
 
     volumes:
       - ./backend/CodeExecutionService:/app
