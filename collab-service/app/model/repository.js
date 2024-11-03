@@ -5,11 +5,15 @@ export async function connectToMongo() {
   await connect(process.env.DB_URI);
 }
 
-export async function newRoom(user1, user2, roomId) {
+export async function newRoom(user1, user2, roomId, questionId) {
   try {
+    // Remove any existing rooms where either user1 or user2 is a participant
+    await UsersSession.deleteMany({ users: { $in: [user1, user2] } });
+    
     const newRoom = new UsersSession({
       users: [user1, user2],
       roomId: roomId,
+      questionId: questionId,
       lastUpdated: new Date(),
     });
 
@@ -92,13 +96,21 @@ export async function addMessageToChat(roomId, userId, text) {
   }
 }
 
-
 export async function fetchRoomChatHistory(roomId) {
   try {
     const room = await UsersSession.findOne({ roomId });
     return room.chatHistory;
   } catch (error) {
     console.error("Error finding room chat history:", error);
+  }
+}
+
+export async function getQuestionIdByRoomId(roomId) {
+  try {
+    const room = await UsersSession.findOne({ roomId });
+    return room ? room.questionId : null;
+  } catch (error) {
+    console.error(`Error finding questionId for roomId ${roomId}:`, error);
     return null;
   }
 }

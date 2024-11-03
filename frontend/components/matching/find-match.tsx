@@ -91,15 +91,15 @@ export default function FindMatch() {
           responseData = initialResponseData;
         }
 
-        if (responseData.room_id) {
+        if (responseData) {
           isMatched = true;
-          const roomId = responseData.room_id;
+          const room_id = responseData.room_id;
           toast({
             title: "Matched",
             description: "Successfully matched",
             variant: "success",
           });
-          router.push(`/collaboration/${roomId}`);
+          router.push(`/app/collab/${room_id}`);
         } else {
           toast({
             title: "Error",
@@ -121,38 +121,26 @@ export default function FindMatch() {
           handleCancel(true);
         }, waitTimeout);
 
-        ws.onmessage = (event) => {
-          let responseData;
-
+        ws.onmessage = async (event) => {
           try {
-            responseData = JSON.parse(event.data);
+            let responseData = JSON.parse(event.data);
             if (typeof responseData === "string") {
               responseData = JSON.parse(responseData);
+            }
+
+            const user1_id = responseData.user1;
+            const user2_id = responseData.user2;
+            const room_id = responseData.room_id;
+            if (user1_id && user2_id) {
+              isMatched = true;
+              setIsSearching(false);
+              clearTimeout(queueTimeout);
+              router.push(`/app/collab/${room_id}`);
             }
           } catch (error) {
             toast({
               title: "Error",
-              description: "Unexpected error occured, please try again",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          const roomId = responseData.room_id;
-          if (roomId) {
-            isMatched = true;
-            setIsSearching(false);
-            clearTimeout(queueTimeout);
-            toast({
-              title: "Matched",
-              description: "Successfully matched",
-              variant: "success",
-            });
-            router.push(`/collaboration/${roomId}`);
-          } else {
-            toast({
-              title: "Error",
-              description: "Room ID not found",
+              description: "Unexpected error occurred, please try again",
               variant: "destructive",
             });
           }
@@ -162,7 +150,6 @@ export default function FindMatch() {
           setIsSearching(false);
           clearTimeout(queueTimeout);
           if (!isMatched) {
-            // Only show this toast if no match was made
             toast({
               title: "Matching Stopped",
               description: "Matching has been stopped",
@@ -170,6 +157,14 @@ export default function FindMatch() {
             });
           }
         };
+        return;
+      case 404:
+        toast({
+          title: "Error",
+          description:
+            "No question with specified difficulty level and complexity exists!",
+          variant: "destructive",
+        });
         return;
       default:
         toast({

@@ -2,24 +2,26 @@ import {
   newRoom,
   getRoomId,
   getAllRooms,
-  fetchRoomChatHistory
+  fetchRoomChatHistory,
+  getQuestionIdByRoomId,
 } from "../model/repository.js";
 import crypto from "crypto";
 
 // Create a room between two users
 export async function createRoom(req, res) {
-  const { user1, user2 } = req.body;
+  const { user1, user2, question_id } = req.body;
 
-  if (!user1 || !user2) {
-    return res.status(400).json({ error: "Both user1 and user2 are required" });
+  if (!user1 || !user2 || !question_id) {
+    return res.status(400).json({ error: "user1,user2 and question_id are required" });
   }
 
   // Generate a unique room ID by hashing the two user IDs
+  const timeSalt = new Date().toISOString().slice(0, 13);
   const roomId = crypto
     .createHash("sha256")
-    .update(user1 + user2)
+    .update(user1 + user2 + timeSalt)
     .digest("hex");
-  const room = await newRoom(user1, user2, roomId);
+  const room = await newRoom(user1, user2, roomId, question_id);
 
   if (room) {
     res.status(201).json(room);
@@ -69,5 +71,16 @@ export async function getRoomChatHistory(req, res) {
     res.status(200).json(room);
   } else {
     res.status(404).json({ error: `Room not found for ID: ${roomId}` });
+  }
+}
+
+// Get QuestionId from the room based on the roomId
+export async function getQuestionId(req, res) {
+  const questionId = await getQuestionIdByRoomId(roomId);
+
+  if (questionId) {
+    res.status(200).json({ questionId });
+  } else {
+    res.status(404).json({ error: `Question ID not found for room ID: ${roomId}` });
   }
 }
