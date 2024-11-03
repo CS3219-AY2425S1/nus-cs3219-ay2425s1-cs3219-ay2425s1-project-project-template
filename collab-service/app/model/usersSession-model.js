@@ -15,11 +15,6 @@ const messageSchema = new Schema({
     type: String,
     required: true,
   },
-  // timestamp: {
-  //   type: Date,
-  //   default: Date.now,
-  //   required: true
-  // }
 });
 
 const usersSessionSchema = new Schema({
