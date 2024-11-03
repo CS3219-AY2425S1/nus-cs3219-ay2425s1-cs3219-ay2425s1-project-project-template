@@ -4,6 +4,8 @@ import { findUserByUsernameOrEmail, createUser } from '../model/repository.js';
 export async function handleGithubCallback(req, res) {
   const { code } = req.query;
 
+  console.log('code', code);
+
   try {
     // Exchange code for access token for user data
     const tokenResponse = await fetch(
@@ -23,6 +25,8 @@ export async function handleGithubCallback(req, res) {
     );
 
     const tokenResponseData = await tokenResponse.json();
+
+    console.log('tokenResponseData', tokenResponseData);
 
     const { access_token } = tokenResponseData;
 
@@ -49,6 +53,8 @@ export async function handleGithubCallback(req, res) {
     const userEmail =
       githubUser.email || userEmailData.find((email) => email.primary).email;
 
+    console.log('userEmail', userEmail, githubUser.login);
+
     if (!githubUser.login || !userEmail) {
       res.status(400).json({ error: 'Invalid user data' });
       return;
@@ -56,6 +62,7 @@ export async function handleGithubCallback(req, res) {
 
     // Find or create user
     let user = await findUserByUsernameOrEmail(githubUser.login, userEmail);
+    console.log('user', user);
     if (!user) {
       try {
         user = await createUser(

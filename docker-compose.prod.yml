@@ -14,6 +14,8 @@ services:
       context: ./peerprep-fe
       dockerfile: Dockerfile
       target: production
+    volumes:
+      - /app/node_modules
     ports:
       - "3000:3000"
     networks:
@@ -28,6 +30,8 @@ services:
       context: ./question-service
       dockerfile: Dockerfile
       target: production
+    volumes:
+      - /app/node_modules
     ports:
       - "4001:4001"
     networks:
@@ -42,6 +46,8 @@ services:
       context: ./user-service
       dockerfile: Dockerfile
       target: production
+    volumes:
+      - /usr/src/app/node_modules
     ports:
       - "3001:3001"
     networks:
@@ -56,8 +62,7 @@ services:
       dockerfile: Dockerfile
       target: production
     volumes:
-      - ./matching-service:/app
-      - ./matching-service/node_modules:/app/node_modules
+      - /app/node_modules
     ports:
       - "5001:5001"
     networks:
@@ -80,6 +85,21 @@ services:
       - peerprep-network
     env_file:
       - ./api-gateway/.env.production
+
+  session-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest
+    build:
+      context: ./session-service
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - /app/node_modules
+    ports:
+      - "4444:4444"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./session-service/.env.dev
 
 networks:
   peerprep-network:
