@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { executeCode } from '../apis/CodeExecutionApi';
+import { getQuestionById } from '../apis/QuestionApi';
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
 import ConfirmationModal from '../components/modal/ConfirmationModal';
 import CodeOutputTabs from '../components/tabs/CodeOutputTabs';
@@ -17,12 +18,15 @@ import {
   CodeExecutionResponse,
   SupportedLanguage,
 } from '../types/CodeExecutionType';
+import { Question } from '../types/QuestionType';
 
 function Room() {
   const [
     isLeaveSessionModalOpened,
     { open: openLeaveSessionModal, close: closeLeaveSessionModal },
   ] = useDisclosure(false);
+
+  const [question, setQuestion] = useState<Question | undefined>(undefined);
 
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<SupportedLanguage>('python');
@@ -40,6 +44,17 @@ function Room() {
     if (!sessionData) return;
     const { sessionId, matchedUserId, questionId } = sessionData;
     connectSocket(sessionId, matchedUserId, questionId);
+
+    if (questionId) {
+      getQuestionById(questionId).then(
+        (response: Question[]) => {
+          setQuestion(response[0]);
+        },
+        (error: any) => {
+          console.log(error);
+        },
+      );
+    }
   }, [sessionData]);
 
   const connectSocket = (
@@ -135,7 +150,7 @@ function Room() {
       language,
     };
     executeCode(codeExecutionInput).then(
-      (response: CodeExecutionResponse) => {
+      (_: CodeExecutionResponse) => {
         // TODO: Update display of response
         setIsRunningCode(false);
       },
@@ -160,7 +175,7 @@ function Room() {
             <Skeleton h="150px" w="calc(50% - 5px)" />
             <Skeleton h="150px" w="calc(50% - 5px)" />
           </Group>
-          <RoomTabs questionId={sessionData?.questionId} />
+          <RoomTabs question={question} />
         </Stack>
 
         <Stack h="100%" w="calc(100% - 510px)" gap="10px">
@@ -174,7 +189,7 @@ function Room() {
             handleRunCode={handleRunCode}
             viewUpdateRef={viewUpdateRef}
           />
-          <CodeOutputTabs />
+          <CodeOutputTabs testCases={question?.testCases} />
         </Stack>
       </Group>
 

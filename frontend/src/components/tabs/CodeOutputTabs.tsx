@@ -1,10 +1,13 @@
 import { Tabs } from '@mantine/core';
 
+import { TestCase } from '../../types/QuestionType';
 import TestCasesTab from './TestCasesTab';
 
-interface CodeOutputTabsProps {}
+interface CodeOutputTabsProps {
+  testCases?: TestCase[];
+}
 
-function CodeOutputTabs({}: CodeOutputTabsProps) {
+function CodeOutputTabs({ testCases }: CodeOutputTabsProps) {
   return (
     <Tabs
       bg="slate.9"
@@ -13,17 +16,21 @@ function CodeOutputTabs({}: CodeOutputTabsProps) {
       style={{ borderRadius: '4px' }}
     >
       <Tabs.List>
-        <Tabs.Tab value="testCases">Test Cases</Tabs.Tab>
-        <Tabs.Tab value="testResults">Test Results</Tabs.Tab>
+        {testCases && <Tabs.Tab value="testCases">Test Cases</Tabs.Tab>}
+        {testCases && <Tabs.Tab value="testResults">Test Results</Tabs.Tab>}
         <Tabs.Tab value="output">Output</Tabs.Tab>
       </Tabs.List>
 
-      <Tabs.Panel value="testCases" h="200px">
-        <TestCasesTab />
-      </Tabs.Panel>
-      <Tabs.Panel value="testResults" h="200px">
-        Test Results
-      </Tabs.Panel>
+      {testCases && (
+        <Tabs.Panel value="testCases" h="200px">
+          <TestCasesTab testCases={testCases} />
+        </Tabs.Panel>
+      )}
+      {testCases && (
+        <Tabs.Panel value="testResults" h="200px">
+          Test Results
+        </Tabs.Panel>
+      )}
       <Tabs.Panel value="output" h="200px">
         Output
       </Tabs.Panel>

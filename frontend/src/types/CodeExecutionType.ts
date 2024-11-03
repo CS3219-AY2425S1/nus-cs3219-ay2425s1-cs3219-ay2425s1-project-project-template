@@ -15,9 +15,3 @@ export type CodeExecutionResponse = {
   output: string;
   is_error: boolean;
 };
-
-export type TestCase = {
-  input: string;
-  answer: string;
-  isHidden: boolean;
-};

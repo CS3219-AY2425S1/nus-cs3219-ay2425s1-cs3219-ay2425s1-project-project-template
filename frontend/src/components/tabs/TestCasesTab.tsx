@@ -1,6 +1,6 @@
 import { Code, ScrollArea, Stack, Tabs, Title } from '@mantine/core';
 
-import { TestCase } from '../../types/CodeExecutionType';
+import { TestCase } from '../../types/QuestionType';
 
 interface TestCasesTabProps {
   testCases: TestCase[];

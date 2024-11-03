@@ -6,7 +6,14 @@ export interface Question {
   topics: string[];
   difficulty: string;
   images: string[];
+  testCases?: TestCase[];
 }
+
+export type TestCase = {
+  input: string;
+  answer: string;
+  isHidden: boolean;
+};
 
 export interface UpdateQuestionInput {
   id: string;
