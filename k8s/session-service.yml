@@ -3,18 +3,15 @@ kind: Deployment
 metadata:
   name: session-svc
   labels:
-    type: backend
     app: session-svc
 spec:
   selector:
     matchLabels:
-      type: backend
       app: session-svc
   template:
     metadata:
       name: session-svc
       labels:
-        type: backend
         app: session-svc
     spec:
       containers:
@@ -46,7 +43,6 @@ spec:
     - port: 5001
       targetPort: 5001
   selector:
-    type: backend
     app: session-svc
 ---
 apiVersion: autoscaling/v2
