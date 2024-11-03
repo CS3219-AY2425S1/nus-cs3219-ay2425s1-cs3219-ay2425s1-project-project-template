@@ -6,6 +6,7 @@ import { ref, onValue, set } from 'firebase/database'
 import axios from 'axios'
 import QuestionSideBar from './QuestionSidebar'
 import { useParams, useNavigate } from 'react-router-dom'
+import { fetchWithAuth } from '../../src/utils/fetchWithAuth'
 
 interface Question {
   title: string,
@@ -84,6 +85,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
         `User: ${userId} leaving room`
       );
       setLeaveRoomMessage(response.data.message || "You have left the room.")
+
+      await fetchWithAuth("http://localhost:3002/reset-status", { method: "POST" });
+
       setTimeout(() => {
         navigate("/match-room");
       }, 2000)
