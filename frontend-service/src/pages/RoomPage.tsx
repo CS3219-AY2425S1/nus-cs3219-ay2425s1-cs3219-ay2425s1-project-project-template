@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeEditor from '../../components/collab/CodeEditor';
-import { Box, Spinner, Text } from '@chakra-ui/react';
+import { Box, Button, Spinner, Text } from '@chakra-ui/react';
 
 const RoomPage: React.FC = () => {
   const navigate = useNavigate();
@@ -76,6 +76,7 @@ const RoomPage: React.FC = () => {
 
       {/* Display the Code Editor if joined successfully */}
       {roomId && <CodeEditor roomId={roomId} />}
+
     </Box>
   );
 };

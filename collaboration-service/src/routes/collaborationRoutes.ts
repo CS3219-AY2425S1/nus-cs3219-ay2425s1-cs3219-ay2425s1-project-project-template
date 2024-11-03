@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/join', verifyJWT, joinRoom);
 router.post('/createRoom', createRoom);
-router.post('/leaveRoom', leaveRoom);
+router.post('/leaveRoom', verifyJWT, leaveRoom);
 router.get('/data', verifyJWT, getRoomData);
 router.post('/setInactive', setRoomInactive);
 router.get('/current', verifyJWT, getRoomId);

@@ -29,7 +29,7 @@ interface UserData {
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<UserData|undefined>();
+  const [userData, setUserData] = useState<UserData | undefined>();
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +57,7 @@ function App() {
         if (response.ok && data.message === "Token verified") {
           setIsAuthenticated(true);  // Token is valid
           setUserData(data.data);
-          
+
           if (data.data.mustUpdatePassword) {
             setIsChangePasswordModalOpen(true);
           }
@@ -92,12 +92,12 @@ function App() {
   };
 
   const handlePasswordChanged = () => {
-      // setUserData((prevUserData) => ({
-      //   ...prevUserData,
-      //   mustUpdatePassword: false,
-      // }));
-      setIsChangePasswordModalOpen(false);
-    };
+    // setUserData((prevUserData) => ({
+    //   ...prevUserData,
+    //   mustUpdatePassword: false,
+    // }));
+    setIsChangePasswordModalOpen(false);
+  };
 
   if (loading) {
     return (
@@ -143,17 +143,16 @@ function App() {
 
           {isAuthenticated ? (
             <>
-            <Route path="/match-me" element={<MatchingPage />} />
-            <Route path="/editor" element={<CodeEditor />} />
-            <Route path="/room" element={<RoomPage />} />
-
-            <Route path="/account" element={ <AccountPage
+              <Route path="/match-me" element={<MatchingPage />} />
+              <Route path="/editor" element={<CodeEditor />} />
+              <Route path="/room" element={<RoomPage />} />
+              <Route path="/account" element={<AccountPage
                 username={userData ? userData.username : ''}
-                id={userData ? userData.id: ''}
+                id={userData ? userData.id : ''}
                 email={userData ? userData.email : ''} />}>
-                <Route path="password" element={<ChangePassword userId={userData?.id} />}/>
-                <Route path="delete" element={<DeleteAccount userId={userData?.id} onLogout={handleLogout}/>} />
-            </Route>
+                <Route path="password" element={<ChangePassword userId={userData?.id} />} />
+                <Route path="delete" element={<DeleteAccount userId={userData?.id} onLogout={handleLogout} />} />
+              </Route>
             </>
           ) : (
             <Route path="*" element={<Navigate to="/login" replace />} /> // Redirect authenticated users

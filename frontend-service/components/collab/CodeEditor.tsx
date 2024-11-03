@@ -5,7 +5,7 @@ import { FIREBASE_DB } from '../../FirebaseConfig'
 import { ref, onValue, set } from 'firebase/database'
 import axios from 'axios'
 import QuestionSideBar from './QuestionSidebar'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
 interface Question {
   title: string,
@@ -30,7 +30,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   // const { roomId } = useParams<{ roomId: string }>();
   const [code, setCode] = useState('//Start writing your code here..')
   const [codeLanguage, setCodeLanguage] = useState('Javascript')
+  const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null)
   const [question, setQuestion] = useState<Question | null>(null)
+  const navigate = useNavigate()
+  const [userId] = useState(localStorage.getItem('userId') || '');
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`)
 
   useEffect(() => {
@@ -47,6 +50,43 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
     if (newValue !== undefined) {
       setCode(newValue)
       set(codeRef, newValue) // write to firebase
+    }
+  }
+
+  // Function to handle joining the room
+  const handleLeaveRoom = async () => {
+
+    try {
+      const userId = localStorage.getItem("userId")
+      const token = localStorage.getItem("token");
+      console.log("User ID:", userId)
+
+      if (!userId || !token) {
+        console.error("No user ID or token found. Redirecting to login.")
+        navigate("/login")
+        return
+      }
+
+      const response = await axios.post(
+        "http://localhost:5001/room/leaveRoom",
+        { userId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(
+        `User: ${userId} leaving room`
+      );
+      setLeaveRoomMessage(response.data.message || "You have left the room.")
+      setTimeout(() => {
+        navigate("/match-room");
+      }, 2000)
+    } catch (error) {
+      console.error("Error leaving room:", error)
     }
   }
 
@@ -111,6 +151,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
               <option value="java">Java</option>
               <option value="csharp">C#</option>
             </Select>
+            <Button size="sm" colorScheme="red" marginRight={10} onClick={handleLeaveRoom}>
+              Leave Room
+            </Button>
             <Button size="sm" colorScheme="blue" marginRight={10}>
               Run
             </Button>
@@ -136,6 +179,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
             }}
           />
         </Box>
+        {/* Display leave room message */}
+        {leaveRoomMessage && (
+          <Text color="red.500" mt={4}>
+            {leaveRoomMessage}
+          </Text>
+        )}
       </Box>
     </Box>
   )

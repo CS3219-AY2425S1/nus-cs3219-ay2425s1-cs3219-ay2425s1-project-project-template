@@ -202,6 +202,9 @@ export const leaveRoom = async (req: Request, res: Response) => {
     }
     const userRoomRef = ref(database, `userRooms/${userId}`);
     const userRoomSnapshot = await get(userRoomRef);
+    console.log("UserRoom Reference Path:", userRoomRef.toString());
+    console.log("UserRoom Snapshot Exists:", userRoomSnapshot.exists());
+    console.log("UserRoom Snapshot Data:", userRoomSnapshot.val());
 
     if (!userRoomSnapshot.exists()) {
       return res.status(404).json({ message: "User is not in a room" });
@@ -210,7 +213,12 @@ export const leaveRoom = async (req: Request, res: Response) => {
     // get room data
     const roomId = userRoomSnapshot.val() as string;
     const roomRef = ref(database, `rooms/${roomId}`);
+    console.log("User ID:", userId);
+    console.log("Room ID retrieved from userRooms:", roomId);
+    console.log("Room Reference Path:", roomRef.toString());
     const roomSnapshot = await get(roomRef);
+    console.log("Room Snapshot Exists:", roomSnapshot.exists());
+    console.log("Room Snapshot Data:", roomSnapshot.val());
 
     if (!roomSnapshot.exists()) {
       return res.status(404).json({ message: "Room does not exist" });
@@ -236,9 +244,19 @@ export const leaveRoom = async (req: Request, res: Response) => {
     }
 
     await set(userRoomRef, null);
+    console.log(`User ${userId} has been removed from userRooms`);
+
+    // check that userId in userRooms is removed
+    const postRemovalSnapshot = await get(userRoomRef);
+    if (!postRemovalSnapshot.exists()) {
+      console.log(`Verified: userRooms entry for ${userId} has been cleared.`);
+    } else {
+      console.warn(`Warning: userRooms entry for ${userId} still exists.`);
+    }
+
     res.status(200).json({ message: "User has left the room", roomId });
-  } catch (error: any) {
-    console.error("Error leaving room:", error);
+  } catch (error) {
+    console.error("Error in leaveRoom function:", error);
     res.status(500).json({ message: "Failed to leave room" });
   }
 };
