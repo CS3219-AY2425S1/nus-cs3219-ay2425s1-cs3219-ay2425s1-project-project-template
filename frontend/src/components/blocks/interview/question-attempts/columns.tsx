@@ -6,6 +6,10 @@ import { IQuestionAttempt } from '@/types/question-types';
 
 export const columns: Array<ColumnDef<IQuestionAttempt>> = [
   {
+    accessorKey: 'attemptId',
+    header: 'ID',
+  },
+  {
     accessorKey: 'timestamp',
     header: ({ column }) => <DataTableSortableHeader column={column} title='Attempted' />,
     cell({ row }) {
@@ -16,7 +20,7 @@ export const columns: Array<ColumnDef<IQuestionAttempt>> = [
   {
     accessorKey: 'language',
     header: ({ column }) => (
-      <DataTableSortableHeader column={column} title='Language' className='ml-auto mr-3' />
+      <DataTableSortableHeader column={column} title='Language' className='ml-auto' />
     ),
     cell({ row }) {
       return (
