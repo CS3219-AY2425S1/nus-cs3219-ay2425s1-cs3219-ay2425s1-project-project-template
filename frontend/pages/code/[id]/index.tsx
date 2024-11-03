@@ -21,6 +21,7 @@ import { convertSortedComplexityToComplexity } from '@repo/question-types'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
+import { SubmissionRequestDto } from '@repo/submission-types'
 
 interface ICollaborator {
     name: string
@@ -70,6 +71,7 @@ export default function Code() {
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
     const socketRef = useRef<Socket | null>(null)
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
+    const [isCodeRunning, setIsCodeRunning] = useState(false)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -107,6 +109,18 @@ export default function Code() {
         socketRef.current.on('update-language', (language: string) => {
             setEditorLanguage(language as LanguageMode)
             toast.success('Language mode updated')
+        })
+
+        socketRef.current.on('executing-code', () => {
+            setIsCodeRunning(true)
+        })
+
+        socketRef.current.on('code-executed', (res: any) => {
+            console.log(res)
+            setTimeout(() => {
+                setIsCodeRunning(false)
+                handleActiveTestTabChange(1)
+            }, 2000)
         })
 
         socketRef.current.on('user-connected', (username: string) => {
@@ -166,6 +180,11 @@ export default function Code() {
     const handleRunTests = () => {
         // const currCode = editorRef.current?.editor?.getValue()
         // console.log(currCode)
+        if (!isCodeRunning) {
+            const dto = new SubmissionRequestDto(71, "print('Hello, World!')", '', 'Hello, World!\n')
+            dto.validate()
+            socketRef.current?.emit('run-code', dto)
+        }
     }
 
     const handleActiveTestTabChange = (tab: number) => {
@@ -266,13 +285,16 @@ export default function Code() {
             <section className="w-2/3 flex flex-col h-fullscreen">
                 <div id="control-panel" className="flex justify-between">
                     <div className="flex gap-3">
-                        <Button variant={'primary'} onClick={handleRunTests}>
-                            <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
-                            Run tests
-                        </Button>
-                        <Button className="bg-green hover:bg-green-dark">
-                            <SubmitIcon fill="white" className="mr-2" />
-                            Submit
+                        <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
+                            {isCodeRunning ? (
+                                'Executing...'
+                            ) : (
+                                <>
+                                    {' '}
+                                    <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
+                                    Run tests
+                                </>
+                            )}
                         </Button>
                     </div>
                     <div className="flex flex-row">
@@ -303,8 +325,9 @@ export default function Code() {
                 </div>
                 <CustomTabs
                     tabs={testTabs}
+                    activeTab={activeTestTab}
+                    setActiveTab={setActiveTestTab}
                     handleActiveTabChange={handleActiveTestTabChange}
-                    isBottomBorder={true}
                     className="mt-4 border-2 rounded-t-lg border-slate-100"
                 />
                 <div
