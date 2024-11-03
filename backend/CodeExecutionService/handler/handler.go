@@ -59,6 +59,10 @@ func Handler(c web.Context) error {
 
 	select {
 	case r := <-result:
+		log.Debug().Msgf("output: %s", r)
+		if r == "error reading the std out: context deadline exceeded" {
+			r = "Execution Timeout: The code execution took too long and was terminated."
+		}
 		return c.JSON(http.StatusOK, map[string]string{"output": r})
 	case <-c.Done():
 		return c.JSON(http.StatusGatewayTimeout, map[string]string{"message": "timeout"})
