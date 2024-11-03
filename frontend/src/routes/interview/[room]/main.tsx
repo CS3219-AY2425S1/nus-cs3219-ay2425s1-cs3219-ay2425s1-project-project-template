@@ -9,7 +9,7 @@ import { PartnerChat } from '@/components/blocks/interview/partner-chat';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCrumbs } from '@/lib/hooks';
+import { useCrumbs, usePageTitle } from '@/lib/hooks';
 import { questionDetailsQuery } from '@/lib/queries/question-details';
 import { ROUTES } from '@/lib/routes';
 
@@ -29,6 +29,7 @@ export const loader =
 export const InterviewRoom = () => {
   const { questionId, roomId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { crumbs } = useCrumbs();
+  usePageTitle(ROUTES.INTERVIEW);
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
   const questionDetails = useMemo(() => details.question, [details]);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);

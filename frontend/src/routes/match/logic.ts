@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { requestMatch } from '@/services/match-service';
 import { fetchDifficulties, fetchTopics } from '@/services/question-service';
-import { useUser } from '@/stores/auth-store';
+import { useAuthedRoute } from '@/stores/auth-store';
 
 export interface MatchFormData {
   selectedTopics: string[];
@@ -44,7 +44,7 @@ const formSchema = z.object({
 export type IRequestMatchFormSchema = z.infer<typeof formSchema>;
 
 export const useRequestMatchForm = () => {
-  const { userId } = useUser();
+  const { userId } = useAuthedRoute();
 
   const [socketPort, setSocketPort] = useState('');
 

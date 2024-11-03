@@ -8,7 +8,7 @@ import { ROUTES } from '@/lib/routes';
 import { MATCHING_EVENT, WS_EVENT } from '@/lib/ws';
 import { MATCHING_SOCKET } from '@/services/api-clients';
 import { cancelMatch } from '@/services/match-service';
-import { useUser } from '@/stores/auth-store';
+import { useAuthedRoute } from '@/stores/auth-store';
 import { useMatchRequest } from '@/stores/match-request-store';
 
 import { UI_STATUS } from './constants';
@@ -25,7 +25,7 @@ type IWaitingRoomUIState = {
 };
 
 export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) => {
-  const { userId } = useUser();
+  const { userId } = useAuthedRoute();
   const navigate = useNavigate();
   const { values } = useMatchRequest();
   const [{ connected, canCancel, uiState }, setUIState] = useState<IWaitingRoomUIState>({

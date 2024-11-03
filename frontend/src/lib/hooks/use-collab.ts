@@ -8,7 +8,7 @@ import * as Y from 'yjs';
 
 import { extensions as baseExtensions, getLanguage } from '@/lib/editor/extensions';
 import { COLLAB_WS } from '@/services/api-clients';
-import { useUser } from '@/stores/auth-store';
+import { useAuthedRoute } from '@/stores/auth-store';
 import type { IYjsUserState } from '@/types/collab-types';
 
 // credit: https://github.com/yjs/y-websocket
@@ -29,7 +29,7 @@ const getRandomColor = () => {
 
 // TODO: Test if collab logic works
 export const useCollab = (roomId: string) => {
-  const { userId, username } = useUser();
+  const { userId, username } = useAuthedRoute();
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [sharedDocRef, setSharedDocRef] = useState<Y.Map<unknown>>();
   const [extensions, setExtensions] = useState<Array<Extension>>(baseExtensions);

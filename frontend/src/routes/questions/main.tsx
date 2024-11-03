@@ -5,7 +5,9 @@ import { Await, defer, type LoaderFunctionArgs, useLoaderData } from 'react-rout
 import { WithNavBanner } from '@/components/blocks/authed';
 import { Loading } from '@/components/blocks/loading';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { usePageTitle } from '@/lib/hooks';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
+import { ROUTES } from '@/lib/routes';
 import { fetchQuestions, ROWS_PER_PAGE } from '@/services/question-service';
 import type { IGetQuestionsResponse } from '@/types/question-types';
 
@@ -31,6 +33,7 @@ type IQuestionLoaderReturn = Awaited<ReturnType<ReturnType<typeof loader>>>['dat
 type IQuestionLoaderData = { initialPage?: IQuestionListServiceAPIResponse };
 
 export function Questions() {
+  usePageTitle(ROUTES.QUESTIONS);
   const { crumbs } = useCrumbs();
 
   const initialData = useLoaderData() as IQuestionLoaderReturn as IQuestionLoaderData;

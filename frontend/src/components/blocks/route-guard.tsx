@@ -9,7 +9,6 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
-import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 import { checkIsAuthed } from '@/services/user-service';
 import { AuthStoreProvider } from '@/stores/auth-store';
@@ -48,7 +47,7 @@ export const RouteGuard = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Await resolve={data.payload}>
-        {({ authedPayload, isAuthedRoute, path }) => {
+        {({ authedPayload, isAuthedRoute, path: _p }) => {
           const [isLoading, setIsLoading] = useState(true);
           useEffect(() => {
             if (authedPayload.isAuthed !== isAuthedRoute) {
@@ -57,10 +56,12 @@ export const RouteGuard = () => {
 
             setIsLoading(false);
           }, [authedPayload]);
-          usePageTitle(path);
           return (
             <AuthStoreProvider
-              value={{ userId: authedPayload.userId ?? '', username: authedPayload.userName ?? '' }}
+              value={{
+                userId: authedPayload.userId ?? '',
+                username: authedPayload.username ?? '',
+              }}
             >
               {isLoading ? <Loading /> : <Outlet />}
             </AuthStoreProvider>

@@ -16,7 +16,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { getTheme, type IEditorTheme, languages, themeOptions } from '@/lib/editor/extensions';
 import { useCollab } from '@/lib/hooks/use-collab';
-import { useUser } from '@/stores/auth-store';
+import { useAuthedRoute } from '@/stores/auth-store';
 
 import { CompleteDialog } from './room/complete-dialog';
 import { OtherUserCompletingDialog } from './room/other-user-completing-dialog';
@@ -32,7 +32,7 @@ type EditorProps = {
 };
 
 export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorProps) => {
-  const { userId } = useUser();
+  const { userId } = useAuthedRoute();
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
   const {

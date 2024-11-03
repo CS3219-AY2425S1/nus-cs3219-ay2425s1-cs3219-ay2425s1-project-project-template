@@ -5,8 +5,8 @@ import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import { WithNavBanner } from '@/components/blocks/authed';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
+import { usePageTitle } from '@/lib/hooks';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
-import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { questionDetailsQuery } from '@/lib/queries/question-details';
 
 export const loader =
@@ -27,7 +27,7 @@ export const QuestionDetailsPage = () => {
     path: '<CURRENT>',
     title: `${questionId}. ${questionDetails.title}`,
   });
-  usePageTitle(details.question.title);
+  usePageTitle('', `${questionDetails.title} - PeerPrep`);
 
   return (
     <WithNavBanner crumbs={[...crumbs]}>
