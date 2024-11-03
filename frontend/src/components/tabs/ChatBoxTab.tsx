@@ -1,10 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
 import { Box, Textarea, ScrollArea, Text, Paper } from '@mantine/core';
-import { Socket, io } from 'socket.io-client';
-import config from '../../config';
+import { useRef, useEffect } from 'react';
 import { useAuth } from '../../hooks/AuthProvider';
 
-interface ChatMessage {
+export interface ChatMessage {
   userId: string;
   body: string;
 }
@@ -12,58 +10,19 @@ interface ChatMessage {
 interface ChatBoxTabProps {
   roomId: string;
   token: string;
+  messages: ChatMessage[];
+  input: string;
+  setInput: React.Dispatch<React.SetStateAction<string>>;
+  sendMessage: () => void;
 }
 
-const ChatBoxTab = ({ roomId, token }: ChatBoxTabProps) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const socketRef = useRef<Socket | null>(null);
+const ChatBoxTab = ({ messages, input, setInput, sendMessage }: ChatBoxTabProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { userId } = useAuth();
 
   useEffect(() => {
-    // Connect to the socket server
-    socketRef.current = io(config.ROOT_BASE_API, {
-      path: '/api/comm/socket.io',
-      auth: { token: `Bearer ${token}` },
-      transports: ['websocket'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
-
-    // Join the specified room
-    socketRef.current.on('connect', () => {
-      socketRef.current?.emit('joinRoom', roomId);
-    });
-
-    // Load past messages when joining the room
-    socketRef.current.on('loadPreviousMessages', (pastMessages: ChatMessage[]) => {
-      setMessages(pastMessages);
-      scrollToBottom();
-    });
-
-    // Listen for new chat messages
-    socketRef.current.on('chatMessage', (msg: ChatMessage) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
-      scrollToBottom();
-    });
-
-    // Cleanup on unmount
-    return () => {
-      socketRef.current?.disconnect();
-    };
-  }, [roomId, token]);
-
-  const sendMessage = () => {
-    if (input.trim() !== '' && socketRef.current) {
-      socketRef.current.emit('chatMessage', { body: input });
-      setInput(''); // Clear the input after sending
-    }
-  };
-
-  const scrollToBottom = () => {
     scrollAreaRef.current?.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
-  };
+  }, [messages]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -89,15 +48,15 @@ const ChatBoxTab = ({ roomId, token }: ChatBoxTabProps) => {
             shadow="sm"
             p="8px 12px"
             style={{
-            maxWidth: '350px', // Ensure it doesn't exceed the screen width
+            maxWidth: '350px',
             borderRadius: '16px',
             backgroundColor: msg.userId === userId ? '#964ee2' : '#2c2533',
             color: msg.userId === userId ? '#fff8f9' : '#faf6f9',
             position: 'relative',
             padding: '12px',
-            wordWrap: 'break-word', // Ensure wrapping
-            overflowWrap: 'break-word', // Allow breaking long words
-            wordBreak: 'break-all', // Prevent overflow with long words
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+            wordBreak: 'break-all',
             }}
             >
               <Text size="sm" style={{
@@ -118,8 +77,8 @@ const ChatBoxTab = ({ roomId, token }: ChatBoxTabProps) => {
         onChange={(e) => setInput(e.currentTarget.value)}
         onKeyDown={handleKeyDown}
         minRows={1}
-        maxRows={5} // Limits the textarea expansion to 5 rows
-        autosize // Allows for automatic resizing
+        maxRows={5}
+        autosize
       />
     </Box>
   );

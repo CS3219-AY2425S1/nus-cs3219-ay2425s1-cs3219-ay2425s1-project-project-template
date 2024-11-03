@@ -9,20 +9,21 @@ import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLa
 import ConfirmationModal from '../components/modal/ConfirmationModal';
 import RoomTabs from '../components/tabs/RoomTabs';
 import config from '../config';
+import { ChatMessage } from '../components/tabs/ChatBoxTab';
 
 function Room() {
-  const [
-    isLeaveSessionModalOpened,
-    { open: openLeaveSessionModal, close: closeLeaveSessionModal },
-  ] = useDisclosure(false);
-
+  const [isLeaveSessionModalOpened, { open: openLeaveSessionModal, close: closeLeaveSessionModal }] = useDisclosure(false);
   const [code, setCode] = useState('');
-
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  
   const navigate = useNavigate();
   const location = useLocation();
   const sessionData = location.state;
 
-  const socketRef = useRef<Socket | null>(null);
+  // Refs for two sockets
+  const collaborationSocketRef = useRef<Socket | null>(null);
+  const communicationSocketRef = useRef<Socket | null>(null);
   const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
@@ -31,21 +32,19 @@ function Room() {
     }
 
     const { sessionId, matchedUserId, questionId } = sessionData;
-    connectSocket(sessionId, matchedUserId, questionId);
+    connectCollaborationSocket(sessionId, matchedUserId, questionId);
+    connectCommunicationSocket(sessionId);
   }, [sessionData]);
 
-  const connectSocket = (
-    sessionId: string,
-    matchedUserId: string,
-    questionId: number,
-  ) => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
+  // Connect Collaboration Socket
+  const connectCollaborationSocket = (sessionId: string, matchedUserId: string, questionId: number) => {
+    if (collaborationSocketRef.current) {
+      collaborationSocketRef.current.disconnect();
     }
 
     const token = localStorage.getItem('token');
 
-    socketRef.current = io(config.ROOT_BASE_API, {
+    collaborationSocketRef.current = io(config.ROOT_BASE_API, {
       path: '/api/collab/socket.io',
       auth: {
         token: `Bearer ${token}`,
@@ -55,24 +54,24 @@ function Room() {
       reconnectionDelay: 1000,
     });
 
-    socketRef.current.on('connect', () => {
-      socketRef.current?.emit('join-session', {
+    collaborationSocketRef.current.on('connect', () => {
+      collaborationSocketRef.current?.emit('join-session', {
         sessionId,
         matchedUserId,
         questionId,
       });
     });
 
-    socketRef.current.on('load-code', (newCode) => {
+    collaborationSocketRef.current.on('load-code', (newCode) => {
       setCode(newCode);
     });
 
-    socketRef.current.on('code-updated', (newCode) => {
+    collaborationSocketRef.current.on('code-updated', (newCode) => {
       isRemoteUpdateRef.current = true;
       setCode(newCode);
     });
 
-    socketRef.current.on('user-joined', () => {
+    collaborationSocketRef.current.on('user-joined', () => {
       notifications.show({
         title: 'Partner connected',
         message: 'Your practice partner has joined the room.',
@@ -80,7 +79,7 @@ function Room() {
       });
     });
 
-    socketRef.current.on('user-left', () => {
+    collaborationSocketRef.current.on('user-left', () => {
       notifications.show({
         title: 'Partner disconnected',
         message: 'Your practice partner has disconnected from the room.',
@@ -88,22 +87,54 @@ function Room() {
       });
     });
 
-    socketRef.current.on('disconnect', handleLeaveSession);
+    collaborationSocketRef.current.on('disconnect', handleLeaveSession);
+  };
+
+  // Connect Communication Socket
+  const connectCommunicationSocket = (roomId: string) => {
+    const token = localStorage.getItem('token');
+
+    communicationSocketRef.current = io('https://localhost:8443', {
+      path: '/api/comm/socket.io',
+      auth: { token: `Bearer ${token}` },
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      secure: true,
+    });
+
+    communicationSocketRef.current.on('connect', () => {
+      communicationSocketRef.current?.emit('joinRoom', roomId);
+    });
+
+    communicationSocketRef.current.on('loadPreviousMessages', (pastMessages: ChatMessage[]) => {
+      setMessages(pastMessages);
+    });
+
+    communicationSocketRef.current.on('chatMessage', (msg: ChatMessage) => {
+      setMessages((prevMessages) => [...prevMessages, msg]);
+    });
   };
 
   useEffect(() => {
     if (isRemoteUpdateRef.current) {
       isRemoteUpdateRef.current = false;
     } else {
-      socketRef.current?.emit('edit-code', code);
+      collaborationSocketRef.current?.emit('edit-code', code);
     }
   }, [code]);
 
   const handleLeaveSession = () => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-    }
+    collaborationSocketRef.current?.disconnect();
+    communicationSocketRef.current?.disconnect();
     navigate('/dashboard');
+  };
+
+  const sendMessage = () => {
+    if (input.trim() !== '' && communicationSocketRef.current) {
+      communicationSocketRef.current.emit('chatMessage', { body: input });
+      setInput('');
+    }
   };
 
   return (
@@ -118,6 +149,10 @@ function Room() {
             questionId={sessionData.questionId}
             sessionId={sessionData.sessionId}
             token={localStorage.getItem('token') || ''}
+            messages={messages}
+            input={input}
+            setInput={setInput}
+            sendMessage={sendMessage}
           />
         </Stack>
 
