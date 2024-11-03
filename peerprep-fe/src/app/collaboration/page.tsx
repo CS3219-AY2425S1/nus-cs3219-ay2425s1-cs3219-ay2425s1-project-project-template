@@ -5,10 +5,11 @@ import ProblemTable from '@/components/problems/ProblemTable';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import { SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EditorSkeleton from './components/EditorSkeleton';
+import LoadingSpinner from '@/components/loading/LoadingSpinner';
 
 const CollaborationEditor = dynamic(
   () => import('./components/CollaborationEditor'),
@@ -18,7 +19,7 @@ const CollaborationEditor = dynamic(
   },
 );
 
-const CollaborationPage = () => {
+function CollaborationPageContent() {
   const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
     null,
   );
@@ -110,6 +111,14 @@ const CollaborationPage = () => {
         />
       </div>
     </div>
+  );
+}
+
+const CollaborationPage = () => {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <CollaborationPageContent />
+    </Suspense>
   );
 };
 

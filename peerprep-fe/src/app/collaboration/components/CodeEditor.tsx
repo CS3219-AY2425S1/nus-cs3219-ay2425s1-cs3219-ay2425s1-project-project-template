@@ -1,11 +1,11 @@
 import React from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 
-interface ProblemCodeEditorProps {
+interface CodeEditorProps {
   onMount: OnMount;
 }
 
-const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({ onMount }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ onMount }) => {
   return (
     <div
       style={{
@@ -32,4 +32,4 @@ const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({ onMount }) => {
   );
 };
 
-export default ProblemCodeEditor;
+export default CodeEditor;

@@ -2,6 +2,7 @@
 
 import { Skeleton } from '@/components/ui/skeleton';
 
+// loading state skeleton for the editor
 const EditorSkeleton = () => {
   return (
     <div className="flex h-full w-full flex-col gap-4">

@@ -8,7 +8,7 @@ import { editor as MonacoEditor } from 'monaco-editor';
 import { OnMount } from '@monaco-editor/react';
 import { useAuthStore } from '@/state/useAuthStore';
 import Avatar, { genConfig } from 'react-nice-avatar';
-import ProblemCodeEditor from '@/components/problems/ProblemCodeEditor';
+import CodeEditor from './CodeEditor';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -176,7 +176,7 @@ const CollaborationEditor = ({
           ))}
         </div>
       </div>
-      <ProblemCodeEditor onMount={handleEditorMount} />
+      <CodeEditor onMount={handleEditorMount} />
     </>
   );
 };
