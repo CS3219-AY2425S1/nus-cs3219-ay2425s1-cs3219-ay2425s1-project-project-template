@@ -59,6 +59,7 @@ export type IQuestionAttempt = {
   attemptId: string;
   code: string;
   language: string;
+  timestamp: string;
   userId1: string;
   userId2?: string;
 };
