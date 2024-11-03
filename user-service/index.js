@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 app.use(`${apiVersion}/users`, userRoutes);
 app.use(`${apiVersion}/auth`, authRoutes);
 
-// Getting status of the service.
+// Getting status of the service
 app.use(`${apiVersion}/ping`, (req, res, next) => {
   res.json({
     message: 'Hello World from user-service',
