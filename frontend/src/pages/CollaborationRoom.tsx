@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { io, Socket } from "socket.io-client";
 import { Editor } from "@monaco-editor/react";
-import { Box, Typography, TextField, Button, List, ListItem, Paper } from "@mui/material";
+import { Box, Typography, TextField, Button, List, ListItem, Paper, CircularProgress, InputLabel, FormControl, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
@@ -14,10 +14,10 @@ const CollaborativeEditor: React.FC = () => {
   const { user, token } = useAuth(); // Destructure token directly
   const { roomId } = useParams<{ roomId: string }>();
   const socketRef = useRef<Socket | null>(null);
-  const [code, setCode] = useState<string>(
-    "function helloWorld() { console.log('Hello, world!'); }"
-  );
+  const [code, setCode] = useState<string>("");
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [output, setOutput] = useState<string | null>(null);
   const [messages, setMessages] = useState<{ userName: string; message: string; timestamp: number }[]>([]);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ const CollaborativeEditor: React.FC = () => {
 
   // Extract the question object from location.state
   const { question } = location.state;
+  const [language, setLanguage] = useState("javascript");
 
   useEffect(() => {
     if (!user) {
@@ -76,6 +77,24 @@ const CollaborativeEditor: React.FC = () => {
       }
     );
 
+    socketRef.current.on("code_result", ({ output }: { output: string }) => {
+      setIsLoading(false);
+      setOutput(output !== "" ? output : "None");
+      socketRef.current?.emit("code_execution_finished", { roomId });
+    });
+
+    socketRef.current.on("code_execution_started", () => {
+      setIsLoading(true);
+    });
+
+    socketRef.current.on("code_execution_finished", () => {
+      setIsLoading(false);
+    });
+
+    socketRef.current.on("change_language", ({ newLanguage }: { newLanguage: string }) => {
+      setLanguage(newLanguage);
+    });
+
     // Cleanup when the component unmounts
     return () => {
       cleanupCollaboration(code);
@@ -112,46 +131,104 @@ const CollaborativeEditor: React.FC = () => {
     }
   };
 
+  const handleRunCode = async () => {
+    if (socketRef.current) {
+      setIsLoading(true); 
+      socketRef.current.emit("code_execution_started", { roomId });
+      socketRef.current.emit("run_code", { roomId, code, language });
+    }
+  };
+
+  const handleChangeLanguage = (event: SelectChangeEvent) => {
+    const newLanguage = event.target.value as string;
+    setLanguage(newLanguage);
+    if (socketRef.current) {
+      socketRef.current.emit("change_language", { roomId, newLanguage });
+    }
+  }  
 
   return (
     <>
-      <Header />
-      <Box sx={{ display: "flex", height: "100vh", p: 2 }}>
+        <Header />
+        <Box sx={{ display: "flex", height: "100vh", p: 2 }}>
         <Box sx={{ flex: 2, pr: 4 }}>
-          {/* Displaying the hardcoded question */}
-          <Typography variant="h4">{question.title}</Typography>
-          <Typography variant="h6" color="textSecondary">
-            Difficulty: {question.complexity}
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
-            {question.description}
-          </Typography>
-
-          {/* Collaboration Info */}
-          <Typography variant="h6">Room ID: {roomId}</Typography>
-          <Typography variant="h6">User: {user?.name}</Typography>
-
-          {/* Code Editor */}
-          {isConnected ? (
-            <>
-              <Editor
-                height="65vh"
-                defaultLanguage="javascript"
-                value={code}
-                onChange={handleEditorChange}
-                theme="vs-dark"
-              />
-              <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleLeaveRoom}>
-                Leave Collaboration
-              </Button>
-            </>
-          ) : (
-            <Typography variant="h6" color="error">
-              Connecting to the collaboration room...
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="h4">{question.title}</Typography>
+          <Button 
+            variant="contained" 
+            sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'darkred' } }} 
+            onClick={handleLeaveRoom}
+          >
+            Leave Collaboration
+          </Button>
+        </Box>
+            <Typography variant="h6" color="textSecondary">
+              Difficulty: {question.complexity}
             </Typography>
-          )}
+            <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
+              {question.description}
+            </Typography>
+
+        <Typography variant="h6">Room ID: {roomId}</Typography>
+        <Typography variant="h6">User: {user?.name}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 4 }}>
+          <FormControl sx={{ width: '200px' }}>
+            <InputLabel id="demo-simple-select-label">Language</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={language}
+              label="Language"
+              onChange={handleChangeLanguage}
+            >
+              <MenuItem value={"cpp"}>C++</MenuItem>
+              <MenuItem value={"java"}>Java</MenuItem>
+              <MenuItem value={"python"}>Python3</MenuItem>
+              <MenuItem value={"c"}>C</MenuItem>
+              <MenuItem value={"javascript"}>JavaScript</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
 
+        {isConnected ? (
+          <>
+            <Editor
+              height="80vh"
+              language={language}
+              value={code}
+              onChange={handleEditorChange}
+              theme="vs-dark"
+            />
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{ mt: 2, mb: 2 }}
+              onClick={handleRunCode}
+              disabled={isLoading}
+            >
+              Run Code
+            </Button>
+            {isLoading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4, mb: 2 }}>
+                <CircularProgress />
+                <Typography sx={{ ml: 2 }}>Code is running...</Typography>
+              </Box>
+            ) : (
+              output !== null && (
+                <Box sx={{ mt: 2, mb: 2, p: 2, border: "1px solid #ccc", borderRadius: 4, backgroundColor: "#f5f5f5" }}>
+                  <Typography variant="h6">Output:</Typography>
+                  <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+                    {output}
+                  </Typography>
+                </Box>
+              )
+            )}
+          </>
+        ) : (
+          <Typography variant="h6" color="error">
+            Connecting to the collaboration room...
+          </Typography>
+        )}
         {/* Chat Section */}
         <Box sx={{ flex: 1, p: 2, borderLeft: "1px solid #ccc" }}>
           <Typography variant="h5" gutterBottom>Chat</Typography>
@@ -198,6 +275,7 @@ const CollaborativeEditor: React.FC = () => {
           <Button variant="contained" color="primary" onClick={handleSendMessage} sx={{ mt: 1 }}>
             Send
           </Button>
+        </Box>
         </Box>
       </Box>
     </>
