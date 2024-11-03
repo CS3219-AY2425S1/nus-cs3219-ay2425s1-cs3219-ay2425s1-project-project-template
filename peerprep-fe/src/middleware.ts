@@ -54,6 +54,6 @@ export const config = {
      * - favicon.ico (favicon file)
      */
 
-    '/((?!signin|_next/static|_next/image|$|signup|.*\\.png$).*)',
+    '/((?!signin|_next/static|_next/image|$|signup|oauth*|.*\\.png$).*)',
   ],
 };

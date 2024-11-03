@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { GithubIcon } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { axiosClient } from '@/network/axiosClient';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/useAuthStore';
 import Link from 'next/link';
+import { login } from '@/lib/auth';
+import { validateEmail, validatePassword } from '@/lib/utils';
+import { ValidationError } from '@/types/validation';
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
@@ -17,38 +19,83 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<ValidationError>({});
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  const validateForm = (): boolean => {
+    const errors: ValidationError = {};
+    let isValid = true;
+
+    // Validate email
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      errors.email = emailErrors;
+      isValid = false;
+    }
+
+    // Validate password
+    const passwordErrors = validatePassword(password, confirmPassword);
+    if (passwordErrors.length > 0) {
+      errors.newPassword = passwordErrors;
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    return isValid;
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setValidationErrors({});
 
-    // const type = 'user';
-    if (password !== confirmPassword) {
-      router.push('/signup');
-      setError('Passwords do not match');
+    if (!validateForm()) {
       return;
     }
-    const result = await axiosClient.post('/users', {
-      username: name,
-      email: email,
-      password: password,
-    });
 
-    if (result.request.status === 201) {
-      //Auto login after accoutn creation
+    if (!agreeTerms) {
+      setError('Please agree to the Terms of Service and Privacy Policy');
+      return;
+    }
+
+    try {
+      const result = await axiosClient.post('/users', {
+        username: name,
+        email: email,
+        password: password,
+      });
+
+      if (result.request.status !== 201) {
+        setError('Username or Email already exists');
+        return;
+      }
+
+      // Auto login after account creation
       const loginResult = await axiosClient.post('/auth/login', {
         email: email,
         password: password,
       });
+
+      if (loginResult.request.status !== 200) {
+        setError('Unable to login');
+        return;
+      }
+
       const data = loginResult.data.data;
       const token = data.accessToken;
-      setAuth(true, token, data);
-      router.push('/');
-    } else {
-      setError('Username or Email already exists');
-      console.error('Sign up failed');
+      const res = await login(token);
+
+      if (res) {
+        setAuth(true, token, data);
+        router.push('/');
+        return;
+      }
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Username or Email already exists';
+      setError(message);
     }
   };
 
@@ -57,8 +104,6 @@ export default function SignUpPage() {
       <div className="w-full max-w-md space-y-6 rounded-lg bg-gray-800 p-8 shadow-xl">
         {error && (
           <Alert variant="destructive" className="mb-4">
-            {/* <AlertCircle className="h-4 w-4" /> */}
-            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -88,8 +133,19 @@ export default function SignUpPage() {
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full rounded-md border ${
+                validationErrors.email ? 'border-red-500' : 'border-gray-600'
+              } bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
+            {validationErrors.email && (
+              <div className="mt-1 space-y-1">
+                {validationErrors.email.map((error, index) => (
+                  <p key={index} className="text-xs text-red-500">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <Input
@@ -97,8 +153,21 @@ export default function SignUpPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full rounded-md border ${
+                validationErrors.newPassword
+                  ? 'border-red-500'
+                  : 'border-gray-600'
+              } bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
+            {validationErrors.newPassword && (
+              <div className="mt-1 space-y-1">
+                {validationErrors.newPassword.map((error, index) => (
+                  <p key={index} className="text-xs text-red-500">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <Input
@@ -106,7 +175,7 @@ export default function SignUpPage() {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full rounded-md border bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
           <div className="flex items-center">
@@ -131,37 +200,6 @@ export default function SignUpPage() {
             Sign up
           </Button>
         </form>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-600"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-gray-800 px-2 text-gray-400">
-              Or continue with
-            </span>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            className="rounded-md border border-gray-600 bg-gray-700 py-2 text-sm font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-          >
-            <GithubIcon className="mr-2 h-5 w-5" />
-            GitHub
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-md border border-gray-600 bg-gray-700 py-2 text-sm font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-          >
-            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
-              />
-            </svg>
-            Google
-          </Button>
-        </div>
       </div>
     </div>
   );

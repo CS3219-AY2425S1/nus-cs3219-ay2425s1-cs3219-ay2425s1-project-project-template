@@ -28,3 +28,10 @@ export const DEFAULT_CODE = `int main() {
     "Hello World!";
     return 0;
 }`;
+
+export const PASSWORD_RULES = {
+  minLength: 8,
+};
+
+// Email validation regex
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
