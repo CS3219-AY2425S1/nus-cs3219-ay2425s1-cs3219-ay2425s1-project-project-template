@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import draculaTheme from "monaco-themes/themes/Dracula.json";
+import cloudsMidnight from "monaco-themes/themes/Clouds Midnight.json";
 import Editor, { Monaco } from "@monaco-editor/react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
@@ -25,7 +25,7 @@ export default function CollaborativeEditor({
   currentUser,
   socketUrl = "ws://localhost:4001",
   language = "python",
-  themeName = "dracula",
+  themeName = "clouds-midnight",
 }: CollaborativeEditorProps) {
   const { codeReview } = useSessionContext();
   const { setCurrentClientCode } = codeReview;
@@ -72,7 +72,7 @@ export default function CollaborativeEditor({
     (e: editor.IStandaloneCodeEditor, monaco: Monaco) => {
       // @ts-expect-error: we ignore since monaco-theme library is outdated with the latest
       // monaco expected theme types but it still works
-      monaco.editor.defineTheme(themeName, draculaTheme);
+      monaco.editor.defineTheme(themeName, cloudsMidnight);
       monaco.editor.setTheme(themeName);
       setEditorRef(e);
     },
