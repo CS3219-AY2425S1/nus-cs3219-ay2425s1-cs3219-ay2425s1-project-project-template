@@ -1,4 +1,4 @@
-import { Group, Skeleton, Stack } from '@mantine/core';
+import { Group, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useEffect, useRef, useState } from 'react';
@@ -10,6 +10,7 @@ import ConfirmationModal from '../components/modal/ConfirmationModal';
 import RoomTabs from '../components/tabs/RoomTabs';
 import config from '../config';
 import { ChatMessage } from '../components/tabs/ChatBoxTab';
+import VideoCall from '../components/videoCall/VideoCall';
 
 function Room() {
   const [isLeaveSessionModalOpened, { open: openLeaveSessionModal, close: closeLeaveSessionModal }] = useDisclosure(false);
@@ -141,8 +142,10 @@ function Room() {
       <Group h="100vh" bg="slate.8" gap="10px" p="10px">
         <Stack h="100%" w="500px" gap="10px">
           <Group gap="10px">
-            <Skeleton h="150px" w="calc(50% - 5px)" />
-            <Skeleton h="150px" w="calc(50% - 5px)" />
+            <VideoCall
+              communicationSocket={communicationSocketRef.current}
+              roomId={sessionData?.sessionId}
+            />
           </Group>
           <RoomTabs
             questionId={sessionData.questionId}
