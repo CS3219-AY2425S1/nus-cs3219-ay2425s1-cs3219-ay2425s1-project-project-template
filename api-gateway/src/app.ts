@@ -13,10 +13,9 @@ import WebSocket from 'ws';
 
 const app = express();
 
-// Middleware
-app.use(cors(config.corsOptions));
-app.options('*', cors(config.corsOptions)); // enable pre-flight for all routes
 app.use(express.json());
+app.use(cors()); // configured so everyone can use
+app.options('*', cors());
 
 // Logging middleware
 // app.use((req, res, next) => {
