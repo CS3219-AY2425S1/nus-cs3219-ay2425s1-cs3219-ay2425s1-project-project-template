@@ -12,7 +12,7 @@ export default function CallNotification({ notification, handleCallResponse } : 
 
 
     return (
-        <Dialog open={notification.isOpen} onClose={() => handleCallResponse(false)} >
+        <Dialog open={notification.isOpen} onClose={() => handleCallResponse(false)} maxWidth="lg"  >
             <DialogTitle textAlign="center">
                 Incoming Call
             </DialogTitle>
@@ -24,10 +24,15 @@ export default function CallNotification({ notification, handleCallResponse } : 
                 alignItems: "center",
                 gap:"10px"
             }}>
-                <DialogContentText textAlign="center">
+                <DialogContentText textAlign="center" fontSize="24px">
                     {notification.caller.username}
                 </DialogContentText>
-                <Avatar  alt="Remy Sharp" src={notification.caller.avatar} sx={{width:56, height:56}}/>
+                <Avatar alt={notification.caller.username} src={notification.caller.avatar} sx={
+                    { 
+                        width: 80, 
+                        height:80,
+                        border:"0.1px solid lightgray"
+                    }} />
             </Box>
             <DialogActions className="flex justify-center items-center">
                 <Box sx={{
@@ -35,14 +40,13 @@ export default function CallNotification({ notification, handleCallResponse } : 
                 minHeight:"100%",
                 minWidth: "100%",
                 flex: "1",
-                justifyContent:"center",
-                alignItems: "center",
-                gap:"10px"}}
+                justifyContent:"space-evenly",
+                alignItems: "center"}}
                 >
-                    <IconButton size="large" onClick={() => handleCallResponse(true)}>
+                    <IconButton size="large" onClick={() => handleCallResponse(true)} color="success">
                         <PhoneEnabledRoundedIcon/>
                     </IconButton>
-                    <IconButton onClick={() => handleCallResponse(false)}>
+                    <IconButton onClick={() => handleCallResponse(false)} color="error">
                         <PhoneDisabledRoundedIcon/>
                     </IconButton>
 

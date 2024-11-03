@@ -21,6 +21,7 @@ import { blue, lightBlue, lightGreen } from "@mui/material/colors";
 import { LoadingButton } from "@mui/lab";
 import CallNotification from "../../components/Communication/callNotification";
 import VideoCall from "../../components/Communication/videoCall";
+import toast from "react-hot-toast";
 
 type Caller = {
   username: string,
@@ -53,14 +54,15 @@ const CollaborationPage: FC = () => {
   const [isChangeQuestionModalOpen, setIsChangeQuestionModalOpen] =
     useState(false);
   const [isAwaitingCallResponse, setIsAwaitingCallResponse] = useState(false);
-  const [notification, setNotifcation] = useState<CallNotificationState>({
+  const [notification, setNotification] = useState<CallNotificationState>({
     caller: {
       username: "",
       avatar: ""
     },
     isOpen: false
   })
-
+  const [isInCall, setIsInCall] = useState(false);
+  const [callTimeout, setCallTimeout] = useState<NodeJS.Timeout | null>(null)
 
   const handleOpenLeaveRoomModal = () => {
     setIsLeaveRoomModalOpen(true);
@@ -93,30 +95,29 @@ const CollaborationPage: FC = () => {
   const handleCallButtonClick = () => {
     commSocket!.emit("initiate-call", roomId, {username: user.username, avatar: user.avatar});
     setIsAwaitingCallResponse(true);
+    const timeout = setTimeout(() => {
+      setIsAwaitingCallResponse(false);
+      commSocket?.emit("call-timeout", roomId);
+    }, 15000);
+    setCallTimeout(timeout);
+
     
   }
   const handleCallResponse = (isAnswer: boolean) => {
-    setNotifcation(oldNotification => ({...oldNotification, isOpen: false}));
+    setNotification(oldNotification => ({...oldNotification, isOpen: false}));
     commSocket?.emit("call-response", isAnswer, roomId);
+    if (isAnswer) {
+      commSocket?.emit("start-video", roomId, true);
+    }
+    setIsInCall(isAnswer);
+  }
+  
+  const handleStopVideo = () => {
+    commSocket?.emit("stop-video", roomId);
+    setIsInCall(false);
   }
 
-
   useEffect(() => {
-
-    // collabSocket = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
-    //   auth: {
-    //     userId: user.id,
-    //     username: user.username
-    //   },
-    //   transports: ["websocket"]
-    // });
-    // commSocket = io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
-    //   auth: {
-    //     userId: user.id,
-    //     username: user.username
-    //   },
-    //   transports: ["websocket"]
-    // });
     setCollabSocket(io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
       auth: {
         userId: user.id,
@@ -132,25 +133,6 @@ const CollaborationPage: FC = () => {
       transports: ["websocket"],
     }));
 
-    // if (!collabSocket) {
-    //   navigate("/");
-    //   return;
-    // }
-    // if (!commSocket) {
-    //   navigate("/");
-    //   return;
-    // }
-    
-    // if (!collabSocket.connected) {
-    //   collabSocket.connect();
-    // }
-
-    // if (!commSocket.connected) {
-    //   commSocket.connect();
-    // }
-
-
-  
     }, [])
   
     useEffect(() => {
@@ -178,10 +160,8 @@ const CollaborationPage: FC = () => {
         navigate("/");
       });
   
-      collabSocket.on("user-left", (_user: string) => {
-        collabSocket?.disconnect();
-        commSocket?.disconnect();
-        navigate("/");
+      collabSocket.on("user-left", (user: string) => {
+        toast.error(`${user} has left the room.`)
       });
   
       collabSocket.on("sync-question", (question: Question) => {
@@ -189,25 +169,38 @@ const CollaborationPage: FC = () => {
       });
       
       commSocket.on("incoming-call", (caller : Caller) => {
-        setNotifcation({
+        setNotification({
           caller: caller,
           isOpen: true
         });
       });
   
       commSocket.on("call-response", (isAnswer : boolean) => {
+        if (callTimeout) {
+          clearTimeout(callTimeout);
+          setCallTimeout(null);
+        }
         setIsAwaitingCallResponse(false);
-        
+        if (isAnswer) {
+          commSocket.emit("start-video")
+          setIsInCall(true);
+        }
       });
+
+      commSocket.on("call-timeout", () => {
+        setNotification(oldNotification => ({...oldNotification, isOpen: false}));
+      })
+
+      commSocket.on("stop-video", () => {
+        setIsInCall(false);
+      })
     
       return () => {
         if (collabSocket && collabSocket!.connected) {
-          collabSocket.removeAllListeners();
           collabSocket.disconnect();
         }  
         
         if (commSocket && commSocket.connected) {
-              commSocket.removeAllListeners();
               commSocket.disconnect();
           }
       };
@@ -216,7 +209,8 @@ const CollaborationPage: FC = () => {
   return (
     <div className="min-h-screen text-white">
       {/* Header */}
-      {/* <VideoCall/> */}
+      <VideoCall/>
+
       <Box>
         <AppBar
           position="static"
@@ -231,6 +225,16 @@ const CollaborationPage: FC = () => {
               />
               {/* Flexible space to push buttons to the right */}
               <Box sx={{ flexGrow: 1 }} />
+              {isInCall ? 
+              <Button
+              variant="contained"
+              onClick={handleStopVideo}
+              startIcon={<PeopleIcon />}
+              sx={{ mx: 3 }}
+              className="px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                Stop Video
+              </Button>
+              : 
               <LoadingButton
                 variant="contained"
                 onClick={handleCallButtonClick}
@@ -243,8 +247,8 @@ const CollaborationPage: FC = () => {
                 className="px-4 py-2 rounded hover:bg-green-500 transition-colors"
                 loading={isAwaitingCallResponse}>
                   Call Peer
-
               </LoadingButton>
+              }
 
               <Button
                 variant="contained"

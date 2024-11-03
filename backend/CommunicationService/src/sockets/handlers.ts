@@ -35,6 +35,18 @@ export function initializeCommunicationSockets(io: Server) {
         console.log(`${socket.data.username} has responded with a ${isAnswer? "Yes" : "No"}`);
     })
 
+    socket.on("call-timeout", (roomId: string) => {
+      socket.to(roomId).emit("call-timeout");
+    })
+
+    socket.on("start-video", (roomId: string, isInitiator: boolean) => {
+      socket.to(roomId).emit("start-video", isInitiator);
+    })
+
+    socket.on("stop-video", (roomId: string) => {
+      socket.nsp.to(roomId).emit("stop-video");
+    })
+
     socket.on("signal", (roomId: string, signal: SignalData) => {
         socket.to(roomId).emit("signal", signal);
         console.log(`${socket.data.username} signalled`);
@@ -42,7 +54,9 @@ export function initializeCommunicationSockets(io: Server) {
     
     socket.on("disconnecting", () => {
       // leaves all rooms, ideally only one
+      
       socket.rooms.forEach((roomID: string) => {
+          socket.nsp.to(roomID).emit("stop-video");
           console.log(`Socket has left ${roomID}`);
           socket.leave(roomID);
       });
