@@ -155,7 +155,7 @@ export default function QuestionPage() {
         submittedAt: submittedAt.toLocaleString("en-US"),
         language: data.language,
         matchedUser:
-          username == data.matchedUser ? data.User : data.matchedUser,
+          username == data.matchedUser ? data.user : data.matchedUser,
         code: data.code,
         historyDocRefId: data.historyDocRefId,
       });
