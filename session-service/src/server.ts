@@ -23,7 +23,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json()); //
 
 /**
  * Create an http server
