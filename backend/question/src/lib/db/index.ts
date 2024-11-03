@@ -11,6 +11,6 @@ export const config = {
 
 const queryClient = postgres(config);
 
-export const db = drizzle(queryClient, { logger: true });
+export const db = drizzle(queryClient);
 
 export * from './schema';
