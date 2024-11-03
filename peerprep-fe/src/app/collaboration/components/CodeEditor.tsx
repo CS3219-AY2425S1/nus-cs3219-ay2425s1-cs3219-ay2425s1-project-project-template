@@ -1,11 +1,12 @@
 import React from 'react';
-import Editor from '@monaco-editor/react';
+import Editor, { OnMount } from '@monaco-editor/react';
 
-interface ProblemCodeEditorProps {
-  onMount: (editor: any, monaco: any) => void;
+interface CodeEditorProps {
+  onMount: OnMount;
+  language: string;
 }
 
-const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({ onMount }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ onMount, language }) => {
   return (
     <div
       style={{
@@ -18,7 +19,7 @@ const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({ onMount }) => {
       <Editor
         height="100%"
         width="100%"
-        language="python"
+        language={language}
         theme="vs-dark"
         onMount={onMount}
         options={{
@@ -32,4 +33,4 @@ const ProblemCodeEditor: React.FC<ProblemCodeEditorProps> = ({ onMount }) => {
   );
 };
 
-export default ProblemCodeEditor;
+export default CodeEditor;

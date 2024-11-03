@@ -192,7 +192,7 @@ export async function deleteUser(req, res) {
 
 export function formatUserResponse(user) {
   return {
-    id: user.id,
+    id: user.id ?? user._id.toString(),
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,
