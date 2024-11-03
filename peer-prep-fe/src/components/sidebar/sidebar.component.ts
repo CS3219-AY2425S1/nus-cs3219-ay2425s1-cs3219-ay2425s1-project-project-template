@@ -74,12 +74,19 @@ export class SidebarComponent {
     return color;
   }
 
-  // getFormattedDescription(): string {
-  //   return this.question.question_description.split('. ').join('.<br><br>'); 
-  // }
-
   getFormattedDescription(): string {
-    return this.question ? this.question.question_description.split('. ').join('.<br><br>') : "Default hardcoded description text.";
+    if (this.question && this.question.question_description) {
+      return (
+        '<p>' +
+        this.question.question_description
+            .replace(/\n\n/g, '</p><p>')                
+            .replace(/\n/g, '<br>')                      
+            .replace(/(\d+\.)\s/g, '<div class="numbered-item"><b>$1</b> ') 
+            .replace(/(<br>)+/g, '<br>') +               
+        '</p>'
+      );
+    } 
+    return "Default hardcoded description text.";
   }
   
 }
