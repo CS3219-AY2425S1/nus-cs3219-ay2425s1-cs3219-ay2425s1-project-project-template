@@ -52,9 +52,13 @@ export function initializeCommunicationSockets(io: Server) {
         console.log(`${socket.data.username} signalled`);
     })
     
+    socket.on("call-error", (roomId: string) => {
+      socket.nsp.to(roomId).emit("call-error");
+      socket.nsp.to(roomId).emit("stop-video");
+    })
+
     socket.on("disconnecting", () => {
-      // leaves all rooms, ideally only one
-      
+      // leaves all rooms, ideally only one  
       socket.rooms.forEach((roomID: string) => {
           socket.nsp.to(roomID).emit("stop-video");
           console.log(`Socket has left ${roomID}`);

@@ -3,6 +3,7 @@ import SimplePeer, { SignalData } from "simple-peer";
 import { useParams } from "react-router-dom";
 import { useSocket } from "../../contexts/SocketContext";
 import Draggable from "react-draggable";
+import toast from "react-hot-toast";
 
 
 
@@ -42,6 +43,12 @@ export default function VideoCall() {
             setIsShowVideo(false);
         })
         
+        commSocket.on("call-error", () => {
+            stopVideo();
+            toast.error("Error occured on call");
+        })
+
+
         return () => {
             commSocket.off("signal");
             stopVideo();
@@ -75,6 +82,10 @@ export default function VideoCall() {
                     remoteVideo.current.srcObject = remoteStream;
                 }
             });
+        })
+        .catch((_err : Error) => {
+            stopVideo();
+            commSocket?.emit("call-error", roomId);
         });
     }
 
