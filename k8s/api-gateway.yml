@@ -41,6 +41,7 @@ spec:
   ports:
     - port: 8001
       targetPort: 8001
+      name: http
   selector:
     app: api-gateway
 ---
