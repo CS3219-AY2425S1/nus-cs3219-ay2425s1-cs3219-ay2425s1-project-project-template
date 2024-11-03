@@ -91,7 +91,7 @@ export default function QuestionPage() {
 
   const columns = [
     {
-      title: "Title",
+      title: "Question Title",
       dataIndex: "title",
       key: "title",
     },

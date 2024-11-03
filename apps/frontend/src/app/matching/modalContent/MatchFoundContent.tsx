@@ -53,12 +53,6 @@ const MatchFoundContent: React.FC<Props> = ({
       <div className="match-status-message">
         Joining in... {formatTime(totalSeconds)}
       </div>
-      <button className="join-match-button" onClick={join}>
-        Join
-      </button>
-      <button className="cancel-match-button" onClick={cancel}>
-        Cancel
-      </button>
     </div>
   );
 };
