@@ -9,6 +9,7 @@ import { Socket, io } from 'socket.io-client';
 import { executeCode } from '../apis/CodeExecutionApi';
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
 import ConfirmationModal from '../components/modal/ConfirmationModal';
+import CodeOutputTabs from '../components/tabs/CodeOutputTabs';
 import RoomTabs from '../components/tabs/RoomTabs';
 import config from '../config';
 import {
@@ -162,16 +163,19 @@ function Room() {
           <RoomTabs questionId={sessionData?.questionId} />
         </Stack>
 
-        <CodeEditorLayout
-          openLeaveSessionModal={openLeaveSessionModal}
-          code={code}
-          setCode={setCode}
-          language={language}
-          setLanguage={setLanguage}
-          isRunningCode={isRunningCode}
-          handleRunCode={handleRunCode}
-          viewUpdateRef={viewUpdateRef}
-        />
+        <Stack h="100%" w="calc(100% - 510px)" gap="10px">
+          <CodeEditorLayout
+            openLeaveSessionModal={openLeaveSessionModal}
+            code={code}
+            setCode={setCode}
+            language={language}
+            setLanguage={setLanguage}
+            isRunningCode={isRunningCode}
+            handleRunCode={handleRunCode}
+            viewUpdateRef={viewUpdateRef}
+          />
+          <CodeOutputTabs />
+        </Stack>
       </Group>
 
       <ConfirmationModal

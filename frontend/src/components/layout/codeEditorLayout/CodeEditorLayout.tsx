@@ -45,7 +45,7 @@ function CodeEditorLayout({
   return (
     <Stack
       h="100%"
-      w="calc(100% - 510px)"
+      w="100%"
       gap={0}
       bg="slate.9"
       style={{ borderRadius: '4px' }}
