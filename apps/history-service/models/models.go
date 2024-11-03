@@ -23,3 +23,12 @@ type CollaborationHistory struct {
 	UpdatedAt       time.Time `json:"updatedAt" firestore:"updatedAt"` // updatedAt is unused as history is never updated once created
 	HistoryDocRefID string    `json:"historyDocRefId"`
 }
+
+// Sorting interface for history, which sorts by created at in desc order
+type HistorySorter []CollaborationHistory
+
+func (s HistorySorter) Len() int { return len(s) }
+func (s HistorySorter) Less(i, j int) bool {
+	return s[i].CreatedAt.After(s[j].CreatedAt)
+}
+func (s HistorySorter) Swap(i, j int) { s[i], s[j] = s[j], s[i] }

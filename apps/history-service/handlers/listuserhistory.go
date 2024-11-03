@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"history-service/models"
 	"net/http"
+	"sort"
 
-	"cloud.google.com/go/firestore"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
 )
@@ -21,11 +21,11 @@ func (s *Service) ListUserHistories(w http.ResponseWriter, r *http.Request) {
 
 	// Query data
 	iterUser := collRef.Where("user", "==", username).
-		OrderBy("createdAt", firestore.Desc).
 		Documents(ctx)
+	defer iterUser.Stop()
 	iterMatchedUser := collRef.Where("matchedUser", "==", username).
-		OrderBy("createdAt", firestore.Desc).
 		Documents(ctx)
+	defer iterUser.Stop()
 
 	// Map data
 	var histories []models.CollaborationHistory
@@ -72,6 +72,9 @@ func (s *Service) ListUserHistories(w http.ResponseWriter, r *http.Request) {
 
 		histories = append(histories, history)
 	}
+
+	// Sort the histories by created at time
+	sort.Sort(models.HistorySorter(histories))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
