@@ -4,6 +4,7 @@ import { langs } from '@uiw/codemirror-extensions-langs';
 import { Extension, ViewUpdate } from '@uiw/react-codemirror';
 import { useState } from 'react';
 
+import { SupportedLanguage } from '../../../types/CodeExecutionType';
 import CodeEditor from '../../codeEditor/CodeEditor';
 import classes from './CodeEditorLayout.module.css';
 
@@ -13,11 +14,6 @@ interface CodeEditorLayoutProps {
   setCode: React.Dispatch<React.SetStateAction<string>>;
   viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
 }
-
-type SupportedLanguage = Extract<
-  keyof typeof langs,
-  'python' | 'javascript' | 'cpp'
->;
 
 const supportedLanguages: SupportedLanguage[] = ['python', 'javascript', 'cpp'];
 
