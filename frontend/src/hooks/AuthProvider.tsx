@@ -1,8 +1,21 @@
 import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { login, getUserProfile, updateUserProfile, forgotPassword} from '../apis/AuthApi';
-import { AuthResponse, LoginInput, UpdateProfileInput, Profile, ForgotPasswordInput } from '../types/Api';
+import {
+  forgotPassword,
+  getUserProfile,
+  login,
+  resetPassword,
+  updateUserProfile,
+} from '../apis/AuthApi';
+import {
+  AuthResponse,
+  ForgotPasswordInput,
+  LoginInput,
+  Profile,
+  ResetPasswordInput,
+  UpdateProfileInput,
+} from '../types/Api';
 
 type AuthContextProps = {
   token: string | null;
@@ -13,14 +26,20 @@ type AuthContextProps = {
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => Promise<void>;
   logOutAction: () => void;
-  getProfileAction: (setError: React.Dispatch<React.SetStateAction<string | null>>) => Promise<void>;
+  getProfileAction: (
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => Promise<void>;
   updateProfileAction: (
     profileData: UpdateProfileInput,
-    setError: React.Dispatch<React.SetStateAction<string | null>>
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => Promise<void>;
   forgotPasswordAction: (
     email: ForgotPasswordInput,
-    setError: React.Dispatch<React.SetStateAction<string | null>>
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => Promise<void>;
+  resetPasswordAction: (
+    password: ResetPasswordInput,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => Promise<void>;
 };
 
@@ -33,6 +52,7 @@ const AuthContext = createContext<AuthContextProps>({
   getProfileAction: () => Promise.resolve(),
   updateProfileAction: () => Promise.resolve(),
   forgotPasswordAction: () => Promise.resolve(),
+  resetPasswordAction: () => Promise.resolve(),
 });
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -74,8 +94,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     getUserProfile()
       .then((response) => {
         setError(null);
-        setUserProfile(response); // Assuming response contains user profile data
-        console.log("Fetched user profile successfully:", response);
+        setUserProfile(response);
+        console.log('Fetched user profile successfully:', response);
       })
       .catch((error) => {
         setError(error);
@@ -89,7 +109,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     updateUserProfile(profileData)
       .then((response) => {
         setError(null);
-        console.log("Profile updated successfully:", response);
+        console.log('Profile updated successfully:', response);
       })
       .catch((error: any) => {
         setError(error);
@@ -103,7 +123,21 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     forgotPassword(email)
       .then((response) => {
         setError(null);
-        console.log("Password reset email sent successfully:", response);
+        console.log('Password reset email sent successfully:', response);
+      })
+      .catch((error) => {
+        setError(error);
+      });
+  };
+
+  const resetPasswordAction = async (
+    password: ResetPasswordInput,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => {
+    resetPassword(password)
+      .then((response) => {
+        setError(null);
+        console.log('Password reset successfully:', response);
       })
       .catch((error) => {
         setError(error);
@@ -111,7 +145,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, userId, userProfile, loginAction, logOutAction, getProfileAction, updateProfileAction, forgotPasswordAction }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        userId,
+        userProfile,
+        loginAction,
+        logOutAction,
+        getProfileAction,
+        updateProfileAction,
+        forgotPasswordAction,
+        resetPasswordAction,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

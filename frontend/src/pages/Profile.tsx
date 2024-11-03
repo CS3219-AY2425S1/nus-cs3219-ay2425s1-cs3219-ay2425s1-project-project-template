@@ -2,20 +2,20 @@ import {
   AppShell,
   Avatar,
   Button,
-  Group,
   Container,
+  Group,
   Paper,
-  Text,
   Stack,
+  Text,
   Title,
 } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/AuthProvider';
 import { useDisclosure } from '@mantine/hooks';
-import Header from '../components/header/Header';
+import { useEffect, useState } from 'react';
 
+import Header from '../components/header/Header';
 import EditProfileModal from '../components/modal/EditProfileModal';
+import { useAuth } from '../hooks/AuthProvider';
 
 function Profile() {
   const [username, setUsername] = useState('');
@@ -43,7 +43,7 @@ function Profile() {
       }
     }
     fetchProfile();
-  }, [auth.userProfile]); 
+  }, [auth.userProfile]);
 
   const openEditModal = () => {
     openEditProfileModal();
@@ -51,47 +51,50 @@ function Profile() {
 
   return (
     <>
-    <AppShell withBorder={false} header={{ height: 80 }}>
-      <Header />
-      <AppShell.Main
-        h="calc(100vh - 80px)"
-        w="100%"
-        bg="slate.9"
-        style={{ overflowY: 'auto' }}
-      >
-        <Container size="sm" py="xl">
-          <Paper shadow="md" p="xl" withBorder>
-            <Group justify="center" mb="xl">
-              <Title order={2}>{username}</Title>
-              <Avatar
-                src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
-                radius="xl"
-              />
-              <Button onClick={openEditModal}>Edit Profile</Button>
-            </Group>
+      <AppShell withBorder={false} header={{ height: 80 }}>
+        <Header />
+        <AppShell.Main
+          h="calc(100vh - 80px)"
+          w="100%"
+          bg="slate.9"
+          style={{ overflowY: 'auto' }}
+        >
+          <Container size="sm" py="xl">
+            <Paper shadow="md" p="xl" withBorder>
+              <Group justify="center" mb="xl">
+                <Title order={2}>{username}</Title>
+                <Avatar
+                  src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+                  radius="xl"
+                />
+                <Button onClick={openEditModal}>Edit Profile</Button>
+              </Group>
 
-            <Stack justify="md">
-              <Paper withBorder p="md">
-                <Title order={4} mb="xs">Email</Title>
-                <Text>{email}</Text>
-              </Paper>
-              <Paper withBorder p="md">
-                <Title order={4} mb="xs">Last Login</Title>
-                <Text>{new Date(lastLogin).toLocaleString()}</Text>
-              </Paper>
-            </Stack>
-          </Paper>
-        </Container>
+              <Stack justify="md">
+                <Paper withBorder p="md">
+                  <Title order={4} mb="xs">
+                    Email
+                  </Title>
+                  <Text>{email}</Text>
+                </Paper>
+                <Paper withBorder p="md">
+                  <Title order={4} mb="xs">
+                    Last Login
+                  </Title>
+                  <Text>{new Date(lastLogin).toLocaleString()}</Text>
+                </Paper>
+              </Stack>
+            </Paper>
+          </Container>
+        </AppShell.Main>
+      </AppShell>
 
-      </AppShell.Main>
-    </AppShell>
-
-    <EditProfileModal
-      isEditProfileModalOpen={isEditProfileModalOpened}
-      closeEditProfileModal={closeEditProfileModal}
-      initialUsername={username}
-    />
-</>
+      <EditProfileModal
+        isEditProfileModalOpen={isEditProfileModalOpened}
+        closeEditProfileModal={closeEditProfileModal}
+        initialUsername={username}
+      />
+    </>
   );
 }
 

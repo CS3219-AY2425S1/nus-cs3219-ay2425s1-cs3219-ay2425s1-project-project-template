@@ -65,7 +65,7 @@ function LoginModal({
   const handleForgotPassword = () => {
     handleCloseLoginModal();
     openForgotPasswordModal();
-  }
+  };
 
   return (
     <>

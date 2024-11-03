@@ -11,6 +11,7 @@ import Admin from './pages/Admin';
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
+import ResetPassword from './pages/ResetPassword';
 import Room from './pages/Room';
 
 const theme = createTheme({
@@ -44,6 +45,7 @@ function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/room" element={<Room />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

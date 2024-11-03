@@ -10,28 +10,27 @@ export type LoginInput = {
 
 export type ForgotPasswordInput = {
   email: string;
-}
+};
 
 export type ResetPasswordInput = {
   password: string;
-  token: string;
-}
+  passwordConfirmation: string;
+};
 
 export type UpdateProfileInput = {
   username: string;
   password: string;
-}
+};
 
 export type Profile = {
-    id: string;
-    email: string;
-    username: string;
-    lastLogin: string;
-}
+  id: string;
+  email: string;
+  username: string;
+  lastLogin: string;
+};
 
 export type RegisterInput = {
   email: string;
   username: string;
   password: string;
 };
-
