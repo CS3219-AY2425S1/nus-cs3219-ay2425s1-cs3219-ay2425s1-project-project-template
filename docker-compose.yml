@@ -107,6 +107,14 @@ services:
       - peer-prep-network
     restart: on-failure:10
 
+  redis:
+    image: redis:6.2.6
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    networks:
+      - peer-prep-network
+
   question:
     build: ./backend/question
     container_name: question-container
