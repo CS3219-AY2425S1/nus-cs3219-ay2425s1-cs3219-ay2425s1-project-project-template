@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5001; // 5001 to prevent conflicts
 
 app.use(express.json());
-app.use(cors()); // config cors so that front-end can use
+app.use(cors()); // config cors so that front-end can use.
 app.options("*", cors());
 
 const apiVersion = "/api/v1";
