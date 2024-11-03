@@ -1,6 +1,12 @@
 import { fetchSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
 import { NewQuestionData } from "@/types/find-match";
-import { useEffect, useRef, useState } from "react";
+import {
+  KeyboardEvent,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
 import { fetchSession } from "@/api/collaboration";
@@ -21,9 +27,6 @@ interface Message {
   title: string;
   text: string;
 }
-
-const lorem =
-  "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
 
 const Question = ({ collabid }: { collabid: string }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
@@ -88,7 +91,9 @@ const Question = ({ collabid }: { collabid: string }) => {
     }
   }, [messages]);
 
-  const handleClick = (e) => {
+  const handleClick = (
+    e: React.MouseEvent<HTMLButtonElement> | KeyboardEvent
+  ) => {
     e.preventDefault();
     if (!inputMessage) return;
     console.log(inputMessage);
@@ -173,13 +178,17 @@ const Question = ({ collabid }: { collabid: string }) => {
           className="self-end"
           value={inputMessage}
           rightButtons={<Button onClick={handleClick}>Send</Button>}
-          onChange={(e) => setInputMessage(e.target.value)}
+          onChange={(e: { target: { value: SetStateAction<string> } }) =>
+            setInputMessage(e.target.value)
+          }
           onKeyDown={(e) => {
             console.log(e);
             if (e.key === "Enter") {
               handleClick(e);
             }
           }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {...({} as any)}
         />
       </div>
     </div>
