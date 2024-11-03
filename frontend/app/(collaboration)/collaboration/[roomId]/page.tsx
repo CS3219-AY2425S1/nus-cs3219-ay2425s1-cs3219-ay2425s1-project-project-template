@@ -149,19 +149,16 @@ export default function Page() {
             {/* Output Section */}
             <div className="flex-col flex-[1_1_0%] p-2 overflow-x-auto space-y-4">
               <div className="flex justify-between mb-1">
-                <Avatar
-                  isBordered
-                  color={isAvatarActive(otherUser)}
-                  name={otherUser}
-                />
-                <Avatar
-                  isBordered
-                  className="mx-2"
-                  color="success"
-                  name={user?.username}
-                />
+                <div className="flex space-x-4">
+                  <Avatar
+                    isBordered
+                    color={isAvatarActive(otherUser)}
+                    name={otherUser}
+                  />
+                  <Avatar isBordered color="success" name={user?.username} />
+                </div>
                 <Button
-                  className="justify-self-end mx-8"
+                  className="justify-self-end"
                   color="danger"
                   onPress={onOpen}
                 >
