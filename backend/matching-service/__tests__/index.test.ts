@@ -3,8 +3,10 @@ import configMock from '../__mocks__/config.mock'
 import app from '../src/index'
 
 jest.mock('../src/common/config.util', () => configMock)
-jest.mock('../src/common/rabbitmq.util', () => () => {})
-jest.mock('../src/services/rabbitmq.service', () => {})
+jest.mock('../src/server.ts', () => {
+    wsConnection: {
+    }
+})
 
 describe('Index', () => {
     describe('GET /', () => {
