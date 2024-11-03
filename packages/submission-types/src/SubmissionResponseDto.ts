@@ -1,6 +1,7 @@
 import { IsNumber, IsOptional, IsString, validate, ValidateNested, ValidationError } from 'class-validator'
 import { Type } from 'class-transformer'
 import { AxiosResponse } from 'axios'
+import 'reflect-metadata'
 
 class StatusDto {
     @IsNumber()

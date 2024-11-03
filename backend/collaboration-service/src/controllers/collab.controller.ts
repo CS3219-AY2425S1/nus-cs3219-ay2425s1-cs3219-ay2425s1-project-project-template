@@ -69,9 +69,9 @@ export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto
     }
 
     const submissionResponseDto = SubmissionResponseDto.fromResponse(res)
-    const responseErrors = submissionResponseDto.validate()
+    const responseErrors = await submissionResponseDto.validate()
 
-    if (!(await responseErrors).length) {
+    if (responseErrors.length) {
         const errorMessages = requestErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
