@@ -44,7 +44,7 @@ export default function QuestionPage() {
   // Handler for change in page jumper
   const onPageJump: PaginationProps["onChange"] = (pageNumber) => {
     setPaginationParams((prev) => {
-      loadQuestionHistories(pageNumber, paginationParams.limit);
+      loadQuestionHistories(pageNumber, prev.limit);
       return { ...paginationParams, currentPage: pageNumber };
     });
   };

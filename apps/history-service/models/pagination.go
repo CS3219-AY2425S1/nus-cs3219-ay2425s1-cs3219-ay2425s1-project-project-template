@@ -18,8 +18,12 @@ func PaginateResponse(limit, offset int, histories []SubmissionHistory) *Histori
 		if end > len(histories) {
 			end = len(histories)
 		}
-		paginatedHistory = histories[start:end]
+	} else {
+		start = 0
+		offset = 0
+		end = limit
 	}
+	paginatedHistory = histories[start:end]
 
 	// Calculate pagination info
 	totalCount := len(histories)
