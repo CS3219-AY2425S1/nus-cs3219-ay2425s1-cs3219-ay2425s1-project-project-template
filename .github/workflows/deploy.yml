@@ -30,5 +30,6 @@ jobs:
       - name: "Trigger Cloud Build"
         env: # have to use env here as cant use secrets in kubernetes for nextJS
           NEXT_PUBLIC_API_GATEWAY_URL: ${{ secrets.NEXT_PUBLIC_API_GATEWAY_URL }}
+          NEXT_PUBLIC_GITHUB_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GITHUB_CLIENT_ID }}
         run: |
-          gcloud builds submit --config cloudbuild.yaml --substitutions _NEXT_PUBLIC_API_GATEWAY_URL="$NEXT_PUBLIC_API_GATEWAY_URL"
+          gcloud builds submit --config cloudbuild.yaml --substitutions _NEXT_PUBLIC_API_GATEWAY_URL="$NEXT_PUBLIC_API_GATEWAY_URL",_NEXT_PUBLIC_GITHUB_CLIENT_ID="$NEXT_PUBLIC_GITHUB_CLIENT_ID",_NEXT_PUBLIC_SOCK_SERVER_URL="$NEXT_PUBLIC_SOCK_SERVER_URL"
