@@ -27,7 +27,6 @@ spec:
               memory: "256Mi"
           ports:
             - containerPort: 8001
-            - containerPort: 8002
           envFrom:
             - secretRef:
                 name: api-gateway-config
@@ -40,12 +39,8 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - name: http
-      port: 8001
+    - port: 8001
       targetPort: 8001
-    - name: metrics
-      port: 8002
-      targetPort: 8002
   selector:
     app: api-gateway
 ---
