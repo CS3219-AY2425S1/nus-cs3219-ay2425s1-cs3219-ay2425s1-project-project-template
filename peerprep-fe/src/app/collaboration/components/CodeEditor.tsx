@@ -3,9 +3,10 @@ import Editor, { OnMount } from '@monaco-editor/react';
 
 interface CodeEditorProps {
   onMount: OnMount;
+  language: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ onMount }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ onMount, language }) => {
   return (
     <div
       style={{
@@ -18,7 +19,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onMount }) => {
       <Editor
         height="100%"
         width="100%"
-        language="python"
+        language={language}
         theme="vs-dark"
         onMount={onMount}
         options={{

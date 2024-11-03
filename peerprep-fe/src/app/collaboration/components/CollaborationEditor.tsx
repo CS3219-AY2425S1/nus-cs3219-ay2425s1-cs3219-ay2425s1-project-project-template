@@ -46,7 +46,6 @@ const CollaborationEditor = ({
   onLanguageChange,
   supportedLanguages,
 }: CollaborationEditorProps) => {
-  console.log('language', language); // this is not used yet atm
   const { user } = useAuthStore();
   const [connectedClients, setConnectedClients] = useState<
     Map<number, ConnectedClient>
@@ -176,7 +175,7 @@ const CollaborationEditor = ({
           ))}
         </div>
       </div>
-      <CodeEditor onMount={handleEditorMount} />
+      <CodeEditor onMount={handleEditorMount} language={language} />
     </>
   );
 };
