@@ -56,7 +56,8 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     accessorKey: "language",
     header: () => <Cell>Language</Cell>,
     cell: ({ row }) => {
-      return <Cell>{row.getValue("language")}</Cell>;
+      const language = row.getValue("language") as string;
+      return <Cell>{language.charAt(0).toUpperCase() + language.slice(1)}</Cell>;
     },
   },
   {
@@ -82,7 +83,7 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     cell: ({ row }) => {
       return (
         <Cell>
-          <Link className="group grid p-2 rounded-xl hover:bg-white hover:text-primary-900 mx-auto" href={`/collaboration/${row.getValue('collabid')}`} key={row.getValue('collabid')}>
+          <Link className="group grid p-2 rounded-xl hover:bg-white hover:text-primary-900 mx-auto" href={`/collaboration/${row.getValue('collabid')}?language=${row.getValue('language')}`} key={row.getValue('collabid')}>
             <FaExternalLinkAlt size={20} className="mx-auto"/>
           </Link>
         </Cell>
