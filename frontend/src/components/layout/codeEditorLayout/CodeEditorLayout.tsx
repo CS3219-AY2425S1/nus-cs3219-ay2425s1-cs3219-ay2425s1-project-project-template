@@ -3,6 +3,7 @@ import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { langs } from '@uiw/codemirror-extensions-langs';
 import { Extension, ViewUpdate } from '@uiw/react-codemirror';
 import { useState } from 'react';
+
 import CodeEditor from '../../codeEditor/CodeEditor';
 import classes from './CodeEditorLayout.module.css';
 
@@ -13,14 +14,18 @@ interface CodeEditorLayoutProps {
   viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
 }
 
-type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
-const supportedLanguages: SupportedLanguage[] = ['python', 'java'];
+type SupportedLanguage = Extract<
+  keyof typeof langs,
+  'python' | 'javascript' | 'cpp'
+>;
+
+const supportedLanguages: SupportedLanguage[] = ['python', 'javascript', 'cpp'];
 
 function CodeEditorLayout({
   openLeaveSessionModal,
   code,
   setCode,
-  viewUpdateRef
+  viewUpdateRef,
 }: CodeEditorLayoutProps) {
   const [language, setLanguage] = useState<SupportedLanguage>('python');
   const [extensions, setExtensions] = useState<Extension[]>([
@@ -77,7 +82,12 @@ function CodeEditorLayout({
         </Button>
       </Group>
 
-      <CodeEditor code={code} setCode={setCode} extensions={extensions} viewUpdateRef={viewUpdateRef} />
+      <CodeEditor
+        code={code}
+        setCode={setCode}
+        extensions={extensions}
+        viewUpdateRef={viewUpdateRef}
+      />
     </Stack>
   );
 }
