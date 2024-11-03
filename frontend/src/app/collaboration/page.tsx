@@ -13,6 +13,7 @@ import { use, useEffect, useState } from "react"
 import { set } from "zod"
 import { CodeExecutionResponse } from "../api/code-execution/route"
 import { executeCode } from "@/lib/api-user"
+import DynamicTestCases from "@/components/TestCaseCard"
 
 export default function WorkSpace() {
 
@@ -25,22 +26,38 @@ export default function WorkSpace() {
   const [executing, setExecuting] = useState<boolean>(false);
   const [result, setResult] = useState<CodeExecutionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
 
+  interface TestResult {
+    testCaseNumber: number;
+    input: string;
+    expectedOutput: string;
+    actualOutput: string;
+    passed: boolean;
+    error?: string;
+    compilationError?: string | null;
+  }
+
+  
   const handleExecuteCode = async (questionId: string) => {
+    setExecuting(true);
     try {
       const result: CodeExecutionResponse = await executeCode({
         questionId,
         language: "python",
-        code: "x = int(input())\nprint(x)"
+        code: code
       });
       setResult(result);
+      setTestResults(result.testResults);
       if (result.testResults.some(test => test.error)) {
         setError(result.testResults.find(test => test.error)?.error || 'Execution failed');
       }
     } catch (error) {
       setError((error as any).message);
+    } finally {
+      setExecuting(false);
     }
-};
+  };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -306,7 +323,7 @@ Output: [0,1]`}</code>
 `}</code>
             </pre>
           </Card>
-          <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
+          {/* <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
             <CardHeader className="pb-1 pt-4 font-bold text-xl">Test Cases</CardHeader>
             <CardContent className="flex-1 overflow-auto py-0">
               <Tabs defaultValue="test-case-1">
@@ -410,7 +427,11 @@ Found indices: [0, 1]
                 </TabsContent>
               </Tabs>
             </CardContent>
-          </Card>
+          </Card> */}
+          <DynamicTestCases
+            questionId="6727deaa8af46c7a5736b499" 
+            testResults={testResults}
+          />
         </div>
       </div>
       <div className="absolute bottom-4 left-4 flex space-x-2">

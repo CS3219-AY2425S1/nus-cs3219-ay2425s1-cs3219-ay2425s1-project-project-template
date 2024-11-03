@@ -24,9 +24,14 @@ export class CodeExecutionService {
         removeOnFail: false, 
       });
 
-      const result = await job.finished();
-      return result;
+      // job.finished().then((result) => {
+      //   console.log('Job completed with result:', result);
+      //   // TODO: DB operation to save the result and update the status
 
+      // });
+
+      return await job.finished();
+      
     } catch (error) {
       console.error("Code execution error:", error);
       throw new HttpException(
