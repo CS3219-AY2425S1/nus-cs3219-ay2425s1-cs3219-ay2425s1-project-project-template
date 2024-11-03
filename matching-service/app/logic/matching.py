@@ -135,7 +135,6 @@ async def fetch_random_question(topic: str, difficulty: str) -> str:
         return question_data["id"]
 
 async def create_room(user1: str, user2: str, question_id: str) -> str:
-    logger.debug("Test!")
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"{COLLAB_SVC_URL}/collab/create-room",
