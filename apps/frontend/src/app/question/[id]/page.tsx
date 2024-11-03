@@ -122,7 +122,8 @@ export default function QuestionPage() {
       setSubmission({
         submittedAt: submittedAt.toLocaleString("en-US"),
         language: data.language,
-        matchedUser: data.matchedUser,
+        matchedUser:
+          username == data.matchedUser ? data.User : data.matchedUser,
         code: data.code,
         historyDocRefId: data.historyDocRefId,
       });
@@ -141,11 +142,6 @@ export default function QuestionPage() {
   }, [currentSubmissionId]);
 
   const columns = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
     {
       title: "Submitted at",
       dataIndex: "createdAt",
@@ -206,6 +202,7 @@ export default function QuestionPage() {
                           style: { cursor: "pointer" },
                         };
                       }}
+                      scroll={{ y: "max-content" }}
                       loading={isHistoryLoading}
                     />
                   </div>
