@@ -1,12 +1,17 @@
 import { ITypedBodyRequest } from '@repo/request-types'
+import { WebSocketMessageType } from '@repo/ws-types'
+import { randomUUID } from 'crypto'
 import { Response } from 'express'
 import { wsConnection } from '../server'
 import mqConnection from '../services/rabbitmq.service'
-import { randomUUID } from 'crypto'
-import { WebSocketMessageType } from '@repo/ws-types'
 import { IMatch } from '@repo/user-types'
 import { MatchDto } from '../types/MatchDto'
-import { createMatch, getMatchByUserIdandMatchId, isUserInMatch } from '../models/matching.repository'
+import {
+    createMatch,
+    getMatchByUserIdandMatchId,
+    isUserInMatch,
+    updateMatchCompletion,
+} from '../models/matching.repository'
 import { getRandomQuestion } from '../services/matching.service'
 import { convertComplexityToSortedComplexity } from '@repo/question-types'
 import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
@@ -82,4 +87,17 @@ export async function getMatchDetails(request: ITypedBodyRequest<void>, response
     }
 
     response.status(200).send(match)
+}
+
+export async function updateCompletion(
+    request: ITypedBodyRequest<{ matchId: string }>,
+    response: Response
+): Promise<void> {
+    const matchId = request.body.matchId
+    const match = await updateMatchCompletion(matchId)
+    if (!match) {
+        response.status(404).send('MATCH_NOT_FOUND')
+        return
+    }
+    response.status(200).send('MATCH_COMPLETED')
 }

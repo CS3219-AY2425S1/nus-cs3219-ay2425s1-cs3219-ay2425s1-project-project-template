@@ -13,6 +13,9 @@ import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
+import { createCollabSession } from '@/services/collaboration-service-api'
+import { ICollabSession } from '@/types/collaboration-api'
+import { getCodeMirrorLanguage, LanguageMode } from '@/types'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -79,7 +82,9 @@ export const NewSession = () => {
             return
         }
 
-        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_API_URL}/matching/ws/?id=${websocketId}`)
+        const socket = new WebSocket(
+            `${process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3006'}/matching/ws/?id=${websocketId}`
+        )
         socketRef.current = socket
         socketRef.current.onclose = () => {
             updateMatchmakingStatus(MatchingStatus.MATCH_NOT_FOUND)
@@ -95,15 +100,23 @@ export const NewSession = () => {
             }
             socketRef.current?.send(JSON.stringify(data))
         }
-        socketRef.current.onmessage = (event: MessageEvent) => {
+        socketRef.current.onmessage = async (event: MessageEvent) => {
             if (typeof event.data === 'string') {
                 const newMessage = JSON.parse(event.data)
                 switch (newMessage.type) {
                     case WebSocketMessageType.SUCCESS:
                         updateMatchmakingStatus(MatchingStatus.MATCH_FOUND, newMessage.matchId)
+                        const data: ICollabSession = {
+                            matchId: newMessage.matchId,
+                            language: getCodeMirrorLanguage(LanguageMode.Javascript),
+                            code: '',
+                            executionResult: '',
+                            chatHistory: [],
+                        }
+                        await createCollabSession(data)
                         setTimeout(() => {
                             router.push(`/code/${newMessage.matchId}`)
-                        }, 3000)
+                        }, 1000)
                         break
                     case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()

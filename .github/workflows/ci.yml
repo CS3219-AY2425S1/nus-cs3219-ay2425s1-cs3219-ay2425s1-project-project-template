@@ -6,7 +6,41 @@ on:
 
 jobs:
     build:
-        name: Build and Test
+        name: Build
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                include:
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-user-service
+                      dockerfile: ./backend/user-service/Dockerfile
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-question-service
+                      dockerfile: ./backend/question-service/Dockerfile
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-matching-service
+                      dockerfile: ./backend/matching-service/Dockerfile
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - name: Build
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: ${{ matrix.dockerfile }}
+                  push: false # Do not push to Docker Hub, only cache the image for later use in CD
+                  tags: ${{ matrix.image }}:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+    test:
+        name: Test
         timeout-minutes: 15
         runs-on: ubuntu-latest
         # To use Remote Caching, uncomment the next lines and follow the steps below.
@@ -35,7 +69,7 @@ jobs:
                       ${{ runner.os }}-build-
                       ${{ runner.os }}-
 
-            - name: Cache turbo build setup
+            - name: Cache turbo artifacts
               uses: actions/cache@v4
               with:
                   path: .turbo
@@ -53,7 +87,7 @@ jobs:
               run: npm install
 
             - name: Build
-              run: npm run build
+              run: npm run build # Required to build the internal
 
             - name: Test
               run: npm run test

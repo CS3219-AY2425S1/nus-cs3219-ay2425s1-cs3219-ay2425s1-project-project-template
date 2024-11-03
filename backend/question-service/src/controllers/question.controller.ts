@@ -19,12 +19,12 @@ import {
     updateQuestion,
 } from '../models/question.repository'
 
+import { SortedComplexity } from '@repo/user-types'
+import { ValidationError } from 'class-validator'
 import { Category } from '../types/Category'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
-import { ValidationError } from 'class-validator'
-import { SortedComplexity } from '@repo/user-types'
 
 export async function handleCreateQuestion(
     request: ITypedBodyRequest<CreateQuestionDto>,
@@ -33,7 +33,7 @@ export async function handleCreateQuestion(
     const createDto = CreateQuestionDto.fromRequest(request)
     const errors = await createDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
@@ -131,7 +131,7 @@ export async function handleUpdateQuestion(request: ITypedBodyRequest<QuestionDt
     const updateDto = QuestionDto.fromRequest(request)
     const errors = await updateDto.validate()
     if (errors.length) {
-        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
         response.status(400).json(errorMessages).send()
         return
     }
@@ -182,12 +182,10 @@ export async function handleGetRandomQuestion(request: Request, response: Respon
         return
     }
     if (!Object.values(Category).includes(topic as Category)) {
-        console.log(topic, complexity, Object.values(Category).includes(topic as Category))
         response.status(400).json('invalid topic').send()
         return
     }
     if (!Object.values(SortedComplexity).includes(complexity as SortedComplexity)) {
-        console.log(topic, complexity, Object.values(SortedComplexity).includes(complexity as SortedComplexity))
         response.status(400).json('invalid complexity').send()
         return
     }
