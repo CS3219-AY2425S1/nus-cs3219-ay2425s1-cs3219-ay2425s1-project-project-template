@@ -36,6 +36,7 @@ const Question = ({ collabid }: { collabid: string }) => {
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const messageListRef = useRef<MessageList | null>(null);
 
@@ -131,22 +132,60 @@ const Question = ({ collabid }: { collabid: string }) => {
       await fetchSingleQuestion(data.question_id.toString()).then((data) => {
         setQuestion(data);
       });
+      console.log(question);
 
       setCollaborator(data.users.filter((user) => user !== userID)[0]);
     });
   }, [collabid, userID]);
 
+  const questionCategories = question?.category || [];
+
+  const firstThreeQuestionPills = questionCategories
+    .slice(0, 3)
+    .map((category) => <Pill key={category} text={category} />);
+
+  const remainingCategories = questionCategories.slice(3);
+
+  if (questionCategories.length > 3) {
+    firstThreeQuestionPills.push(
+      <div
+        key="more"
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        className="bg-primary-900 text-grey-300 py-1 px-2 rounded-full text-xs relative"
+      >
+        <Pill text={`+${questionCategories.length - 3} more`} />
+        {showTooltip && (
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "#333",
+              color: "#fff",
+              padding: "5px",
+              borderRadius: "5px",
+              whiteSpace: "nowrap",
+              zIndex: 1000,
+            }}
+          >
+            {remainingCategories.join(", ")}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col">
-          <h1 className="text-yellow-500 text-4xl font-bold pb-2">
+          <h1 className="text-yellow-500 text-xl font-bold pb-2">
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            {question?.category.map((category) => (
-              <Pill key={category} text={category} />
-            ))}
+            {...firstThreeQuestionPills}
             <ComplexityPill complexity={question?.complexity || ""} />
           </span>
           <h2 className="text-grey-300 text-s pt-3 leading-[0]">
