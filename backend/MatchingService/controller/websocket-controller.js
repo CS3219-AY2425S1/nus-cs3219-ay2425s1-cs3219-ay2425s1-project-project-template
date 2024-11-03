@@ -4,9 +4,6 @@ import { matchingQueue } from "../queue/matching-queue.js";
 import axios from 'axios';
 let io;
 
-// Define a mapping for rooms and their associated question IDs
-let roomQuestionMapping = {};
-
 export const initializeCollaborationService = (server) => {
   io = new Server(server, {
     cors: {
@@ -86,34 +83,26 @@ export const handleUserMatch = async (job) => {
     notifyUserOfMatchFailed(socketId, "Matched user disconnected, please try again");
     return;
   }
+  notifyUserOfMatchSuccess(socketId, userSocket, job);
+};
 
-  if (userSocket) {
-    const room = createRoomIdentifier(socketId, matchedUserId); // Create a room identifier
-    try {
-      const response = await axios.post('http://question_service:3002/questions/matching', {
-        category: job.data.topic,
-        complexity: job.data.difficulty,
-      });
-      
-      console.log(response.data);
-
-      if (roomQuestionMapping[room]) {
-        return; // Exit early to prevent reassigning questions
-      }
-
-      roomQuestionMapping[room] = response.data.question_id; // Store the question ID
-
-      // Notify users of the successful match and question assignment
-      notifyUserOfMatchSuccess(socketId, userSocket, job, response.data.question_id, room);
-    } catch (error) {
-      console.error("Error assigning question:", error);
-      notifyUserOfMatchFailed(socketId, "Error assigning question. Please try again.");
-    }
+export const fetchQuestionId = async (topic, difficulty) => {
+  try {
+    const response = await axios.post('http://question_service:3002/questions/matching', {
+      category: topic,
+      complexity: difficulty,
+    });
+    
+    return response.data.question_id; // Return the fetched question ID
+  } catch (error) {
+    console.error("Error fetching question ID:", error);
+    throw new Error("Failed to fetch question. Please try again."); // Throw an error to handle it at the call site
   }
 };
 
-export const notifyUserOfMatchSuccess = (socketId, socket, job, questionId, room) => {
-  const { matchedUser, userNumber, matchedUserId} = job.data;
+export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
+  const { matchedUser, userNumber, matchedUserId, questionId} = job.data;
+  const room = createRoomIdentifier(socketId, matchedUserId);
   socket.join(room);
 
   // Emit the matched event with the assigned question ID
