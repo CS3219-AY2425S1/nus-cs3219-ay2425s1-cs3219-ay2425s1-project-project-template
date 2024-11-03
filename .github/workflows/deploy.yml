@@ -1,39 +1,3 @@
-# name: Deploy to GCP
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   deploy:
-#     permissions:
-#       contents: "read"
-#       id-token: "write"
-
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-
-#       - id: "auth"
-#         name: "Authenticate to Google Cloud"
-#         uses: "google-github-actions/auth@v2"
-#         with:
-#           credentials_json: "${{ secrets.GCP_SA_KEY }}"
-
-#       - name: "Set up Cloud SDK"
-#         uses: "google-github-actions/setup-gcloud@v2"
-
-#       - name: "Use gcloud CLI"
-#         run: "gcloud info"
-
-#       - name: "Trigger Cloud Build"
-#         env: # have to use env here as cant use secrets in kubernetes for nextJS
-#           NEXT_PUBLIC_API_GATEWAY_URL: ${{ secrets.NEXT_PUBLIC_API_GATEWAY_URL }}
-#           NEXT_PUBLIC_GITHUB_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GITHUB_CLIENT_ID }}
-#         run: |
-#           gcloud builds submit --config cloudbuild.yaml --substitutions _NEXT_PUBLIC_API_GATEWAY_URL="$NEXT_PUBLIC_API_GATEWAY_URL",_NEXT_PUBLIC_GITHUB_CLIENT_ID="$NEXT_PUBLIC_GITHUB_CLIENT_ID"
-
 name: Deploy to GCP
 
 on:
@@ -63,6 +27,10 @@ jobs:
               - 'question-service/**'
             user:
               - 'user-service/**'
+            matching:
+              - 'matching-service/**'
+            session:
+              - 'session-service/**'
 
   deploy-fe:
     needs: check-changes
@@ -127,3 +95,33 @@ jobs:
       - name: "Trigger User Service Cloud Build"
         run: |
           gcloud builds submit --config cloudbuilds/user-service.yaml
+
+  deploy-matching-svc:
+    needs: check-changes
+    if: ${{ needs.check-changes.outputs.matching == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+      - uses: "google-github-actions/setup-gcloud@v2"
+      - name: "Trigger Matching Service Cloud Build"
+        run: |
+          gcloud builds submit --config cloudbuilds/matching-service.yaml
+
+  deploy-session-svc:
+    needs: check-changes
+    if: ${{ needs.check-changes.outputs.session == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+      - uses: "google-github-actions/setup-gcloud@v2"
+      - name: "Trigger Session Service Cloud Build"
+        run: |
+          gcloud builds submit --config cloudbuilds/session-service.yaml
