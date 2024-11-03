@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 
-const CodeEditor = () => {
+const CodeEditor = ({ qid } : { qid: Number }) => {
     const { roomId } = useParams();
     const  { collabSocket }  = useSocket();
     const editorRef = useRef();
@@ -81,7 +81,7 @@ const CodeEditor = () => {
                         }
                     }}
                 />
-            <Output editorRef={editorRef} language={language} />
+            <Output editorRef={editorRef} language={language} qid={qid} />
             </Stack>
         </Box>
     );

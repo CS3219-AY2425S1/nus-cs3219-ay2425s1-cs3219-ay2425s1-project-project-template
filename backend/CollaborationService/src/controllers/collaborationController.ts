@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { decodeRoom } from "../utils/decodeRoom";
+
 
 export const handleConnection = (socket: Socket) : void => {
   const userId = socket.handshake.auth.userId;

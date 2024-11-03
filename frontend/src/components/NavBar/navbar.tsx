@@ -27,6 +27,12 @@ function NavBar() {
       }
     },
     {
+      name: "History",
+      onClick: () => {
+        navigate("/history");
+      }
+    },
+    {
       name: "Logout",
       onClick: () => {
         axios.delete(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, {

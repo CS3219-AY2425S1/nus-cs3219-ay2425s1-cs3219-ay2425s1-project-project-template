@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const fileRemover = (filename) => {
-  fs.unlink(path.join(__dirname, "../uploads", filename), function (err) {
+  fs.unlink(path.join(__dirname, "../", filename), function (err) {
     if (err && err.code == "ENOENT") {
       // file doesnt exist
       console.log(`File ${filename} doesnt exist, wont remove it.`);

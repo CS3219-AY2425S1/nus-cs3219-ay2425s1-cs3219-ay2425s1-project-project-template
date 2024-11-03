@@ -1,10 +1,11 @@
-import "./App.css";
 import NotFoundPage from "./not-found";
-import QuestionPage from "./pages/Question/page";
 import LoginPage from "./pages/Login/login";
 import SignupPage from "./pages/Signup/signup";
 import PrivateRoute from "./routes/PrivateRoute";
+import QuestionPage from "./pages/Question/page";
 import CollaborationPage from './pages/Collaboration/collaboration';
+import HistoryPage from "./pages/History/history";
+
 import { BrowserRouter, Navigate, redirect, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider, } from '@tanstack/react-query'
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
@@ -16,6 +17,8 @@ import ForgotPasswordPage from "./pages/ForgotPassword/forgotPassword";
 import ResetPasswordPage from "./pages/ResetPassword/ResetPassword";
 import VideoCall from "./components/Communication/videoCall";
 import NavBar from "./components/NavBar/navbar";
+
+import "./App.css";
 
 const queryClient = new QueryClient();
 const TOAST_LIMIT = 3
@@ -45,10 +48,11 @@ function App() {
               <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
               <Route path="/resetpassword" element={<ResetPasswordPage />} />
             </Route>
-            <Route element={<PrivateRoute/>}>
-              <Route path="/" element= {<><QuestionPage /></>} />
+            <Route element={<PrivateRoute />}>
+              <Route path="/" element={<QuestionPage />} />
+              <Route path="/settings" element={<SettingsPage />}/>
               <Route path="/collaboration/:roomId" element={<CollaborationPage />} />
-              <Route path="/settings" element={<SettingsPage/>}/>
+              <Route path="/history" element= {<HistoryPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

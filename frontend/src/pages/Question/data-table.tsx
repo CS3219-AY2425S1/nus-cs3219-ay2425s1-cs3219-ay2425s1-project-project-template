@@ -35,6 +35,7 @@ import axios, { AxiosError } from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { type Question, categories, complexities, validateQuestion } from "./question";
 
@@ -182,6 +183,7 @@ const Table = () => {
         accessorKey: "description",
         header: "Description",
         size: 400,
+        enableHiding: false,
         muiEditTextFieldProps: {
           required: true,
           multiline: true,
@@ -280,7 +282,9 @@ const Table = () => {
     enableExpandAll: false,
     enableExpanding: true,
     renderDetailPanel: ({ row }) => {
-      return row.original.description ? <Markdown className="prose prose-markdown">{row.original.description}</Markdown> : null;
+      return row.original.description
+        ? <Markdown remarkPlugins={[remarkGfm]} className="prose prose-markdown">{row.original.description}</Markdown>
+        : null;
     },
     muiExpandButtonProps: ({ row, table }) => ({
       onClick: () => table.setExpanded({ [row.id]: !row.getIsExpanded() }),

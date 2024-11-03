@@ -11,15 +11,9 @@ module.exports = {
           css: {
             maxWidth: "100%",
             "p": {
-              color: "white",
               margin: "8px 0 8px 0",
-              fontStyle: "normal",
-              "& > strong": {
-                color: "white",
-              },
             },
             "code": {
-              color: "white",
               background: "#4B4B4B",
               borderRadius: "5px",
               padding: ".125rem",
@@ -34,15 +28,25 @@ module.exports = {
             "ul": {
               margin: "8px 0 8px 0",
             },
-            "li": {
-              color: "white",
-            },
             "a": {
               color: "#646CFF",
               "&:hover": {
                 color: "#535BF2",
               }
             },
+            "p, code, li, th, td, strong": {
+              fontStyle: "normal",
+              color: "white",
+            },
+            "li::marker": {
+              color: "white",
+            },
+            "table": {
+              width: "auto",
+            },
+            "th": {
+              fontWeight: "bold",
+            }
           },
         },
       },
