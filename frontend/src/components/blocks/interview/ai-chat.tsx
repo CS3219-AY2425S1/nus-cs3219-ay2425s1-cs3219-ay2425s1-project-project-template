@@ -1,5 +1,5 @@
 import { type LanguageName } from '@uiw/codemirror-extensions-langs';
-import React, { useEffect,useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { sendChatMessage } from '@/services/collab-service';
 
@@ -25,7 +25,7 @@ export const AIChat: React.FC<AIChatProps> = ({
   isOpen,
   onClose,
   editorCode = '',
-  language = 'typescript',
+  language = 'python',
   questionDetails = '',
 }) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);

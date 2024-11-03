@@ -14,3 +14,5 @@ export const dbConfig = {
 
 // disable gc when using snapshots!
 export const GC_ENABLED = process.env.GC !== 'false' && process.env.GC !== '0';
+
+export const ENABLE_CODE_ASSISTANCE = process.env.ENABLE_CODE_ASSISTANCE === 'true';

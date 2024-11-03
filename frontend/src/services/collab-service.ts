@@ -36,19 +36,10 @@ export const sendChatMessage = async (
         },
         responseType: 'text',
         onDownloadProgress: (progressEvent) => {
-          const rawText = progressEvent.event.target.responseText;
-          const lines = rawText.split('\n');
-          let newContent = '';
+          const rawText: string = progressEvent.event.target.responseText;
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const content = line.slice(6);
-              newContent += content;
-            }
-          }
-
-          if (newContent) {
-            onStream(newContent);
+          if (rawText) {
+            onStream(rawText);
           }
         },
       });

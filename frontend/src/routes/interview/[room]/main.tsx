@@ -69,7 +69,7 @@ export const InterviewRoom = () => {
             />
           </div>
           {(isAIChatOpen || isPartnerChatOpen) && (
-            <Card className='border-border m-4 w-[500px] overflow-hidden'>
+            <Card className='border-border m-4 w-[500px] overflow-hidden md:w-1/3'>
               {isAIChatOpen && (
                 <AIChat
                   isOpen={isAIChatOpen}
