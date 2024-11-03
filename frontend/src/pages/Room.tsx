@@ -12,19 +12,25 @@ import RoomTabs from '../components/tabs/RoomTabs';
 import config from '../config';
 import { ChatMessage } from '../components/tabs/ChatBoxTab';
 import VideoCall from '../components/videoCall/VideoCall';
+import { useAuth } from '../hooks/AuthProvider';
 
 function Room() {
+  const [loading, setLoading] = useState(true);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+
   const [isLeaveSessionModalOpened, { open: openLeaveSessionModal, close: closeLeaveSessionModal }] = useDisclosure(false);
   const [code, setCode] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [modalOpened, { close: closeModal, open: openModal }] = useDisclosure(false);
-  const [loading, setLoading] = useState(true);
   
   const navigate = useNavigate();
   const location = useLocation();
   const sessionData = location.state;
+  const { userId } = useAuth();
 
   // Refs for two sockets
   const collaborationSocketRef = useRef<Socket | null>(null);
@@ -32,10 +38,13 @@ function Room() {
   const isRemoteUpdateRef = useRef(false);
   const viewUpdateRef = useRef<ViewUpdate | null>(null);
 
+  const configServer = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
   useEffect(() => {
     const requestMediaPermissions = async () => {
       try {
-        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        setLocalStream(stream);
         setPermissionsGranted(true);
         setLoading(false);
       } catch (error) {
@@ -46,6 +55,13 @@ function Room() {
 
     requestMediaPermissions();
   }, []);
+
+  useEffect(() => {
+    if (!loading && communicationSocketRef.current !== null) {
+      console.log('Emitting ready-to-call');
+      communicationSocketRef.current.emit('ready-to-call');
+    }
+  }, [loading, communicationSocketRef.current]);
 
   useEffect(() => {
     if (!permissionsGranted || !sessionData) {
@@ -154,6 +170,14 @@ function Room() {
     communicationSocketRef.current.on('chatMessage', (msg: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     });
+
+    communicationSocketRef.current.on('offer', handleReceiveOffer);
+    communicationSocketRef.current.on('answer', handleReceiveAnswer);
+    communicationSocketRef.current.on('candidate', handleReceiveCandidate);
+    communicationSocketRef.current.on('ready-to-call', handleReadyToCall);
+    communicationSocketRef.current.on('user-left', handleUserLeft);
+
+    setupPeerConnection();
   };
 
   useEffect(() => {
@@ -175,6 +199,54 @@ function Room() {
       setInput('');
     }
   };
+
+  const setupPeerConnection = () => {
+    peerConnectionRef.current = new RTCPeerConnection(configServer);
+
+    peerConnectionRef.current.onicecandidate = (event) => {
+      if (event.candidate && communicationSocketRef.current) {
+        communicationSocketRef.current.emit('candidate', event.candidate);
+      }
+    };
+
+    peerConnectionRef.current.ontrack = (event) => {
+      setRemoteStream(event.streams[0]);
+    };
+
+    localStream?.getTracks().forEach((track) =>
+      peerConnectionRef.current?.addTrack(track, localStream)
+    );
+  };
+
+  const handleReadyToCall = async (user: string) => {
+    if (peerConnectionRef.current && communicationSocketRef.current && user !== userId) {
+      const offer = await peerConnectionRef.current.createOffer();
+      await peerConnectionRef.current.setLocalDescription(offer);
+      communicationSocketRef.current.emit('offer', offer);
+    }
+  };
+
+  const handleReceiveOffer = async (offer: RTCSessionDescriptionInit) => {
+    if (peerConnectionRef.current) {
+      await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnectionRef.current.createAnswer();
+      await peerConnectionRef.current.setLocalDescription(answer);
+      communicationSocketRef.current?.emit('answer', answer);
+    }
+  };
+
+  const handleReceiveAnswer = (answer: RTCSessionDescriptionInit) => {
+    peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(answer));
+  };
+
+  const handleReceiveCandidate = (candidate: RTCIceCandidateInit) => {
+    peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(candidate));
+  };
+
+  const handleUserLeft = () => {
+    setRemoteStream(null); // Reset the remote video
+  };
+
 
   const handleCloseModal = () => {
     closeModal();
@@ -205,8 +277,8 @@ function Room() {
         <Stack h="100%" w="500px" gap="10px">
           <Group gap="10px">
             <VideoCall
-              communicationSocket={communicationSocketRef.current}
-              roomId={sessionData?.sessionId}
+              localStream={localStream}
+              remoteStream={remoteStream}
             />
           </Group>
           <RoomTabs
