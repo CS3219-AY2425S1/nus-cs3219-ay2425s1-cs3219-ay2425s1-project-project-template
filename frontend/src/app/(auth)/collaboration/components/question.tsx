@@ -10,7 +10,7 @@ import {
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
 import { fetchSession } from "@/api/collaboration";
-import { getUsername } from "@/api/user";
+import { getUserId, getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
@@ -39,8 +39,13 @@ const Question = ({ collabid }: { collabid: string }) => {
 
   const messageListRef = useRef<MessageList | null>(null);
 
+  // NOTE: We use the username of the collaborator instead of the userID. This is because we cannot retrieve the collaborator's ID.
+  // Thus, the backend identifies pairs of users by their username for now. However, this can introduce bugs as
+  // although usernames are unique, if a user leaves the collaboration, changes their username, and comes back, the backend will not be able to identify them.
+  // This is because the Session will still have the old username. Therefore, we should change this to use the userID instead.
+
   useEffect(() => {
-    setUserID(getUsername() ?? "Anonymous"); // Change me
+    setUserID(getUsername() ?? "Anonymous"); // Change me later
 
     const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
     const client = new StompClient({
@@ -99,7 +104,7 @@ const Question = ({ collabid }: { collabid: string }) => {
       ...prev,
       {
         position: "right" as const,
-        title: username!,
+        title: userID!,
         text: inputMessage,
         type: "text",
       },
@@ -127,9 +132,9 @@ const Question = ({ collabid }: { collabid: string }) => {
         setQuestion(data);
       });
 
-      setCollaborator(data.users.filter((user) => user !== username)[0]);
+      setCollaborator(data.users.filter((user) => user !== userID)[0]);
     });
-  }, [collabid, username]);
+  }, [collabid, userID]);
 
   return (
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
