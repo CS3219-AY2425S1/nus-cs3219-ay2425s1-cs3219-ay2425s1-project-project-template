@@ -46,7 +46,7 @@ function onListening() {
 httpServer.on("error", onError);
 httpServer.on("listening", onListening);
 
-const PORT = process.env.PORT; // or any port you prefer
+const PORT = process.env.PORT || 4444; // fallback to 4444 if PORT env var is not set
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
