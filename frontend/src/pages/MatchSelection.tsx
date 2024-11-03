@@ -12,7 +12,7 @@ import LabelValue from "../components/LabelValue";
 import { useNavigate } from "react-router-dom";
 import { Question } from "../@types/question";
 
-const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_API_URL;
+const SOCKET_SERVER_URL = import.meta.env.VITE_MATCHING_WS_URL;
 
 const MatchSelection = () => {
   const [difficulty, setDifficulty] = useState<string>("Easy");
@@ -138,7 +138,6 @@ const MatchSelection = () => {
   const handleTopicChange = useCallback((e: SelectChangeEvent<string>) => {
     setTopic(e.target.value as string);
   }, []);
-  
    //Placeholder join room
   const handleJoinRoom = () => {
           navigate(`/collaboration/${roomId}`, {

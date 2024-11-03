@@ -8,7 +8,7 @@ import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 
-const SOCKET_SERVER_URL = import.meta.env.VITE_COLLABORATION_API_URL;
+const SOCKET_SERVER_URL = import.meta.env.VITE_COLLABORATION_WS_URL;
 
 const CollaborativeEditor: React.FC = () => {
   const { user } = useAuth();
