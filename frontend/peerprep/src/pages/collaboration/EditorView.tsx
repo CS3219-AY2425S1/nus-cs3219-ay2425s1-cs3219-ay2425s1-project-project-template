@@ -44,33 +44,33 @@ const EditorView: React.FC = () => {
       setSocketId(socket.id);
     });
 
-    socket.on("assignSocketId", (data: { socketId: string }) => {
-      setSocketId(data.socketId);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        `You are assigned to: ${data.socketId}`,
-      ]);
-    });
+    // socket.on("assignSocketId", (data: { socketId: string }) => {
+    //   setSocketId(data.socketId);
+    //   setMessages((prevMessages) => [
+    //     ...prevMessages,
+    //     `You are assigned to: ${data.socketId}`,
+    //   ]);
+    // });
 
-    socket.on("message", (data: string) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-      if (chatBoxRef.current) {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-      }
-    });
+    // socket.on("message", (data: string) => {
+    //   setMessages((prevMessages) => [...prevMessages, data]);
+    //   if (chatBoxRef.current) {
+    //     chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    //   }
+    // });
 
-    socket.on(
-      "receiveMessage",
-      (data: { username: string; message: string }) => {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          `${data.username}: ${data.message}`,
-        ]);
-        if (chatBoxRef.current) {
-          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-        }
-      }
-    );
+    // socket.on(
+    //   "receiveMessage",
+    //   (data: { username: string; message: string }) => {
+    //     setMessages((prevMessages) => [
+    //       ...prevMessages,
+    //       `${data.username}: ${data.message}`,
+    //     ]);
+    //     if (chatBoxRef.current) {
+    //       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    //     }
+    //   }
+    // );
 
     return () => {
       if (socketRef.current !== null) {

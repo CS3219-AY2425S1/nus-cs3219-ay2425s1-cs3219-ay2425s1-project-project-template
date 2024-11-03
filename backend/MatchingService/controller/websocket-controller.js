@@ -4,7 +4,9 @@ import { matchingQueue } from "../queue/matching-queue.js";
 import axios from 'axios';
 let io;
 
-// Set up socket.io and handle user interactions
+// Define a mapping for rooms and their associated question IDs
+let roomQuestionMapping = {};
+
 export const initializeCollaborationService = (server) => {
   io = new Server(server, {
     cors: {
@@ -20,9 +22,7 @@ export const initializeCollaborationService = (server) => {
     socket.on("joinQueue", async (userData) => {
       socket.emit("assignSocketId", { socketId: socket.id });
 
-      // Add the user to the matching queue with socketId for later communication
       try {
-        console.log(userData)
         const resp = await addUserToQueue(userData, socket);
         socket.emit("queueEntered", resp);
       } catch (err) {
@@ -31,15 +31,13 @@ export const initializeCollaborationService = (server) => {
           error: "Failed to join the queue, please try again",
         });
       }
-      // Notify the user they've joined the queue
     });
 
     // Handle message sending and broadcasting to other users
-    // Handle sending a message to a room
     socket.on("sendMessage", (messageData) => {
       const { room, message, username } = messageData;
 
-      if (room == "") {
+      if (room === "") {
         // Broadcast the message to all other connected users
         socket.broadcast.emit("receiveMessage", {
           username: messageData.username,
@@ -49,10 +47,12 @@ export const initializeCollaborationService = (server) => {
         console.log(
           `User ${username} is sending a message to room ${room}: ${message}`
         );
-        // Send the message to all users in the same room
+        // Include the question ID from the room mapping when emitting the message
+        const questionId = roomQuestionMapping[room];
         io.to(room).emit("receiveMessage", {
           username,
           message,
+          questionId, // Include the associated question ID in the message
         });
       }
     });
@@ -82,27 +82,29 @@ export const handleUserMatch = async (job) => {
   const userSocket = io.sockets.sockets.get(socketId);
   const matchedUserSocket = io.sockets.sockets.get(matchedUserId);
 
-  // Check if matched user socket is available
-  if (matchedUserSocket === undefined) {
-    notifyUserOfMatchFailed(
-      socketId,
-      "Matched user disconnected, please try again"
-    );
+  if (!matchedUserSocket) {
+    notifyUserOfMatchFailed(socketId, "Matched user disconnected, please try again");
     return;
   }
 
-  // Proceed if user socket is valid
   if (userSocket) {
-    // Call the question service to assign a question
+    const room = createRoomIdentifier(socketId, matchedUserId); // Create a room identifier
     try {
       const response = await axios.post('http://question_service:3002/questions/matching', {
         category: job.data.topic,
         complexity: job.data.difficulty,
       });
-      console.log(response.data); // Handle the response
+      
+      console.log(response.data);
 
-      // Notify user of match success and provide the assigned question ID
-      notifyUserOfMatchSuccess(socketId, userSocket, job, response.data.question_id);
+      if (roomQuestionMapping[room]) {
+        return; // Exit early to prevent reassigning questions
+      }
+
+      roomQuestionMapping[room] = response.data.question_id; // Store the question ID
+
+      // Notify users of the successful match and question assignment
+      notifyUserOfMatchSuccess(socketId, userSocket, job, response.data.question_id, room);
     } catch (error) {
       console.error("Error assigning question:", error);
       notifyUserOfMatchFailed(socketId, "Error assigning question. Please try again.");
@@ -110,15 +112,8 @@ export const handleUserMatch = async (job) => {
   }
 };
 
-
-// Update the notifyUserOfMatchSuccess to also accept the question ID
-export const notifyUserOfMatchSuccess = (socketId, socket, job, questionId) => {
-  const { matchedUser, userNumber, matchedUserId } = job.data;
-
-  const room =
-    userNumber === 1
-      ? `room-${socketId}-${matchedUserId}`
-      : `room-${matchedUserId}-${socketId}`;
+export const notifyUserOfMatchSuccess = (socketId, socket, job, questionId, room) => {
+  const { matchedUser, userNumber, matchedUserId} = job.data;
   socket.join(room);
 
   // Emit the matched event with the assigned question ID
@@ -127,6 +122,11 @@ export const notifyUserOfMatchSuccess = (socketId, socket, job, questionId) => {
     room,
     questionId, // Include the question ID in the response
   });
+};
+
+// Helper function to create a unique room identifier
+const createRoomIdentifier = (socketId, matchedUserId) => {
+  return `room-${socketId}-${matchedUserId}`;
 };
 
 // Notify users when the match fails or times out
