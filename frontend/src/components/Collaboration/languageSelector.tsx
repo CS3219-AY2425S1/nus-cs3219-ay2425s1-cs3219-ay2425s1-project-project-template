@@ -22,14 +22,18 @@ export const LANGUAGE_VERSIONS: LanguageVersions = {
     javascript: "18.15.0",
     python: "3.10.0",
     java: "15.0.2",
+    cpp: "10.20.0",
     php: "8.2.3",
+    R: "4.1.0",
 };
 
 export const CODE_SNIPPETS: CodeSnippets = {
     javascript: `function greet(name) {\n\tconsole.log("Hello, " + name + "!");\n}\n\ngreet("Alex");\n`,
     python: `def greet(name):\n\tprint("Hello, " + name + "!")\n\ngreet("Alex")\n`,
     java: `public class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello World");\n\t}\n}\n`,
+    cpp: `#include <iostream>\n\nint main() {\n\tstd::cout << "Hello, World!" << std::endl;\n\treturn 0;\n}\n`,
     php: "<?php\n\n$name = 'Alex';\necho $name;\n",
+    R: `name <- "Alex"\ncat("Hello, ", name, "!\n")\n`,
 };
 
 const languages: [string, string][] = Object.entries(LANGUAGE_VERSIONS);
@@ -58,7 +62,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onSelect 
             onClick={handleClick}
             sx={{
                 fontSize: "12px",
-                textTransform: "lowercase",
+                textTransform: "none",
                 color: "white",
                 backgroundColor: "grey.900",
                 '&:hover': {

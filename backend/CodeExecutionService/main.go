@@ -22,6 +22,8 @@ func main() {
         "node:18.15.0",
         "openjdk:15.0.2",
         "php:8.2.3",
+		"gcc:10.2.0",
+		"r-base:4.1.0",
     }
 
     // Pull the Docker images
