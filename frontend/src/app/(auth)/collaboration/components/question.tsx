@@ -1,16 +1,16 @@
-import { fetchSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
+import { fetchSingleQuestion } from "@/api/question-dashboard";
 import { NewQuestionData } from "@/types/find-match";
 import { useEffect, useState } from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
 import { fetchSession } from "@/api/collaboration";
-import { getBaseUserData } from "@/api/user";
+import { getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 
 const Question = ({ collabid }: { collabid: string }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
   const [collaborator, setCollaborator] = useState<string | null>(null);
-  const username = getBaseUserData().username;
+  const username = getUsername();
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
@@ -18,7 +18,7 @@ const Question = ({ collabid }: { collabid: string }) => {
 
   useEffect(() => {
     fetchSession(collabid).then(async (data) => {
-      await fetchSingleLeetcodeQuestion(data.question_id.toString()).then(
+      await fetchSingleQuestion(data.question_id.toString()).then(
         (data) => {
           setQuestion(data);
         }
@@ -26,7 +26,7 @@ const Question = ({ collabid }: { collabid: string }) => {
 
       setCollaborator(data.users.filter((user) => user !== username)[0]);
     });
-  }, [collabid]);
+  }, [collabid, username]);
 
   return (
     <div className="px-12 pb-20">

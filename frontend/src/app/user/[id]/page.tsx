@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { getUser } from "@/api/user";
@@ -16,7 +17,7 @@ const ProfilePage = () => {
     getUser(id as string).then((res) => {
       setUser(res.data);
     });
-  }, []);
+  }, [params]);
 
   const calculateAge = (createdAt: string | undefined) => {
     if (!createdAt) return;
