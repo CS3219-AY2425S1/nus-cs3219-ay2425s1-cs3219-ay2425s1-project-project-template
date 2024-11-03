@@ -31,7 +31,14 @@ def access_token():
     COUNTER += 1
     return resp.json()["data"]["accessToken"]
 
+def test_get_single_question_unauthenticated():
+    response = requests.get(f"{BASE_URL}/question?questionId=1")
+    assert response.status_code == 401
 
+def test_get_single_question_invalid_token():
+    response = requests.get(f"{BASE_URL}/question?questionId=1", cookies={"accessToken": "invalid-token"})
+    assert response.status_code == 401
+    
 def test_get_single_question(access_token):
     response = requests.get(f"{BASE_URL}/question?questionId=1", cookies={"accessToken": access_token})
     assert response.status_code == 200
