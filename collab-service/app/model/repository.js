@@ -35,17 +35,6 @@ export async function getRoomId(user) {
   }
 }
 
-export async function heartbeat(roomId) {
-  try {
-    const room = await UsersSession.findOne({ roomId: roomId });
-    room.lastUpdated = new Date();
-    await room.save();
-    return room;
-  } catch (error) {
-    console.error("Error updating room ${roomId}:", error);
-    return null;
-  }
-}
 
 export async function getAllRooms() {
   try {
@@ -104,6 +93,15 @@ export async function addMessageToChat(roomId, userId, text) {
     session.endSession();
     console.error("Error adding message to chat:", error);
     throw error;
+  }
+}
+
+export async function fetchRoomChatHistory(roomId) {
+  try {
+    const room = await UsersSession.findOne({ roomId });
+    return room.chatHistory;
+  } catch (error) {
+    console.error("Error finding room chat history:", error);
   }
 }
 
