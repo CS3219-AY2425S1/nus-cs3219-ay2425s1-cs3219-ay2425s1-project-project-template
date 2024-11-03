@@ -5,9 +5,12 @@ import { Question, QuestionDocument } from './schemas/question.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { FilterQuestionDto } from './dto/filter-question.dto';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class QuestionDB {
+  private readonly logger = new Logger(QuestionDB.name);
+
   constructor(
     @InjectModel(Question.name) private questionModel: Model<QuestionDocument>,
   ) {}
@@ -31,8 +34,15 @@ export class QuestionDB {
     }
   
     const query = this.questionModel.find(filterQuery);
+
+    const output = await query.select('_id title categories complexity testCases').exec();
+
+    console.log('OUTPUT', output)
+    this.logger.log(`Filtered output: ${JSON.stringify(output)}`);
+
+    return output;
   
-    return await query.select('_id title categories complexity').exec();
+    // return await query.select('_id title categories complexity testCases').exec();
   }
 
   async findOneQuestionInDB(questionId: string): Promise<Question> {
