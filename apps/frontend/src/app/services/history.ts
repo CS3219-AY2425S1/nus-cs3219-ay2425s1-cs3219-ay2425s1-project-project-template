@@ -15,20 +15,17 @@ export interface History {
   updatedAt?: string;
 }
 
-export const CreateOrUpdateHistory = async (
+export const CreateHistory = async (
   history: History,
   historyDocRefId: string
 ): Promise<History> => {
-  const response = await fetch(
-    `${HISTORY_SERVICE_URL}histories/${historyDocRefId}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(history),
-    }
-  );
+  const response = await fetch(`${HISTORY_SERVICE_URL}histories/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(history),
+  });
 
   if (response.status === 200) {
     return response.json();

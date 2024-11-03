@@ -25,7 +25,7 @@ import {
 import CollaborativeEditor, {
   CollaborativeEditorHandle,
 } from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { CreateOrUpdateHistory } from "@/app/services/history";
+import { CreateHistory } from "@/app/services/history";
 import { WebrtcProvider } from "y-webrtc";
 import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
 
@@ -145,7 +145,7 @@ export default function CollaborationPage(props: CollaborationProps) {
     if (!collaborationId) {
       throw new Error("Collaboration ID not found");
     }
-    const data = await CreateOrUpdateHistory(
+    const data = await CreateHistory(
       {
         title: questionTitle ?? "",
         code: code,

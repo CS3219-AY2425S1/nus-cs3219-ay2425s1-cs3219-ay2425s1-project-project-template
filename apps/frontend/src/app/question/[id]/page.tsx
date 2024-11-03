@@ -1,38 +1,15 @@
 "use client";
 import Header from "@/components/Header/header";
-import {
-  Button,
-  Col,
-  Layout,
-  message,
-  Row,
-  Tag,
-  Select,
-  Table,
-  Input,
-} from "antd";
+import { Col, Layout, message, Row, Table } from "antd";
 import { Content } from "antd/es/layout/layout";
-import {
-  LeftOutlined,
-  RightOutlined,
-  CaretRightOutlined,
-  CodeOutlined,
-  SendOutlined,
-  HistoryOutlined,
-} from "@ant-design/icons";
+import { CodeOutlined, HistoryOutlined } from "@ant-design/icons";
 import "./styles.scss";
 import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion } from "../../services/question";
 import React from "react";
-import TextArea from "antd/es/input/TextArea";
 import { useSearchParams } from "next/navigation";
-import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import { useRouter } from "next/navigation";
 import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
-import CollaborativeEditor, {
-  CollaborativeEditorHandle,
-} from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { WebrtcProvider } from "y-webrtc";
 import { Compartment, EditorState } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
@@ -44,6 +21,7 @@ interface Submission {
   language: string;
   matchedUser: string;
   code: string;
+  historyDocRefId: string;
 }
 
 export default function QuestionPage() {
@@ -73,10 +51,14 @@ export default function QuestionPage() {
   const [complexity, setComplexity] = useState<string | undefined>(undefined);
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
-  const [username, setUsername] = useState<string>("");
+  const [username, setUsername] = useState<string | undefined>(undefined);
   const [userQuestionHistories, setUserQuestionHistories] =
     useState<History[]>();
   const [submission, setSubmission] = useState<Submission>();
+  const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<
+    string | undefined
+  >(undefined);
 
   const state = EditorState.create({
     doc: "",
@@ -108,28 +90,45 @@ export default function QuestionPage() {
   }, [docRefId]);
 
   useEffect(() => {
+    if (username === undefined) return;
+    GetUserQuestionHistories(username, docRefId)
+      .then((data: any) => {
+        console.log(data);
+        setUserQuestionHistories(data);
+      })
+      .finally(() => {
+        setIsHistoryLoading(false);
+      });
+  }, [username]);
+
+  useEffect(() => {
     ValidateUser().then((data: VerifyTokenResponseType) => {
       setUsername(data.data.username);
     });
   }, []);
 
   useEffect(() => {
+    if (currentSubmissionId === undefined) return;
+
     const view = new EditorView({
       state,
       parent: editorRef.current || undefined,
     });
 
     // TODO: get from a specific history which was selected.
-    GetHistory("182d0ae6db66fdbefb657f09df3a44a8").then((data: any) => {
+    // Show latest history by default, or load specific history
+    GetHistory(currentSubmissionId).then((data: any) => {
+      const submittedAt = new Date(data.createdAt);
       setSubmission({
-        submittedAt: data.createdAt,
+        submittedAt: submittedAt.toLocaleString("en-US"),
         language: data.language,
         matchedUser: data.matchedUser,
         code: data.code,
+        historyDocRefId: data.historyDocRefId,
       });
 
       view.dispatch(
-        view.state.update({
+        state.update({
           changes: { from: 0, to: state.doc.length, insert: data.code },
         })
       );
@@ -139,23 +138,11 @@ export default function QuestionPage() {
       // Cleanup on component unmount
       view.destroy();
     };
-  }, []);
-
-  useEffect(() => {
-    GetUserQuestionHistories(username, docRefId).then((data: any) => {
-      setUserQuestionHistories(data);
-    });
-  }, [docRefId, username]);
-
-  useEffect(() => {
-    GetUserQuestionHistories(username, docRefId).then((data: any) => {
-      setUserQuestionHistories(data);
-    });
-  }, [docRefId, username]);
+  }, [currentSubmissionId]);
 
   const columns = [
     {
-      title: "Id",
+      title: "ID",
       dataIndex: "id",
       key: "id",
     },
@@ -163,6 +150,9 @@ export default function QuestionPage() {
       title: "Submitted at",
       dataIndex: "createdAt",
       key: "createdAt",
+      render: (date: string) => {
+        return new Date(date).toLocaleString();
+      },
     },
     {
       title: "Language",
@@ -175,6 +165,10 @@ export default function QuestionPage() {
       key: "matchedUser",
     },
   ];
+
+  const handleRowClick = (s: Submission) => {
+    setCurrentSubmissionId(s.historyDocRefId);
+  };
 
   return (
     <div>
@@ -206,56 +200,67 @@ export default function QuestionPage() {
                       rowKey="id"
                       dataSource={userQuestionHistories}
                       columns={columns}
-                      loading={isLoading}
+                      onRow={(record: any) => {
+                        return {
+                          onClick: () => handleRowClick(record),
+                          style: { cursor: "pointer" },
+                        };
+                      }}
+                      loading={isHistoryLoading}
                     />
                   </div>
                 </div>
               </Row>
-              <Row className="code-row">
-                <div className="code-container">
-                  <div className="code-top-container">
-                    <div className="code-title">
-                      <CodeOutlined className="title-icons" />
-                      Submitted Code
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      margin: "10px",
-                      display: "flex",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <div className="submission-header-detail">
-                      Submitted at: {submission?.submittedAt || "-"}
-                    </div>
-                    <div className="submission-header-detail">
-                      Language: {submission?.language || "-"}
-                    </div>
-                    <div className="submission-header-detail">
-                      Matched with: {submission?.matchedUser || "-"}
-                    </div>
-                  </div>
+              {currentSubmissionId && (
+                <Row className="code-row">
+                  <div className="code-container">
+                    <>
+                      <div className="code-top-container">
+                        <div className="code-title">
+                          <CodeOutlined className="title-icons" />
+                          Submitted Code
+                        </div>
+                      </div>
 
-                  {/* TODO: add details of attempt here */}
-                  {/* TODO: set value of code, refactor to look like collab editor but not editable */}
-                  <div
-                    style={{
-                      margin: "10px",
-                      height: "40vh",
-                    }}
-                  >
-                    <div
-                      ref={editorRef}
-                      style={{
-                        height: "100%",
-                        overflow: "scroll",
-                        border: "1px solid #ddd",
-                      }}
-                    ></div>
+                      {/* Details of submission */}
+                      <div
+                        style={{
+                          margin: "10px",
+                          display: "flex",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <div className="submission-header-detail">
+                          Submitted at: {submission?.submittedAt || "-"}
+                        </div>
+                        <div className="submission-header-detail">
+                          Language: {submission?.language || "-"}
+                        </div>
+                        <div className="submission-header-detail">
+                          Matched with: {submission?.matchedUser || "-"}
+                        </div>
+                      </div>
+
+                      {/* Code Editor */}
+                      <div
+                        style={{
+                          margin: "10px",
+                          height: "40vh",
+                        }}
+                      >
+                        <div
+                          ref={editorRef}
+                          style={{
+                            height: "100%",
+                            overflow: "scroll",
+                            border: "1px solid #ddd",
+                          }}
+                        ></div>
+                      </div>
+                    </>
                   </div>
-                </div>
-              </Row>
+                </Row>
+              )}
             </Col>
           </Row>
         </Content>
