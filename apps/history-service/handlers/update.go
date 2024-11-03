@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Update an existing code snippet
+// Update an existing code snippet: Unused
 func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

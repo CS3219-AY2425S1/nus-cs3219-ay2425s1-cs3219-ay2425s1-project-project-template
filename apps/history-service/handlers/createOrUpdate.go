@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Unused
 func (s *Service) CreateOrUpdateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

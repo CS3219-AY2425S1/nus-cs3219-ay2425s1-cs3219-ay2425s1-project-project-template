@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Delete a code snippet by ID
+// Delete a code snippet by ID: unused
 func (s *Service) DeleteHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

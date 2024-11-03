@@ -5,6 +5,7 @@ import (
 	"history-service/models"
 	"net/http"
 
+	"cloud.google.com/go/firestore"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
 )
@@ -20,8 +21,14 @@ func (s *Service) ListUserQuestionHistories(w http.ResponseWriter, r *http.Reque
 	collRef := s.Client.Collection("collaboration-history")
 
 	// Query data
-	iterUser := collRef.Where("user", "==", username).Where("questionDocRefId", "==", questionDocRefID).Documents(ctx)
-	iterMatchedUser := collRef.Where("matchedUser", "==", username).Where("questionDocRefId", "==", questionDocRefID).Documents(ctx)
+	iterUser := collRef.Where("user", "==", username).
+		Where("questionDocRefId", "==", questionDocRefID).
+		OrderBy("createdAt", firestore.Desc).
+		Documents(ctx)
+	iterMatchedUser := collRef.Where("matchedUser", "==", username).
+		Where("questionDocRefId", "==", questionDocRefID).
+		OrderBy("createdAt", firestore.Desc).
+		Documents(ctx)
 
 	// Map data
 	var histories []models.CollaborationHistory
@@ -61,6 +68,10 @@ func (s *Service) ListUserQuestionHistories(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		history.HistoryDocRefID = doc.Ref.ID
+
+		// Swap matched user and user
+		history.MatchedUser = history.User
+		history.User = username
 
 		histories = append(histories, history)
 	}
