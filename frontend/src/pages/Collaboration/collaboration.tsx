@@ -183,13 +183,22 @@ const CollaborationPage: FC = () => {
         }
         setIsAwaitingCallResponse(false);
         if (isAnswer) {
-          commSocket.emit("start-video")
+          commSocket.emit("start-video");
           setIsInCall(true);
+        } else {
+          toast.error("Peer has declined the call.");
         }
+
       });
 
       commSocket.on("call-timeout", () => {
         setNotification(oldNotification => ({...oldNotification, isOpen: false}));
+      })
+
+      commSocket.on("call-error", () => {
+        console.log("button")
+        setIsInCall(false);
+        setIsAwaitingCallResponse(false);
       })
 
       commSocket.on("stop-video", () => {
