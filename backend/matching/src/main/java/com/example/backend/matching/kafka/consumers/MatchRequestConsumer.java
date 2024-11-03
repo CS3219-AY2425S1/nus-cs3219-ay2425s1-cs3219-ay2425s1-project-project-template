@@ -32,7 +32,7 @@ public class MatchRequestConsumer {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private static final String VERIFY_API_URL = System.getenv("VERIFY_API_URL");
+    private static final String VERIFY_API_URL =  System.getenv("ENV").equals("DEV") ? System.getenv("DEV_VERIFY_API_URL") : System.getenv("PROD_VERIFY_API_URL");
 
     @KafkaListener(topics = "MATCH_REQUESTS", groupId = "matching-service")
     public void listen(@Header(KafkaHeaders.RECEIVED_KEY) String key, String value) {
@@ -62,7 +62,7 @@ public class MatchRequestConsumer {
 
                     HttpEntity<VerifyMatchesDTO> request = new HttpEntity<>(verifyMatchesDTO, headers);
                     ResponseEntity<VerificationResponse> response = restTemplate.exchange(
-                        VERIFY_API_URL,
+                        VERIFY_API_URL + "/verify",
                         HttpMethod.POST,
                         request,
                         new ParameterizedTypeReference<VerificationResponse>() {}
