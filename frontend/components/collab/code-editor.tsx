@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
@@ -42,20 +43,19 @@ const languages: Record<string, LanguageEntry> = {
 export default function CodeEditor({ roomId }: { roomId: string }) {
   const monaco = useMonaco();
   const [language, setLanguage] = useState<string>("Javascript");
+  const [theme, setTheme] = useState<string>("light");
   const ydoc = useMemo(() => new Y.Doc(), []);
   const [editor, setEditor] =
     useState<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const languageMap = useMemo(() => ydoc.getMap("language"), [ydoc]);
 
-  // this effect manages the lifetime of the Yjs document and the provider
   useEffect(() => {
     const provider = new WebsocketProvider(
       "ws://localhost:3002/yjs",
       roomId,
       ydoc
     );
-    console.log(provider);
     setProvider(provider);
     return () => {
       provider?.destroy();
@@ -63,12 +63,8 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
     };
   }, [ydoc, roomId]);
 
-  // this effect manages the lifetime of the editor binding
   useEffect(() => {
-    if (provider == null || editor == null) {
-      console.log(provider, editor);
-      return;
-    }
+    if (provider == null || editor == null) return;
     const monacoBinding = new MonacoBinding(
       ydoc.getText(),
       editor.getModel()!,
@@ -80,9 +76,7 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
     };
   }, [ydoc, provider, editor]);
 
-  // Sync language changes across clients
   useEffect(() => {
-    // Update language when languageMap changes
     const handleLanguageChange = () => {
       const newLanguage = languageMap.get("selectedLanguage") as string;
       if (newLanguage && newLanguage !== language) {
@@ -96,7 +90,6 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
     };
   }, [languageMap, language]);
 
-  // Apply language change in the editor model
   useEffect(() => {
     if (editor && monaco) {
       const model = editor.getModel();
@@ -105,6 +98,12 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
       }
     }
   }, [language, editor, monaco]);
+
+  useEffect(() => {
+    if (monaco) {
+      monaco.editor.setTheme(theme === "dark" ? "vs-dark" : "light");
+    }
+  }, [theme, monaco]);
 
   return (
     <div className="w-3/5 p-4">
@@ -126,6 +125,12 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
                 ))}
               </SelectContent>
             </Select>
+            <Button
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              variant={theme === "light" ? "secondary" : "default"}
+            >
+              {theme === "light" ? "Light" : "Dark"} Mode
+            </Button>
           </div>
           <div className="flex-1 h-7/5">
             <Editor
@@ -134,6 +139,7 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
               onMount={(editor) => {
                 setEditor(editor);
               }}
+              theme={theme === "dark" ? "vs-dark" : "light"}
             />
           </div>
         </CardContent>
