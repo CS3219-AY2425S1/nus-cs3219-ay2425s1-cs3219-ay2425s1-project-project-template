@@ -5,6 +5,7 @@ import axios from "axios";
 import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
+import { useTheme } from "next-themes";
 
 var randomColor = require("randomcolor"); // import the script
 
@@ -12,6 +13,9 @@ interface CodeEditorProps {
   roomId: string;
   setOutput: React.Dispatch<React.SetStateAction<string>>;
   language: string;
+  userName: string;
+  userId: string;
+  userEmail: string;
 }
 
 const API_BASE_URL =
@@ -31,9 +35,13 @@ export default function CodeEditor({
   setOutput,
   roomId,
   language,
+  userName,
+  userEmail,
+  userId,
 }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
+  const { theme } = useTheme();
 
   // Function to handle code execution
   const executeCode = async () => {
@@ -112,9 +120,9 @@ export default function CodeEditor({
       const userColor = randomColor();
 
       yAwareness.setLocalStateField("user", {
-        name: "PeerPrep",
-        userId: "1234",
-        email: "peerprep@gmail.com",
+        name: userName,
+        userId: userId,
+        email: userEmail,
         color: userColor,
       });
 
@@ -173,31 +181,37 @@ export default function CodeEditor({
   }, [monaco]);
 
   return (
-    <div className="flex flex-col">
-      <button
-        style={{
-          alignSelf: "end",
-          padding: "8px 16px",
-          marginBottom: "8px",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-        onClick={executeCode}
-      >
-        Run Code
-      </button>
+    <div className="flex flex-col space-y-3">
+      <div className="flex justify-between px-[1.5] pt-1">
+        <p className="bg-slate-200 text-black text-center rounded-md px-1 py-[2]">
+          {language}
+        </p>
+        <button
+          className="px-1 py-[2] rounded-md"
+          style={{
+            alignSelf: "end",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
+          }}
+          onClick={executeCode}
+        >
+          Run Code
+        </button>
+      </div>
       <Editor
-        height="55vh"
+        height="80vh"
         language={language.toLowerCase()}
         options={{
           scrollBeyondLastLine: false,
           fixedOverflowWidgets: true,
           fontSize: 14,
+          padding: {
+            top: 10,
+          },
         }}
-        theme="vs-dark"
+        theme={theme === "dark" ? "vs-dark" : "hc-light"}
         width="100%"
         onMount={(editor) => {
           codeEditorRef.current = editor;
