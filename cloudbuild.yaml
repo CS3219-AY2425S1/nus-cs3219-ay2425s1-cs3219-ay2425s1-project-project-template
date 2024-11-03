@@ -10,6 +10,8 @@ steps:
         "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest",
         "--build-arg",
         "NEXT_PUBLIC_API_GATEWAY_URL=${_NEXT_PUBLIC_API_GATEWAY_URL}",
+        "--build-arg",
+        "NEXT_PUBLIC_GITHUB_CLIENT_ID=${_NEXT_PUBLIC_GITHUB_CLIENT_ID}",
         "-f",
         "peerprep-fe/Dockerfile",
         "peerprep-fe",
@@ -141,6 +143,7 @@ steps:
 
 substitutions:
   _NEXT_PUBLIC_API_GATEWAY_URL: ""
+  _NEXT_PUBLIC_GITHUB_CLIENT_ID: ""
 
 options:
   dynamic_substitutions: true
