@@ -6,6 +6,7 @@ import io from 'socket.io-client';
 
 function App() {
     const [content, setContent] = useState('');
+    const [language, setLanguage] = useState('javascript'); // default language 
     const [roomId, setRoomId] = useState('room1'); // Sample room ID
     const [cursors, setCursors] = useState({});
    
@@ -28,6 +29,12 @@ function App() {
         socket.on('documentUpdate', (data) => {
             console.log('Received documentUpdate event with content:', data.content);
             setContent(data.content);
+        });
+
+        // Listen for language updates
+        socket.on('languageUpdate', (data) => {
+            console.log('Received language event with content:', data.content);
+            setLanguage(data.content);
         });
 
         // Listen for cursor updates

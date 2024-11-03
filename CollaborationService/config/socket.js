@@ -1,6 +1,6 @@
 import roomService from '../services/roomService.js';
 import clientInstance from '../models/client-model.js';
-const { getRoom, updateCursorPosition, updateContent } = roomService;
+const { getRoom, updateCursorPosition, updateContent, updateLanguage } = roomService;
 
 function createSocket(io) {
     io.on('connection', (socket) => {
@@ -36,6 +36,18 @@ function createSocket(io) {
                 socket.to(roomId).emit('documentUpdate', { content });
             } else {
                 console.error(`Failed to update document for room ${roomId} by user ${socket.id}. Room or content may be missing.`);
+            }
+        });
+
+        socket.on('editLanguage', ({ roomId, language }) => {
+            console.log(`User ${socket.id} changed language in room: ${roomId}`);
+            const room = getRoom(roomId);
+            if (room) {
+                updateLanguage(roomId, language);
+                console.log(`Updated language in room ${roomId}. Broadcasting to other users.`);
+                socket.to(roomId).emit('languageUpdate', { language });
+            } else {
+                console.error(`Failed to update language for room ${roomId} by user ${socket.id}. Room or content may be missing.`);
             }
         });
 

@@ -45,6 +45,10 @@ function updateContent(roomId, content) {
     rooms[roomId].updateContent(content);
 }
 
+function updateLanguage(roomId, language) {
+    rooms[roomId].updateLanguage(language);
+}
+
 function updateCursorPosition(roomId, userId, cursorPosition) {
     rooms[roomId].updateCursorPosition(userId, cursorPosition);
 }
@@ -53,5 +57,6 @@ export default {
     createRoom,
     getRoom,
     updateContent,
+    updateLanguage,
     updateCursorPosition
 }
