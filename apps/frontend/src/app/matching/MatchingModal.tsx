@@ -103,8 +103,14 @@ const MatchingModal: React.FC<MatchingModalProps> = ({
                 matchingState.info.matchedUser
               );
               localStorage.setItem("collabId", matchingState.info.matchId);
-              localStorage.setItem("questionDocRefId", matchingState.info.questionDocRefId);
-              localStorage.setItem("matchedTopics", matchingState.info.matchedTopics.join(","));
+              localStorage.setItem(
+                "questionDocRefId",
+                matchingState.info.questionDocRefId
+              );
+              localStorage.setItem(
+                "matchedTopics",
+                matchingState.info.matchedTopics.join(",")
+              );
 
               // Redirect to collaboration page
               router.push(`/collaboration/${matchingState.info.matchId}`);
