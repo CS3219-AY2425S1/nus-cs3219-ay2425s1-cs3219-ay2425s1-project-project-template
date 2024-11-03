@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import Redis from 'ioredis';
 import { REDIS_CONFIG } from './redis.config';
+import { WebSocketKeyDto } from 'src/collaboration/dto/websocket-key.dto';
 
 @Injectable()
 export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
@@ -55,6 +56,9 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
       difficulty: difficulty,
       questionIds: [],
       messages: [],
+      sessionName: 'Coding Session',
+      joinedUsers: [],
+      allowedUsers: [],
     };
 
     await this.redis.set(key, JSON.stringify(value));
@@ -132,15 +136,83 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  // async removeWebSocketId(matchId: string, webSocketId: string): Promise<void> {
-  //   const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
-  //   const value = await this.getCollabSessionData(matchId);
-  //   if (value) {
-  //     value.webSockets = value.webSockets.filter(
-  //       (id: any) => id !== webSocketId,
-  //     );
-  //     this.logger.debug(value.webSockets);
-  //     await this.redis.set(key, JSON.stringify(value));
-  //   }
-  // }
+  async removeWebSocketIdAndUsername(
+    matchId: string,
+    webSocketId: string,
+    username: string,
+  ): Promise<void> {
+    const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
+    const value = await this.getCollabSessionData(matchId);
+    if (value) {
+      value.webSockets = value.webSockets.filter(
+        (id: any) => id !== webSocketId,
+      );
+      value.joinedUsers = value.joinedUsers.filter(
+        (name: any) => name !== username,
+      );
+      this.logger.debug(value.webSockets);
+      await this.redis.set(key, JSON.stringify(value));
+    }
+    const webSocketKey = `${REDIS_CONFIG.keys.sessionWebSocket}:${webSocketId}`;
+    await this.redis.del(webSocketKey);
+  }
+
+  async getOnloadData(matchId: string): Promise<any> {
+    const data = await this.getCollabSessionData(matchId);
+    const initData = {
+      question: data.question,
+      topic: data.topic,
+      difficulty: data.difficulty,
+      messages: data.messages,
+      sessionName: data.sessionName,
+      joinedUsers: data.joinedUsers,
+    };
+
+    return initData;
+  }
+
+  async addUserIfAllowed(matchId: string, username: string): Promise<boolean> {
+    const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
+    const value = await this.getCollabSessionData(matchId);
+    if (true) {
+      value.joinedUsers.push(username);
+      await this.redis.set(key, JSON.stringify(value));
+    }
+
+    return true;
+  }
+
+  async updateSessionName(
+    newSessionName: string,
+    matchId: string,
+  ): Promise<void> {
+    const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
+    const value = await this.getCollabSessionData(matchId);
+    if (value) {
+      value.sessionName = newSessionName;
+      await this.redis.set(key, JSON.stringify(value));
+    }
+  }
+
+  async addWebSocketKey(
+    id: string,
+    webSocketDTO: WebSocketKeyDto,
+  ): Promise<void> {
+    const key = `${REDIS_CONFIG.keys.sessionWebSocket}:${id}`;
+    await this.redis.set(key, JSON.stringify(webSocketDTO));
+    const data = await this.redis.get(key);
+    this.logger.log(`added record ${data}`);
+  }
+
+  async getUserNameAndMatchId(webSocketId: string): Promise<WebSocketKeyDto> {
+    const key = `${REDIS_CONFIG.keys.sessionWebSocket}:${webSocketId}`;
+    const data = await this.redis.get(key);
+
+    return JSON.parse(data);
+  }
+
+  async getJoinedUsers(matchId: string): Promise<any> {
+    const data = await this.getCollabSessionData(matchId);
+    return data.joinedUsers;
+  }
 }

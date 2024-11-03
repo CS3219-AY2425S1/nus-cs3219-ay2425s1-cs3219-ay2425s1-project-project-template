@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { CollabRedisService } from 'src/redis/redis.service';
+import { WebSocketKeyDto } from './dto/websocket-key.dto';
 
 @Injectable()
 export class CollabService {
@@ -24,8 +25,17 @@ export class CollabService {
     return data;
   }
 
-  async registerWSToSession(matchId: string, id: string): Promise<void> {
+  async registerWSToSession(
+    matchId: string,
+    id: string,
+    username: string,
+  ): Promise<void> {
     await this.collabRedisService.addWebSocketId(matchId, id);
+    const webSocketKey = {
+      matchId: matchId,
+      username: username,
+    };
+    await this.collabRedisService.addWebSocketKey(id, webSocketKey);
     this.logger.log(`WebSocket ID ${id} registered for session ${matchId}`);
   }
 
@@ -41,7 +51,9 @@ export class CollabService {
       idsToExclude: idsToExclude,
     };
     try {
-      this.logger.debug(`Request body for calling question collab: ${JSON.stringify(requestBody, null, 2)}`);
+      this.logger.debug(
+        `Request body for calling question collab: ${JSON.stringify(requestBody, null, 2)}`,
+      );
       const response = await this.httpService
         .post('http://host.docker.internal:8000/questions/collab', requestBody)
         .toPromise();
@@ -91,7 +103,51 @@ export class CollabService {
     await this.collabRedisService.updateMessage(matchId, messageData);
   }
 
-  // async handleDisconnect(matchId: string, webSocketId: string): Promise<void> {
-  //   await this.collabRedisService.removeWebSocketId(matchId, webSocketId);
-  // }
+  async handleDisconnect(
+    matchId: string,
+    webSocketId: string,
+    username: string,
+  ): Promise<void> {
+    await this.collabRedisService.removeWebSocketIdAndUsername(
+      matchId,
+      webSocketId,
+      username,
+    );
+  }
+
+  async getOnloadData(matchId: string): Promise<any> {
+    const data = await this.collabRedisService.getOnloadData(matchId);
+    this.logger.debug(data);
+
+    return data;
+  }
+
+  async addUserIfAllowed(matchId: string, username: string): Promise<boolean> {
+    const isAllowed = await this.collabRedisService.addUserIfAllowed(
+      matchId,
+      username,
+    );
+
+    return true;
+  }
+
+  async updateSessionName(
+    newSessionName: string,
+    matchId: string,
+  ): Promise<void> {
+    await this.collabRedisService.updateSessionName(newSessionName, matchId);
+  }
+
+  async getUserNameAndMatchId(webSocketId: string): Promise<WebSocketKeyDto> {
+    const data =
+      await this.collabRedisService.getUserNameAndMatchId(webSocketId);
+
+    return data;
+  }
+
+  async getJoinedUsers(matchId: string): Promise<any> {
+    const data = await this.collabRedisService.getJoinedUsers(matchId);
+
+    return data;
+  }
 }
