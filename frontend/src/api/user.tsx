@@ -28,17 +28,17 @@ export const getUserId = () => {
   return Cookie.get("id");
 }
 
-export const setIsAdmin = (isAdmin: string) => {
-  Cookie.set("isAdmin", isAdmin, { expires: 1 });
+export const setIsAdmin = (isAdmin: boolean) => {
+  Cookie.set("isAdmin", isAdmin ? "Y" : "N", { expires: 1 });
 }
 
-export const getIsAdmin = () => {
-  return Cookie.get("isAdmin");
+export const getIsAdmin = (): boolean => {
+  return Cookie.get("isAdmin") == "Y";
 }
 
 export const getAuthStatus = () => {
   if (!getToken()) return AuthStatus.UNAUTHENTICATED;
-  if (getIsAdmin() === "true") return AuthStatus.ADMIN;
+  if (getIsAdmin()) return AuthStatus.ADMIN;
   return AuthStatus.AUTHENTICATED;
 }
 
@@ -55,6 +55,18 @@ export const verifyToken = async (token: string) => {
     }
   );
 
+  if (response.status !== 200) {
+    Cookie.remove("token");
+    Cookie.remove("username");
+    Cookie.remove("id");
+    Cookie.remove("isAdmin");
+    return false;
+  }
+
+  const data = await response.json();
+  setUsername(data.data.username);
+  setIsAdmin(data.data.isAdmin);
+  setUserId(data.data.id);
   return response.status === 200;
 };
 
@@ -128,8 +140,7 @@ export const register = async (
 // optional userId parameter
 export const getUser = async (userId = "") => {
   const token = getToken();
-  const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`
-  console.log(url);
+  const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`;
   const response = await fetch(url, {
     method: "GET",
     headers: {

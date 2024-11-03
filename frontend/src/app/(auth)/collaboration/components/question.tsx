@@ -18,11 +18,9 @@ const Question = ({ collabid }: { collabid: string }) => {
 
   useEffect(() => {
     fetchSession(collabid).then(async (data) => {
-      await fetchSingleQuestion(data.question_id.toString()).then(
-        (data) => {
-          setQuestion(data);
-        }
-      );
+      await fetchSingleQuestion(data.question_id.toString()).then((data) => {
+        setQuestion(data);
+      });
 
       setCollaborator(data.users.filter((user) => user !== username)[0]);
     });
