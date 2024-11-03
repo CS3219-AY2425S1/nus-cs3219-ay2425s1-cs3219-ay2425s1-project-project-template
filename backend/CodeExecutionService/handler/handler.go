@@ -92,6 +92,14 @@ func buildTask(er ExecRequest) (input.Task, error) {
         image = "php:8.2.3"
         filename = "script.php"
         run = "php script.php > $TORK_OUTPUT"
+    case "cpp":
+        image = "gcc:10.2.0"
+        filename = "program.cpp"
+        run = "g++ program.cpp -o program && ./program > $TORK_OUTPUT"
+    case "R":
+        image = "r-base:4.1.0"
+        filename = "script.R"
+        run = "Rscript script.R > $TORK_OUTPUT"
 	default:
 		return input.Task{}, errors.Errorf("unknown language: %s", er.Language)
 	}
