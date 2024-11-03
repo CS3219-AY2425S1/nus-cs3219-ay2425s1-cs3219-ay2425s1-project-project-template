@@ -76,6 +76,11 @@ export async function getRoomChatHistory(req, res) {
 
 // Get QuestionId from the room based on the roomId
 export async function getQuestionId(req, res) {
+  const { roomId } = req.params;
+
+  if (!roomId) {
+    return res.status(400).json({ error: "Room ID is required" });
+  }
   const questionId = await getQuestionIdByRoomId(roomId);
 
   if (questionId) {
