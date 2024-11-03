@@ -10,6 +10,7 @@ import { AtAuthGuard, RtAuthGuard } from './common/guards';
 import { MatchGateway } from './modules/match/match.controller';
 import { RedisMatchService } from './modules/match/redis.service';
 import { config } from './common/configs';
+import { CollaborationGateway } from './modules/collaboration/collaborationws.controller';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { config } from './common/configs';
       provide: APP_GUARD,
       useClass: AtAuthGuard,
     },
+    CollaborationGateway,
     MatchGateway,
     RedisMatchService,
   ],
