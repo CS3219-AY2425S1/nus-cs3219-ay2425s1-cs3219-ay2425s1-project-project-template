@@ -1,4 +1,4 @@
-import { Group, Stack } from '@mantine/core';
+import { Group, Stack, Loader, Text, Modal, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useEffect, useRef, useState } from 'react';
@@ -17,6 +17,9 @@ function Room() {
   const [code, setCode] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [modalOpened, { close: closeModal, open: openModal }] = useDisclosure(false);
+  const [loading, setLoading] = useState(true);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,14 +31,30 @@ function Room() {
   const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
-    if (!sessionData) {
+    const requestMediaPermissions = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        setPermissionsGranted(true);
+      } catch (error) {
+        console.error('Permissions not granted:', error);
+        openModal();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    requestMediaPermissions();
+  }, []);
+
+  useEffect(() => {
+    if (!permissionsGranted || !sessionData) {
       return;
     }
 
     const { sessionId, matchedUserId, questionId } = sessionData;
     connectCollaborationSocket(sessionId, matchedUserId, questionId);
     connectCommunicationSocket(sessionId);
-  }, [sessionData]);
+  }, [permissionsGranted, sessionData]);
 
   // Connect Collaboration Socket
   const connectCollaborationSocket = (sessionId: string, matchedUserId: string, questionId: number) => {
@@ -137,6 +156,29 @@ function Room() {
     }
   };
 
+  const handleCloseModal = () => {
+    closeModal();
+    navigate('/dashboard'); // Redirect to dashboard when modal is closed
+  };
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 1000 // Ensure loader is on top of everything
+      }}>
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <>
       <Group h="100vh" bg="slate.8" gap="10px" p="10px">
@@ -173,6 +215,19 @@ function Room() {
         confirmationButtonLabel="Leave"
         confirmationButtonColor="red"
       />
+
+      <Modal
+        opened={modalOpened}
+        onClose={handleCloseModal} // Close modal and navigate on close
+        title="Permissions Required"
+      >
+        <Text size="lg">
+          Camera and microphone permissions are required to access this room. Please refresh the page and grant access.
+        </Text>
+        <Button onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
+          Refresh
+        </Button>
+      </Modal>
     </>
   );
 }

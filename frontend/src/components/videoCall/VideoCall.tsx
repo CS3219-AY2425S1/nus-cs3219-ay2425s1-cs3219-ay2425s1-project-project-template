@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Group, Paper } from '@mantine/core';
 import { Socket } from 'socket.io-client';
 
 interface VideoCallSectionProps {
@@ -11,8 +10,6 @@ function VideoCall({ communicationSocket, roomId }: VideoCallSectionProps) {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
-  const [isCallStarted, setIsCallStarted] = useState(false);
 
   const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
@@ -39,7 +36,6 @@ function VideoCall({ communicationSocket, roomId }: VideoCallSectionProps) {
     if (!localStream || !communicationSocket) return;
 
     const newPeerConnection = new RTCPeerConnection(config);
-    setPeerConnection(newPeerConnection);
 
     newPeerConnection.onicecandidate = (event) => {
       if (event.candidate) {
@@ -70,58 +66,62 @@ function VideoCall({ communicationSocket, roomId }: VideoCallSectionProps) {
       newPeerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     });
 
+    // Listen for user-joined event to start the call
+    communicationSocket.on('user-joined', async () => {
+        if (newPeerConnection && communicationSocket) {
+            setTimeout(async () => {
+                const offer = await newPeerConnection.createOffer();
+                await newPeerConnection.setLocalDescription(offer);
+                communicationSocket.emit('offer', offer);
+            }, 2000);
+        }
+    });
+
+    // Handle user disconnected event
+    communicationSocket.on('user-left', () => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = null; // Reset remote video
+      }
+    });
+
     return () => {
       newPeerConnection.close();
       communicationSocket.off('offer');
       communicationSocket.off('answer');
       communicationSocket.off('candidate');
+      communicationSocket.off('user-joined'); // Clean up listener
+      communicationSocket.off('user-left'); // Clean up listener
     };
   }, [localStream, communicationSocket]);
 
-  const startCall = async () => {
-    if (peerConnection && communicationSocket) {
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      communicationSocket.emit('offer', offer);
-      setIsCallStarted(true);
-    }
-  };
-
   return (
-    <Paper>
-    <Group justify="center" gap="10px" grow>
+    <>
         <video
-        ref={localVideoRef}
-        autoPlay
-        playsInline
-        muted
-        style={{
+            ref={localVideoRef}
+            autoPlay
+            playsInline
+            muted
+            style={{
             width: '245px',  // Fixed width
             height: '160px', // Fixed height
             borderRadius: '8px',
             objectFit: 'cover', // Maintain aspect ratio and fill the box
             border: '1px solid rgba(0, 0, 0, 0.2)', // Optional faint outline
-        }}
+            }}
         />
         <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        style={{
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            style={{
             width: '245px',  // Adjusted to match local video for better alignment
             height: '160px', // Fixed height
             borderRadius: '8px',
             objectFit: 'cover', // Maintain aspect ratio and fill the box
             border: '1px solid rgba(0, 0, 0, 0.2)', // Optional faint outline
-        }}
+            }}
         />
-    </Group>
-    <Group justify="center">
-        <Button onClick={startCall} disabled={isCallStarted} color="blue">
-        {isCallStarted ? 'Call Started' : 'Start Call'}
-        </Button>
-    </Group>
-    </Paper>
+    </>
   );
 };
 
