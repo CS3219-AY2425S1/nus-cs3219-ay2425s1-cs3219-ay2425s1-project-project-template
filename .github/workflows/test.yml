@@ -46,7 +46,8 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/question-service
-          tree -a .
+          cat .env
+          cat cs3219-g24-firebase-adminsdk-9cm7h-b1675603ab.json
           go test ./...
 
   test:
