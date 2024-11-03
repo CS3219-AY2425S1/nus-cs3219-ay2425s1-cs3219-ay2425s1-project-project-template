@@ -1,6 +1,10 @@
+"use client";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardHeader } from "@/components/ui/card";
+import UserAvatar from "@/components/UserAvatar";
+import { useSessionContext } from "@/contexts/SessionContext";
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon, MessageSquareText } from "lucide-react";
 
@@ -9,8 +13,14 @@ interface ChatTopToolbarProps {
   setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function ChatTopToolbar({ isCollapsed, setIsCollapsed }: ChatTopToolbarProps) {
-    return (
+export default function ChatTopToolbar({
+  isCollapsed,
+  setIsCollapsed,
+}: ChatTopToolbarProps) {
+  const { sessionUserProfiles } =
+    useSessionContext();
+
+  return (
     <CardHeader className="flex flex-col gap-4 h-fit">
       <div
         className={cn(
@@ -31,9 +41,9 @@ export default function ChatTopToolbar({ isCollapsed, setIsCollapsed }: ChatTopT
           {isCollapsed ? <MessageSquareText /> : <ArrowRightIcon />}
         </Button>
         {!isCollapsed && <div className="mr-auto font-semibold">Text Chat</div>}
-        <Avatar className={cn(isCollapsed && "w-8 h-8")}>
-          <AvatarFallback>A</AvatarFallback>
-        </Avatar>
+        {sessionUserProfiles.map((profile) => (
+          <UserAvatar isHoverEnabled={false} userProfile={profile} />
+        ))}
       </div>
     </CardHeader>
   );

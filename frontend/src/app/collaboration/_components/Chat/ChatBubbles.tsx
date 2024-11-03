@@ -28,10 +28,7 @@ export default function ChatBubbles({ isCollapsed }: ChatBubblesProps) {
     >
       {messages.map((message) => (
         <React.Fragment key={message.id}>
-          <ChatBubble
-            message={message}
-            isSender={message.userId === userProfile.id}
-          />
+          <ChatBubble message={message} />
         </React.Fragment>
       ))}
     </CardContent>
@@ -40,11 +37,18 @@ export default function ChatBubbles({ isCollapsed }: ChatBubblesProps) {
 
 interface ChatBubbleProps {
   message: ChatMessage;
-  isSender: boolean;
 }
 
-function ChatBubble({ message, isSender }: ChatBubbleProps) {
-  // message.status = ChatMessageStatusEnum.enum.failed
+function ChatBubble({ message }: ChatBubbleProps) {
+  const { userProfile, getUserProfileDetailByUserId } = useSessionContext();
+
+  const profileDetails = useMemo(() => {
+    return getUserProfileDetailByUserId(message.userId);
+  }, [message]);
+
+  const isSender = useMemo(() => {
+    return message.userId === userProfile?.id;
+  }, []);
 
   const statusIcon = useMemo(() => {
     switch (message.status) {
@@ -56,6 +60,7 @@ function ChatBubble({ message, isSender }: ChatBubbleProps) {
         return <XCircle size={14} />;
     }
   }, [message.status]);
+
   return (
     <div
       className={cn(
@@ -64,7 +69,9 @@ function ChatBubble({ message, isSender }: ChatBubbleProps) {
       )}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-sm font-medium">{message.userId}</span>
+        <span className="text-sm font-medium">
+          {profileDetails?.displayName}
+        </span>
       </div>
       <div
         className={cn(

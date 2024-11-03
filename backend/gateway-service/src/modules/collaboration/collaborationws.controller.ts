@@ -47,6 +47,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
   constructor(
     @Inject('QUESTION_SERVICE') private questionService: ClientProxy,
     @Inject('CODE_EXECUTION_SERVICE') private codeExecutionService: ClientProxy,
+    @Inject('USER_SERVICE') private userClient: ClientProxy,
   ) {}
 
   @SubscribeMessage(SESSION_JOIN)
@@ -67,12 +68,32 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       this.socketUserMap.set(client.id, userId);
       client.join(sessionId);
 
-      this.debugFunction(`user joined`);
+      const membersSet = this.server.adapter['rooms'].get(sessionId);
+
+      const userProfilePromises = [];
+      for (const socketId of membersSet) {
+        userProfilePromises.push(
+          firstValueFrom(
+            this.userClient.send(
+              { cmd: 'get-user-by-id' },
+              this.socketUserMap.get(socketId),
+            ),
+          ),
+        );
+      }
+
+      const userProfiles = await Promise.all(userProfilePromises);
 
       this.server.to(sessionId).emit(SESSION_JOINED, {
-        userId,
+        userId, // the user who joined
         sessionId,
         message: 'A user joined the session',
+        userProfiles: userProfiles
+          .map((profile) => {
+            const { _id, ...profileDetails } = profile;
+            return { id: _id, ...profileDetails };
+          })
+          .sort((p1, p2) => p1.id.localeCompare(p2.id)), // the users in the room incl. the one who joined
       });
     } catch (error) {
       client.emit(EXCEPTION, `Error joining session: ${error.message}`);
@@ -96,10 +117,32 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     try {
       client.leave(sessionId);
 
+      const membersSet = this.server.adapter['rooms'].get(sessionId);
+
+      const userProfilePromises = [];
+      for (const socketId of membersSet) {
+        userProfilePromises.push(
+          firstValueFrom(
+            this.userClient.send(
+              { cmd: 'get-user-by-id' },
+              this.socketUserMap.get(socketId),
+            ),
+          ),
+        );
+      }
+
+      const userProfiles = await Promise.all(userProfilePromises);
+
       this.server.to(sessionId).emit(SESSION_LEFT, {
         userId,
         sessionId,
         message: 'A user left the session.',
+        userProfiles: userProfiles
+          .map((profile) => {
+            const { _id, ...profileDetails } = profile;
+            return { id: _id, ...profileDetails };
+          })
+          .sort((p1, p2) => p1.id.localeCompare(p2.id)),
       });
     } catch (error) {
       client.emit(EXCEPTION, `Error leaving session: ${error.message}`);

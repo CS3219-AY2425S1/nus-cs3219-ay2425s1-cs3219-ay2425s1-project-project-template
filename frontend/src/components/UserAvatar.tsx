@@ -16,9 +16,7 @@ export default function UserAvatar({
   className,
 }: UserAvatarProps) {
   return isHoverEnabled ? (
-    <ProfileMiniDetailsHoverCard
-      userProfile={userProfile}
-    >
+    <ProfileMiniDetailsHoverCard userProfile={userProfile}>
       <AvatarWrapper userProfile={userProfile} className={className} />
     </ProfileMiniDetailsHoverCard>
   ) : (
@@ -39,7 +37,7 @@ function AvatarWrapper({ userProfile, className }: AvatarWrapperProps) {
       return initials.join("");
     } else {
       const [fname, lname] = chunks[0].split(" ");
-      return `${fname[0]}${lname ? lname[0] : ""}`;
+      return `${fname[0]}${lname ? lname[0] : ""}`.toUpperCase();
     }
   }
 

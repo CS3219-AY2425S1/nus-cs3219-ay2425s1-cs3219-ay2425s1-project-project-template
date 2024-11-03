@@ -8,7 +8,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { UserProfile } from "@/types/User";
+import { UserProfile, UserProfilesSchema } from "@/types/User";
 import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
 import { io } from "socket.io-client";
@@ -23,7 +23,9 @@ import { v4 as uuidv4 } from "uuid";
 interface SessionContextType {
   isConnected: boolean;
   sessionId: string;
+  sessionUserProfiles: UserProfile[];
   userProfile: UserProfile | null;
+  getUserProfileDetailByUserId: (userId: string) => UserProfile | undefined; // all profiles in a session including currUser
   messages: ChatMessage[];
   handleSendMessage: (message: string) => void;
   setSessionId: (sessionId: string) => void;
@@ -55,34 +57,12 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
+  const [sessionUserProfiles, setSessionUserProfiles] = useState<UserProfile[]>(
+    []
+  );
   const [userProfile, setUserProfile] =
     useState<UserProfile>(initialUserProfile);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "msg1",
-      userId: "1",
-      sessionId: sessionId,
-      message: "Hello from user 1!",
-      status: ChatMessageStatusEnum.enum.sent,
-      timestamp: new Date().toISOString(),
-    },
-    {
-      id: "msg2",
-      userId: "2",
-      sessionId: sessionId,
-      message: "Hello from user 2!",
-      status: ChatMessageStatusEnum.enum.sent,
-      timestamp: new Date().toISOString(),
-    },
-    {
-      id: "msg3",
-      userId: "1",
-      sessionId: sessionId,
-      message: "Let's try bfs?",
-      status: ChatMessageStatusEnum.enum.sent,
-      timestamp: new Date().toISOString(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const [codeReview, setCodeReview] = useState({
     isGeneratingCodeReview: false,
@@ -123,6 +103,13 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       setCodeReview((prev) => ({ ...prev, isGeneratingCodeReview: false }));
     }
   }, [codeReview.currentClientCode, sessionId]);
+
+  const getUserProfileDetailByUserId = useCallback(
+    (userId: string) => {
+      return sessionUserProfiles.find((profile) => profile.id === userId);
+    },
+    [sessionUserProfiles]
+  );
 
   const socket = useMemo(() => {
     return io(socketUrl, {
@@ -196,16 +183,36 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       socket.emit("sessionJoin", sessionJoinRequest);
     });
 
-    socket.on("sessionJoined", ({ userId }) => {
-      if (userId === userProfile.id) {
-        setIsConnected(true);
-        // do fetching of chats here
-        return;
+    socket.on("sessionJoined", ({ userId, userProfiles }) => {
+      console.log("sessionJoined occured");
+      try {
+        if (userId === userProfile.id) {
+          setIsConnected(true);
+          // TODO: fetching of chats here
+        }
+
+        console.log(userProfiles);
+
+        const currentSessionUserProfiles =
+          UserProfilesSchema.parse(userProfiles);
+        setSessionUserProfiles([...currentSessionUserProfiles]);
+      } catch (e) {
+        console.log(e);
       }
     });
 
-    socket.on("sessionLeft", ({ userId }) => {
-      console.log(`${userId} left`);
+    socket.on("sessionLeft", ({ userId, userProfiles }) => {
+      try {
+        console.log("sessionLeft occured");
+
+        const currentSessionUserProfiles =
+          UserProfilesSchema.parse(userProfiles);
+        setSessionUserProfiles([...currentSessionUserProfiles]);
+
+        console.log(userProfile);
+      } catch (e) {
+        console.log(e);
+      }
     });
 
     socket.on("chatReceiveMessage", (data) => {
@@ -233,6 +240,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       isConnected,
       sessionId,
       setSessionId,
+      sessionUserProfiles,
+      getUserProfileDetailByUserId,
       userProfile,
       setUserProfile,
       messages,
@@ -248,6 +257,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       isConnected,
       codeReview,
       sessionId,
+      sessionUserProfiles,
+      getUserProfileDetailByUserId,
       userProfile,
       messages,
       handleSendMessage,

@@ -24,6 +24,16 @@ import { ClientsModule } from '@nestjs/microservices';
           host: config.questionService.host,
           port: config.questionService.port,
         },
+        
+      },
+      {
+        name: 'USER_SERVICE',
+        transport: config.userService.transport,
+        options: {
+          host: config.userService.host,
+          port: config.userService.port,
+        },
+        
       },
     ]),
   ],

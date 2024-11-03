@@ -16,6 +16,8 @@ const UserProfileSchema = z.object({
   //profilePictureUrl: z.string(),
 });
 
+const UserProfilesSchema = z.array(UserProfileSchema);
+
 const UpdateUserProfileSchema = UserProfileSchema.omit({
   id: true,
   email: true,
@@ -25,14 +27,17 @@ const UpdateUserProfileSchema = UserProfileSchema.omit({
 const UserProfileResponseSchema = createResponseSchema(UserProfileSchema);
 
 type UserProfile = z.infer<typeof UserProfileSchema>;
+type UserProfiles = z.infer<typeof UserProfilesSchema>;
 type UpdateUserProfile = z.infer<typeof UpdateUserProfileSchema>;
 type UserProfileResponse = z.infer<typeof UserProfileResponseSchema>;
 
 export {
   UserProfileSchema,
+  UserProfilesSchema,
   UserProfileResponseSchema,
   UpdateUserProfileSchema,
   type UserProfile,
+  type UserProfiles,
   type UserProfileResponse,
   type UpdateUserProfile,
 };
