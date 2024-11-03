@@ -14,6 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import AttemptsTab from "@/components/attempts/attempts"
 
 interface CollaborationPageProps {
     params: {
@@ -259,6 +260,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
           <TabsList className="w-fit">
             <TabsTrigger value="question">Question</TabsTrigger>
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
+            <TabsTrigger value="attempts">Attempts</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden h-full pb-1">
             <Card className="flex flex-col mt-1 mb-4 h-full overflow-hidden">
@@ -330,6 +332,9 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                 </div>
               </div>
             </Card>
+          </TabsContent>
+          <TabsContent value="attempts">
+            <AttemptsTab></AttemptsTab>
           </TabsContent>
         </Tabs>
         <div className="flex flex-col gap-2 h-full">
