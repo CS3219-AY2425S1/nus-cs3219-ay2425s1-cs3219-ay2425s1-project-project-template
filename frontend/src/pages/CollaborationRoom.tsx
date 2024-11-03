@@ -8,27 +8,23 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { toast } from "react-toastify";
 
-
 const SOCKET_SERVER_URL = import.meta.env.VITE_COLLABORATION_API_URL;
 
 const CollaborativeEditor: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // Destructure token directly
   const { roomId } = useParams<{ roomId: string }>();
   const socketRef = useRef<Socket | null>(null);
-  const [code, setCode] = useState<string>("function helloWorld() { console.log('Hello, world!'); }");
+  const [code, setCode] = useState<string>(
+    "function helloWorld() { console.log('Hello, world!'); }"
+  );
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<{ userName: string; message: string; timestamp: number }[]>([]);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Extract the question object from location.state
   const { question } = location.state;
-
-  // const question = {
-  //   title: "Two Sum Problem",
-  //   description: "Given an array of integers, return indices of the two numbers such that they add up to a specific target. You may assume that each input would have exactly one solution, and you may not use the same element twice.",
-  //   difficulty: "Easy",
-  // };
 
   useEffect(() => {
     if (!user) {
@@ -36,15 +32,29 @@ const CollaborativeEditor: React.FC = () => {
       return;
     }
 
+    // Initialize the socket connection
     socketRef.current = io(SOCKET_SERVER_URL);
 
-    socketRef.current.emit("join_collab", { roomId, userName: user.name }, (response: { success: boolean }) => {
-      if (response.success) {
-        setIsConnected(true);
-        console.log(`Joined collaboration room: ${roomId}`);
-      }
-    });
+    // Retrieve the required data
+    const userId = user.id; // Ensure the user object contains the userId
+    const userName = user.name;
+    const questionId = question._id || question.id; // Adjust based on your question object
 
+    // Emit the join_collab event with all required data
+    socketRef.current.emit(
+      "join_collab",
+      { roomId, userName, userId, questionId, token },
+      (response: { success: boolean }) => {
+        if (response.success) {
+          setIsConnected(true);
+          console.log(`Joined collaboration room: ${roomId}`);
+        } else {
+          console.error("Failed to join collaboration room");
+        }
+      }
+    );
+
+    // Listen for code updates
     socketRef.current.on("code_update", ({ code }: { code: string }) => {
       setCode(code);
     });
@@ -53,17 +63,23 @@ const CollaborativeEditor: React.FC = () => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
-    socketRef.current.on("leave_collab_notify", ({ userName }: { userName: string }) => {
-      console.log(`User ${userName} left the collaboration room.`);
-      toast.info(`User ${userName} left the collaboration room. Redirecting to match selection in 5s...`);
+    // Handle when a user leaves the collaboration room
+    socketRef.current.on(
+      "leave_collab_notify",
+      ({ userName }: { userName: string }) => {
+        console.log(`User ${userName} left the collaboration room.`);
+        toast.info(
+          `User ${userName} left the collaboration room. Redirecting to match selection in 5s...`
+        );
 
-      setTimeout(async() => navigate(`/matching`), 3000);
-    });
+        setTimeout(() => navigate(`/matching`), 3000);
+      }
+    );
 
-
+    // Cleanup when the component unmounts
     return () => {
-      cleanupCollaboration();
-        };
+      cleanupCollaboration(code);
+    };
   }, [roomId, user, navigate]);
 
   const handleEditorChange = (newCode: string | undefined) => {
@@ -85,16 +101,17 @@ const CollaborativeEditor: React.FC = () => {
   };
 
   const handleLeaveRoom = () => {
-    cleanupCollaboration();
+    cleanupCollaboration(code);
     navigate("/matching"); // Redirect to match selection after leaving the room
   };
 
-  const cleanupCollaboration = () => {
-    if (socketRef.current && user) {
-      socketRef.current.emit("leave_collab", { roomId, userName: user.name });
+  const cleanupCollaboration = (codeContent: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit("leave_collab", { roomId, codeContent });
       socketRef.current.disconnect();
     }
   };
+
 
   return (
     <>
