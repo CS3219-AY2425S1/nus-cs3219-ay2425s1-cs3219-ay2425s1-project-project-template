@@ -27,6 +27,7 @@ import {
   MessageOutlined,
   PlayCircleOutlined,
   SendOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import CollaborativeEditor, {
@@ -457,15 +458,14 @@ export default function CollaborationPage(props: CollaborationProps) {
             <Row className="chat-row">
               <div className="chat-container">
                 <div className="chat-title">
-                  <MessageOutlined className="title-icons" />
-                  Chat
+                  <VideoCameraOutlined className="title-icons" />
+                  Video
                 </div>
                 <VideoPanel />
-                <div className="chat-message-box">
+                {/* <div className="chat-message-box">
                   <div className="chat-header-message">
                     Matched with {matchedUser}
                   </div>
-                  {/* TODO: Map and input the history of messages sent here */}
                   <div></div>
                 </div>
                 <div className="chat-typing-box">
@@ -474,7 +474,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     placeholder="Send Message Here"
                     rows={4}
                   />
-                </div>
+                </div> */}
               </div>
             </Row>
           </Col>
