@@ -7,16 +7,26 @@ import { fetchSession } from "@/api/collaboration";
 import { getBaseUserData } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
+import "react-chat-elements/dist/main.css";
+import { MessageBox } from "react-chat-elements";
 import SockJS from "sockjs-client";
 
 const CHAT_SOCKET_URL =
   process.env["NEXT_PUBLIC_CHAT_SERVICE_WEBSOCKET"] ||
   "http://localhost:3007/chat-websocket";
 
+interface Message {
+  position: "left" | "right";
+  type: "text";
+  title: string;
+  text: string;
+}
+
 const Question = ({ collabid }: { collabid: string }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
   const [collaborator, setCollaborator] = useState<string | null>(null);
   const [userID, setUserID] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -36,6 +46,16 @@ const Question = ({ collabid }: { collabid: string }) => {
 
         client.subscribe("/user/queue/chat", (message) => {
           console.log("Received message", message);
+          const messageReceived = message.body;
+          console.log(messageReceived);
+          console.log(collaborator);
+          const newMessage = {
+            position: "left",
+            type: "text",
+            title: collaborator!,
+            text: messageReceived,
+          };
+          setMessages((prev) => [...prev, newMessage]);
         });
       },
       onDisconnect: () => {
@@ -53,7 +73,7 @@ const Question = ({ collabid }: { collabid: string }) => {
     return () => {
       client.deactivate();
     };
-  }, []);
+  }, [collaborator]);
 
   const username = getBaseUserData().username;
 
@@ -63,7 +83,12 @@ const Question = ({ collabid }: { collabid: string }) => {
 
   const handleClick = (e) => {
     e.preventDefault();
+    if (!inputMessage) return;
     console.log(inputMessage);
+    setMessages((prev) => [
+      ...prev,
+      { position: "right", title: username!, text: inputMessage, type: "text" },
+    ]);
 
     if (stompClientRef.current && isConnected) {
       const message = {
@@ -121,6 +146,9 @@ const Question = ({ collabid }: { collabid: string }) => {
         </div>
         <p className="text-white py-8 text-md">{question?.description}</p>
         <form>
+          {messages.map((message, idx) => {
+            return <MessageBox key={idx} {...message} />;
+          })}
           <input
             name="inputMessage"
             value={inputMessage}
