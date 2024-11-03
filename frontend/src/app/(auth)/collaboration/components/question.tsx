@@ -41,6 +41,8 @@ const Question = ({ collabid }: { collabid: string }) => {
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  const messageListRef = useRef(null);
+
   useEffect(() => {
     const userID = getBaseUserData().username; // Change me
     setUserID(userID);
@@ -90,6 +92,12 @@ const Question = ({ collabid }: { collabid: string }) => {
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
   };
+
+  useEffect(() => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -152,16 +160,18 @@ const Question = ({ collabid }: { collabid: string }) => {
       {/* <p className="text-white py-8 text-md">{question?.description}</p> */}
       <p className="row-span-1 text-primary-300 text-md max-h-[100%] overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3 rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
-        <p>{lorem}</p>
+        <span>{lorem}</span>
       </p>
-      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md max-h-[80%] overflow-y-auto">
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
         <MessageList
+          referance={messageListRef}
           className="overflow-y-auto"
           lockable={true}
           dataSource={messages}
         />
         <Input
           placeholder="Type here..."
+          className="self-end"
           value={inputMessage}
           rightButtons={<Button onClick={handleClick}>Send</Button>}
           onChange={(e) => setInputMessage(e.target.value)}
