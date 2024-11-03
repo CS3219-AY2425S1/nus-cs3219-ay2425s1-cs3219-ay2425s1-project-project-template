@@ -13,6 +13,8 @@ jobs:
       api: ${{ steps.filter.outputs.api }}
       question: ${{ steps.filter.outputs.question }}
       user: ${{ steps.filter.outputs.user }}
+      matching: ${{ steps.filter.outputs.matching }}
+      session: ${{ steps.filter.outputs.session }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
