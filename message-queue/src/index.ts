@@ -34,11 +34,6 @@ const connectRabbitMQ = async () => {
 connectRabbitMQ()
 connectToMongoDB()
 
-// Decide again if needs to be asynchronous
-const addDataToExchange = (userData: UserData, key: string) => {
-  channel.publish(EXCHANGE, key, Buffer.from(JSON.stringify(userData)))
-}
-
 const addDataToCollabExchange = (data: CollabExchangeData, key: string) => {
   channel.publish(COLLAB_EXCHANGE, key, Buffer.from(JSON.stringify(data)))
 }
@@ -192,7 +187,6 @@ app.post("/match", async (req: Request, res: Response) => {
   const { userData, key } = req.body
 
   try {
-    addDataToExchange(userData, key)
     console.log("Data Sent: ", req.body)
 
     const MAX_WAIT_TIME = 30000
