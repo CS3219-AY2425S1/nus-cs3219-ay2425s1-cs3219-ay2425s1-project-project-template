@@ -4,7 +4,7 @@
 
 .dropdown {
   border: 0;
-  background: var(--mantine-color-slate-8);
+  background: var(--mantine-color-gray-9);
 }
 
 .option:hover {
