@@ -94,13 +94,12 @@ function Room() {
   const connectCommunicationSocket = (roomId: string) => {
     const token = localStorage.getItem('token');
 
-    communicationSocketRef.current = io('https://localhost:8443', {
+    communicationSocketRef.current = io(config.ROOT_BASE_API, {
       path: '/api/comm/socket.io',
       auth: { token: `Bearer ${token}` },
       transports: ['websocket'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      secure: true,
     });
 
     communicationSocketRef.current.on('connect', () => {

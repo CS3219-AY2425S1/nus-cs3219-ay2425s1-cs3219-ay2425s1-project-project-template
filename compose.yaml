@@ -146,6 +146,7 @@ services:
        - my-network
      env_file:
        - .env/.communication_env
+       - .env/.global_auth_env
 
   collaboration-service:
     build:
