@@ -9,7 +9,7 @@ const baseURL =
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('access-token');
 
-  // Check if token exists
+  // Check if token exists.
   if (!token) {
     return NextResponse.redirect(new URL('/signin', request.url));
   }
