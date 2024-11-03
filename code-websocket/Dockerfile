@@ -18,3 +18,7 @@ EXPOSE 8081
 
 # Define the command to run the app
 CMD ["node", "server.js"]
+
+
+# docker build -t websocket-server .
+# docker run -p 8081:8081 websocket-server
