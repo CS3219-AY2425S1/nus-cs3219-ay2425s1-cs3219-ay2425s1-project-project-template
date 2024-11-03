@@ -6,6 +6,7 @@ import { WithNavBanner, WithNavBlocker } from '@/components/blocks/authed';
 import { AIChat } from '@/components/blocks/interview/ai-chat';
 import { Editor } from '@/components/blocks/interview/editor';
 import { PartnerChat } from '@/components/blocks/interview/partner-chat';
+import { QuestionAttemptsPane } from '@/components/blocks/interview/room/question-attempts';
 import { QuestionDetails } from '@/components/blocks/questions/details';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,9 +28,9 @@ export const loader =
   };
 
 export const InterviewRoom = () => {
+  usePageTitle(ROUTES.INTERVIEW);
   const { questionId, roomId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { crumbs } = useCrumbs();
-  usePageTitle(ROUTES.INTERVIEW);
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
   const questionDetails = useMemo(() => details.question, [details]);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
@@ -60,7 +61,9 @@ export const InterviewRoom = () => {
               <TabsContent value='details' className='flex h-full'>
                 <QuestionDetails {...{ questionDetails }} />
               </TabsContent>
-              <TabsContent value='attempts' className='flex h-full' />
+              <TabsContent value='attempts' className='flex h-full'>
+                <QuestionAttemptsPane questionId={questionId} />
+              </TabsContent>
             </Tabs>
           </Card>
 
