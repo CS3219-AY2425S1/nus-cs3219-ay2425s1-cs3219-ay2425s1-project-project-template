@@ -34,6 +34,9 @@ devDependencies:
   '@types/ws':
     specifier: ^8.5.12
     version: 8.5.13
+  typescript:
+    specifier: ^5.6.3
+    version: 5.6.3
 
 packages:
 
@@ -1128,7 +1131,6 @@ packages:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: false
 
   /undefsafe@2.0.5:
     resolution: {integrity: sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==}
