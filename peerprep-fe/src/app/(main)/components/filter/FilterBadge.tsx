@@ -34,7 +34,7 @@ export function FilterBadge({ filterType, value, onRemove }: FilterBadgeProps) {
       {`${filterType}: ${value}`}
       <button
         onClick={() => onRemove(filterType, value)}
-        className="ml-1 focus:outline-none"
+        className="ml-1 cursor-pointer focus:outline-none"
       >
         <X className="h-3 w-3" />
       </button>

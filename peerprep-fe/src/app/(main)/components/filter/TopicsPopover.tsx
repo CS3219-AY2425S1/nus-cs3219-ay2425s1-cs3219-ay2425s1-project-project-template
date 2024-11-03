@@ -62,7 +62,10 @@ export function TopicsPopover({
           <Input
             placeholder="Search topics..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              e.stopPropagation();
+              setSearchTerm(e.target.value);
+            }}
             className="mb-2"
           />
         </div>

@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { FilterSelect } from '@/app/(main)/components/filter/FilterSelect';
 import { TopicsPopover } from '@/app/(main)/components/filter/TopicsPopover';
-// import { sendMessageToQueue } from '@/lib/rabbitmq';
 import { axiosClient } from '@/network/axiosClient';
 import { DIFFICULTY_OPTIONS } from '@/lib/constants';
 import { UserMatchingRequest } from '@/types/types';
@@ -33,7 +32,6 @@ export function PreMatch() {
         difficulty: difficulty,
         type: 'match',
       };
-      // await sendMessageToQueue(message);
       await axiosClient.post('/matching/send', message);
       setOpen(false);
       router.push('/match');
