@@ -38,7 +38,6 @@ services:
             - QUESTION_SERVICE_URL=http://question-service:3004
             - MATCHING_SERVICE_URL=http://matching-service:3006
             - JUDGE_ZERO_URL=http://judgezero-server:2358
-            - JUDGE_ZERO_SUBMIT_CONFIG=${JUDGE_ZERO_SUBMIT_CONFIG}
         restart: always
         networks:
             - backend-network
