@@ -4,25 +4,15 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
 import { getChatHistory } from '@/services/collaboration-service-api'
-
-interface ICollaborator {
-    name: string
-}
+import { IChat } from '@/types/collaboration-api'
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()
 }
 
-export interface IMessage {
-    senderId: string
-    message: string
-    createdAt: Date
-    roomId: string
-}
-
 const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef }) => {
-    const [chatData, setChatData] = useState<IMessage[]>()
+    const [chatData, setChatData] = useState<IChat[]>()
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
     const router = useRouter()
@@ -38,13 +28,14 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
             const response = await getChatHistory(matchId).catch((_) => {
                 router.push('/')
             })
+            console.log('Chat history', response)
             setChatData(response)
         })()
     }, [router])
 
     useEffect(() => {
         if (socketRef?.current) {
-            socketRef.current.on('receive_message', (data: IMessage) => {
+            socketRef.current.on('receive_message', (data: IChat) => {
                 console.log('Got a msg', data)
                 setChatData((prev) => {
                     return [...(prev ?? []), data]
@@ -53,9 +44,9 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
         }
     }, [socketRef])
 
-    const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') => {
+    const getChatBubbleFormat = (currUser: string, type: 'label' | 'text') => {
         let format = ''
-        if (currUser.name === session?.user.username) {
+        if (currUser === session?.user.username) {
             format = 'items-end ml-5'
             // Add more format based on the type
             if (type === 'text') {
@@ -83,7 +74,7 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
         if (!session || !socketRef?.current) return
 
         if (message.trim()) {
-            const msg: IMessage = {
+            const msg: IChat = {
                 message: message,
                 senderId: session.user.username,
                 createdAt: new Date(),
@@ -107,7 +98,7 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
                     Object.values(chatData).map((chat, index) => (
                         <div
                             key={index}
-                            className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat({ name: chat.senderId }, 'label')}`}
+                            className={`flex flex-col gap-1 mb-5 ${getChatBubbleFormat(chat.senderId, 'label')}`}
                         >
                             <div className="flex items-center gap-2">
                                 <h4 className="text-xs font-medium">{chat.senderId}</h4>
@@ -116,7 +107,7 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
                                 </span>
                             </div>
                             <div
-                                className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat({ name: chat.senderId }, 'text')}`}
+                                className={`text-sm py-2 px-3 text-balance break-words w-full ${getChatBubbleFormat(chat.senderId, 'text')}`}
                             >
                                 {chat.message}
                             </div>

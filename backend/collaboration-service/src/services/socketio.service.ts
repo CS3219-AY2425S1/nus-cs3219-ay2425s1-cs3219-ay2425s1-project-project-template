@@ -5,15 +5,6 @@ import { updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode } from '../types/LanguageMode'
 import { ChatModel } from '../types'
 
-export interface IMessage {
-    text: string
-    name: string
-    email: string
-    socketId: string
-    roomId: string
-    time: string
-}
-
 export class WebSocketConnection {
     private io: IOServer
     private languages: Map<string, string> = new Map()
