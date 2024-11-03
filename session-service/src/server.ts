@@ -10,7 +10,7 @@ const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 export const allowedOrigins = ["*"];
 
 /**
- * Server INITIALIZATION and CONFIGURATION
+ * Server INITIALIZATION and CONFIGURATION.
  * CORS configuration
  * Request body parsing
  */
@@ -23,7 +23,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json()); //
 
 /**
  * Create an http server
