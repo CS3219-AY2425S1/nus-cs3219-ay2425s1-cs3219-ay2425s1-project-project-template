@@ -13,6 +13,7 @@ import {
     passedAllTestCases,
 } from '../utils/utils'
 import Submission from '../models/submission'
+import { Schema } from 'mongoose'
 
 const submitUserCode = async (
     req: CodeSubmissionRequest,
@@ -110,8 +111,10 @@ const submitUserCode = async (
             .json({ message: 'Error executing code' })
     }
 
+    let submissionId: Schema.Types.ObjectId
+    let submission: any
     try {
-        const submission = new Submission({
+        submission = new Submission({
             matchId,
             questionId,
             code,
@@ -121,14 +124,28 @@ const submitUserCode = async (
             testCasesTotal: testCases.length,
         })
         await submission.save()
-
         logger.info('Submission saved successfully', submission)
-        return res.status(200).json(submission)
     } catch (e) {
         logger.error('Error saving submission', e)
         return res
             .status(500)
             .json({ message: 'Error saving submission' })
+    }
+
+    try {
+        submissionId = submission._id
+        await axios.post(`${process.env.MATCH_SERVICE_URL}/update-match`, {
+            matchId,
+            submissionId
+        })
+
+        logger.info('Match updated successfully')
+        return res.status(200).json(submission)
+    } catch (e) {
+        logger.error('Error updating match', e)
+        return res
+            .status(500)
+            .json({ message: 'Error updating match' })
     }
 }
 
