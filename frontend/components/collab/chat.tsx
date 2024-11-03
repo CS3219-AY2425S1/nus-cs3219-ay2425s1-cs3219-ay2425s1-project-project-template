@@ -51,9 +51,7 @@ export default function Chat({ roomId }: { roomId: string }) {
     });
 
     socketInstance.on("chatMessage", (message: Message) => {
-      if (message.userId !== own_user_id) {
-        setPartnerMessages((prev) => [...prev, message]);
-      }
+      setPartnerMessages((prev) => [...prev, message]);
     });
 
     setSocket(socketInstance);
@@ -61,7 +59,7 @@ export default function Chat({ roomId }: { roomId: string }) {
     return () => {
       socketInstance.disconnect();
     };
-  }, [roomId, own_user_id]);
+  }, [roomId, own_user_id, auth?.user?.id]);
 
   useEffect(() => {
     const scrollWithDelay = () => {
@@ -91,8 +89,6 @@ export default function Chat({ roomId }: { roomId: string }) {
         userId: own_user_id,
         text: newMessage,
       });
-
-      setPartnerMessages((prev) => [...prev, message]);
     } else {
       setAiMessages((prev) => [...prev, message]);
     }
