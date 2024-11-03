@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose'
+import { Model, model, SortOrder } from 'mongoose'
 import matchSchema from './matching.model'
 import { IMatch } from '@repo/user-types'
 import { MatchDto } from '../types/MatchDto'
@@ -27,4 +27,33 @@ export async function getMatchByUserIdandMatchId(userId: string, matchId: string
 export async function updateMatchCompletion(matchId: string): Promise<boolean> {
     const match = await matchModel.updateOne({ _id: matchId }, { isCompleted: true })
     return !!match
+}
+
+export async function findPaginatedMatches(start: number, limit: number): Promise<IMatch[]> {
+    return matchModel.find().limit(limit).skip(start)
+}
+
+export async function findPaginatedMatchesWithSort(
+    start: number,
+    limit: number,
+    sortBy: string[][]
+): Promise<IMatch[]> {
+    return matchModel
+        .find()
+        .sort(sortBy.map(([key, order]): [string, SortOrder] => [key, order as SortOrder]))
+        .limit(limit)
+        .skip(start)
+}
+
+export function getSortKeysAndOrders(): { keys: string[]; orders: string[] } {
+    return { keys: ['complexity'], orders: ['asc', 'desc'] }
+}
+
+export function isValidSort(key: string, order: string): boolean {
+    const { keys, orders } = getSortKeysAndOrders()
+    return orders.includes(order) && keys.includes(key)
+}
+
+export async function findMatchCount(): Promise<number> {
+    return matchModel.countDocuments()
 }
