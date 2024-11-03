@@ -25,7 +25,8 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/collaboration')) {
     const sessionId = request.nextUrl.pathname.split('/')[2];
     const userId = request.cookies.get("id")?.value || "";
-    const isUserInSession = await checkUserInSession(sessionId, userId);
+    const username = request.cookies.get("username")?.value || "";
+    const isUserInSession = await checkUserInSession(sessionId, userId, username);
     if (!isUserInSession.exists) {
       return NextResponse.redirect(new URL('/403', request.url));
     }
