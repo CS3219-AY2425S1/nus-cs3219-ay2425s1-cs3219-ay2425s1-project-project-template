@@ -2,6 +2,7 @@
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import FilterBar from './filter/FilterBar';
 import ProblemTable from '../../../components/problems/ProblemTable';
+import RejoinSession from './RejoinSession';
 
 export default function MainComponent() {
   const { problems, filters, updateFilter, removeFilter, isLoading } =
@@ -10,6 +11,7 @@ export default function MainComponent() {
   return (
     <div className="min-h-screen bg-gray-900 p-6 pt-24 text-gray-100">
       <div className="mx-auto max-w-7xl">
+        <RejoinSession />
         <FilterBar
           filters={filters}
           updateFilter={updateFilter}

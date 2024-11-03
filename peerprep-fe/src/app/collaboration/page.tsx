@@ -5,11 +5,18 @@ import ProblemTable from '@/components/problems/ProblemTable';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
 import { SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
-import React, { Suspense, useCallback, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EditorSkeleton from './components/EditorSkeleton';
 import LoadingSpinner from '@/components/loading/LoadingSpinner';
+import { useCollaborationStore } from '@/state/useCollaborationStore';
 
 const CollaborationEditor = dynamic(
   () => import('./components/CollaborationEditor'),
@@ -27,6 +34,14 @@ function CollaborationPageContent() {
   const matchId = searchParams.get('matchId');
   const [language, setLanguage] = useState(SUPPORTED_PROGRAMMING_LANGUAGES[0]);
   const { problems, isLoading } = useFilteredProblems();
+  const { setLastMatchId } = useCollaborationStore();
+
+  useEffect(() => {
+    if (matchId) {
+      console.log('Setting last match ID to', matchId);
+      setLastMatchId(matchId);
+    }
+  }, [matchId, setLastMatchId]);
 
   // Layout states
   const [leftWidth, setLeftWidth] = useState(50);
