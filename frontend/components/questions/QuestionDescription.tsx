@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
+import { useTheme } from "next-themes";
 
 import NavLink from "@/components/navLink";
 import CategoryTags from "@/components/questions/CategoryTags";
@@ -24,6 +25,18 @@ export default function QuestionDescription({
     examples,
     constraints,
   } = question;
+  const { theme } = useTheme();
+
+  let descriptionBgColor: string;
+  let textColor: string;
+
+  if (theme === "dark") {
+    descriptionBgColor = "bg-gray-600 bg-opacity-70";
+    textColor = "text-white";
+  } else {
+    descriptionBgColor = "bg-gray-300 bg-opacity-70";
+    textColor = "text-black";
+  }
 
   return (
     <Card className="p-3 m-3">
@@ -43,24 +56,36 @@ export default function QuestionDescription({
       <CardBody>
         <p className="my-3 text-lg">Description</p>
         <div className="max-h-[200px] overflow-y-auto">
-          <pre className="bg-gray-700 p-2 rounded-lg text-balance min-h-[100px]">
-            <code className="text-white text-pretty min-h-[50px]">
+          <pre
+            className={
+              descriptionBgColor + " p-2 rounded-lg text-balance min-h-[100px]"
+            }
+          >
+            <code className={textColor + " text-pretty min-h-[50px]"}>
               {description}
             </code>
           </pre>
         </div>
         <p className="my-3 text-lg">Examples</p>
         <div className="max-h-[150px] overflow-y-auto">
-          <pre className="bg-gray-700 p-2 rounded-lg text-balance min-h-[50px]">
-            <code className="text-white text-pretty">
+          <pre
+            className={
+              descriptionBgColor + " p-2 rounded-lg text-balance min-h-[50px]"
+            }
+          >
+            <code className={textColor + " text-pretty"}>
               {examples || "There are no examples."}
             </code>
           </pre>
         </div>
         <p className="my-3 text-lg">Constraints</p>
         <div className="max-h-[150px] overflow-y-auto">
-          <pre className="bg-gray-700 p-2 rounded-lg text-balance min-h-[50px]">
-            <code className="text-white text-pretty min-h-[50px]">
+          <pre
+            className={
+              descriptionBgColor + " p-2 rounded-lg text-balance min-h-[50px]"
+            }
+          >
+            <code className={textColor + " text-pretty min-h-[50px]"}>
               {constraints || "There are no constraints."}
             </code>
           </pre>

@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import Peer, { MediaConnection } from "peerjs";
 import { useParams } from "next/navigation";
+import { Card, CardBody, CardFooter } from "@nextui-org/card";
 
-export default function VoiceChat() {
+interface VoiceChatProps {
+  className?: string;
+}
+export default function VoiceChat({
+  className: cardClassName,
+}: VoiceChatProps) {
   const params = useParams();
   const roomID = params?.roomId as string;
 
@@ -35,7 +41,7 @@ export default function VoiceChat() {
       const peerInstance = new Peer(peerID, {
         host: "localhost",
         port: 9000,
-        path: "/"
+        path: "/",
       });
 
       setPeer(peerInstance);
@@ -43,13 +49,16 @@ export default function VoiceChat() {
       // Listen for incoming calls
       peerInstance.on("call", (incomingCall) => {
         console.log("Incoming call received");
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-          incomingCall.answer(stream);
-          incomingCall.on("stream", (remoteStream) => {
-            console.log("Remote stream received from caller");
-            setRemoteStream(remoteStream);
-          });
-        }).catch((err) => console.error("Error accessing local media:", err));
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            incomingCall.answer(stream);
+            incomingCall.on("stream", (remoteStream) => {
+              console.log("Remote stream received from caller");
+              setRemoteStream(remoteStream);
+            });
+          })
+          .catch((err) => console.error("Error accessing local media:", err));
       });
 
       peerInstance.on("open", (id) => {
@@ -72,19 +81,26 @@ export default function VoiceChat() {
   useEffect(() => {
     if (peer && connectionPeerID) {
       console.log("Attempting to call connectionPeerID:", connectionPeerID);
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        const outgoingCall: MediaConnection = peer.call(connectionPeerID, stream);
-        setCall(outgoingCall);
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          const outgoingCall: MediaConnection = peer.call(
+            connectionPeerID,
+            stream,
+          );
 
-        outgoingCall.on("stream", (remoteStream) => {
-          console.log("Remote stream received from outgoing call");
-          setRemoteStream(remoteStream);
-        });
+          setCall(outgoingCall);
 
-        outgoingCall.on("error", (err) => {
-          console.error("Error in outgoing call:", err);
-        });
-      }).catch((err) => console.error("Error accessing local media:", err));
+          outgoingCall.on("stream", (remoteStream) => {
+            console.log("Remote stream received from outgoing call");
+            setRemoteStream(remoteStream);
+          });
+
+          outgoingCall.on("error", (err) => {
+            console.error("Error in outgoing call:", err);
+          });
+        })
+        .catch((err) => console.error("Error accessing local media:", err));
     }
   }, [peer, connectionPeerID]);
 
@@ -97,14 +113,18 @@ export default function VoiceChat() {
   }, [remoteStream]);
 
   return (
-    <div>
-      <h2>PeerJS Voice Chat</h2>
-      <p>Room: {roomID}</p>
-      <p>Your Peer ID: {peerID}</p>
-      <p>Connected to: {connectionPeerID || "Waiting for peer..."}</p>
-      {/* Disable the specific ESLint rule for the audio element */}
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio ref={audioRef} autoPlay controls />
-    </div>
+    <Card className={cardClassName}>
+      <CardBody>
+        <h2>PeerJS Voice Chat</h2>
+        <p>Room: {roomID}</p>
+        <p>Your Peer ID: {peerID}</p>
+        <p>Connected to: {connectionPeerID || "Waiting for peer..."}</p>
+      </CardBody>
+      <CardFooter>
+        {/* Disable the specific ESLint rule for the audio element */}
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <audio ref={audioRef} autoPlay controls />
+      </CardFooter>
+    </Card>
   );
 }
