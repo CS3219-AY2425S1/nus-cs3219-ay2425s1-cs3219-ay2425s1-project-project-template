@@ -72,6 +72,30 @@ export class MatchDto {
         )
     }
 
+    static fromModel({
+        user1Id,
+        user1Name,
+        user2Id,
+        user2Name,
+        complexity,
+        category,
+        question,
+        isCompleted,
+        createdAt,
+    }: IMatch): MatchDto {
+        return new MatchDto(
+            user1Id,
+            user1Name,
+            user2Id,
+            user2Name,
+            complexity,
+            category,
+            question,
+            isCompleted,
+            createdAt
+        )
+    }
+
     async validate(): Promise<ValidationError[]> {
         return validate(this)
     }

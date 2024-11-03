@@ -51,6 +51,21 @@ export async function getSession(request: Request, response: Response): Promise<
     response.status(200).json(session).send()
 }
 
+export async function getChatHistory(request: Request, response: Response): Promise<void> {
+    const id = request.params.id
+
+    // Obtains session by _id
+    const session = await getSessionById(id)
+
+    if (!session) {
+        response.status(404).json(`Session with id ${id} does not exist!`).send()
+        return
+    }
+
+    // Send retrieved data
+    response.status(200).json(session.chatHistory).send()
+}
+
 export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto>, response: Response): Promise<void> {
     const submissionRequestDto = SubmissionRequestDto.fromRequest(request)
     const requestErrors = await submissionRequestDto.validate()

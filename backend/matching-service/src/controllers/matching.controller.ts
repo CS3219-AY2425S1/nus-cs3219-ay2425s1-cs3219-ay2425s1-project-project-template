@@ -1,4 +1,4 @@
-import { ITypedBodyRequest } from '@repo/request-types'
+import { IPaginationRequest, ITypedBodyRequest } from '@repo/request-types'
 import { WebSocketMessageType } from '@repo/ws-types'
 import { randomUUID } from 'crypto'
 import { Response } from 'express'
@@ -8,8 +8,12 @@ import { IMatch } from '@repo/user-types'
 import { MatchDto } from '../types/MatchDto'
 import {
     createMatch,
+    findMatchCount,
+    findPaginatedMatches,
+    findPaginatedMatchesWithSort,
     getMatchByUserIdandMatchId,
     isUserInMatch,
+    isValidSort,
     updateMatchCompletion,
 } from '../models/matching.repository'
 import { getRandomQuestion } from '../services/matching.service'
@@ -100,4 +104,45 @@ export async function updateCompletion(
         return
     }
     response.status(200).send('MATCH_COMPLETED')
+}
+
+export async function handleGetPaginatedSessions(request: IPaginationRequest, response: Response): Promise<void> {
+    const page = parseInt(request.query.page)
+    const limit = parseInt(request.query.limit)
+
+    if (isNaN(page) || isNaN(limit) || page <= 0 || limit <= 0) {
+        response.status(400).json('INVALID_PAGINATION').send()
+        return
+    }
+    const start = (page - 1) * limit
+    const sortBy = request.query.sortBy?.split(',').map((sort) => sort.split(':')) ?? []
+    const isSortsValid = sortBy.every(
+        (sort: string[]) => sort.at(0) && sort.at(1) && isValidSort(sort.at(0)!, sort.at(1)!)
+    )
+
+    if (!isSortsValid) {
+        response.status(400).json('INVALID_SORT').send()
+        return
+    }
+    const count = await findMatchCount()
+    let matches: IMatch[]
+
+    if (sortBy.length) {
+        matches = await findPaginatedMatchesWithSort(start, limit, sortBy)
+    } else {
+        matches = await findPaginatedMatches(start, limit)
+    }
+
+    const nextPage = start + limit < count ? page + 1 : null
+
+    response.status(200).json({
+        pagination: {
+            currentPage: page,
+            nextPage,
+            totalPages: Math.ceil(count / limit),
+            totalItems: count,
+            limit,
+        },
+        sessions: matches.map(MatchDto.fromModel),
+    })
 }

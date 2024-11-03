@@ -1,11 +1,12 @@
 import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
-import { updateLanguage } from '../models/collab.repository'
+import { updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode } from '../types/LanguageMode'
 import { SubmissionRequestDto } from '@repo/submission-types'
 import judgeZero from './judgezero.service'
 import config from '../common/config.util'
+import { ChatModel } from '../types'
 
 export class WebSocketConnection {
     private io: IOServer
@@ -27,6 +28,11 @@ export class WebSocketConnection {
                 if (this.languages.has(roomId)) {
                     socket.emit('update-language', this.languages.get(roomId))
                 }
+            })
+
+            socket.on('send_message', (data: ChatModel) => {
+                this.io.to(data.roomId).emit('receive_message', data)
+                updateChatHistory(data.roomId, data)
             })
 
             socket.on('change-language', async (language: string) => {
@@ -51,7 +57,13 @@ export class WebSocketConnection {
                 const room = this.io.sockets.adapter.rooms.get(roomId)
                 socket.leave(roomId)
                 if (!this.isUserInRoom(roomId, name)) {
-                    this.io.to(roomId).emit('user-disconnected', name)
+                    const m: ChatModel = {
+                        senderId: '',
+                        message: name,
+                        createdAt: new Date(),
+                        roomId: roomId,
+                    }
+                    this.io.to(roomId).emit('user-disconnected', m)
                     loggerUtil.info(`User ${name} disconnected from room ${roomId}`)
                 }
                 if (!room) {
