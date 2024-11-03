@@ -1,0 +1,21 @@
+.subheading {
+  color: white;
+  font-size: 24px;
+  margin-bottom: 10px;
+  padding-left: 20px;
+  text-align: left;
+}
+
+.code-area {
+  flex: 1;
+  margin-bottom: 10px;
+  height: 260px;
+  background-color: white;
+  max-width: 100%;
+  display: block;
+  padding: 8px;
+}
+
+.code-area {
+  overflow: auto;
+}
