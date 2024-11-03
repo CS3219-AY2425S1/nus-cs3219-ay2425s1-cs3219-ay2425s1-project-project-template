@@ -25,13 +25,6 @@ interface Message {
 const lorem =
   "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
 
-const sampleMessage = {
-  position: "right",
-  type: "text",
-  title: "You",
-  text: "Hello, how can I help you?",
-};
-
 const Question = ({ collabid }: { collabid: string }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
   const [collaborator, setCollaborator] = useState<string | null>(null);
@@ -41,11 +34,10 @@ const Question = ({ collabid }: { collabid: string }) => {
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  const messageListRef = useRef(null);
+  const messageListRef = useRef<MessageList | null>(null);
 
   useEffect(() => {
-    const userID = getBaseUserData().username; // Change me
-    setUserID(userID);
+    setUserID(getBaseUserData().username ?? "Anonymous"); // Change me
 
     const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
     const client = new StompClient({
@@ -57,11 +49,8 @@ const Question = ({ collabid }: { collabid: string }) => {
         setIsConnected(true);
 
         client.subscribe("/user/queue/chat", (message) => {
-          console.log("Received message", message);
           const messageReceived = message.body;
-          console.log(messageReceived);
-          console.log(collaborator);
-          const newMessage = {
+          const newMessage: Message = {
             position: "left",
             type: "text",
             title: collaborator!,
@@ -85,7 +74,7 @@ const Question = ({ collabid }: { collabid: string }) => {
     return () => {
       client.deactivate();
     };
-  }, [collaborator]);
+  }, [userID, collaborator]);
 
   const username = getBaseUserData().username;
 
@@ -105,7 +94,12 @@ const Question = ({ collabid }: { collabid: string }) => {
     console.log(inputMessage);
     setMessages((prev) => [
       ...prev,
-      { position: "right", title: username!, text: inputMessage, type: "text" },
+      {
+        position: "right" as const,
+        title: username!,
+        text: inputMessage,
+        type: "text",
+      },
     ]);
 
     if (stompClientRef.current && isConnected) {
@@ -157,11 +151,10 @@ const Question = ({ collabid }: { collabid: string }) => {
           Exit Room
         </Button>
       </div>
-      {/* <p className="text-white py-8 text-md">{question?.description}</p> */}
-      <p className="row-span-1 text-primary-300 text-md max-h-[100%] overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3 rounded-md">
+      <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3 rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
-        <span>{lorem}</span>
-      </p>
+        <span className="text-white py-8 text-md">{question?.description}</span>
+      </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
         {messages.length == 0 ? (
           <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
