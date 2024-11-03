@@ -54,7 +54,7 @@ export function initializeCommunicationSockets(io: Server) {
     
     socket.on("call-error", (roomId: string) => {
       socket.nsp.to(roomId).emit("call-error");
-      socket.nsp.to(roomId).emit("stop-video");
+      // socket.nsp.to(roomId).emit("stop-video");
     })
 
     socket.on("disconnecting", () => {

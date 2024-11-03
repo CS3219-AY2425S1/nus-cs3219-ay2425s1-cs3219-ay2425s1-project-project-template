@@ -195,6 +195,12 @@ const CollaborationPage: FC = () => {
         setNotification(oldNotification => ({...oldNotification, isOpen: false}));
       })
 
+      commSocket.on("call-error", () => {
+        console.log("button")
+        setIsInCall(false);
+        setIsAwaitingCallResponse(false);
+      })
+
       commSocket.on("stop-video", () => {
         setIsInCall(false);
       })

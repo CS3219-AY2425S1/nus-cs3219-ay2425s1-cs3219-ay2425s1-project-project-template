@@ -39,8 +39,8 @@ export default function VideoCall() {
         })
 
         commSocket.on("stop-video", () => {
+            console.log("sv");
             stopVideo();
-            setIsShowVideo(false);
         })
         
         commSocket.on("call-error", () => {
