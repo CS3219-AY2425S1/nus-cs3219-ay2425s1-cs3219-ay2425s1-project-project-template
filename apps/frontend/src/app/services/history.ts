@@ -57,14 +57,29 @@ export const GetHistory = async (historyDocRefId: string): Promise<History> => {
 };
 
 export const GetUserHistories = async (
-  username: string
+  username: string,
+  currentPage?: number,
+  limit?: number
 ): Promise<History[]> => {
-  const response = await fetch(`${HISTORY_SERVICE_URL}histories/${username}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  let query_params = "";
+
+  if (currentPage) {
+    query_params += `?offset=${(currentPage - 1) * (limit ? limit : 10)}`;
+  }
+
+  if (limit) {
+    query_params += `${query_params.length > 0 ? "&" : "?"}limit=${limit}`;
+  }
+
+  const response = await fetch(
+    `${HISTORY_SERVICE_URL}histories/user/${username}${query_params}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (response.status === 200) {
     return response.json();

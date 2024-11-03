@@ -20,8 +20,8 @@ interface Submission {
   submittedAt: string;
   language: string;
   matchedUser: string;
-  code: string;
   historyDocRefId: string;
+  code: string;
 }
 
 interface TablePagination {
@@ -44,13 +44,13 @@ export default function QuestionPage() {
     });
   };
 
-  const router = useRouter();
   const editorRef = useRef(null);
   const languageConf = new Compartment();
 
-  // Retrieve the docRefId from query params during page navigation
+  // Retrieve the questionDocRefId and historyDocRefId from query params during page navigation
   const searchParams = useSearchParams();
-  const docRefId: string = searchParams?.get("data") ?? "";
+  const questionDocRefId: string = searchParams?.get("data") ?? "";
+  const historyDocRefId: string = searchParams?.get("history") ?? "";
   // Code Editor States
   const [questionTitle, setQuestionTitle] = useState<string | undefined>(
     undefined
@@ -65,7 +65,7 @@ export default function QuestionPage() {
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
   const [currentSubmissionId, setCurrentSubmissionId] = useState<
     string | undefined
-  >(undefined);
+  >(historyDocRefId == "" ? undefined : historyDocRefId);
   const [paginationParams, setPaginationParams] = useState<TablePagination>({
     totalCount: 0,
     totalPages: 0,
@@ -96,7 +96,7 @@ export default function QuestionPage() {
   async function loadQuestionHistories(currentPage: number, limit: number) {
     if (username === undefined) return;
     setIsHistoryLoading(true);
-    GetUserQuestionHistories(username, docRefId, currentPage, limit)
+    GetUserQuestionHistories(username, questionDocRefId, currentPage, limit)
       .then((data: any) => {
         setUserQuestionHistories(data.histories);
         setPaginationParams({
@@ -118,7 +118,7 @@ export default function QuestionPage() {
       setIsLoading(true);
     }
 
-    GetSingleQuestion(docRefId)
+    GetSingleQuestion(questionDocRefId)
       .then((data: any) => {
         setQuestionTitle(data.title);
         setComplexity(data.complexity);
@@ -128,7 +128,7 @@ export default function QuestionPage() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [docRefId]);
+  }, [questionDocRefId]);
 
   useEffect(() => {
     loadQuestionHistories(paginationParams.currentPage, paginationParams.limit);
@@ -156,8 +156,8 @@ export default function QuestionPage() {
         language: data.language,
         matchedUser:
           username == data.matchedUser ? data.user : data.matchedUser,
-        code: data.code,
         historyDocRefId: data.historyDocRefId,
+        code: data.code,
       });
 
       view.dispatch(
