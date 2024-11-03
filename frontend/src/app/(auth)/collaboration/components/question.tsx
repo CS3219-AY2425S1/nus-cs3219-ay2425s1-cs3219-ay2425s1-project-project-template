@@ -129,7 +129,7 @@ const Question = ({ collabid }: { collabid: string }) => {
   }, [collabid]);
 
   return (
-    <div className="px-12 grid grid-rows-[20%_50%_30%] gap-5 grid-cols-1 h-full items-start">
+    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-5 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col">
           <h1 className="text-yellow-500 text-4xl font-bold pb-2">
@@ -154,14 +154,13 @@ const Question = ({ collabid }: { collabid: string }) => {
         <span className="text-yellow-500 font-bold">Question Description</span>
         <p>{lorem}</p>
       </p>
-      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full">
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md max-h-[80%] overflow-y-auto">
         <MessageList
-          className="max-h-[60%] min-h-[60%] overflow-y-auto"
+          className="overflow-y-auto"
           lockable={true}
           dataSource={messages}
         />
         <Input
-          className="self-end"
           placeholder="Type here..."
           rightButtons={<Button onClick={handleClick}>Send</Button>}
           onChange={(e) => setInputMessage(e.target.value)}
