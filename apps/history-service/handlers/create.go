@@ -15,7 +15,7 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	var collaborationHistory models.CollaborationHistory
+	var collaborationHistory models.SubmissionHistory
 	if err := utils.DecodeJSONBody(w, r, &collaborationHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

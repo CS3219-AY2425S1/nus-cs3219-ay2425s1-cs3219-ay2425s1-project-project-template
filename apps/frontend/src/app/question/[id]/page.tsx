@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/components/Header/header";
-import { Col, Layout, message, Row, Table } from "antd";
+import { Col, Layout, message, PaginationProps, Row, Table } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { CodeOutlined, HistoryOutlined } from "@ant-design/icons";
 import "./styles.scss";
@@ -22,6 +22,13 @@ interface Submission {
   matchedUser: string;
   code: string;
   historyDocRefId: string;
+}
+
+interface TablePagination {
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
 }
 
 export default function QuestionPage() {
@@ -59,6 +66,12 @@ export default function QuestionPage() {
   const [currentSubmissionId, setCurrentSubmissionId] = useState<
     string | undefined
   >(undefined);
+  const [paginationParams, setPaginationParams] = useState<TablePagination>({
+    totalCount: 0,
+    totalPages: 0,
+    currentPage: 1,
+    limit: 3,
+  });
 
   const state = EditorState.create({
     doc: "",
@@ -70,6 +83,33 @@ export default function QuestionPage() {
       }),
     ],
   });
+
+  // Handler for change in page jumper
+  const onPageJump: PaginationProps["onChange"] = (pageNumber) => {
+    setPaginationParams((prev) => {
+      loadQuestionHistories(pageNumber, paginationParams.limit);
+      return { ...paginationParams, currentPage: pageNumber };
+    });
+  };
+
+  async function loadQuestionHistories(currentPage: number, limit: number) {
+    if (username === undefined) return;
+    setIsHistoryLoading(true);
+    GetUserQuestionHistories(username, docRefId, currentPage, limit)
+      .then((data: any) => {
+        setUserQuestionHistories(data.histories);
+        setPaginationParams({
+          ...paginationParams,
+          totalCount: data.totalCount,
+          totalPages: data.totalPages,
+          currentPage: data.currentPage,
+          limit: data.limit,
+        });
+      })
+      .finally(() => {
+        setIsHistoryLoading(false);
+      });
+  }
 
   // When code editor page is initialised, fetch the particular question, and display in code editor
   useEffect(() => {
@@ -90,15 +130,7 @@ export default function QuestionPage() {
   }, [docRefId]);
 
   useEffect(() => {
-    if (username === undefined) return;
-    GetUserQuestionHistories(username, docRefId)
-      .then((data: any) => {
-        console.log(data);
-        setUserQuestionHistories(data);
-      })
-      .finally(() => {
-        setIsHistoryLoading(false);
-      });
+    loadQuestionHistories(paginationParams.currentPage, paginationParams.limit);
   }, [username]);
 
   useEffect(() => {
@@ -108,6 +140,7 @@ export default function QuestionPage() {
   }, []);
 
   useEffect(() => {
+    // Only show history if a history is selected
     if (currentSubmissionId === undefined) return;
 
     const view = new EditorView({
@@ -115,8 +148,6 @@ export default function QuestionPage() {
       parent: editorRef.current || undefined,
     });
 
-    // TODO: get from a specific history which was selected.
-    // Show latest history by default, or load specific history
     GetHistory(currentSubmissionId).then((data: any) => {
       const submittedAt = new Date(data.createdAt);
       setSubmission({
@@ -202,8 +233,14 @@ export default function QuestionPage() {
                           style: { cursor: "pointer" },
                         };
                       }}
-                      scroll={{ y: "max-content" }}
                       loading={isHistoryLoading}
+                      pagination={{
+                        size: "small",
+                        current: paginationParams.currentPage,
+                        total: paginationParams.totalCount,
+                        pageSize: paginationParams.limit,
+                        onChange: onPageJump,
+                      }}
                     />
                   </div>
                 </div>

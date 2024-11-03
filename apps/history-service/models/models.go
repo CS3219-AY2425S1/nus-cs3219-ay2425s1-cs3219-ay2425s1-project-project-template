@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type CollaborationHistory struct {
+type SubmissionHistory struct {
 	// Submission related details
 	Code     string `json:"code" firestore:"code"`
 	Language string `json:"language" firestore:"language"`
@@ -25,7 +25,7 @@ type CollaborationHistory struct {
 }
 
 // Sorting interface for history, which sorts by created at in desc order
-type HistorySorter []CollaborationHistory
+type HistorySorter []SubmissionHistory
 
 func (s HistorySorter) Len() int { return len(s) }
 func (s HistorySorter) Less(i, j int) bool {

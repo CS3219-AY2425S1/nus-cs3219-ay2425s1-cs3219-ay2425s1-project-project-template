@@ -19,7 +19,7 @@ func (s *Service) CreateOrUpdateHistory(w http.ResponseWriter, r *http.Request) 
 
 	// Parse request
 	matchId := chi.URLParam(r, "matchId")
-	var collaborationHistory models.CollaborationHistory
+	var collaborationHistory models.SubmissionHistory
 	if err := utils.DecodeJSONBody(w, r, &collaborationHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

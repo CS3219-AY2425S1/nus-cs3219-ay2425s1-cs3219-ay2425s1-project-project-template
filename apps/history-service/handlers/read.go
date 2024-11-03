@@ -30,7 +30,7 @@ func (s *Service) ReadHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	var collaborationHistory models.CollaborationHistory
+	var collaborationHistory models.SubmissionHistory
 	if err := doc.DataTo(&collaborationHistory); err != nil {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
