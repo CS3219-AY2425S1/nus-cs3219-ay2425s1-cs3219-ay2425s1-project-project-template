@@ -21,10 +21,6 @@ export async function getSessionById(id: string): Promise<CollabDto> {
     return collabModel.findById(id)
 }
 
-export async function getChat(id: string): Promise<ChatModel[]> {
-    return collabModel.find({ _id: id })
-}
-
 export async function updateChatHistory(id: string, chatEntry: ChatModel) {
     return collabModel.updateOne({ _id: id }, { $push: { chatHistory: chatEntry } })
 }

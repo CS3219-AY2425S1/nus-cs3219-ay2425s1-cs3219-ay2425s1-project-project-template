@@ -2,7 +2,7 @@ import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { ITypedBodyRequest } from '@repo/request-types'
 import { CollabDto } from '../types/CollabDto'
-import { createSession, getChat, getSessionById } from '../models/collab.repository'
+import { createSession, getSessionById } from '../models/collab.repository'
 
 export async function createSessionRequest(request: ITypedBodyRequest<CollabDto>, response: Response): Promise<void> {
     const collabDto = CollabDto.fromRequest(request)
@@ -52,8 +52,13 @@ export async function getChatHistory(request: Request, response: Response): Prom
     const id = request.params.id
 
     // Obtains session by _id
-    const chat = await getChat(id)
+    const session = await getSessionById(id)
+
+    if (!session) {
+        response.status(404).json(`Session with id ${id} does not exist!`).send()
+        return
+    }
 
     // Send retrieved data
-    response.status(200).json(chat).send()
+    response.status(200).json(session.chatHistory).send()
 }
