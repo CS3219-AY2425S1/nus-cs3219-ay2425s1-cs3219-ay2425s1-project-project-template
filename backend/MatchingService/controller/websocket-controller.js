@@ -83,7 +83,9 @@ export const handleUserMatch = async (job) => {
     notifyUserOfMatchFailed(socketId, "Matched user disconnected, please try again");
     return;
   }
-  notifyUserOfMatchSuccess(socketId, userSocket, job);
+  if (userSocket) {
+    notifyUserOfMatchSuccess(socketId, userSocket, job);
+  }
 };
 
 export const fetchQuestionId = async (topic, difficulty) => {
@@ -102,7 +104,11 @@ export const fetchQuestionId = async (topic, difficulty) => {
 
 export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
   const { matchedUser, userNumber, matchedUserId, questionId} = job.data;
-  const room = createRoomIdentifier(socketId, matchedUserId);
+
+  const room =
+    userNumber === 1
+      ? `room-${socketId}-${matchedUserId}`
+      : `room-${matchedUserId}-${socketId}`;
   socket.join(room);
 
   // Emit the matched event with the assigned question ID
@@ -111,11 +117,6 @@ export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
     room,
     questionId, // Include the question ID in the response
   });
-};
-
-// Helper function to create a unique room identifier
-const createRoomIdentifier = (socketId, matchedUserId) => {
-  return `room-${socketId}-${matchedUserId}`;
 };
 
 // Notify users when the match fails or times out
