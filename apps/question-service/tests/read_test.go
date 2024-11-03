@@ -19,17 +19,15 @@ import (
 	"google.golang.org/api/option"
 )
 
-func createService(t testing.TB) *handlers.Service {
-	err := godotenv.Load(filepath.Join("../", ".env"))
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+var service *handlers.Service
+
+func createService() *handlers.Service {
 
 	ctx := context.Background()
 	client, err := initFirestore(ctx)
 
 	if err != nil {
-		t.Fatalf("failed to initialize Firestore: %v", err)
+		log.Fatalf("failed to initialize Firestore: %v", err)
 	}
 
 	return &handlers.Service{Client: client}
@@ -51,8 +49,18 @@ func initFirestore(ctx context.Context) (*firestore.Client, error) {
 	return client, nil
 }
 
+func TestMain(m *testing.M) {
+	err := godotenv.Load(filepath.Join("../", ".env"))
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	service = createService()
+	defer service.Client.Close()
+	exitCode := m.Run()
+	os.Exit(exitCode)
+}
+
 func Test_Read(t *testing.T) {
-	service := createService(t)
 	res := httptest.NewRecorder()
 
 	// adds chi context
@@ -67,5 +75,23 @@ func Test_Read(t *testing.T) {
 
 	if res.Result().StatusCode != 200 {
 		t.Fatalf("expected status code 200 but got %v", res.Result())
+	}
+}
+
+func Test_ReadNotFound(t *testing.T) {
+	res := httptest.NewRecorder()
+
+	// adds chi context
+	// https://stackoverflow.com/questions/54580582/testing-chi-routes-w-path-variables
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("docRefID", "not-found-docref")
+
+	req := httptest.NewRequest(http.MethodGet, "http://localhost:8080/questions/not-found-docref", strings.NewReader(""))
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+
+	service.ReadQuestion(res, req)
+
+	if res.Result().StatusCode != 404 {
+		t.Fatalf("expected status code 404 but got response %v", res.Result())
 	}
 }
