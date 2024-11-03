@@ -1,0 +1,26 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest",
+        "-f",
+        "matching-service/Dockerfile",
+        "matching-service",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest",
+      ]
+
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=k8s/matching-service.yml
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest
+      - --location=asia-southeast1
+      - --cluster=cs3219-g11-peerprep-kubes
