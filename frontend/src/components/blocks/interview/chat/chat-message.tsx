@@ -14,20 +14,6 @@ interface ChatMessageProps {
   message: ChatMessageType;
 }
 
-const CodeBlock: React.FC<{ content: string }> = ({ content }) => (
-  <div className='group relative'>
-    <pre className='bg-secondary my-4 overflow-x-auto rounded-md p-4 text-sm'>
-      <code>{content}</code>
-    </pre>
-    <button
-      onClick={() => navigator.clipboard.writeText(content)}
-      className='bg-secondary/80 absolute right-2 top-2 rounded px-2 py-1 text-xs opacity-0 transition-opacity group-hover:opacity-100'
-    >
-      Copy
-    </button>
-  </div>
-);
-
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   return (
     <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
