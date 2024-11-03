@@ -74,9 +74,9 @@ export function QuestionAttemptsTable<TValue>({
 
   return (
     <div className='relative flex max-h-full w-full grow flex-col'>
-      <div className='flex items-center py-4'>
+      <div className='flex items-center pb-4 pt-2'>
         <div className='flex flex-col gap-1'>
-          <label className='text-sm font-medium'>Filter by Language</label>
+          <label className='ml-0.5 text-sm font-medium'>Filter by Language</label>
           <ComboboxMulti
             setValuesCallback={setLanguages}
             options={Array.from(new Set(data.map((v) => v.language))).map((v) => ({
@@ -116,7 +116,7 @@ export function QuestionAttemptsTable<TValue>({
           </TableHeader>
         </Table>
       </div>
-      <ScrollArea className='size-full overflow-x-auto border-x'>
+      <ScrollArea className='border-border size-full overflow-x-auto border-x'>
         <Table>
           <TableBody>
             {!isError && table.getRowModel().rows?.length ? (
@@ -139,9 +139,9 @@ export function QuestionAttemptsTable<TValue>({
           </TableBody>
         </Table>
       </ScrollArea>
-      <div className='sticky bottom-0 rounded-b-md border'>
+      <div className='border-border sticky bottom-0 rounded-b-md border'>
         <Table>
-          <TableFooter>
+          <TableFooter className='border-t-border'>
             <TableRow>
               <TableCell colSpan={columns.length}>
                 <Pagination className='flex items-center justify-end space-x-2 p-2'>

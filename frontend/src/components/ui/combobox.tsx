@@ -54,10 +54,14 @@ export const ComboboxMulti = React.forwardRef<
           <ChevronsUpDown className='ml-2 size-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent ref={ref} className={cn('w-[200px] p-0', className)} {...props}>
+      <PopoverContent
+        ref={ref}
+        className={cn('w-[200px] p-0 border-secondary-foreground/40', className)}
+        {...props}
+      >
         <Command>
           <CommandInput placeholder={placeholderText} />
-          <CommandList>
+          <CommandList className=''>
             <CommandEmpty>{noOptionsText}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (
