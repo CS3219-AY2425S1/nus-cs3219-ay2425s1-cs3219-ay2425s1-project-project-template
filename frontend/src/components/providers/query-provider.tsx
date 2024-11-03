@@ -4,7 +4,7 @@ import type { FC, PropsWithChildren } from 'react';
 
 import { queryClient } from '@/lib/query-client';
 
-const IS_SHOW_DEVTOOLS = true;
+const IS_SHOW_DEVTOOLS = false;
 
 export const QueryProvider: FC<PropsWithChildren> = ({ children }) => {
   return (
