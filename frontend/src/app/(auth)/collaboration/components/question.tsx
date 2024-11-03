@@ -137,7 +137,7 @@ const Question = ({ collabid }: { collabid: string }) => {
   }, [collabid]);
 
   return (
-    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-5 grid-cols-1 h-full items-start">
+    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col">
           <h1 className="text-yellow-500 text-4xl font-bold pb-2">
@@ -163,12 +163,18 @@ const Question = ({ collabid }: { collabid: string }) => {
         <span>{lorem}</span>
       </p>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
-        <MessageList
-          referance={messageListRef}
-          className="overflow-y-auto"
-          lockable={true}
-          dataSource={messages}
-        />
+        {messages.length == 0 ? (
+          <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
+            Say hello to your match!
+          </span>
+        ) : (
+          <MessageList
+            referance={messageListRef}
+            className="overflow-y-auto h-full pt-3"
+            lockable={true}
+            dataSource={messages}
+          />
+        )}
         <Input
           placeholder="Type here..."
           className="self-end"
