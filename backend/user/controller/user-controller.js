@@ -8,6 +8,7 @@ import {
   findUserById as _findUserById,
   findUserByUsername as _findUserByUsername,
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
+  findUserByUsernameOrId as _findUserByUsernameOrId,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
@@ -40,11 +41,8 @@ export async function createUser(req, res) {
 export async function getUser(req, res) {
   try {
     const userId = req.params.id;
-    if (!isValidObjectId(userId)) {
-      return res.status(404).json({ message: `User ${userId} not found` });
-    }
 
-    const user = await _findUserById(userId);
+    const user = await _findUserByUsernameOrId(userId);
     if (!user) {
       return res.status(404).json({ message: `User ${userId} not found` });
     } else {

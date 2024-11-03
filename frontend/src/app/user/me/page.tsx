@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 const formSchema = z.object({
   username: z.string()
     .min(5, "Username must be at least 5 characters")
+    .max(20, "Username must be at most 20 characters")
     .optional(),
   email: z.string()
     .email("Invalid email")
