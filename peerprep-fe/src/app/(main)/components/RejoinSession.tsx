@@ -37,7 +37,7 @@ const RejoinSession = () => {
           className="text-amber-300 hover:bg-amber-500/20"
           onClick={clearLastMatchId}
         >
-          Dismiss
+          Leave
         </Button>
       </div>
     </div>

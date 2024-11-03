@@ -83,56 +83,61 @@ const CollaborationEditor = ({
       const states = providerRef.current?.awareness.getStates();
       if (states) {
         const newClients = new Map<number, ConnectedClient>();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+        // Build new clients map
         states.forEach((value: { [x: string]: any }, clientId: number) => {
           const state = value as AwarenessState;
           if (state.client) {
-            newClients.set(clientId, {
+            newClients.set(state.client, {
               id: state.client,
               user: state.user,
             });
           }
         });
 
-        // Check for new connections
-        const newConnectedUsers = Array.from(newClients.values())
-          .filter(
-            (client) =>
-              !prevClientsRef.current.has(client.id) &&
-              client.id.toString() !== user?.id,
-          )
-          .map((client) => client.user.name);
+        // Only check for connections/disconnections if the NUMBER OF CLIENTS HAS CHANGED
+        if (newClients.size !== prevClientsRef.current.size) {
+          // Check for new connections
+          const newConnectedUsers = Array.from(newClients.values())
+            .filter(
+              (client) =>
+                !Array.from(prevClientsRef.current.values()).some(
+                  (c) => c.id === client.id,
+                ) && client.id.toString() !== user?.id,
+            )
+            .map((client) => client.user.name);
 
-        if (newConnectedUsers.length > 0) {
-          const description =
-            newConnectedUsers.length === 1
-              ? `${newConnectedUsers[0]} joined the session`
-              : `${newConnectedUsers.slice(0, -1).join(', ')} and ${newConnectedUsers.slice(
-                  -1,
-                )} joined the session`;
+          if (newConnectedUsers.length > 0) {
+            const description =
+              newConnectedUsers.length === 1
+                ? `${newConnectedUsers[0]} joined the session`
+                : `${newConnectedUsers.slice(0, -1).join(', ')} and ${
+                    newConnectedUsers[newConnectedUsers.length - 1]
+                  } joined the session`;
 
-          toast({
-            title: 'User Connected!',
-            description,
-            variant: 'success',
-          });
-        }
-
-        // Check for disconnections
-        Array.from(prevClientsRef.current.values()).forEach((prevClient) => {
-          if (
-            !Array.from(newClients.values()).some(
-              (client) => client.id === prevClient.id,
-            ) &&
-            prevClient.id.toString() !== user?.id
-          ) {
             toast({
-              title: 'User Disconnected',
-              description: `${prevClient.user.name} left the session`,
-              variant: 'warning',
+              title: 'User Connected!',
+              description,
+              variant: 'success',
             });
           }
-        });
+
+          // Check for disconnections
+          Array.from(prevClientsRef.current.values()).forEach((prevClient) => {
+            if (
+              !Array.from(newClients.values()).some(
+                (client) => client.id === prevClient.id,
+              ) &&
+              prevClient.id.toString() !== user?.id
+            ) {
+              toast({
+                title: 'User Disconnected',
+                description: `${prevClient.user.name} left the session`,
+                variant: 'warning',
+              });
+            }
+          });
+        }
 
         prevClientsRef.current = newClients;
         setConnectedClients(newClients);
