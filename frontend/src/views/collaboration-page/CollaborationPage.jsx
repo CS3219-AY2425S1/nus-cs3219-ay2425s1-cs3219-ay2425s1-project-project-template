@@ -2,9 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCookies } from "react-cookie";
+
 import Question from '../../components/Question';
 import CodeEditor from './CodeEditor';
 import PartnerDisplay from '../../components/PartnerDisplay';
+import useHistoryUpdate from '../../hooks/useHistoryUpdate';
 
 import styles from './CollaborationPage.module.css';
 
@@ -19,6 +21,7 @@ const CollaborationPage = () => {
     const [isConnected, setIsConnected] = useState(false);
     const [language, setLanguage] = useState("javascript");
     const [theme, setTheme] = useState("githubLight");
+    const { handleHistoryUpdate, isLoading: isHistoryLoading, isError: isHistoryError } = useHistoryUpdate();
 
     const navigate = useNavigate();
     const socketRef = useRef(null);
@@ -100,6 +103,16 @@ const CollaborationPage = () => {
         return () => clearTimeout(interval);
     }, [content, language]);
 
+    useEffect(() => {
+        window.addEventListener('beforeunload', handleSessionEnd);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleSessionEnd);
+            handleSessionEnd(); 
+            socketRef.current.disconnect();
+        };
+    }, [codeSnippets, question, cookies.userId, cookies.username]);
+
     const handleEditorChange = (newContent) => {
         setContent(newContent);
         setCodeSnippets(prev => ({
@@ -110,7 +123,23 @@ const CollaborationPage = () => {
         socketRef.current.emit('editDocument', { roomId, content: newContent });
     };
 
+    const handleSessionEnd = async () => {
+        const userId = cookies.userId;
+        const updatePromises = Object.entries(codeSnippets).map(([lang, code]) => {
+            return handleHistoryUpdate(userId, question, lang, code);
+        });
+
+        try {
+            await Promise.all(updatePromises);
+            console.log('All history updates completed.');
+        } catch (error) {
+            console.error('Error updating history:', error);
+        }
+    }
+
     const handleLeave = () => {
+        handleSessionEnd();
+
         const username = cookies.username;
         console.log('Emitting custom_disconnect before navigating away');
         localStorage.clear();
@@ -125,7 +154,7 @@ const CollaborationPage = () => {
 
         const savedSnippet = localStorage.getItem(`codeSnippet-${selectedLanguage}`) || '';
         setContent(savedSnippet)
-        
+
         console.log('Language change: ', selectedLanguage);
         socketRef.current.emit('editLanguage', { roomId, language: selectedLanguage });
         socketRef.current.emit('editDocument', { roomId, content: savedSnippet });

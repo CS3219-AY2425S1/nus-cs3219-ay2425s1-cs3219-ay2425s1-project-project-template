@@ -40,6 +40,18 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
+export async function addHistoryEntry(userId, historyEntry) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $push: {
+        history: historyEntry,
+      },
+    },
+    { new: true } 
+  );
+}
+
 export async function updateUserById(userId, username, email, password, proficiency, displayName) {
   return UserModel.findByIdAndUpdate(
     userId,

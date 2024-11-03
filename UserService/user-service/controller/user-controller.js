@@ -8,6 +8,7 @@ import {
   findUserById as _findUserById,
   findUserByUsername as _findUserByUsername,
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
+  addHistoryEntry as _addHistoryEntry,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
@@ -64,6 +65,38 @@ export async function getAllUsers(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when getting all users!" });
+  }
+}
+
+export async function addUserHistory(req, res) {
+  try {
+    const userId = req.params.id;
+    const { questionId, language, codeSnippet } = req.body;
+    const timestamp = new Date(); 
+    if (!isValidObjectId(userId)) {
+      return res.status(400).json({ message: `Invalid user ID: ${userId}` });
+    }
+    const user = await findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+    if (!questionId || !language || !codeSnippet) {
+      return res.status(400).json({ message: 'Missing required fields in history entry' });
+    }
+    const historyEntry = {
+      questionId,
+      language,
+      codeSnippet,
+      timestamp,
+    };
+    const updatedUser = await _addHistoryEntry(userId, historyEntry);
+    return res.status(200).json({
+      message: `Added history entry for user ${userId}`,
+      data: updatedUser,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error adding history entry' });
   }
 }
 

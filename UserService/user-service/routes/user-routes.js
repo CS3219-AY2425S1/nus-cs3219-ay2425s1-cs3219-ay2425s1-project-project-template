@@ -5,6 +5,7 @@ import {
   deleteUser,
   getAllUsers,
   getUser,
+  addUserHistory,
   updateUser,
   updateUserPrivilege,
 } from "../controller/user-controller.js";
@@ -19,6 +20,8 @@ router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivi
 router.post("/", createUser);
 
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
+
+router.post("/:id/history", verifyAccessToken, verifyIsOwnerOrAdmin, addUserHistory);
 
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 
