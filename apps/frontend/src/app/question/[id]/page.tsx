@@ -36,6 +36,15 @@ import { WebrtcProvider } from "y-webrtc";
 import { Compartment, EditorState } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
+import { GetHistory, GetUserQuestionHistories } from "@/app/services/history";
+import { ValidateUser, VerifyTokenResponseType } from "@/app/services/user";
+
+interface Submission {
+  submittedAt: string;
+  language: string;
+  matchedUser: string;
+  code: string;
+}
 
 export default function QuestionPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Store the states related to table's loading
@@ -52,7 +61,6 @@ export default function QuestionPage() {
 
   const router = useRouter();
   const editorRef = useRef(null);
-  const providerRef = useRef<WebrtcProvider | null>(null);
   const languageConf = new Compartment();
 
   // Retrieve the docRefId from query params during page navigation
@@ -65,9 +73,13 @@ export default function QuestionPage() {
   const [complexity, setComplexity] = useState<string | undefined>(undefined);
   const [categories, setCategories] = useState<string[]>([]); // Store the selected filter categories
   const [description, setDescription] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string>("");
+  const [userQuestionHistories, setUserQuestionHistories] =
+    useState<History[]>();
+  const [submission, setSubmission] = useState<Submission>();
 
   const state = EditorState.create({
-    doc: "TODO: parse from code",
+    doc: "",
     extensions: [
       basicSetup,
       languageConf.of(javascript()),
@@ -93,20 +105,53 @@ export default function QuestionPage() {
       .finally(() => {
         setIsLoading(false);
       });
+  }, [docRefId]);
 
+  useEffect(() => {
+    ValidateUser().then((data: VerifyTokenResponseType) => {
+      setUsername(data.data.username);
+    });
+  }, []);
+
+  useEffect(() => {
     const view = new EditorView({
       state,
       parent: editorRef.current || undefined,
+    });
+
+    // TODO: get from a specific history which was selected.
+    GetHistory("182d0ae6db66fdbefb657f09df3a44a8").then((data: any) => {
+      setSubmission({
+        submittedAt: data.createdAt,
+        language: data.language,
+        matchedUser: data.matchedUser,
+        code: data.code,
+      });
+
+      view.dispatch(
+        view.state.update({
+          changes: { from: 0, to: state.doc.length, insert: data.code },
+        })
+      );
     });
 
     return () => {
       // Cleanup on component unmount
       view.destroy();
     };
-  }, [docRefId]);
+  }, []);
 
-  // TODO: retrieve history
-  const history: any[] = [];
+  useEffect(() => {
+    GetUserQuestionHistories(username, docRefId).then((data: any) => {
+      setUserQuestionHistories(data);
+    });
+  }, [docRefId, username]);
+
+  useEffect(() => {
+    GetUserQuestionHistories(username, docRefId).then((data: any) => {
+      setUserQuestionHistories(data);
+    });
+  }, [docRefId, username]);
 
   const columns = [
     {
@@ -115,9 +160,9 @@ export default function QuestionPage() {
       key: "id",
     },
     {
-      title: "Attempted at",
-      dataIndex: "attemptedAt",
-      key: "attemptedAt",
+      title: "Submitted at",
+      dataIndex: "createdAt",
+      key: "createdAt",
     },
     {
       title: "Language",
@@ -159,7 +204,7 @@ export default function QuestionPage() {
                   <div style={{ margin: "10px" }}>
                     <Table
                       rowKey="id"
-                      dataSource={history}
+                      dataSource={userQuestionHistories}
                       columns={columns}
                       loading={isLoading}
                     />
@@ -172,6 +217,23 @@ export default function QuestionPage() {
                     <div className="code-title">
                       <CodeOutlined className="title-icons" />
                       Submitted Code
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      margin: "10px",
+                      display: "flex",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <div className="submission-header-detail">
+                      Submitted at: {submission?.submittedAt || "-"}
+                    </div>
+                    <div className="submission-header-detail">
+                      Language: {submission?.language || "-"}
+                    </div>
+                    <div className="submission-header-detail">
+                      Matched with: {submission?.matchedUser || "-"}
                     </div>
                   </div>
 
@@ -190,7 +252,7 @@ export default function QuestionPage() {
                         overflow: "scroll",
                         border: "1px solid #ddd",
                       }}
-                    />
+                    ></div>
                   </div>
                 </div>
               </Row>

@@ -14,13 +14,14 @@ func (s *Service) ListUserQuestionHistories(w http.ResponseWriter, r *http.Reque
 
 	// Parse request
 	username := chi.URLParam(r, "username")
+	questionDocRefID := chi.URLParam(r, "questionDocRefId")
 
 	// Reference collection
 	collRef := s.Client.Collection("collaboration-history")
 
 	// Query data
-	iterUser := collRef.Where("user", "==", username).Documents(ctx)
-	iterMatchedUser := collRef.Where("matchedUser", "==", username).Documents(ctx)
+	iterUser := collRef.Where("user", "==", username).Where("questionDocRefId", "==", questionDocRefID).Documents(ctx)
+	iterMatchedUser := collRef.Where("matchedUser", "==", username).Where("questionDocRefId", "==", questionDocRefID).Documents(ctx)
 
 	// Map data
 	var histories []models.CollaborationHistory
