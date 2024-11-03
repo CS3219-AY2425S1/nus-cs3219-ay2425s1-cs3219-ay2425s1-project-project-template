@@ -34,6 +34,10 @@ module.exports = (io) => {
           socket.to(roomId).emit('offer', offer);
         });
 
+        socket.on('ready-to-call', () => {
+          socket.to(roomId).emit('ready-to-call', socket.data.user.userId);
+        });
+
         socket.on('answer', (answer) => {
           socket.to(roomId).emit('answer', answer);
         });

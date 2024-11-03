@@ -35,11 +35,10 @@ function Room() {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
         setPermissionsGranted(true);
+        setLoading(false);
       } catch (error) {
         console.error('Permissions not granted:', error);
         openModal();
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -172,7 +171,7 @@ function Room() {
         position: 'fixed',
         top: 0,
         left: 0,
-        zIndex: 1000 // Ensure loader is on top of everything
+        zIndex: 1000
       }}>
         <Loader />
       </div>

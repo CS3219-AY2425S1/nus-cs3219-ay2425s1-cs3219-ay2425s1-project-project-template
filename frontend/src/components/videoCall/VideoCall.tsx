@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
+import { useAuth } from '../../hooks/AuthProvider';
 
 interface VideoCallSectionProps {
   communicationSocket: Socket | null;
@@ -10,27 +11,28 @@ function VideoCall({ communicationSocket, roomId }: VideoCallSectionProps) {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const { userId } = useAuth();
 
   const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
   useEffect(() => {
     if (!communicationSocket || !roomId) return;
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        setLocalStream(stream);
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-        }
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices:', error.message);
-      });
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          setLocalStream(stream);
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = stream;
+            communicationSocket.emit('ready-to-call');
+          }
+        })
+        .catch((error) => {
+          console.error('Error accessing media devices:', error.message);
+        });
 
     return () => {
       localStream?.getTracks().forEach(track => track.stop());
     };
-  }, [communicationSocket, roomId]);
+  }, [communicationSocket, roomId]);  
 
   useEffect(() => {
     if (!localStream || !communicationSocket) return;
@@ -67,13 +69,11 @@ function VideoCall({ communicationSocket, roomId }: VideoCallSectionProps) {
     });
 
     // Listen for user-joined event to start the call
-    communicationSocket.on('user-joined', async () => {
-        if (newPeerConnection && communicationSocket) {
-            setTimeout(async () => {
-                const offer = await newPeerConnection.createOffer();
-                await newPeerConnection.setLocalDescription(offer);
-                communicationSocket.emit('offer', offer);
-            }, 2000);
+    communicationSocket.on('ready-to-call', async (user) => {
+        if (newPeerConnection && communicationSocket && user !== userId) {
+            const offer = await newPeerConnection.createOffer();
+            await newPeerConnection.setLocalDescription(offer);
+            communicationSocket.emit('offer', offer);
         }
     });
 
