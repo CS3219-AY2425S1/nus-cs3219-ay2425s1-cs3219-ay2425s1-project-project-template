@@ -1,25 +1,25 @@
 "use client";
 
+import { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/components/auth/AuthContext";
+import Sidebar from "@/app/common/Sidebar";
 
 const inter = Inter({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <html lang="en" className={`${inter.className} h-full`}>
       <body className="h-full">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <div className="flex h-full overflow-y-auto">
+        <Sidebar />
+        <div className="w-full overflow-y-scroll">{children}</div>
+      </div>
       </body>
     </html>
   );
-}
+};
+
+export default Layout;

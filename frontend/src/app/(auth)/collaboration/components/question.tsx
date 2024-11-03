@@ -1,4 +1,4 @@
-import { fetchSingleLeetcodeQuestion } from "@/api/leetcode-dashboard";
+import { fetchSingleQuestion } from "@/api/question-dashboard";
 import { NewQuestionData } from "@/types/find-match";
 import {
   KeyboardEvent,
@@ -10,7 +10,7 @@ import {
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
 import { fetchSession } from "@/api/collaboration";
-import { getBaseUserData } from "@/api/user";
+import { getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
@@ -40,7 +40,7 @@ const Question = ({ collabid }: { collabid: string }) => {
   const messageListRef = useRef<MessageList | null>(null);
 
   useEffect(() => {
-    setUserID(getBaseUserData().username ?? "Anonymous"); // Change me
+    setUserID(getUsername() ?? "Anonymous"); // Change me
 
     const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
     const client = new StompClient({
@@ -78,8 +78,6 @@ const Question = ({ collabid }: { collabid: string }) => {
       client.deactivate();
     };
   }, [userID, collaborator]);
-
-  const username = getBaseUserData().username;
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
@@ -125,15 +123,13 @@ const Question = ({ collabid }: { collabid: string }) => {
 
   useEffect(() => {
     fetchSession(collabid).then(async (data) => {
-      await fetchSingleLeetcodeQuestion(data.question_id.toString()).then(
-        (data) => {
-          setQuestion(data);
-        }
-      );
+      await fetchSingleQuestion(data.question_id.toString()).then((data) => {
+        setQuestion(data);
+      });
 
       setCollaborator(data.users.filter((user) => user !== username)[0]);
     });
-  }, [collabid]);
+  }, [collabid, username]);
 
   return (
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
