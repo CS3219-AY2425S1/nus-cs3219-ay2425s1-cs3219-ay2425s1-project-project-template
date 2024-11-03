@@ -1,8 +1,11 @@
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { ITypedBodyRequest } from '@repo/request-types'
+import { SubmissionRequestDto, SubmissionResponseDto } from '@repo/submission-types'
 import { CollabDto } from '../types/CollabDto'
 import { createSession, getSessionById } from '../models/collab.repository'
+import judgeZero from '../services/judgezero.service'
+import config from '../common/config.util'
 
 export async function createSessionRequest(request: ITypedBodyRequest<CollabDto>, response: Response): Promise<void> {
     const collabDto = CollabDto.fromRequest(request)
@@ -46,4 +49,33 @@ export async function getSession(request: Request, response: Response): Promise<
 
     // Send retrieved data
     response.status(200).json(session).send()
+}
+
+export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto>, response: Response): Promise<void> {
+    const submissionRequestDto = SubmissionRequestDto.fromRequest(request)
+    const requestErrors = await submissionRequestDto.validate()
+
+    if (requestErrors.length) {
+        const errorMessages = requestErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    const res = await judgeZero.post(config.JUDGE_ZERO_SUBMIT_CONFIG, submissionRequestDto)
+
+    if (!res) {
+        response.status(400).json('Failed to submit code. Please try again.').send()
+        return
+    }
+
+    const submissionResponseDto = SubmissionResponseDto.fromResponse(res)
+    const responseErrors = await submissionResponseDto.validate()
+
+    if (responseErrors.length) {
+        const errorMessages = requestErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    response.status(200).json(submissionResponseDto).send()
 }

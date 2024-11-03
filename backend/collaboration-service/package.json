@@ -15,6 +15,7 @@
     "dependencies": {
         "@codemirror/lang-javascript": "^6.2.2",
         "@codemirror/language-data": "^6.5.1",
+        "axios": "^1.7.7",
         "bcrypt": "^5.1.1",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
@@ -37,6 +38,7 @@
     "devDependencies": {
         "@repo/eslint-config": "*",
         "@repo/request-types": "*",
+        "@repo/submission-types": "*",
         "@repo/typescript-config": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/bcrypt": "^5.0.2",
