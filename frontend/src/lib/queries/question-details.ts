@@ -1,5 +1,6 @@
-import { getQuestionDetails } from '@/services/question-service';
 import { queryOptions } from '@tanstack/react-query';
+
+import { getQuestionDetails } from '@/services/question-service';
 
 export const questionDetailsQuery = (id: number) =>
   queryOptions({

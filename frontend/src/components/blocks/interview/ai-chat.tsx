@@ -1,10 +1,14 @@
 import { type LanguageName } from '@uiw/codemirror-extensions-langs';
+import { MessageSquareIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { sendChatMessage } from '@/services/collab-service';
 
 import { ChatLayout } from './chat/chat-layout';
 import { ChatMessageType } from './chat/chat-message';
+
+const STORAGE_KEY = 'ai_chat_history';
 
 interface AIChatProps {
   isOpen: boolean;
@@ -14,12 +18,15 @@ interface AIChatProps {
   questionDetails?: string;
 }
 
-const STORAGE_KEY = 'ai_chat_history';
-
 interface StoredChat {
   messages: ChatMessageType[];
   questionDetails: string;
 }
+
+const prompts = [
+  'Help me understand the code written.',
+  'Give me some suggestions to solve the problem.',
+];
 
 export const AIChat: React.FC<AIChatProps> = ({
   isOpen,
@@ -171,6 +178,25 @@ export const AIChat: React.FC<AIChatProps> = ({
       error={error}
       title='AI Assistant'
       onClearHistory={handleClearHistory}
+      CustomPlaceHolderElem={({ onSend }) => (
+        <div className='flex flex-col gap-6 text-center'>
+          <MessageSquareIcon className='mx-auto size-12 opacity-50' />
+          <p>No messages yet. Start a conversation, or use one of these prompts:</p>
+          <div className='flex flex-wrap gap-4'>
+            {prompts.map((value, index) => (
+              <Button
+                key={index}
+                variant='outline'
+                size='sm'
+                className='rounded-xl'
+                onClick={() => onSend(value)}
+              >
+                <span>{value}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     />
   );
 };
