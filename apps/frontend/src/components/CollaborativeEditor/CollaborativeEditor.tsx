@@ -179,6 +179,8 @@ const CollaborativeEditor = forwardRef(
       },
     }));
 
+    let sessionEndTimeout: any;
+
     useEffect(() => {
       if (process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL === undefined) {
         error("Missing Signalling Service Url");
@@ -213,6 +215,27 @@ const CollaborativeEditor = forwardRef(
       // Listen for awareness changes
       provider.awareness.on("change", () => {
         const updatedStates = provider.awareness.getStates();
+
+        // Check the length of updatedStates, if it is equal to 1, we trigger endsession in 15s but if updated to 2, cancel endsession
+        if (sessionEndTimeout && updatedStates.size == 2) {
+          clearTimeout(sessionEndTimeout);
+          sessionEndTimeout = null;
+        }
+
+        // If there's only one participant, set a timeout for 15 seconds
+        if (updatedStates.size === 1) {
+          sessionEndTimeout = setTimeout(() => {
+            // Trigger end session logic here
+            info(
+              `Session has ended due to inactivity from matched user ${props.matchedUser}`
+            );
+            props.handleCloseCollaboration("peer");
+            if (props.providerRef.current) {
+              props.providerRef.current.disconnect();
+            }
+          }, 15000); // 15 seconds
+        }
+
         for (const [clientID, state] of Array.from(updatedStates)) {
           if (state.sessionEnded && state.user.name !== props.user) {
             if (!sessionEndNotified) {

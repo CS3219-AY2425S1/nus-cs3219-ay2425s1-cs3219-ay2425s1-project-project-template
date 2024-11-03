@@ -149,7 +149,6 @@ const VideoPanel = () => {
 
   const toggleMute = () => {
     if (userStream) {
-      console.log(userStream.getAudioTracks());
       const audioTrack = userStream.getAudioTracks()[0];
 
       if (audioTrack) {
