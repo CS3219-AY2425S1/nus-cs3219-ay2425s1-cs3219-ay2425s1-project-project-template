@@ -33,7 +33,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios, { AxiosError } from "axios";
 import { useContext } from "react";
-import { AuthContext } from "../../hooks/AuthContext";
+import { AuthContext } from "../../contexts/AuthContext";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 

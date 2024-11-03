@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import {Outlet, Navigate} from "react-router-dom"
-import { AuthContext, authState } from "../hooks/AuthContext";
+import { AuthContext, authState } from "../contexts/AuthContext";
 import Loading from "../components/Loading/loading";
 
 export default function PublicRoute() {

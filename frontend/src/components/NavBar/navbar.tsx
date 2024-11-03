@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import PeopleIcon from "@mui/icons-material/People";
 import MatchingDialog from "../Matching/matching";
 import axios from "axios";
-import { AuthContext, authState } from "../../hooks/AuthContext";
+import { AuthContext, authState } from "../../contexts/AuthContext";
 
 
 function NavBar() {
@@ -24,6 +24,12 @@ function NavBar() {
       name: "Settings",
       onClick: () => {
         navigate("/settings", { replace: true });
+      }
+    },
+    {
+      name: "History",
+      onClick: () => {
+        navigate("/history");
       }
     },
     {

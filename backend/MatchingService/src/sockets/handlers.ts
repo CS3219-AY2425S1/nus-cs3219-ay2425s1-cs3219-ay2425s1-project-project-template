@@ -3,6 +3,7 @@ import { MatchController } from "../controllers/matchController";
 import { MatchRequest } from "../utils/types";
 import { validateMatchRequest } from "../utils/validation";
 import logger from "../utils/logger";
+import { v4 } from "uuid";
 
 export const initializeSocketHandlers = (io: Server): void => {
   const matchController = new MatchController();
@@ -92,8 +93,9 @@ export const initializeSocketHandlers = (io: Server): void => {
   });
 
   matchController.on("match-success", ({ socket1Id, socket2Id, username1, username2, match }) => {
-    io.to(socket1Id).emit("match-found", { match, matchedUsername: username2 });
-    io.to(socket2Id).emit("match-found", { match, matchedUsername: username1 });
+    const uuid = v4();
+    io.to(socket1Id).emit("match-found", { match, matchedUsername: username2, uuid });
+    io.to(socket2Id).emit("match-found", { match, matchedUsername: username1, uuid });
   });
 
   matchController.on("match-timeout", (socketId) => {

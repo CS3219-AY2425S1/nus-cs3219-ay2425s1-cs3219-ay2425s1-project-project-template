@@ -1,6 +1,7 @@
-import { FC, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { FC, useContext, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -9,18 +10,40 @@ import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import PeopleIcon from "@mui/icons-material/People";
 import CodeEditor from "../../components/Collaboration/codeEditor";
-
+import CallIcon from '@mui/icons-material/Call';
 import { Question } from "../Question/question";
 import LeaveRoomModal from "./leaveRoomModal";
 import QuestionSelectModal from "./questionSelectModal";
 import ChatCard from "./chatCard";
+import { Socket, io } from "socket.io-client";
+import { AuthContext } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
+import { blue, lightBlue, lightGreen } from "@mui/material/colors";
+import { LoadingButton } from "@mui/lab";
+import CallNotification from "../../components/Communication/callNotification";
+import VideoCall from "../../components/Communication/videoCall";
+import toast from "react-hot-toast";
+
+type Caller = {
+  username: string,
+  avatar: string
+}
+
+export type CallNotificationState = {
+  caller: Caller,
+  isOpen: boolean
+}
 
 const CollaborationPage: FC = () => {
+  const navigate = useNavigate();
+  const { collabSocket, commSocket, setCollabSocket, setCommSocket } = useSocket();
+  const { user } = useContext(AuthContext);
   const location = useLocation();
   // const { roomId = "", userId = "", question = null } = location.state || {};
+  const { roomId } = useParams();
   const {
-    roomId = "123456",
-    userId = "123456",
+    userId =  user.id,
+    userName = user.username,
     question = {
       title: "Placeholder Question Title",
       description: "This is a placeholder description for testing.",
@@ -31,6 +54,16 @@ const CollaborationPage: FC = () => {
     useState<boolean>(false);
   const [isChangeQuestionModalOpen, setIsChangeQuestionModalOpen] =
     useState(false);
+  const [isAwaitingCallResponse, setIsAwaitingCallResponse] = useState(false);
+  const [notification, setNotification] = useState<CallNotificationState>({
+    caller: {
+      username: "",
+      avatar: ""
+    },
+    isOpen: false
+  })
+  const [isInCall, setIsInCall] = useState(false);
+  const [callTimeout, setCallTimeout] = useState<NodeJS.Timeout | null>(null)
 
   const handleOpenLeaveRoomModal = () => {
     setIsLeaveRoomModalOpen(true);
@@ -46,18 +79,139 @@ const CollaborationPage: FC = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     question
   );
-  const onLeaveRoom = () => {};
+  const onLeaveRoom = () => {
+    navigate("/");
+    collabSocket?.emit("leave-room", roomId);
+    collabSocket?.disconnect();
+    commSocket?.disconnect();
+  };
   const handleQuestionChangeClick = () => setIsChangeQuestionModalOpen(true);
   const handleChangeQuestionModalClose = () =>
     setIsChangeQuestionModalOpen(false);
   const handleQuestionSelect = (question: Question) => {
+    collabSocket?.emit("question-change", roomId, question);
     setSelectedQuestion(question);
     setIsChangeQuestionModalOpen(false); // Close the modal after selection
   };
+  const handleCallButtonClick = () => {
+    commSocket!.emit("initiate-call", roomId, {username: user.username, avatar: user.avatar});
+    setIsAwaitingCallResponse(true);
+    const timeout = setTimeout(() => {
+      setIsAwaitingCallResponse(false);
+      commSocket?.emit("call-timeout", roomId);
+    }, 15000);
+    setCallTimeout(timeout);
+
+    
+  }
+  const handleCallResponse = (isAnswer: boolean) => {
+    setNotification(oldNotification => ({...oldNotification, isOpen: false}));
+    commSocket?.emit("call-response", isAnswer, roomId);
+    if (isAnswer) {
+      commSocket?.emit("start-video", roomId, true);
+    }
+    setIsInCall(isAnswer);
+  }
+  
+  const handleStopVideo = () => {
+    commSocket?.emit("stop-video", roomId);
+    setIsInCall(false);
+  }
+
+  useEffect(() => {
+    setCollabSocket(io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
+      auth: {
+        userId: user.id,
+        username: user.username
+      },
+      transports: ["websocket"],
+    }));
+    setCommSocket(io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
+      auth: {
+        userId: user.id,
+        username: user.username
+      },
+      transports: ["websocket"],
+    }));
+
+    }, [])
+  
+    useEffect(() => {
+      if (!collabSocket) {
+        return;
+      }
+      if (!commSocket) {
+        return;
+      }
+      collabSocket.on("connect", () => {
+        collabSocket?.emit("join-room", roomId);
+      });
+  
+      commSocket.on("connect", () => {
+        commSocket?.emit("join-room", roomId);
+      });
+  
+      collabSocket.on("connect_error", (err: Error) => {
+        console.log(`Error: ${err.message}`);
+        navigate("/");
+      });
+  
+      commSocket.on("connect_error", (err: Error) => {
+        console.log(`Error ${err.message}`);
+        navigate("/");
+      });
+  
+      collabSocket.on("user-left", (user: string) => {
+        toast.error(`${user} has left the room.`)
+      });
+  
+      collabSocket.on("sync-question", (question: Question) => {
+        setSelectedQuestion(question);
+      });
+      
+      commSocket.on("incoming-call", (caller : Caller) => {
+        setNotification({
+          caller: caller,
+          isOpen: true
+        });
+      });
+  
+      commSocket.on("call-response", (isAnswer : boolean) => {
+        if (callTimeout) {
+          clearTimeout(callTimeout);
+          setCallTimeout(null);
+        }
+        setIsAwaitingCallResponse(false);
+        if (isAnswer) {
+          commSocket.emit("start-video")
+          setIsInCall(true);
+        }
+      });
+
+      commSocket.on("call-timeout", () => {
+        setNotification(oldNotification => ({...oldNotification, isOpen: false}));
+      })
+
+      commSocket.on("stop-video", () => {
+        setIsInCall(false);
+      })
+    
+      return () => {
+        if (collabSocket && collabSocket!.connected) {
+          collabSocket.disconnect();
+        }  
+        
+        if (commSocket && commSocket.connected) {
+              commSocket.disconnect();
+          }
+      };
+    }, [collabSocket, commSocket])
 
   return (
     <div className="min-h-screen text-white">
       {/* Header */}
+      <VideoCall/>
+
       <Box>
         <AppBar
           position="static"
@@ -72,6 +226,31 @@ const CollaborationPage: FC = () => {
               />
               {/* Flexible space to push buttons to the right */}
               <Box sx={{ flexGrow: 1 }} />
+              {isInCall ? 
+              <Button
+              variant="contained"
+              onClick={handleStopVideo}
+              startIcon={<PeopleIcon />}
+              sx={{ mx: 3 }}
+              className="px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                Stop Video
+              </Button>
+              : 
+              <LoadingButton
+                variant="contained"
+                onClick={handleCallButtonClick}
+                startIcon={<CallIcon/>}
+                sx={{mx: 3,
+                  ":disabled": {
+                    backgroundColor: blue[900]
+                  }
+                }}
+                className="px-4 py-2 rounded hover:bg-green-500 transition-colors"
+                loading={isAwaitingCallResponse}>
+                  Call Peer
+              </LoadingButton>
+              }
+
               <Button
                 variant="contained"
                 onClick={handleQuestionChangeClick}
@@ -122,14 +301,14 @@ const CollaborationPage: FC = () => {
                   {selectedQuestion?.complexity || question.complexity}
                 </span>
               </div>
-              <ReactMarkdown className="mb-4 text-gray-300 whitespace-pre-line text-left text-base">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-markdown text-left">
                 {selectedQuestion?.description || question.description}
               </ReactMarkdown>
             </CardContent>
           </Card>
           {/* Chat Card */}
           <div className="flex-grow">
-            <ChatCard roomId={roomId} username={userId} />
+            <ChatCard roomId={roomId!} username={userName} userId={userId} />
           </div>
         </div>
 
@@ -137,11 +316,12 @@ const CollaborationPage: FC = () => {
         <div className="flex flex-col gap-4">
           <Card className="border-gray-700 text-white flex flex-col h-full">
             <CardContent className="p-6 bg-gray-800 flex-grow">
-              <CodeEditor />
+              <CodeEditor qid={selectedQuestion?.qid || 0} />
             </CardContent>
           </Card>
         </div>
       </div>
+      <CallNotification notification={notification} handleCallResponse={handleCallResponse}/>
     </div>
   );
 };
