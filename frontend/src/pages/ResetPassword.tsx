@@ -54,7 +54,7 @@ function ResetPassword() {
           <Container size="xs" py="xl">
             <Paper shadow="md" p="xl" withBorder>
               <Title order={2} mb="lg">
-                Set New Password
+                Reset Password
               </Title>
 
               <form onSubmit={form.onSubmit(handlePasswordReset)}>
