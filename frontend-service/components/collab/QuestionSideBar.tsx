@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, List, ListItem, Text } from '@chakra-ui/react'
+import { Box, Button, List, ListItem } from '@chakra-ui/react'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
 
@@ -13,20 +13,15 @@ interface QuestionSideBarProps {
   onSelectQuestion: (questionId: string) => void;
 }
 
-const QuestionSideBar: React.FC<QuestionSideBarProps> = () => {
+const QuestionSideBar: React.FC<QuestionSideBarProps> = ({ onSelectQuestion }) => {
   const [questions, setQuestions] = useState<Question[]>([])
   const [isOpen, setIsOpen] = useState(true)
-  const navigate = useNavigate()
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/questions').then(response => {
       setQuestions(response.data)
     }).catch(error => console.error("Failed to fetch questions", error))
   }, [])
-
-  const handleSelectQuestion = (questionId: string) => {
-    navigate(`/questions/${questionId}`)
-  }
 
   return (
     <Box width={isOpen ? '300px' : 0} transition="width 0.3s" bg="gray 0.5" p={isOpen ? 4 : 0}>
@@ -36,7 +31,7 @@ const QuestionSideBar: React.FC<QuestionSideBarProps> = () => {
       {isOpen && (
         <List spacing={3}>
           {questions.map((question) => <ListItem key={question.questionId}>
-            <Button variant="link" onClick={() => handleSelectQuestion(question.questionId)}>
+            <Button variant="link" onClick={() => onSelectQuestion(question.questionId)}>
               {question.title} - {question.difficulty}
             </Button>
           </ListItem>)}
