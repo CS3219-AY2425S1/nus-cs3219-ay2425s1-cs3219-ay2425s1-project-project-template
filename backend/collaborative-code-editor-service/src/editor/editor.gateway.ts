@@ -39,23 +39,27 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     const sessionId = client.handshake.query.sessionId as string;
     const questionId = client.handshake.query.questionId as string;
+    const username = client.handshake.query.username as string;
+    const username_socket_id = `${username}:${client.id}`
 
-    console.log('Client connected', client.id, sessionId, questionId);
+    console.log('Client connected', username_socket_id, sessionId, questionId);
 
     try {
-      await this.editorService.addUserToSession(sessionId, client.id);
+      await this.editorService.addUserToSession(sessionId, username_socket_id);
 
       let session = await this.editorService.getSessionIfActive(sessionId);
       // TODO: Remove later
       if (!session) {
         session = await this.editorService.createSessionIfNotCompleted(sessionId);
       }
+      console.log('Session', session);
       if (session) {
         const questionAttempt = session.questionAttempts.find(
           qa => qa.questionId === questionId
         );
 
         if (questionAttempt) {
+          console.log('Initial code sent', questionAttempt.currentCode, questionAttempt.currentLanguage);
           client.emit('codeChange', {
             code: questionAttempt.currentCode,
             language: questionAttempt.currentLanguage
@@ -79,14 +83,18 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const sessionId = client.handshake.query.sessionId as string;
     const questionId = client.handshake.query.questionId as string;
+    const username = client.handshake.query.username as string;
+    const username_socket_id = `${username}:${client.id}`
 
-    console.log('Client disconnected', client.id, sessionId, questionId);
+
+    console.log('Client disconnected', username_socket_id, sessionId, questionId);
 
     try {
-      await this.editorService.removeUserFromSession(sessionId, client.id);
+      await this.editorService.removeUserFromSession(sessionId, username_socket_id);
 
       let activeUsers = await this.editorService.getActiveUsers(sessionId);
       activeUsers = activeUsers.filter(userId => this.server.sockets.sockets.has(userId));
+      console.log('Active users', activeUsers);
       this.editorService.setActiveUsers(sessionId, activeUsers);
       this.server.to(`${sessionId}:${questionId}`).emit('activeUsers', activeUsers);
       if (activeUsers.length === 0) {
@@ -132,6 +140,7 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       await this.editorService.updateQuestionCode(sessionId, questionId, code, language);
+      console.log('Code changed', sessionId, questionId, code, language);
       client.to(`${sessionId}:${questionId}`).emit('codeChange', { code, language });
     } catch (error) {
       console.error('Error in handleCodeChange:', error);

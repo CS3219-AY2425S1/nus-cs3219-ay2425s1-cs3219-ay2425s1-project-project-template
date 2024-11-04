@@ -11,10 +11,11 @@ import { useToast } from "@/hooks/use-toast"
 interface CodeEditorProps {
   sessionId?: string;
   questionId?: string;
+  userData?: { username: string; email: string; };
   initialLanguage?: string;
 }
 
-const CodeEditorContainer = ({ sessionId, questionId, initialLanguage = 'javascript' }: CodeEditorProps) => {
+const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage = 'javascript' }: CodeEditorProps) => {
   const socket = useRef<Socket | null>(null);
   const [code, setCode] = useState<string>('');
   const [language, setLanguage] = useState(initialLanguage);
@@ -23,7 +24,7 @@ const CodeEditorContainer = ({ sessionId, questionId, initialLanguage = 'javascr
 
   // Initialize socket connection
   useEffect(() => {
-    if (!sessionId || !questionId) {
+    if (!sessionId || !questionId || !userData || !userData.username) {
       return;
     }
     if (socket.current && socket.current.connected) {
@@ -34,6 +35,7 @@ const CodeEditorContainer = ({ sessionId, questionId, initialLanguage = 'javascr
       query: {
         sessionId,
         questionId,
+        username: userData.username,
       },
     });
 

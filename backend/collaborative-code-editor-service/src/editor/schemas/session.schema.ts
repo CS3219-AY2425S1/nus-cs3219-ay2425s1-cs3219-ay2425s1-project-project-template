@@ -10,6 +10,9 @@ export class Session {
   @Prop({ type: [String], default: [] })
   activeUsers: string[];
 
+  @Prop({ type: [String], default: [] })
+  allUsers: string[];
+
   @Prop({ type: [QuestionAttemptSchema] })
   questionAttempts: QuestionAttempt[];
 

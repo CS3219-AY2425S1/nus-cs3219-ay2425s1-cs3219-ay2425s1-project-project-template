@@ -462,7 +462,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
           </TabsContent>
         </Tabs>
         <div className="flex flex-col gap-0 h-full overflow-hidden">
-          <CodeEditorContainer sessionId={matchId} questionId={question?._id}  />
+          <CodeEditorContainer sessionId={matchId} questionId={question?._id} userData={userData} />
           <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
             <CardHeader className="pb-1 pt-4 font-bold text-xl">Test Cases</CardHeader>
             <CardContent className="flex-1 overflow-auto py-0">

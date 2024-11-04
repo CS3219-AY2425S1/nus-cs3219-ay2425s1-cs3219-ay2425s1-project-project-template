@@ -49,6 +49,7 @@ export class EditorService {
     const session = new this.sessionModel({
       sessionId,
       activeUsers: [],
+      allUsers: [],
       questionAttempts: [],
     });
     await session.save();
@@ -157,7 +158,7 @@ export class EditorService {
     await this.sessionModel.updateOne(
       { sessionId },
       {
-        $addToSet: { activeUsers: userId },
+        $addToSet: { activeUsers: userId, allUsers: userId.split(':')[0] },
         $setOnInsert: { questionAttempts: [] }
       },
       { upsert: true }
@@ -178,13 +179,13 @@ export class EditorService {
   async getActiveUsers(sessionId: string): Promise<string[]> {
     const cachedUsers = await this.redis.smembers(`session:${sessionId}:users`);
     if (cachedUsers.length > 0) {
-      return cachedUsers;
+      return cachedUsers.map(user => user.split(':')[1]);
     }
 
     const session = await this.sessionModel.findOne({ sessionId }).exec();
     if (session && session.activeUsers && session.activeUsers.length > 0) {
       await this.redis.sadd(`session:${sessionId}:users`, ...session.activeUsers);
-      return session.activeUsers;
+      return session.activeUsers.map(user => user.split(':')[1]);
     }
 
     return [];
