@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 import { useGetHistory } from "@/hooks/api/history";
 import HistoryDescription from "@/components/history/HistoryDescription";
+import { useUser } from "@/hooks/users";
 
 function HistoryContent() {
   const searchParams = useSearchParams();
@@ -12,6 +13,7 @@ function HistoryContent() {
   const idString: string = (
     Array.isArray(historyId) ? historyId[0] : historyId
   ) as string;
+  const { user } = useUser();
   const { data: history, isLoading, isError } = useGetHistory(idString);
 
   return isLoading ? (
@@ -19,7 +21,7 @@ function HistoryContent() {
   ) : isError || !history ? (
     <p>Error fetching History</p>
   ) : (
-    <HistoryDescription history={history} />
+    <HistoryDescription username={user?.username || ""} session={history} />
   );
 }
 

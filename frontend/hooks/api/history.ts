@@ -2,8 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 import axios from "@/utils/axios";
-import { Question, QuestionList } from "@/types/questions";
-import { HistoryList } from "@/types/history";
+import { History, HistoryList } from "@/types/history";
 
 const fetchHistoryFromPage = async (username: string, page: number) : Promise<HistoryList> => {
   const { data } = await axios.get(
@@ -22,7 +21,7 @@ export const useHistory = (username: string, page: number) => {
     });
 };
 
-// Fetch a single question
+// Fetch a single session
 export const useGetHistory= (id: string) => {
   return useQuery<History, AxiosError>({
     queryKey: ["session", id],

@@ -6,6 +6,8 @@ export interface History {
   userTwo: string,
   code: string,
   question: Question,
+  createdAt: Date,
+  language: string,
   index?: number;
 }
 

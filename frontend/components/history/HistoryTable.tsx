@@ -43,6 +43,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     { name: "Difficulty", uid: "complexity" },
     { name: "Language", uid: "language" },
     { name: "Partner", uid: "partner" },
+    { name: "Date", uid: "createdAt" },
   ];
 
   sessions = sessions.map((history, idx) => ({
@@ -84,7 +85,17 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
         return <h2>{session.language || "N/A"}</h2>;
       }
       case "partner": {
-        return <h2>{session.userTwo || "N/A"}</h2>;
+        return <h2>{session.userTwo == username ? session.userOne : session.userTwo|| "N/A"}</h2>;
+      }
+      case "createdAt": {
+        const formattedDate = session.createdAt
+          ? new Date(session.createdAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "N/A";
+        return <h2>{formattedDate}</h2>;
       }
       default: {
         return <h2>N/A</h2>;
@@ -96,6 +107,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     <div className="flex flex-col items-center w-10/12">
       <div className="flex w-full justify-between">
         <h2>History List</h2>
+        <h4>{`You have completed a total of ${totalSessions} sessions!`}</h4>
       </div>
       <div className="mt-5 h-52 w-full">
         <Table
@@ -122,7 +134,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             {(column) => (
               <TableColumn
                 key={column.uid}
-                align={column.uid === "action" ? "center" : "start"}
+                align="start"
               >
                 {column.name}
               </TableColumn>
