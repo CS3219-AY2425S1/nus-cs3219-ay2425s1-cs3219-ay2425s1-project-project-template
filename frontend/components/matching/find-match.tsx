@@ -135,6 +135,11 @@ export default function FindMatch() {
               isMatched = true;
               setIsSearching(false);
               clearTimeout(queueTimeout);
+              toast({
+                title: "Matched",
+                description: "Successfully matched",
+                variant: "success",
+              });
               router.push(`/app/collab/${room_id}`);
             }
           } catch (error) {
