@@ -3,12 +3,13 @@ import EmailIcon from '@mui/icons-material/Email';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PersonIcon from '@mui/icons-material/Person'
 import { Avatar, Button, InputAdornment, styled, TextField } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import MainLayout from "../../components/MainLayout";
 import toast from "react-hot-toast";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ConfirmSettingDialog from "../../components/Settings/ConfirmDialog";
+import { AuthContext, User } from '../../contexts/AuthContext';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -24,9 +25,11 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function SettingsPage() {
 
+    const { user, setUser } = useContext(AuthContext);
+
     const [confirmSettingDialogOpen, setConfirmSettingDialogOpen] = useState(false);
     const [file, setFile] = useState<File | undefined>();
-    const [preview, setPreview] = useState("");
+    const [preview, setPreview] = useState(user.avatar);
     const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement & {
             files: FileList;
@@ -51,10 +54,11 @@ export default function SettingsPage() {
         }
     }
 
-    const handleSuccessChange = () => {
+    const handleSuccessChange = (user: User) => {
+        setUser(user);
+        handleDialogClose();
         reset();
-        handleDeletePhoto();
-        window.location.reload();
+        toast.success("Settings changed successfully!");
     }
 
     const [formData, setFormData] = useState({ username: "" });
@@ -85,7 +89,7 @@ export default function SettingsPage() {
             newPassword: formData.newPassword,
             file: file,
         }
-        if (data.username || data.email || data.newPassword || data.file) {
+        if (data.username || data.email || data.newPassword || preview != user.avatar) {
             setFormData(data);
             handleDialogOpen();
         } else {

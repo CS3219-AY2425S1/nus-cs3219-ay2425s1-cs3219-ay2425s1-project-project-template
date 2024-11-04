@@ -1,11 +1,11 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useContext } from 'react'
 import toast from 'react-hot-toast';
-import { AuthContext } from '../../contexts/AuthContext';
+import { AuthContext, User } from '../../contexts/AuthContext';
 
-export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, handleSuccessChange }: { open: boolean, handleDialogCloseFn: () => void, data: Record<string, string>, handleSuccessChange: () => void }) {
+export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, handleSuccessChange }: { open: boolean, handleDialogCloseFn: () => void, data: Record<string, string>, handleSuccessChange: (updatedUser: User) => void }) {
 
     const { user } = useContext(AuthContext);
 
@@ -26,10 +26,9 @@ export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, 
                 withCredentials: true
             })
         },
-        onSuccess: (data) => {
-            toast.success("Settings changed successfully!");
-            handleSuccessChange();
-            handleDialogCloseFn();
+        onSuccess: (res) => {
+            const updatedUser: any = res.data?.data
+            handleSuccessChange(updatedUser);
         },
         onError: (error: AxiosError) => {
             const data: any = error.response?.data;
