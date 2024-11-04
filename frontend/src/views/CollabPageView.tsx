@@ -127,12 +127,13 @@ const CollabPageView: React.FC = () => {
 
         const attemptDate = moment().tz("Asia/Singapore").format();
         setDateAttempted(attemptDate);
-
-        const token = newSocket.handshake.auth.token;
+        console.log("Attempt date:", attemptDate);
 
         const createQuestionAttempted =
         import.meta.env.VITE_HISTORY_SERVICE_CREATE_QUESTION_BACKEND_URL ||
         "http://localhost:5005/create-question-attempted";
+
+        console.log("Request URL:", createQuestionAttempted);
 
         const requestBody = {
           userUid: uid, 
@@ -140,21 +141,29 @@ const CollabPageView: React.FC = () => {
           dateAttempted: attemptDate,
         };
 
-        const response = await fetch(createQuestionAttempted, {
-          method: "POST",
-          headers: {
-              'Authorization': `Bearer ${token}`, // If using JWT or similar
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
+        console.log("Request Body:", requestBody);
 
-        if (response.ok) {
-          const result = await response.json();
-          console.log(result.message);
-        } else {
-            const error = await response.json();
-            console.error('Error creating question:', error.message);
+        try{
+          const response = await fetch(createQuestionAttempted, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${token}`, // If using JWT or similar
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          });
+
+          console.log("Response Status:", response.status);
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log(result.message);
+          } else {
+              const error = await response.json();
+              console.error('Error creating question:', error.message);
+          }
+        } catch (error) {
+          console.error('Network error:', error);
         }
 
       });
@@ -307,14 +316,22 @@ const CollabPageView: React.FC = () => {
         userUid: userId, 
         questionUid: questionData.id, 
         dateAttempted: dateAttempted,
+        codeWritten: sourceCode,
       };
 
-      const token = socket.handshake.auth.token;
+      console.log("Request Body for storing executed code:", requestBody);
+
+      const token = sessionStorage.getItem("authToken");
+      if (!token) {
+        console.error("No token found!");
+        return;
+      }
 
       const storeUserExecutedCode =
       import.meta.env.VITE_HISTORY_SERVICE_STORE_USER_CODE_BACKEND_URL ||
       "http://localhost:5005/store-user-executed-code";
 
+      console.log("Request URL for storing executed code:", storeUserExecutedCode);
 
       const result = await fetch(storeUserExecutedCode, {
         method: "POST",
@@ -325,12 +342,15 @@ const CollabPageView: React.FC = () => {
         body: JSON.stringify(requestBody),
       });
 
+      console.log("Response Status from storing executed code:", result.status);
+
+
       if (result.ok) {
         const output = await result.json();
-        console.log(output.message);
+        console.log("Successfully stored executed code:", output.message);
       } else {
           const error = await result.json();
-          console.error('Error creating question:', error.message);
+          console.error('Error storing executed code:', error.message);
       }
       
     } catch (error) {
