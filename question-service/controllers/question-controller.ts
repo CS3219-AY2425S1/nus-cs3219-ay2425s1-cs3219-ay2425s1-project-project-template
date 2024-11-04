@@ -39,8 +39,15 @@ export const addQuestion = async (
     const addedQuestion = await newQuestion.save();
 
     res.status(201).json(addedQuestion);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to create question", error });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const dup = Object.keys(error.keyValue)[0];
+      res.status(409).json({
+        message: `Duplicate value for field: ${dup}.`
+      });
+    } else {
+      res.status(500).json({ message: "Failed to create question", error });
+    }
   }
 };
 
@@ -71,8 +78,15 @@ export const updateQuestionById = async (
     } else {
       res.status(404).json({ message: "Question not found" });
     }
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update question", error });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const dup = Object.keys(error.keyValue)[0];
+      res.status(409).json({
+        message: `Duplicate value for field: ${dup}.`
+      });
+    } else {
+      res.status(500).json({ message: "Failed to update question", error });
+    }
   }
 };
 

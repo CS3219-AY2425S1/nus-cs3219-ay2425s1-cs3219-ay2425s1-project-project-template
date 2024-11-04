@@ -43,10 +43,12 @@ const questionSchema: Schema = new Schema({
   title: {
     type: String,
     required: true,
+    unique: true,
   },
   description: {
     type: String,
     required: true,
+    unique: true,
   },
   category: {
     type: [String],
