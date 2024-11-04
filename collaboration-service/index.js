@@ -2,7 +2,7 @@ const express = require('express');
 const { createServer } = require('http');
 const cors = require('cors');
 const { WebSocketServer } = require('ws');
-const { processRoomCreationRequest } = require('./controllers/collaboration-controller.js')
+
 //@ts-ignore
 const setupWSConnection = require('y-websocket/bin/utils').setupWSConnection;
 
@@ -48,7 +48,7 @@ const rooms = new Map();
 
 wss.on('connection', (ws, req) => {
   const roomId = new URL(req.url, `http://${req.headers.host}`).searchParams.get('room');
-  
+
   // Set up Yjs room for collaborative editing
   setupWSConnection(ws, req, { docName: roomId });
 
@@ -56,11 +56,21 @@ wss.on('connection', (ws, req) => {
   if (!rooms.has(roomId)) {
     rooms.set(roomId, new Set());
   }
+
   const room = rooms.get(roomId);
   room.add(ws);
 
+  console.log("room size: ", room.size)
+
   ws.on('close', () => {
     room.delete(ws);
+    
+    console.log("someone left. room size: ", room.size)
+    room.forEach(client => {
+      console.log("client : ", client)
+      client.send(JSON.stringify({ type: 'roomClosed', roomId }));
+    });
+
     if (room.size === 0) {
       rooms.delete(roomId); // Clean up empty rooms
     }
