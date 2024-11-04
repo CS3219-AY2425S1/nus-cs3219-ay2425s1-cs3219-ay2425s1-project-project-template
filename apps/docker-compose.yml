@@ -94,6 +94,7 @@ services:
       - apps_network
     volumes:
       - ./execution-service:/execution-service
+      - /var/run/docker.sock:/var/run/docker.sock
 
   redis:
     image: redis:latest
@@ -102,6 +103,14 @@ services:
     ports:
       - 6379:6379
     container_name: redis-container
+
+  python-sandbox:
+    build:
+      context: ./execution-service/execution/python
+      dockerfile: Dockerfile
+    networks:
+      - apps_network
+    container_name: python-sandbox
 
 networks:
   apps_network:
