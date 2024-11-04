@@ -41,6 +41,7 @@ async function onMessage(message: any) {
   const username1 = matchedUsers[0].username;
   const username2 = matchedUsers[1].username;
 
+  console.log("BEFORE CALLING INITIATE COLLABORATION - sessionId: ", sessionId);
   // creates collaboration service 
   await initiateCollaboration(sessionId, finalDifficulty, finalCategory, username1, username2);
 
