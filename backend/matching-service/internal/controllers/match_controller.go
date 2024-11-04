@@ -108,14 +108,26 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 		if !matchingInfo.GeneralizeLanguages {
 			// Language matching logic integrated directly here
 
-			// If either user has no language selection (indicating "any" from the frontend), treat it as a match
-			if len(matchingInfo.ProgrammingLanguages) == 0 || len(result.ProgrammingLanguages) == 0 {
-				// Treat as a match since one user has selected "any"
+			// If either user has selected "any" language, allow the other user's language
+			if len(matchingInfo.ProgrammingLanguages) == 0 {
+				// Use the specific language(s) from the matched user if "any" is selected by current user
+				matchingInfo.ProgrammingLanguages = result.ProgrammingLanguages
+				matchChan <- result
+				return
+			} else if len(result.ProgrammingLanguages) == 0 {
+				// Use the specific language(s) from the current user if "any" is selected by matched user
+				result.ProgrammingLanguages = matchingInfo.ProgrammingLanguages
+				matchChan <- result
+				return
+			} else if len(result.ProgrammingLanguages) == 0 && len(matchingInfo.ProgrammingLanguages) == 0 {
+				// Set the specific language to Javascript
+				result.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
+				matchingInfo.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
 				matchChan <- result
 				return
 			}
 
-			// Check if programming languages match
+			// Check for specific language match if both users have specific selections
 			languageMatched := false
 			for _, lang1 := range matchingInfo.ProgrammingLanguages {
 				for _, lang2 := range result.ProgrammingLanguages {
