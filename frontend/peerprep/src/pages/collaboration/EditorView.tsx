@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { UserContext } from "../../context/UserContext";
+import { UserContext, UserQuestion } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useQuesApiContext } from "../../context/ApiContext";
+import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
+import { addQuestionToUser } from "./updateQuestionController";
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const EditorView: React.FC = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const [socketId, setSocketId] = useState<string | undefined>("");
+  const [currentCode, setCurrentCode] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const userContext = useContext(UserContext);
   const user = userContext?.user;
@@ -21,6 +23,8 @@ const EditorView: React.FC = () => {
   const difficulty = searchParams.get("difficulty");
   const [question, setQuestion] = useState<Question | null>(null);
   const api = useQuesApiContext();
+  const authApi = useAuthApiContext();
+
 
   const roomId = searchParams.get("room");
   const questionId = searchParams.get("questionId");
@@ -32,8 +36,7 @@ const EditorView: React.FC = () => {
       navigate("/dashboard");
       return;
     }
-    
-    fetchQuestion();
+
     socketRef.current = io("http://localhost:3004/", {
       path: "/api",
       query: { roomId },
@@ -73,13 +76,19 @@ const EditorView: React.FC = () => {
     //     }
     //   }
     // );
-
+    fetchQuestion();
     return () => {
       if (socketRef.current !== null) {
         socketRef.current.disconnect();
       }
     };
   }, []);
+
+  const saveCode = (code: string) => {
+    // You can replace this with an API call to save the code on your backend
+    setCurrentCode(code);
+    console.log("Code saved:", code);
+  };
 
   const fetchQuestion = async () => {
     try {
@@ -104,13 +113,34 @@ const EditorView: React.FC = () => {
   };
 
   const disconnectAndGoBack = () => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
+    const confirmDisconnect = window.confirm("Are you sure you want to disconnect?");
+  
+    if (confirmDisconnect) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+      sessionStorage.setItem("disconnected", "true");
+      sessionStorage.removeItem("reconnectUrl");
+
+      if (question && currentCode && user) {
+        // Create UserQuestion object
+        const userQuestion: UserQuestion = {
+          questionId: question?.ID,
+          title: question?.Title,
+          description: question?.Description,
+          complexity: question?.Complexity,
+          categories: question?.Categories,
+          link: question?.Link,
+          solution: currentCode,
+        };
+        console.log("Added Question:", userQuestion);
+        // Call addQuestionToUser function
+        addQuestionToUser(user?.id, userQuestion, authApi);
+      }
+      navigate("/dashboard");
     }
-    sessionStorage.setItem("disconnected", "true");
-    sessionStorage.removeItem('reconnectUrl');
-    navigate("/dashboard");
   };
+  
 
   return (
     <div style={styles.container}>
@@ -171,6 +201,11 @@ const EditorView: React.FC = () => {
 
           {/* Chat Section */}
           <div style={styles.chatContainer} className="editor-scrollbar">
+            <div style={styles.disconnectButtonContainer}>
+              <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
+                End Session
+              </button>
+            </div>
             <div ref={chatBoxRef} style={styles.chatBox} className="editor-scrollbar">
               {messages.map((msg, index) => (
                 <div key={index} style={styles.message}>{msg}</div>
@@ -195,12 +230,7 @@ const EditorView: React.FC = () => {
         </div>
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
-          {socketRef.current && <EditorElement socket={socketRef.current} />}
-        </div>
-        <div style={styles.disconnectButtonContainer}>
-          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
-            Disconnect
-          </button>
+          {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
         </div>
       </div>
     </div>
@@ -326,16 +356,16 @@ const styles = {
     cursor: "pointer",
   },
   disconnectButtonContainer: {
-    marginTop: "10px",
+    marginBottom: "10px",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "end",
   },
   disconnectButton: {
-    padding: "10px 15px",
+    padding: "8px 12px",
     backgroundColor: "#f44336",
     color: "white",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "4px",
     cursor: "pointer",
     fontSize: "16px",
     fontWeight: "bold",
