@@ -17,4 +17,4 @@ jobs:
           up-flags: "--build"
           down-flags: "--volumes"
           test-container: "tests"
-          test-command: "pytest"
+          test-command: "pytest --log-cli-level=DEBUG"

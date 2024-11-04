@@ -180,6 +180,7 @@ def test_cancel_match_during_search(two_users):
     cancel_response = requests.post(
         f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
     )
+    print("cancel_response", cancel_response.json())
     assert cancel_response.status_code == 200
 
     time.sleep(1)  # Make sure the request is cancelled
