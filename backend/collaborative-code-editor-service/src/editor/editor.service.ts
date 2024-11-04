@@ -58,7 +58,7 @@ export class EditorService {
     return null;
   }
 
-  async getLastSubmissionExecutionResult(sessionId: string, questionId: string): Promise<ExecutionResults|null> {
+  async getLastSubmissionExecutionResult(sessionId: string, questionId: string): Promise<QuestionSubmission|null> {
     const session = await this.getSession(sessionId);
     if (!session) {
       return null;
@@ -73,7 +73,38 @@ export class EditorService {
     if (!lastSubmission) {
       return null;
     }
-    return lastSubmission.executionResults;
+    return lastSubmission;
+  }
+
+  async updateLastSubmission(
+    sessionId: string,
+    questionId: string,
+    status: 'pending' | 'accepted' | 'rejected',
+    executionResults: ExecutionResults,
+  ): Promise<QuestionSubmission> {
+    const session = await this.sessionModel.findOne({ sessionId }).exec();
+    if (!session) {
+      throw new Error(`Session not found for ID: ${sessionId}`);
+    }
+
+    const questionAttempt = session.questionAttempts.find(
+      (attempt) => attempt.questionId === questionId,
+    );
+    if (!questionAttempt) {
+      throw new Error(`Question attempt not found for ID: ${questionId}`);
+    }
+
+    const lastSubmission =
+      questionAttempt.submissions[questionAttempt.submissions.length - 1];
+    if (!lastSubmission) {
+      throw new Error(`No submission found for question: ${questionId}`);
+    }
+
+    lastSubmission.status = status;
+    lastSubmission.executionResults = executionResults;
+
+    await session.save();
+    return lastSubmission;
   }
 
   // TODO: Remove later
@@ -119,27 +150,44 @@ export class EditorService {
       }
     ).exec();
 
-    const updatedSession = await this.sessionModel.findOne({ sessionId }).exec();
+    // Remove multiple question attempts if available
+    await this.removMultipleQuestionAttemptsIfAvailable(sessionId, questionId);
 
-    if (updatedSession) {
-      // Find indices of question attempts with the same question id
-      const questionAttemptIndices = updatedSession.questionAttempts
-        .map((qa, i) => (qa.questionId === questionId ? i : null))
-        .filter(Number);
-      
-      // All indices except the last one
+    // set time out to remove duplicate question attempts
+    setTimeout(async () => {
+      await this.removMultipleQuestionAttemptsIfAvailable(sessionId, questionId);
+    }, 3000);
+
+    return questionAttempt;
+  }
+
+  private async removMultipleQuestionAttemptsIfAvailable(sessionId: string, questionId: string) {
+    const session = await this.sessionModel.findOne({ sessionId }).exec();
+    if (!session) {
+      return;
+    }
+
+    const questionAttempt = session.questionAttempts.find(
+      (attempt) => attempt.questionId === questionId
+    );
+    if (!questionAttempt) {
+      return;
+    }
+
+    const questionAttemptIndices = session.questionAttempts
+      .map((qa, i) => (qa.questionId === questionId ? i : null))
+      .filter(Number);
+
       if (questionAttemptIndices.length === 0) {
         return;
       }
       const questionAttemptIndicesExceptLast = questionAttemptIndices.slice(0, questionAttemptIndices.length - 1);
 
-
       if (questionAttemptIndicesExceptLast.length > 0) {
         // Attempts except questionAttemptIndicesExceptLast
-        const questionAttempts = updatedSession.questionAttempts.filter(
+        const questionAttempts = session.questionAttempts.filter(
           (qa, i) => !questionAttemptIndicesExceptLast.includes(i)
         )
-
         await this.sessionModel.updateOne(
           { sessionId },
           {
@@ -148,9 +196,7 @@ export class EditorService {
         ).exec();
       }
     }
-
-    return questionAttempt;
-  }
+    
 
   async updateQuestionCode(
     sessionId: string,
