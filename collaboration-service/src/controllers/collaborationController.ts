@@ -234,6 +234,7 @@ export const leaveRoom = async (req: Request, res: Response) => {
         .json({ message: "User is not a member of this room" });
     }
 
+    /*
     const updatedUsers = { ...roomData.users };
     delete updatedUsers[userId]; // remove curr user
 
@@ -242,6 +243,18 @@ export const leaveRoom = async (req: Request, res: Response) => {
       await update(roomRef, { users: updatedUsers, status: "inactive" });
     } else {
       await update(roomRef, { users: updatedUsers });
+    }
+      */
+
+    const updatedUsers = { ...roomData.users, [userId]: false };
+    await update(roomRef, { users: updatedUsers });
+
+    const allInactive = Object.values(updatedUsers).every(
+      (status) => status === false
+    );
+
+    if (allInactive) {
+      await update(roomRef, { status: "inactive" });
     }
 
     await set(userRoomRef, null);
