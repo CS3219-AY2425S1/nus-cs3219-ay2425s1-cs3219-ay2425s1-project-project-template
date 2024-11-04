@@ -4,7 +4,7 @@ import { updateUserForgetPasswordTokenById as _updateUserForgetPasswordTokenById
 
 export const sendEmail = async (email, userId) => {
   try {
-    const hashedToken = await bcrypt.hash(userId.toString(), 10);
+    let hashedToken = await bcrypt.hash(userId.toString(), 10);
     while (
       hashedToken.charAt(hashedToken.length - 1) === "." ||
       hashedToken.includes("/")
