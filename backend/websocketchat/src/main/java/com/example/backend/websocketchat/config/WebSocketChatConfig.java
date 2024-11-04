@@ -17,8 +17,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
-    // private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
-    private final String allowedOrigin = "*";
+    private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+    // private final String allowedOrigin = "*";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
