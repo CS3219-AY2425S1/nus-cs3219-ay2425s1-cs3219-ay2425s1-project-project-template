@@ -53,6 +53,7 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
         session = await this.editorService.createSessionIfNotCompleted(sessionId);
       }
       console.log('Session', session);
+
       if (session) {
         const questionAttempt = session.questionAttempts.find(
           qa => qa.questionId === questionId
@@ -65,14 +66,16 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
             language: questionAttempt.currentLanguage
           });
         } else {
+          console.log('Calling createQuestionAttempt', sessionId, questionId, username_socket_id);
           await this.editorService.createQuestionAttempt(sessionId, questionId);
         }
 
-        const activeUsers = await this.editorService.getActiveUsers(sessionId);
-        const connectedUsers = activeUsers.filter(userId => this.server.sockets.sockets.has(userId));
-        this.editorService.setActiveUsers(sessionId, connectedUsers);
+        let activeUsers = await this.editorService.getActiveUsers(sessionId);
+        activeUsers = activeUsers.filter(userId => this.server.sockets.sockets.get(userId.split(':')[1])?.connected ?? false);
+        console.log('Active users', activeUsers);
+        this.editorService.setActiveUsers(sessionId, activeUsers);
         client.join(`${sessionId}:${questionId}`);
-        this.server.to(`${sessionId}:${questionId}`).emit('activeUsers', connectedUsers);
+        this.server.to(`${sessionId}:${questionId}`).emit('activeUsers', activeUsers);
       }
     } catch (error) {
       console.error('Error in handleConnection:', error);
@@ -93,9 +96,9 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.editorService.removeUserFromSession(sessionId, username_socket_id);
 
       let activeUsers = await this.editorService.getActiveUsers(sessionId);
-      activeUsers = activeUsers.filter(userId => this.server.sockets.sockets.has(userId));
-      console.log('Active users', activeUsers);
-      this.editorService.setActiveUsers(sessionId, activeUsers);
+      // activeUsers = activeUsers.filter(userId => this.server.sockets.sockets.get(userId.split(':')[1])?.connected ?? false);
+      // console.log('Active users', activeUsers);
+      // this.editorService.setActiveUsers(sessionId, activeUsers);
       this.server.to(`${sessionId}:${questionId}`).emit('activeUsers', activeUsers);
       if (activeUsers.length === 0) {
         // Clear any existing timeout for this session
@@ -110,14 +113,15 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.sessionTimeouts.delete(sessionId);
 
             const currentActiveUsers = await this.editorService.getActiveUsers(sessionId);
-            const filteredUsers = currentActiveUsers.filter(
-              userId => this.server.sockets.sockets.has(userId)
-            );
+            // const filteredUsers = currentActiveUsers.filter(
+            //   userId => this.server.sockets.sockets.has(userId.split(':')[1])
+            // );
 
-            this.editorService.setActiveUsers(sessionId, filteredUsers);
+            // this.editorService.setActiveUsers(sessionId, filteredUsers);
 
-            if (filteredUsers.length === 0) {
+            if (currentActiveUsers.length === 0) {
               await this.editorService.completeSession(sessionId);
+              this.server.to(`${sessionId}:${questionId}`).emit('sessionCompleted');
             }
           } catch (error) {
             console.error('Error in completion timeout handler:', error);
