@@ -5,7 +5,7 @@ export const QUEUE_NAMES = {
 };
 
 export const DIFFICULTY = {
-    EASY: 'EASY',
-    MEDIUM: 'MEDIUM',
-    HARD: 'HARD'
+    EASY: 'Easy',
+    MEDIUM: 'Medium',
+    HARD: 'Hard'
 };

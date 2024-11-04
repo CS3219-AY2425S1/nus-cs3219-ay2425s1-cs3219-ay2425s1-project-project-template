@@ -77,7 +77,8 @@ export class LandingPageComponent {
   // =================================================
 
   async findMatch() {
-    // const selectedTopic = this.question_categories.filter(topic => topic.selected).map(topic => topic.name);
+    // const selectedTopic = this.question_categories.filter(topic => topic.selected).map(topic => topic.name);)
+    console.log("tell me the fucking difficulty: ", this.selectedDifficulty)
     const userData = {
       difficulty: this.selectedDifficulty || '',
       topic: this.selectedCategory || '',
