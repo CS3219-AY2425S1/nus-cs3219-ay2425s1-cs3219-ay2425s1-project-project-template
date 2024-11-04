@@ -144,3 +144,22 @@ export const getQuestionsByDifficulty = async (
     res.status(500).json({ message: "Failed to get questions", error });
   }
 };
+
+export const getQuestionsByCategory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const cat = req.query.category;
+  console.log("Category:", cat);
+  try {
+    const questions = await Question.find({ category: {$in: [cat] } });
+
+    if (questions.length > 0) {
+      res.status(200).json(questions);
+    } else {
+      res.status(404).json({ message: "No questions found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get questions", error });
+  }
+};
