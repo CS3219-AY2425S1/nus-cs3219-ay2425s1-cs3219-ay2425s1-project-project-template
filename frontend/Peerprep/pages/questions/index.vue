@@ -12,7 +12,7 @@ const fetchQuestions = async () => {
   try {
     isLoading.value = true;
     error.value = null;
-    const { data, error: fetchError } = await useFetch('http://localhost:5000/questions')
+    const { data, error: fetchError } = await useFetch(`/api/questions`)
     if (fetchError.value) {
       throw new Error(fetchError.value.message);
     }
@@ -58,12 +58,7 @@ const refreshData = () => {
   <div class="container py-10 mx-auto">
     <div v-if="isLoading && questions.length === 0">Loading...</div>
     <div v-else-if="error">An error occurred: {{ error }}</div>
-    <QuestionTable 
-      v-else 
-      :data="questions" 
-      :refresh-data="refreshData" 
-      :key="questions.length"
-    />
+    <QuestionTable v-else :data="questions" :refresh-data="refreshData" :key="questions.length" />
   </div>
   <Toaster />
 </template>
