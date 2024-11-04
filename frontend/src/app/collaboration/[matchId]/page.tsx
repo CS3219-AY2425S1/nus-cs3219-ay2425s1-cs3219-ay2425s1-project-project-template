@@ -212,11 +212,28 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     setIsEditing(true);
   };
 
-  const handleNameSubmit = () => {
+  const handleNameSubmit = async ()  => {
     setIsEditing(false);
     setSessionName(editedName);
 
     socket?.emit('updateSessionName', { newSessionName: editedName, matchId: matchId });
+    try {
+        const sessionId = matchId;
+        const response = await fetch(`/api/sessions/${sessionId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionName: editedName }),
+        });
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+        }
+    
+      } catch (error) {
+        console.error('Error updating session:', error);
+    }
   };
 
   const handleExitSession = () => {

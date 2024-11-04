@@ -33,10 +33,6 @@ export async function PATCH(
     const { db } = await connectToDatabase();
     const { sessionName } = await request.json();
 
-    if (!ObjectId.isValid(params.sessionId)) {
-      return NextResponse.json({ error: 'Invalid sessionId' }, { status: 400 });
-    }
-
     const result = await db.collection('sessions').updateOne(
       { sessionId: params.sessionId },
       { $set: { sessionName } }
