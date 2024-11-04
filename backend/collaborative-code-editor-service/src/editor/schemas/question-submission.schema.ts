@@ -14,6 +14,9 @@ export class QuestionSubmission {
 
   @Prop({ type: String, default: 'pending' })
   status: 'pending' | 'accepted' | 'rejected';
+
+  @Prop({ type: String, default: 'Coding Session' })
+  sessionName: string;
 }
 
 export const QuestionSubmissionSchema = SchemaFactory.createForClass(QuestionSubmission);
