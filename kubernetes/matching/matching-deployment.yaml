@@ -17,17 +17,38 @@ spec:
     spec:
       containers:
       - name: "matching-service-sha256-1"
-        image: # Add the missing image here
+        image: "gcr.io/peerprep-backend/matching@sha256:49e6a0a6e0699f5c013c056045606095337f0370f4b6dd7b3e2ff5162ba634c3"
         resources:
           requests:
             memory: "1Gi"
-            cpu: "500m"
+            cpu: "250m"
           limits:
             memory: "1Gi"
             cpu: "1000m"
         env:
-        - name: # Add the missing env variables here
+        - name: "ENV"
           valueFrom:
             configMapKeyRef:
-              key: # Add the missing key here
+              key: "ENV"
               name: "matching-deployment-config-jhye"
+        - name: "DEV_REDIS_HOST"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_HOST"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_REDIS_PORT"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_PORT"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_VERIFY_API_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_VERIFY_API_URL"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_KAFKA_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_KAFKA_URL"
+              name: "matching-deployment-config-jhye"
+

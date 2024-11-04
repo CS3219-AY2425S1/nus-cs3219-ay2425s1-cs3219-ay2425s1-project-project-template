@@ -14,31 +14,45 @@ spec:
   rules:
   - http:
       paths:
-      - path: /collaboration
+      - path: /api/collaboration
         pathType: Prefix
         backend:
           service:
             name: collaboration-service
             port:
               number: 3001
-      - path: /matching
+      - path: /api/matching
         pathType: Prefix
         backend:
           service:
             name: matching-service
             port:
               number: 3002
-      - path: /question
+      - path: /api/question
         pathType: Prefix
         backend:
           service:
             name: question-service
             port:
               number: 3003
-      - path: /user
+      - path: /api/iam
         pathType: Prefix
         backend:
           service:
             name: user-service
             port:
               number: 3004
+      - path: /matching-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: websocket-service
+            port:
+              number: 3005
+      - path: /chat-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: chatwebsocket-service
+            port:
+              number: 3007

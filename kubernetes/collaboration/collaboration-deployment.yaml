@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: "collaboration-service-sha256-1"
-        image: # Add the missing image here
+        image: "gcr.io/peerprep-backend/collaboration@sha256:ec34095fbe88708081620a1df6453bc246e662260e43b4b1e3422671f7e3d4eb"
         resources:
           requests:
             memory: "1Gi"
@@ -26,8 +26,13 @@ spec:
             memory: "1Gi"
             cpu: "1000m"
         env:
-        - name: # Add the missing env variables here
+        - name: "MONGODB_URI"
           valueFrom:
             configMapKeyRef:
-              key: # Add the missing key here
+              key: "MONGODB_URI"
+              name: "collaboration-deployment-config-jhye"
+        - name: "NODE_ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "NODE_ENV"
               name: "collaboration-deployment-config-jhye"

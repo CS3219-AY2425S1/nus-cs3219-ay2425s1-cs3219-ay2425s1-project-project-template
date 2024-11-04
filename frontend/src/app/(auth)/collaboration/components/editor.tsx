@@ -40,7 +40,8 @@ function Collaboration({ room, language }: Props) {
   // Initialize WebRTC provider once per room
   useEffect(() => {
     if (!providerRef.current) {
-      const signalingServer = ["ws://localhost:4444"];
+      //const signalingServer = ["ws://localhost:4444"];
+      const signalingServer = ["wss://signaling-598285527681.us-central1.run.app"];
       providerRef.current = new WebrtcProvider(room, docRef.current, {
         signaling: signalingServer,
       });

@@ -10,4 +10,4 @@ data:
   DEV_QUESTION_API_URL: "http://question:3003/api/question"
   DEV_REDIS_HOST: "redis"
   DEV_REDIS_PORT: "6379"
-  DEV_KAFKA_URL: "kafka:9092"
+  DEV_KAFKA_URL: "kafka-service:9092"

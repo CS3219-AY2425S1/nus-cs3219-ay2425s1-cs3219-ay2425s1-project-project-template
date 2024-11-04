@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: "user-service-sha256-1"
-        image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3219-ay2425s1-project-g15/user-service@sha256:458558d4bf12a864a022c2b57b13006eee555cab33a6c52577f80654d66ea983"
+        image: "gcr.io/peerprep-backend/user@sha256:915140d6b0d36b8438b176145a4daf591e7dd13f32253b1b980ff0001f214113"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
@@ -27,18 +27,18 @@ spec:
             memory: "1Gi"
             cpu: "1000m"
         env:
-        - name: "PROD_MONGO_URL"
+        - name: "DB_CLOUD_URI"
           valueFrom:
             configMapKeyRef:
-              key: "PROD_MONGO_URL"
+              key: "DB_CLOUD_URI"
               name: "user-deployment-config-jhye"
-        - name: "NODE_ENV"
+        - name: "ENV"
           valueFrom:
             configMapKeyRef:
-              key: "NODE_ENV"
+              key: "ENV"
               name: "user-deployment-config-jhye"
-        - name: "DEV_MONGO_URL"
+        - name: "JWT_SECRET"
           valueFrom:
             configMapKeyRef:
-              key: "DEV_MONGO_URL"
+              key: "JWT_SECRET"
               name: "user-deployment-config-jhye"

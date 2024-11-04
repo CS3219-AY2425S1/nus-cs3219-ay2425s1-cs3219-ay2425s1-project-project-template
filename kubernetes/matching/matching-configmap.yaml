@@ -6,4 +6,8 @@ metadata:
   labels:
     app: "matching-deployment"
 data:
-# Add your environment variables here in the format "KEY: VALUE"
+  ENV: "DEV"
+  DEV_REDIS_HOST: "redis"
+  DEV_REDIS_PORT: "6379"
+  DEV_VERIFY_API_URL: "http://matchverification:3006/api/matchverification"
+  DEV_KAFKA_URL: "kafka-service:9092"
