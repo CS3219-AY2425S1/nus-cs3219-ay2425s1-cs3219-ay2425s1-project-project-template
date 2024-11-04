@@ -276,3 +276,19 @@ func deleteUserFromDB(userID string) error {
 	log.Printf("Successfully deleted user_id %s from the database", userID)
 	return nil
 }
+
+func DeleteUnusedFromDB() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.M{"status": bson.M{"$ne": "Pending"}}
+
+	result, err := MatchingCollection.DeleteMany(ctx, filter)
+	if err != nil {
+		log.Printf("Error deleting unused entries from the database: %v", err)
+		return err
+	}
+
+	log.Printf("Successfully deleted %d unused entries from the database", result.DeletedCount)
+	return nil
+}

@@ -19,7 +19,7 @@ export interface Match {
   userOne: string;
   userTwo: string;
   room_id: string;
-  programming_language: string;
+  programming_language: string[];
   complexity: string[];
   categories: string[];
   question: Question; // Single Question object
@@ -46,7 +46,7 @@ const matchSchema = new Schema<Match>({
   room_id: { type: String, required: true },
   complexity: { type: [String], required: true },
   categories: { type: [String], required: true },
-  programming_language: {type: String, required: true},
+  programming_language: {type: [String], required: true},
   question: { type: questionSchema, required: true }, // Embedded single Question document
 });
 
