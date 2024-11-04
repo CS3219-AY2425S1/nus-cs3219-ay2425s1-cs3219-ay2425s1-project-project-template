@@ -8,7 +8,7 @@ import useAuth from '../../hooks/useAuth';
 const MatchFound = ({ matchData, closePopup }) => {
     const { cookies } = useAuth();
     const navigate = useNavigate();
-    const { difficulty, topic, language, matchedUser, roomId } = matchData;
+    const { matchedUser, difficulty, topic, language, roomId } = matchData;
 
     const handleStartSession = async () => {
         closePopup();
@@ -20,10 +20,10 @@ const MatchFound = ({ matchData, closePopup }) => {
             console.log(question.title);
             navigate('/collab', {
               state: {
-                question,
-                language,
-                matchedUser,
-                roomId
+                question: question,
+                language: language,
+                matchedUser: matchedUser,
+                roomId: roomId
               }
             });
           } else {

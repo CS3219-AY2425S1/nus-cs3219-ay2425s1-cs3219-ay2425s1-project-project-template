@@ -38,7 +38,7 @@ async function findMatch(user, notifyMatch) {
         const roomId = uuidv4();
 
         // Notify both users with the same room ID
-        notifyMatch({ ...user, roomId }, { ...matchedUser, roomId });
+        notifyMatch(user, matchedUser, roomId);
 
         // Log queue status after the match is found
         console.log(`Queue after match: ${waitingUsers.length} users waiting`);
