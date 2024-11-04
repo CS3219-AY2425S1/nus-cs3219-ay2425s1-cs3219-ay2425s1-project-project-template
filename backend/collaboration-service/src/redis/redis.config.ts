@@ -7,5 +7,6 @@ export const REDIS_CONFIG = {
   port: process.env.REDIS_PORT || 6379,
   keys: {
     sessionQuestion: 'session_question',
+    sessionWebSocket: 'session_websocket',
   },
 };

@@ -36,9 +36,26 @@ export class CollabGateway implements OnGatewayDisconnect {
     this.logger.log(`Client connected to collab service: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected from collab service: ${client.id}`);
-    // this.collabService.handleDisconnect(client.data.matchId, client.id);
+    const data = await this.collabService.getUserNameAndMatchId(client.id);
+
+    await this.collabService.handleDisconnect(
+      data.matchId,
+      client.id,
+      data.username,
+    );
+
+    const webSocketIds = await this.collabService.getCollabSessionWebSockets(
+      data.matchId,
+    );
+
+    const joinedUsers = await this.collabService.getJoinedUsers(data.matchId);
+
+    for (const ids of webSocketIds) {
+      this.server.to(ids).emit('userList', joinedUsers);
+      this.logger.log(`New question sent to ${ids}`);
+    }
   }
 
   @SubscribeMessage('joinCollabSession')
@@ -46,38 +63,104 @@ export class CollabGateway implements OnGatewayDisconnect {
     @MessageBody()
     data: {
       matchId: string;
-      userId: string;
+      username: string;
     },
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      if (!data.matchId) {
+      const { matchId, username } = data;
+      if (!matchId || !username) {
         throw new WsException('MatchId is missing');
       }
-      client.data.matchId = data.matchId;
+      this.logger.debug(
+        `New socket joined: ${client.id} for user ${username} and session ${matchId}`,
+      );
+      client.data.matchId = matchId;
 
-      await this.collabService.registerWSToSession(data.matchId, client.id);
-      const questionData = await this.collabService.getSessionQuestion(
-        data.matchId,
+      await this.collabService.addUserIfAllowed(matchId, username);
+
+      await this.collabService.registerWSToSession(
+        matchId,
+        client.id,
+        username,
       );
 
-      if (questionData) {
-        client.emit('question', questionData);
-      } else {
-        client.emit('newQuestionError', {
-          message:
-            'No questions with the specified parameters. Please try again with different parameters (BUT THIS SHOULD NOT HAPPEN, USE ALGO + EASY).',
-          timestamp: new Date().toISOString(),
-        });
+      const sessionMetaData = await this.collabService.getOnloadData(matchId);
+
+      const webSocketIds =
+        await this.collabService.getCollabSessionWebSockets(matchId);
+
+      for (const ids of webSocketIds) {
+        this.server.to(ids).emit('onloadData', sessionMetaData);
       }
     } catch (error) {
-      this.logger.error(`Error from client ${data.userId}:`, error);
+      this.logger.error(`Error from client ${data.username}:`, error);
 
       client.emit(`collabError`, {
         message:
           error instanceof WsException
             ? error.message
             : `Error connecting to collab`,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  @SubscribeMessage('sendMessage')
+  async handleNewMessage(
+    @MessageBody()
+    data: {
+      sender: string;
+      content: string;
+      timestamp: number;
+      matchId: string;
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { sender, content, timestamp, matchId } = data;
+    if (!sender || !content || !timestamp || !matchId) {
+      throw new WsException('Missing parameters');
+    }
+    client.data.matchId = data.matchId;
+
+    const messageData = {
+      sender: sender,
+      content: content,
+      timestamp: timestamp,
+    };
+    await this.collabService.updateMessage(matchId, messageData);
+    const webSocketIds =
+      await this.collabService.getCollabSessionWebSockets(matchId);
+
+    for (const ids of webSocketIds) {
+      this.server.to(ids).emit('message', messageData);
+      this.logger.log(`New question sent to ${ids}`);
+    }
+  }
+
+  @SubscribeMessage(`updateSessionName`)
+  async handleUpdateSessionName(
+    @MessageBody() data: { newSessionName: string; matchId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const { newSessionName, matchId } = data;
+      if (!newSessionName) {
+        throw new WsException('Missing parameters');
+      }
+
+      await this.collabService.updateSessionName(newSessionName, matchId);
+
+      const webSocketIds =
+        await this.collabService.getCollabSessionWebSockets(matchId);
+
+      for (const ids of webSocketIds) {
+        this.server.to(ids).emit('newSessionName', newSessionName);
+      }
+    } catch (error) {
+      this.logger.error('Error updating session name:', error);
+      client.emit('collabError', {
+        message: 'Failed to generate update session name',
         timestamp: new Date().toISOString(),
       });
     }

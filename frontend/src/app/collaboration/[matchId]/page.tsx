@@ -10,11 +10,15 @@ import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import AttemptsTab from "@/components/attempts/attempts"
+import { useRouter } from 'next/navigation';
+import { verifyToken } from '@/lib/api-user'
+import toast from 'react-hot-toast';
+
 
 interface CollaborationPageProps {
     params: {
@@ -28,22 +32,76 @@ interface QuestionData {
     difficulty: string,
 }
 
+interface MessageData {
+    sender: string,
+    content: string,
+    timestamp: number,
+}
+
+interface OnloadData {
+  question: Question,
+  topic: string,
+  difficulty: string,
+  messages: MessageData[],
+  sessionName: string,
+  joinedUsers: string[],
+}
+
 const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     const { matchId } = params;
     const [error, setError] = useState<string | null>(null);
+    const [userData, setUserData] = useState({
+        username: "",
+        email: "",
+      });
+
     const [socket, setSocket] = useState<Socket | null>(null);
     const [formError, setFormError] = useState<string | null>(null)
     const [topic, setTopic] = useState<string>("");
     const [difficulty, setDifficulty] = useState<string>("");
     const [question, setQuestion] = useState<Question | null>(null);
 
+    const [messages, setMessages] = useState<MessageData[]>([]);
+    const [messageInput, setMessageInput] = useState("");
+
+    const [sessionName, setSessionName] = useState<string>("")
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [editedName, setEditedName] = useState<string>(sessionName);
+
+    const [joinedUsers, setJoinedUsers] = useState<string[]>([]);
+
     const { control, handleSubmit, reset } = useForm();
+    const router = useRouter();
 
     useEffect(() => {
+        const fetchUserData = async () => {
+          const token = localStorage.getItem('token')
+          if (!token) {
+            router.push('/login')
+            return
+          }
+          try {
+            const res = await verifyToken(token)
+            console.log(res)
+            setUserData({ username: res.data.username, email: res.data.email })
+          } catch (error) {
+            console.error('Token verification failed:', error)
+            router.push('/login') 
+          }
+        }
+    
+        fetchUserData()
+    }, [router])
+
+    useEffect(() => {
+        if (!userData.username || !matchId) {
+          return;
+        }
+
         const newSocket = io(process.env.NEXT_PUBLIC_COLLAB_API_URL);
         setSocket(newSocket);
 
-        newSocket.emit('joinCollabSession', { matchId });
+        newSocket.emit('joinCollabSession', { matchId: matchId, username: userData.username });
 
         newSocket.on("question", (data: QuestionData) => {
             console.log(data)
@@ -52,6 +110,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                 setDifficulty(data.difficulty);
                 setTopic(data.topic);
                 setFormError(null);
+                toast.success('New question loaded');
             } 
         });
 
@@ -63,10 +122,60 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             setError(data.message);
         });
 
+        newSocket.on('message', (data: MessageData) => {
+          setMessages((prev) => [
+            ...prev, data
+          ])
+          if (data.sender !== userData.username) {
+            toast(`${data.sender}: ${data.content}`, {
+              duration: 3000,
+              position: 'bottom-left',
+              style: {
+                background: '#333',
+                color: '#fff',
+              },
+              icon: '💬',
+            });
+          }
+        })
+
+        newSocket.on('newSessionName', (newName: string) => {
+          setSessionName(newName);
+          setEditedName(newName);
+        });
+
+        newSocket.on('onloadData', (data: OnloadData) => {
+          setQuestion(data.question);
+          setDifficulty(data.difficulty);
+          setTopic(data.topic);
+          setMessages(data.messages);
+          setSessionName(data.sessionName);
+          setEditedName(data.sessionName);
+          setJoinedUsers(data.joinedUsers);
+        })
+
+        newSocket.on('userList', (data: string[]) => {
+          setJoinedUsers(data)
+        })
+
+
         return () => {
             newSocket.disconnect();
         };
-    }, [matchId]);
+    }, [matchId, userData.username]);
+
+    const handleSendMessage = async () => {
+      if (socket) {
+        const messageData = {
+          sender: userData.username,
+          content: messageInput,
+          timestamp: Date.now(), 
+          matchId: matchId,
+        }
+        socket.emit('sendMessage', messageData)
+        setMessageInput('')
+      }
+    }
 
     const requestNewQuestion = (data: { topic: string; difficulty: string }) => {
         if (socket) {
@@ -77,6 +186,25 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             });
         }
     };
+
+    const handleEditClick = () => {
+      setIsEditing(true);
+    };
+
+    const handleNameSubmit = () => {
+        setIsEditing(false);
+        setSessionName(editedName);
+
+        socket?.emit('updateSessionName', {newSessionName: editedName, matchId: matchId});
+    };
+
+    const handleExitSession = () => {
+      const confirmExit = window.confirm('Are you sure you want to leave?');
+
+      if (confirmExit) {
+        router.push("/sessions")
+      }
+    }
 
     function PencilIcon(props) {
         return (
@@ -143,20 +271,36 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     return (
         <div className="flex flex-col h-screen overflow-hidden">
             <header className="bg-background border-b flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                    <div className="text-2xl font-bold">Coding Session 6</div>
-                    <PencilIcon className="h-4 w-4 ml-1" />
+              <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    {isEditing ? (
+                        <input
+                            className="text-2xl font-bold border-b border-gray-500 focus:outline-none"
+                            type="text"
+                            value={editedName}
+                            onChange={(e) => setEditedName(e.target.value)}
+                            onBlur={handleNameSubmit}
+                            autoFocus
+                        />
+                    ) : (
+                        <>
+                            <div className="text-2xl font-bold">{sessionName}</div>
+                            <PencilIcon
+                                className="h-4 w-4 ml-1 cursor-pointer"
+                                onClick={handleEditClick}
+                            />
+                        </>
+                    )}
                     <span className="sr-only">Edit session name</span>
-                </div>
-                <div className="flex items-center gap-2 ml-4">
-                    <Badge variant="secondary" className="text-xs">
-                    {topic}
-                    </Badge>
-                    <Badge variant="secondary" className="text-xs">
-                    {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                    </Badge>
-                </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                      <Badge variant="secondary" className="text-xs">
+                      {topic}
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                      {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                      </Badge>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                 <Popover>
@@ -196,7 +340,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                                     />
                                 </div>
                                 <div className="grid gap-2 text-xs">
-                                    <Label htmlFor="difficulty" className="text-xs">Difficulty</Label>
+                                    <Label htmlFor="difficulty" className="text-xs mt-2">Difficulty</Label>
                                     <Controller
                                         name="difficulty"
                                         control={control}
@@ -234,23 +378,17 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                     <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Session Members</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                        <Avatar className="mr-2">
-                        <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                        <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <span>Olivia</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <Avatar className="mr-2">
-                        <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                        <AvatarFallback>IN</AvatarFallback>
-                        </Avatar>
-                        <span>Isabella</span>
-                    </DropdownMenuItem>
+                    {joinedUsers.map((user, index) => (
+                      <DropdownMenuItem key={index}>
+                          <Avatar className="mr-2">
+                              <AvatarFallback>{user.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <span>{user}</span>
+                      </DropdownMenuItem>
+                    ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="sm" onClick={handleExitSession}>
                     Exit Session
                 </Button>
                 </div>
@@ -259,8 +397,8 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
         <Tabs defaultValue="question" className="flex flex-col pb-1 overflow-hidden">
           <TabsList className="w-fit">
             <TabsTrigger value="question">Question</TabsTrigger>
-            <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="attempts">Attempts</TabsTrigger>
+            <TabsTrigger value="feedback">Chat</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden h-full pb-1">
             <Card className="flex flex-col mt-1 mb-4 h-full overflow-hidden">
@@ -276,57 +414,45 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
           </TabsContent>
           <TabsContent value="feedback" className="flex-1 pb-1">
             <Card className="flex flex-col p-2 mt-1 h-full min-h-full">
-              <div className="space-y-4 p-4 flex-1">
-                <div className="flex items-start gap-4">
-                  <Avatar className="w-10 h-10 border">
-                    <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                    <AvatarFallback>AC</AvatarFallback>
-                  </Avatar>
-                  <div className="grid gap-1">
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold">Olivia</div>
-                      <div className="text-xs text-muted-foreground">2 minutes ago</div>
+              <div className="space-y-4 p-4 flex-1 flex flex-col">
+                <div
+                  className="flex-1 overflow-y-auto"
+                  style={{
+                    maxHeight: '400px',
+                  }}
+                >
+                  {messages.map((msg, index) => (
+                    <div key={index} className="flex items-start gap-4 mb-2">
+                      <Avatar className="w-10 h-10 border">
+                        <AvatarFallback>{msg.sender.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="grid gap-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold">{msg.sender}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                        <div className="text-sm">{msg.content}</div>
+                      </div>
                     </div>
-                    <div className="text-sm">
-                      Can improve communication skills by asking more questions. Sharing thoughts while coding is important.
-                    </div>
-                  </div>
+                  ))}
                 </div>
-                <div className="flex items-start gap-4">
-                  <Avatar className="w-10 h-10 border">
-                    <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-                    <AvatarFallback>IN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid gap-1">
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold">Isabella</div>
-                      <div className="text-xs text-muted-foreground">5 minutes ago</div>
-                    </div>
-                    <div className="text-sm">
-                      You have great knowledge of algorithms. You came to the solution with ease.
-                    </div>
-                  </div>
-                </div>
-                <div className="h-4"></div>
-                <div className="flex flex-col items-start gap-2 border-neutral-200 border rounded-md p-2">
+                <div className="border-neutral-200 border rounded-md p-2 w-full">
                   <Textarea
-                    placeholder="Add your feedback here..."
-                    className="flex-1 rounded-md border border-muted px-4 py-2 text-sm"
+                    placeholder="Type your message here..."
+                    className="w-full rounded-md border border-muted px-4 py-2 text-sm"
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
                   />
-                  <div className="flex justify-end gap-2 w-full">
-                  <Select>
-                    <SelectTrigger className="w-[160px] text-xs h-fit py-2">
-                      <SelectValue placeholder="Select Person" />
-                    </SelectTrigger>
-                    <SelectContent className="text-xs">
-                      <SelectGroup>
-                        <SelectItem value="isabella" className="text-xs">Isabella</SelectItem>
-                        <SelectItem value="olivia" className="text-xs">Olivia</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                    <Button variant="outline" size="sm" className="bg-black text-white">
-                      Submit
+                  <div className="flex justify-end mt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-black text-white"
+                      onClick={handleSendMessage}
+                    >
+                      Send
                     </Button>
                   </div>
                 </div>
@@ -481,18 +607,6 @@ Found indices: [0, 1]
               </Tabs>
             </CardContent>
           </Card>
-        </div>
-      </div>
-      <div className="absolute bottom-4 left-4 flex space-x-2">
-        <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-          <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-            <div className="flex items-center justify-center w-full h-full text-4xl font-bold">AC</div>
-          </div>
-        </div>
-        <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-          <div className="w-32 h-24 bg-gray-200 rounded-lg overflow-hidden shadow-xl">
-            <div className="flex items-center justify-center w-full h-full text-4xl font-bold">IN</div>
-          </div>
         </div>
       </div>
     </div>
