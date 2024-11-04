@@ -13,9 +13,9 @@ import { useStopwatch } from 'react-timer-hook';
 
 
 interface Props {
-    cancel(): void
-    name1: string, // user's username
-    name2: string, // matched user's username
+  cancel(): void;
+  name1: string; // user's username
+  name2: string; // matched user's username
 }
 
 const JoinedMatchContent: React.FC<Props> = ({cancel, name1: me, name2: you}) => {
@@ -57,7 +57,7 @@ const JoinedMatchContent: React.FC<Props> = ({cancel, name1: me, name2: you}) =>
                 Joined
             </button>
         </div>
-    )
-}
+    );
+};
 
 export default JoinedMatchContent;

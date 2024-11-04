@@ -34,7 +34,7 @@ const JOIN_TIMEOUT = 5;
 const MatchingModal: React.FC<MatchingModalProps> = ({ isOpen, close: _close }) => {
     const matchingState = useMatching();
     const [closedType, setClosedType] = useState<"finding" | "cancelled" | "joined">("finding");
-    const isClosable = ["timeout", "closed"].includes(matchingState.state);
+    const isClosable = ["timeout", "closed"].includes(matchingState.state) && closedType != "joined";
     const router = useRouter();
     const { totalSeconds, pause: pauseTimer, restart: restartTimer } = useTimer({
         expiryTimestamp: new Date(Date.now() + MATCH_TIMEOUT * 1000),

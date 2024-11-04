@@ -8,33 +8,28 @@ import {
   Modal,
   message,
   Row,
-  Select,
-  Tabs,
   TabsProps,
   Tag,
-  Typography,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion, Question } from "@/app/services/question";
 import {
   ClockCircleOutlined,
   CodeOutlined,
-  FileDoneOutlined,
-  InfoCircleFilled,
   MessageOutlined,
-  PlayCircleOutlined,
   SendOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
-import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import CollaborativeEditor, {
   CollaborativeEditorHandle,
 } from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { CreateOrUpdateHistory } from "@/app/services/history";
-import { Language } from "@codemirror/language";
+import { CreateHistory } from "@/app/services/history";
 import { WebrtcProvider } from "y-webrtc";
+import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
+import VideoPanel from "@/components/VideoPanel/VideoPanel";
 
 interface CollaborationProps {}
 
@@ -152,14 +147,14 @@ export default function CollaborationPage(props: CollaborationProps) {
     if (!collaborationId) {
       throw new Error("Collaboration ID not found");
     }
-    const data = await CreateOrUpdateHistory(
+    const data = await CreateHistory(
       {
         title: questionTitle ?? "",
         code: code,
         language: selectedLanguage,
         user: currentUser ?? "",
         matchedUser: matchedUser ?? "",
-        matchId: collaborationId ?? "",
+        historyDocRefId: collaborationId ?? "",
         matchedTopics: matchedTopics ?? [],
         questionDocRefId: questionDocRefId ?? "",
         questionDifficulty: complexity ?? "",
@@ -324,55 +319,14 @@ export default function CollaborationPage(props: CollaborationProps) {
         </Modal>
         <Row gutter={0} className="collab-row">
           <Col span={7} className="first-col">
-            <Row className="question-row">
-              <div className="question-container">
-                <div className="question-title">{questionTitle}</div>
-                <div className="question-difficulty">
-                  <Tag
-                    className="complexity-tag"
-                    style={{
-                      color:
-                        complexity === "easy"
-                          ? "#2DB55D"
-                          : complexity === "medium"
-                          ? "orange"
-                          : "red",
-                    }}
-                  >
-                    {complexity &&
-                      complexity.charAt(0).toUpperCase() + complexity.slice(1)}
-                  </Tag>
-                </div>
-                <div className="question-topic">
-                  <span className="topic-label">Topics: </span>
-                  {categories.map((category) => (
-                    <Tag key={category}>{category}</Tag>
-                  ))}
-                </div>
-                <div className="question-description">{description}</div>
-              </div>
-            </Row>
-            <Row className="test-row">
-              <div className="test-container">
-                <div className="test-top-container">
-                  <div className="test-title">
-                    <FileDoneOutlined className="title-icons" />
-                    Test Cases
-                  </div>
-                  {/* TODO: Link to execution service for running code against test-cases */}
-                  <Button
-                    icon={<PlayCircleOutlined />}
-                    iconPosition="end"
-                    className="test-case-button"
-                  >
-                    Run Test Cases
-                  </Button>
-                </div>
-                <div className="test-cases-container">
-                  <Tabs items={items} defaultActiveKey="1" />
-                </div>
-              </div>
-            </Row>
+            <QuestionDetailFull
+              questionTitle={questionTitle}
+              complexity={complexity}
+              categories={categories}
+              description={description}
+              testcaseItems={items}
+              shouldShowSubmitButton
+            />
           </Col>
           <Col span={11} className="second-col">
             <Row className="code-row">
@@ -456,15 +410,14 @@ export default function CollaborationPage(props: CollaborationProps) {
             <Row className="chat-row">
               <div className="chat-container">
                 <div className="chat-title">
-                  <MessageOutlined className="title-icons" />
-                  Chat
+                  <VideoCameraOutlined className="title-icons" />
+                  Video
                 </div>
-
-                <div className="chat-message-box">
+                <VideoPanel />
+                {/* <div className="chat-message-box">
                   <div className="chat-header-message">
                     Matched with {matchedUser}
                   </div>
-                  {/* TODO: Map and input the history of messages sent here */}
                   <div></div>
                 </div>
                 <div className="chat-typing-box">
@@ -473,7 +426,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     placeholder="Send Message Here"
                     rows={4}
                   />
-                </div>
+                </div> */}
               </div>
             </Row>
           </Col>

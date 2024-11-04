@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"net/http"
 )
 
-// Delete a code snippet by ID
+// Delete a code snippet by ID: unused
 func (s *Service) DeleteHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

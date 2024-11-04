@@ -48,6 +48,7 @@ interface AwarenessUpdate {
 }
 
 interface Awareness {
+  sessionEnded: boolean;
   user: {
     name: string;
     color: string;
@@ -78,63 +79,63 @@ const CollaborativeEditor = forwardRef(
   ) => {
     const editorRef = useRef(null);
     // const providerRef = useRef<WebrtcProvider | null>(null);
-    const [selectedLanguage, setSelectedLanguage] = useState("JavaScript");
+    const [selectedLanguage, setSelectedLanguage] = useState("Python");
     let sessionEndNotified = false;
 
     const languageConf = new Compartment();
 
     // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
-    const autoLanguage = EditorState.transactionExtender.of((tr) => {
-      if (!tr.docChanged) return null;
+    // const autoLanguage = EditorState.transactionExtender.of((tr) => {
+    //   if (!tr.docChanged) return null;
 
-      const snippet = tr.newDoc.sliceString(0, 100);
+    //   const snippet = tr.newDoc.sliceString(0, 100);
 
-      // Handle code change
-      props.onCodeChange(tr.newDoc.toString());
+    //   // Handle code change
+    //   props.onCodeChange(tr.newDoc.toString());
 
-      // Test for various language
-      const docIsPython = /^\s*(def|class)\s/.test(snippet);
-      const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
-        snippet
-      ); // Java has some problems
-      const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
-      const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
+    //   // Test for various language
+    //   const docIsPython = /^\s*(def|class)\s/.test(snippet);
+    //   const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
+    //     snippet
+    //   ); // Java has some problems
+    //   const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
+    //   const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
 
-      let newLanguage;
-      let languageType;
-      let languageLabel;
+    //   let newLanguage;
+    //   let languageType;
+    //   let languageLabel;
 
-      if (docIsPython) {
-        newLanguage = python();
-        languageLabel = "Python";
-        languageType = pythonLanguage;
-      } else if (docIsJava) {
-        newLanguage = java();
-        languageLabel = "Java";
-        languageType = javaLanguage;
-      } else if (docIsGo) {
-        newLanguage = go();
-        languageLabel = "Go";
-        languageType = goLanguage;
-      } else if (docIsCpp) {
-        newLanguage = cpp();
-        languageLabel = "C++";
-        languageType = cppLanguage;
-      } else {
-        newLanguage = javascript(); // Default to JavaScript
-        languageLabel = "JavaScript";
-        languageType = javascriptLanguage;
-      }
+    //   if (docIsPython) {
+    //     newLanguage = python();
+    //     languageLabel = "Python";
+    //     languageType = pythonLanguage;
+    //   } else if (docIsJava) {
+    //     newLanguage = java();
+    //     languageLabel = "Java";
+    //     languageType = javaLanguage;
+    //   } else if (docIsGo) {
+    //     newLanguage = go();
+    //     languageLabel = "Go";
+    //     languageType = goLanguage;
+    //   } else if (docIsCpp) {
+    //     newLanguage = cpp();
+    //     languageLabel = "C++";
+    //     languageType = cppLanguage;
+    //   } else {
+    //     newLanguage = javascript(); // Default to JavaScript
+    //     languageLabel = "JavaScript";
+    //     languageType = javascriptLanguage;
+    //   }
 
-      const stateLanguage = tr.startState.facet(language);
-      if (languageType == stateLanguage) return null;
+    //   const stateLanguage = tr.startState.facet(language);
+    //   if (languageType == stateLanguage) return null;
 
-      setSelectedLanguage(languageLabel);
+    //   setSelectedLanguage(languageLabel);
 
-      return {
-        effects: languageConf.reconfigure(newLanguage),
-      };
-    });
+    //   return {
+    //     effects: languageConf.reconfigure(newLanguage),
+    //   };
+    // });
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -175,9 +176,17 @@ const CollaborativeEditor = forwardRef(
             true
           );
           success("Session ended. All participants will be notified.");
+
+          // Event when peer disconnected, in between 0-15s user decides to end session before auto end session is triggered from inactivity
+          if (sessionEndTimeout) {
+            clearTimeout(sessionEndTimeout);
+            sessionEndTimeout = null;
+          }
         }
       },
     }));
+
+    let sessionEndTimeout: any;
 
     useEffect(() => {
       if (process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL === undefined) {
@@ -213,6 +222,27 @@ const CollaborativeEditor = forwardRef(
       // Listen for awareness changes
       provider.awareness.on("change", () => {
         const updatedStates = provider.awareness.getStates();
+
+        // Check the length of updatedStates, if it is equal to 1, we trigger endsession in 15s but if updated to 2, cancel endsession
+        if (sessionEndTimeout && updatedStates.size == 2) {
+          clearTimeout(sessionEndTimeout);
+          sessionEndTimeout = null;
+        }
+
+        // If there's only one participant, set a timeout for 15 seconds
+        if (updatedStates.size === 1) {
+          sessionEndTimeout = setTimeout(() => {
+            // Trigger end session logic here
+            info(
+              `Session has ended due to inactivity from matched user ${props.matchedUser}`
+            );
+            props.handleCloseCollaboration("peer");
+            if (props.providerRef.current) {
+              props.providerRef.current.disconnect();
+            }
+          }, 15000); // 15 seconds
+        }
+
         for (const [clientID, state] of Array.from(updatedStates)) {
           if (state.sessionEnded && state.user.name !== props.user) {
             if (!sessionEndNotified) {
@@ -245,7 +275,7 @@ const CollaborativeEditor = forwardRef(
             const state = provider.awareness
               .getStates()
               .get(clientID) as Awareness;
-            if (state && state.codeSavedStatus) {
+            if (state && state.codeSavedStatus && !state.sessionEnded) {
               // Display the received status message
               messageApi.open({
                 type: "success",
@@ -261,8 +291,9 @@ const CollaborativeEditor = forwardRef(
         doc: ytext.toString(),
         extensions: [
           basicSetup,
-          languageConf.of(javascript()),
-          autoLanguage,
+          languageConf.of(python()),
+          // languageConf.of(javascript()),
+          // autoLanguage,
           yCollab(ytext, provider.awareness, { undoManager }),
         ],
       });
@@ -297,9 +328,9 @@ const CollaborativeEditor = forwardRef(
           ref={editorRef}
           style={{ height: "400px", border: "1px solid #ddd" }}
         />
-        <div className="language-detected">
+        {/* <div className="language-detected">
           <strong>Current Language Detected: </strong> {selectedLanguage}
-        </div>
+        </div> */}
       </>
     );
   }
