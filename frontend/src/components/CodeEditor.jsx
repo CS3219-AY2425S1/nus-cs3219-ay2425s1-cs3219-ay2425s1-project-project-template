@@ -8,7 +8,7 @@ import { editor } from "monaco-editor";
 
 const serverWsUrl = "ws://localhost:4444";
 
-export default function CodeEditor() {
+export default function CodeEditor({ roomId }) {
     const theme = useTheme();
     
     const editorRef = useRef();
@@ -20,7 +20,7 @@ export default function CodeEditor() {
         const doc = new Y.Doc(); // collection of shared objects
 
         // Connect to peers with WebSocket
-        const provider = new WebsocketProvider(serverWsUrl, "roomId", doc);
+        const provider = new WebsocketProvider(serverWsUrl, roomId, doc);
         const type = doc.getText("monaco");
 
         // Bind yjs doc to Manaco editor

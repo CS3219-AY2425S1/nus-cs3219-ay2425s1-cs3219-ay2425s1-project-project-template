@@ -1,5 +1,6 @@
 import * as amqp from 'amqplib'
-import "dotenv/config";
+import "dotenv/config"
+import * as crypto from 'crypto'
 
 const REQUEST_EXCHANGE = 'REQUEST-EXCHANGE'
 const RESULT_EXCHANGE = 'RESULT-EXCHANGE'
@@ -27,25 +28,30 @@ export const createChannel = async () => {
 
         await channel.assertExchange(REQUEST_EXCHANGE, 'direct')
 
+        // send match request to matching service
         const matchRequestQueue = await channel.assertQueue(MATCH_REQUEST_QUEUE)
         channel.bindQueue(matchRequestQueue.queue, REQUEST_EXCHANGE, MATCH_REQUEST_ROUTING)
 
+        // send cancel request to matching service
         const cancelRequestQueue = await channel.assertQueue(CANCEL_REQUEST_QUEUE)
         channel.bindQueue(cancelRequestQueue.queue, REQUEST_EXCHANGE, CANCEL_REQUEST_ROUTING)
 
+        // send question request from matching service to question service 
         const matchToQuestionQueue = await channel.assertQueue(MATCH_TO_QUESTION_QUEUE)
         channel.bindQueue(matchToQuestionQueue.queue, REQUEST_EXCHANGE, MATCH_TO_QUESTION_ROUTING)
-        
+
         await channel.assertExchange(RESULT_EXCHANGE, 'direct')
+
+        // send match result from collab service 
         const matchResultQueue = await channel.assertQueue(MATCH_RESULT_QUEUE)
         channel.bindQueue(matchResultQueue.queue, RESULT_EXCHANGE, MATCH_RESULT_ROUTING)
 
+        // send 
         const questionToUserQueue = await channel.assertQueue(QUESTION_TO_USER_QUEUE)
         channel.bindQueue(questionToUserQueue.queue, RESULT_EXCHANGE, QUESTION_TO_USER_ROUTING)
 
         const cancelResultQueue = await channel.assertQueue(CANCEL_RESULT_QUEUE)
         channel.bindQueue(cancelResultQueue.queue, RESULT_EXCHANGE, CANCEL_RESULT_ROUTING)
-
         return channel
     } catch (e) {
         console.log(e)
@@ -82,12 +88,14 @@ export const receiveMatchResult = async (channel, io) => {
 
                 const user1Socket = io.sockets.sockets.get(matchData.user1SocketId); // User 1's socket
                 const user2Socket = io.sockets.sockets.get(matchData.user2SocketId); // User 2's socket
+                const roomId = createRoomId(matchData);
 
                 if (user1Socket && user2Socket) {
                     // Notify User 1
                     user1Socket.emit('match_found', {
                         success: true,
                         matchedUser: { id: matchData.user2Id },
+                        roomId: roomId,
                         question: matchData.question
                     });
 
@@ -95,6 +103,7 @@ export const receiveMatchResult = async (channel, io) => {
                     user2Socket.emit('match_found', {
                         success: true,
                         matchedUser: { id: matchData.user1Id },
+                        roomId: roomId,
                         question: matchData.question
                     });
                 }
@@ -104,6 +113,15 @@ export const receiveMatchResult = async (channel, io) => {
         console.log(e)
     }
 }
+
+
+const createRoomId = (requestPayload) => {
+    const { userID1, userID2, complexity, category } = requestPayload
+    const payloadString = `${userID1}_${userID2}_${complexity}_${category}`;
+    const roomId = crypto.createHash('sha256').update(payloadString).digest('hex');    
+    return roomId
+}
+
 
 export const receiveCancelResult = async (channel, io) => {
     try {

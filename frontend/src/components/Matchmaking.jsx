@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Button, Box, Typography, CircularProgress, Avatar, Container, CssBaseline, Divider } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Button, Box, Typography, CircularProgress, Avatar, Container, CssBaseline, Backdrop, Paper } from "@mui/material";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
 import io from "socket.io-client";
@@ -44,8 +45,13 @@ const MatchComponent = () => {
     const [isWaiting, setIsWaiting] = useState(false);
     const [isCanceling, setIsCanceling] = useState(false);
     const [matchedUserId, setMatchedUserId] = useState(null);
+    const [matchedRoomId, setMatchedRoomId] = useState(null); 
     const [selectedComplexity, setSelectedComplexity] = useState("Easy");
     const [selectedCategory, setSelectedCategory] = useState("Strings");
+    const [showMatchedMessage, setShowMatchedMessage] = useState(false);
+
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         let timer;
@@ -55,14 +61,15 @@ const MatchComponent = () => {
 
         socket.on("match_found", (data) => {
             setMatchedUserId(data.matchedUser.id);
+            setMatchedRoomId(data.roomId)
             setIsWaiting(false);
-            console.log(data.question)
+            console.log(data);
         });
 
         socket.on("cancel_success", () => {
             setIsCanceling(false);
             setIsWaiting(false);
-        })
+        });
 
         if (isWaiting) {
             timer = setInterval(() => {
@@ -79,10 +86,20 @@ const MatchComponent = () => {
             setWaitingTime(0);
         }
 
+        if (matchedUserId) {
+            setShowMatchedMessage(true);
+            const timer = setTimeout(() => {
+                navigate(`/collab/${matchedRoomId}`); // Navigate to '/collab' after 3 seconds
+            }, 3000); // 3000ms = 3 seconds
+
+            // Clean up the timer if the component unmounts
+            return () => clearTimeout(timer);
+        }
+
         return () => {
             clearInterval(timer);
         };
-    }, [isWaiting]);
+    }, [isWaiting, matchedUserId]);
 
     const getFilteredQuestion = () => {
         if (!selectedComplexity || !selectedCategory) return null;
@@ -127,15 +144,29 @@ const MatchComponent = () => {
             const body = { socketId: socket.id };
 
             await axios.post("http://localhost:8081/match/cancel-request", body, config);
-
         } catch (error) {
             console.error("Error canceling match:", error);
             setIsCanceling(false);
         }
     };
 
+    const paperStyles = {
+        padding: "20px 40px",
+        borderRadius: "8px",
+        textAlign: "center",
+    };
+
     return (
         <Container maxWidth="lg">
+            {matchedUserId && (
+                <Backdrop open={showMatchedMessage} style={{ zIndex: 1300 }} transitionDuration={500}>
+                    <Paper style={paperStyles}>
+                        <Typography variant="h6" align="center">
+                            Matched! Redirecting to collaborative space...
+                        </Typography>
+                    </Paper>
+                </Backdrop>
+            )}
             <CssBaseline />
             <Grid container spacing={2}>
                 {/* Matching options section */}

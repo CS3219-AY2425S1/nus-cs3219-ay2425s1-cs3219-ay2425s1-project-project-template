@@ -50,6 +50,15 @@ exports.sendCancelResult = (channel, payload) => {
     }
 }
 
+exports.sendRoomCreationRequest = (channel, payload) => {
+    try {
+        console.log("sendRoomCreationRequest called in matching-service")
+        channel.publish(REQUEST_EXCHANGE, MATCH_TO_COLLAB_ROUTING, payload)
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 exports.receiveMatchRequest = async (channel, callback) => {
     try {
         const queue = await channel.assertQueue(MATCH_REQUEST_QUEUE) 

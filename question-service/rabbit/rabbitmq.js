@@ -9,8 +9,9 @@ const QUESTION_REQUEST_QUEUE = 'QUESTION-REQUEST-QUEUE';
 const QUESTION_REQUEST_ROUTING = 'QUESTION-REQUEST-ROUTING';
 
 const MATCH_TO_QUESTION_QUEUE = 'MATCH-TO-QUESTION-QUEUE'
-const QUESTION_TO_USER_QUEUE = 'QUESTION-TO-USER-QUEUE'
 const MATCH_TO_QUESTION_ROUTING = 'MATCH-TO-QUESTION-ROUTING'
+
+
 const QUESTION_TO_USER_ROUTING = 'QUESTION-TO-USER-ROUTING'
 
 const initializeRabbitMQ = async () => {
@@ -27,12 +28,16 @@ const initializeRabbitMQ = async () => {
         // Start consuming messages
         channel.consume(MATCH_TO_QUESTION_QUEUE, (msg) => {
             if (msg !== null) {
+
+                // payload: userID1, userID2, socketID1, socketID2, complexity, category
                 const requestPayload = JSON.parse(msg.content.toString());
                 console.log('Received add question request:', requestPayload);
 
                 // Process the request (e.g., fetch a random question)
                 const question = getRandomQuestion(requestPayload); // Your function to retrieve a question
 
+
+                // payload: userID1, userID2, socketID1, socketID2, complexity, category, question
                 payload = { ...requestPayload, question }
 
                 // Acknowledge the message after processing

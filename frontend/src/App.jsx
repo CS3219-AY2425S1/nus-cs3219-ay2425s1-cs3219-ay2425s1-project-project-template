@@ -23,7 +23,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/collab" element={<CollabSpace/>}/>
+                <Route path="/collab/:roomId" element={<CollabSpace/>}/>
                 <Route path="/users-match" element={<MatchUsers />} />
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
