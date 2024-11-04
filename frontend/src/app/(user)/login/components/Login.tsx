@@ -34,7 +34,7 @@ const Login = () => {
 
     if (!searchParams) return;
     // route based on search params retrieved using router
-    const redirectUrl = searchParams.get("redirect") || "dashboard";
+    const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
     // route the user to the redirect URL
     router.push(redirectUrl as string);
