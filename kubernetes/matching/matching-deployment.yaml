@@ -20,7 +20,7 @@ spec:
         image: "gcr.io/peerprep-backend/matching@sha256:49e6a0a6e0699f5c013c056045606095337f0370f4b6dd7b3e2ff5162ba634c3"
         resources:
           requests:
-            memory: "1Gi"
+            memory: "500Mi"
             cpu: "250m"
           limits:
             memory: "1Gi"

@@ -1,0 +1,27 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "frontend-deployment"
+  namespace: "default"
+  labels:
+    app: "frontend-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "frontend-deployment"
+  template:
+    metadata:
+      labels:
+        app: "frontend-deployment"
+    spec:
+      containers:
+      - name: "frontend-service-sha256-1"
+        image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3219-ay2425s1-project-g15/frontend-2@sha256:c162f702181623cb9186a60f6113879ad97eb18d615262407f074d52d6f164b3"
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"

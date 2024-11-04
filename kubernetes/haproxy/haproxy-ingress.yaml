@@ -9,8 +9,12 @@ metadata:
     haproxy.org/check-http: "/health"
     haproxy.org/cors-allow-methods: "GET, POST, DELETE"
     haproxy.org/pod-maxconn: "50"
+    haproxy.org/ssl-termination: "true"
+    haproxy.org/redirect-from-http-to-https: "true"
 
 spec:
+  tls:
+  - secretName: my-tls-secret
   rules:
   - http:
       paths:

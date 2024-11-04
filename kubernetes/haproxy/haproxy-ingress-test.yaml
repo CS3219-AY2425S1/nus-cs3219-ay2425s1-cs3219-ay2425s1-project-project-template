@@ -283,7 +283,13 @@ spec:
     port: 8080
     protocol: TCP
     targetPort: 8080
+  - name: https
+    nodePort: 30782
+    port: 443
+    protocol: TCP
+    targetPort: 8080
   selector:
     app.kubernetes.io/instance: haproxy-kubernetes-ingress
     app.kubernetes.io/name: kubernetes-ingress
   type: LoadBalancer
+  loadBalancerIP: "35.192.214.143"

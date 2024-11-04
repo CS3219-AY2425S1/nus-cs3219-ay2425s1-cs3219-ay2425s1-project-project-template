@@ -21,10 +21,10 @@ spec:
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
-            memory: "1Gi"
+            memory: "500Mi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
+            memory: "800Mi"
             cpu: "1000m"
         env:
         - name: "ZOOKEEPER_CLIENT_PORT"
