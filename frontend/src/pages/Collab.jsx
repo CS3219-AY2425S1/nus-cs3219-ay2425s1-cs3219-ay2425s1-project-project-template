@@ -123,7 +123,6 @@ const Collab = () => {
 
         const handleResize = debounce(() => {
             const currentHeight = window.innerHeight;
-            // Only update layout if height has changed
             if (editorRef.current && currentHeight !== prevHeight) {
                 editorRef.current.layout();
                 setPrevHeight(currentHeight);
@@ -187,11 +186,11 @@ const Collab = () => {
                         theme="vs-dark"
                         defaultLanguage="python"
                         language={language}
+                        onMount={handleEditorDidMount}
                         options={{
                             fontSize: 16,
                             scrollBeyondLastLine: false,
-                            minimap: { enabled: false },
-                            readOnly: true
+                            minimap: { enabled: false }
                         }}
                     />
                 </div>
