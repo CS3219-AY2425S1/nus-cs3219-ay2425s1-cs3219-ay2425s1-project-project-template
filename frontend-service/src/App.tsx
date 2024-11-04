@@ -27,53 +27,50 @@ interface UserData {
 }
 
 function App() {
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<UserData | undefined>();
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
+  const [userData, setUserData] = useState<UserData | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
+  const updateAuthStatus = (authStatus: boolean, isAdminStatus = false) => {
+    setIsAuthenticated(authStatus);
+    setUserIsAdmin(isAdminStatus);
+  };
 
   useEffect(() => {
-    const verifyToken = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        console.log("No token in localStorage found");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch("http://localhost:3001/auth/verify-token", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.message === "Token verified") {
-          setIsAuthenticated(true);  // Token is valid
-          setUserData(data.data);
-
-          if (data.data.mustUpdatePassword) {
-            setIsChangePasswordModalOpen(true);
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("http://localhost:3001/auth/verify-token", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message == "Token verified") {
+            setIsAuthenticated(true);
+            setUserIsAdmin(data.data.isAdmin);
+          } else {
+            localStorage.removeItem("token");
+            setIsAuthenticated(false);
+            setUserIsAdmin(false);
           }
-        } else {
+          setLoading(false);
+        })
+        .catch(() => {
           localStorage.removeItem("token");
-          setIsAuthenticated(false);  // Invalid token
-        }
-      } catch (error) {
-        console.error("Error verifying token:", error);
-        localStorage.removeItem("token");
-        setIsAuthenticated(false);  // Error during verification
-      }
+          setIsAuthenticated(false);
+          setUserIsAdmin(false);
+          setLoading(false);
+        });
+    } else {
+      setIsAuthenticated(false);
+      setUserIsAdmin(false);
       setLoading(false);
-    };
-
-    verifyToken();
+    }
   }, []);
 
 
@@ -92,10 +89,6 @@ function App() {
   };
 
   const handlePasswordChanged = () => {
-    // setUserData((prevUserData) => ({
-    //   ...prevUserData,
-    //   mustUpdatePassword: false,
-    // }));
     setIsChangePasswordModalOpen(false);
   };
 
@@ -121,11 +114,7 @@ function App() {
             <>
               <Route
                 path="/login"
-                element={
-                  <Login
-                    handleLoginSuccess={handleLoginSuccess}
-                  />
-                }
+                element={<Login updateAuthStatus={updateAuthStatus} />}
               />
               <Route path="/signup" element={<Signup />} />
             </>
@@ -133,10 +122,16 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} /> // Redirect authenticated users
           )}
 
-          {/* Public routes */}
-          <Route path="/" element={<QuestionPage />} />
+          {/* Public or authenticated routes */}
+          <Route
+            path="/"
+            element={<QuestionPage userIsAdmin={userIsAdmin} />}
+          />
           <Route path="/home" element={<Home />} />
-          <Route path="/questions" element={<QuestionPage />} />
+          <Route
+            path="/questions"
+            element={<QuestionPage userIsAdmin={userIsAdmin} />}
+          />
           <Route path="/questions/:id" element={<QuestionDetails />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
           <Route path="/forgot-password" element={<ResetPasswordPage />} />

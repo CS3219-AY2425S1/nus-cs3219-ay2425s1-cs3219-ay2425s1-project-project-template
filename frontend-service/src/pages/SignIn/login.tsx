@@ -13,9 +13,10 @@ interface UserData {
 
 interface LoginProps {
   handleLoginSuccess: React.Dispatch<React.SetStateAction<UserData>>;
+  updateAuthStatus: (isAuthenticated: boolean, userIsAdmin: boolean) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ handleLoginSuccess }) => {
+const Login: React.FC<LoginProps> = ({ handleLoginSuccess, updateAuthStatus }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -43,6 +44,25 @@ const Login: React.FC<LoginProps> = ({ handleLoginSuccess }) => {
         console.log("Stored email:", localStorage.getItem("email"))
         handleLoginSuccess(data.data);
         navigate("/questions");
+        localStorage.setItem("token", data.data.accessToken);
+
+        const verifyResponse = await fetch(
+          "http://localhost:3001/auth/verify-token",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${data.data.accessToken}`,
+            },
+          }
+        );
+        const verifyData = await verifyResponse.json();
+        if (verifyData.message === "Token verified") {
+          updateAuthStatus(true, verifyData.data.isAdmin);
+          navigate("/questions");
+        } else {
+          throw new Error("Failed to verify token after login.");
+        }
       } else {
         toast({
           title: "Error",

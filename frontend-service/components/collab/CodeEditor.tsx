@@ -5,7 +5,7 @@ import { FIREBASE_DB } from '../../FirebaseConfig'
 import { ref, onValue, set } from 'firebase/database'
 import axios from 'axios'
 import QuestionSideBar from './QuestionSidebar'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { fetchWithAuth } from '../../src/utils/fetchWithAuth'
 import { shikiToMonaco } from '@shikijs/monaco'
 import { createHighlighter } from 'shiki'
@@ -27,13 +27,17 @@ interface CodeEditorProps {
 const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   // const { roomId } = useParams<{ roomId: string }>();
   const [code, setCode] = useState('//Start writing your code here..')
-  const [codeLanguage, setCodeLanguage] = useState('Javascript')
+  const [codeLanguage, setCodeLanguage] = useState('Javascript') // default code language is javascript
   const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null)
+
   const [question, setQuestion] = useState<Question | null>(null)
-  const navigate = useNavigate()
-  const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`)
+
   const cancelRef = useRef(null)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const setupSyntaxHighlighting = async () => {
@@ -67,6 +71,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
       const updatedCode = snapshot.val()
       if (updatedCode !== null && updatedCode !== code) {
         setCode(updatedCode)
+        // apply syntax highlighting each time a code is updated
+        if (monaco) {
+          monaco.editor.setModelLanguage(monaco.editor.getModels([0]), codeLanguage)
+        }
       }
     })
     return () => unsubscribe()
