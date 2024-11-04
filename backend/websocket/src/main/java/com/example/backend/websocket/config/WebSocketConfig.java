@@ -28,8 +28,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private JedisPool jedisPool;
 
-    private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
-    // private final String allowedOrigin = "*";
+    // private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+    private final String allowedOrigin = "http://35.184.99.208/match";
 
     private final String ACTIVE_USERS = "ActiveUsers";
 
