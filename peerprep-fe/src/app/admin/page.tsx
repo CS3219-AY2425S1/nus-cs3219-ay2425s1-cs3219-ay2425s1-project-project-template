@@ -23,6 +23,18 @@ function AdminPage() {
     refetchFilter,
   } = useFilteredProblems();
 
+  const validateEntries = (problem: Problem) => {
+    if (
+      problem.description === '' ||
+      problem.title === '' ||
+      problem.tags.length === 0
+    ) {
+      setInformationDialog('Please fill in all required fields');
+      return false;
+    }
+    return true;
+  };
+
   const handleDelete = async (id: number) => {
     const res = await axiosClient.delete(`/questions/${id}`);
     if (res.status !== 200) {
@@ -34,6 +46,9 @@ function AdminPage() {
 
   const handleEdit = async (problem: Problem) => {
     try {
+      if (!validateEntries(problem)) {
+        throw new Error('Invalid problem entries');
+      }
       const res = await axiosClient.put(`/questions/${problem._id}`, {
         difficulty: problem.difficulty,
         description: problem.description,
@@ -68,16 +83,10 @@ function AdminPage() {
   };
 
   const handleAdd = async (problem: Problem) => {
-    // TODO: Add proper validation of fields
-    if (
-      problem.description === '' ||
-      problem.title === '' ||
-      problem.tags.length === 0
-    ) {
-      setInformationDialog('Please fill in all required fields');
-      return;
-    }
     try {
+      if (!validateEntries(problem)) {
+        throw new Error('Invalid problem entries');
+      }
       const res = await axiosClient.post(`/questions`, {
         difficulty: problem.difficulty,
         description: problem.description,

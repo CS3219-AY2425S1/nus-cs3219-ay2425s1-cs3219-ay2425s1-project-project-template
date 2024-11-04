@@ -90,6 +90,7 @@ function ProblemInputDialog({
               onChange={(value) => {
                 setProblemData({ ...problemData, tags: value });
               }}
+              isAdmin
             />
           </div>
           <div className="mt-2 flex justify-end">
