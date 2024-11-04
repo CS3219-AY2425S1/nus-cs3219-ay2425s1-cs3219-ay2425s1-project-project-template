@@ -1,8 +1,8 @@
 import {
   newRoom,
   getRoomId,
-  heartbeat,
   getAllRooms,
+  fetchRoomChatHistory,
   getQuestionIdByRoomId,
 } from "../model/repository.js";
 import crypto from "crypto";
@@ -47,23 +47,6 @@ export async function getRoomByUser(req, res) {
   }
 }
 
-// Update heartbeat for a room
-export async function updateHeartbeat(req, res) {
-  const { roomId } = req.params;
-
-  if (!roomId) {
-    return res.status(400).json({ error: "Room ID is required" });
-  }
-
-  const updatedRoom = await heartbeat(roomId);
-
-  if (updatedRoom) {
-    res.status(200).json(updatedRoom);
-  } else {
-    res.status(404).json({ error: `Room with ID ${roomId} not found` });
-  }
-}
-
 // Get all rooms
 export async function getAllRoomsController(req, res) {
   const rooms = await getAllRooms();
@@ -75,6 +58,22 @@ export async function getAllRoomsController(req, res) {
   }
 }
 
+export async function getRoomChatHistory(req, res) {
+  const { roomId } = req.params;
+
+  if (!roomId) {
+    return res.status(400).json({ error: "Room ID is required" });
+  }
+
+  const room = await fetchRoomChatHistory(roomId);
+
+  if (room) {
+    res.status(200).json(room);
+  } else {
+    res.status(404).json({ error: `Room not found for ID: ${roomId}` });
+  }
+}
+
 // Get QuestionId from the room based on the roomId
 export async function getQuestionId(req, res) {
   const { roomId } = req.params;
@@ -82,7 +81,6 @@ export async function getQuestionId(req, res) {
   if (!roomId) {
     return res.status(400).json({ error: "Room ID is required" });
   }
-
   const questionId = await getQuestionIdByRoomId(roomId);
 
   if (questionId) {
