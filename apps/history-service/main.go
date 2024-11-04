@@ -1,20 +1,21 @@
 package main
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
-	firebase "firebase.google.com/go/v4"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
-	"github.com/joho/godotenv"
-	"google.golang.org/api/option"
 	"history-service/handlers"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"cloud.google.com/go/firestore"
+	firebase "firebase.google.com/go/v4"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
+	"google.golang.org/api/option"
 )
 
 func main() {
@@ -75,15 +76,10 @@ func initChiRouter(service *handlers.Service) *chi.Mux {
 
 func registerRoutes(r *chi.Mux, service *handlers.Service) {
 	r.Route("/histories", func(r chi.Router) {
+		r.Post("/", service.CreateHistory)
+		r.Get("/{historyDocRefId}", service.ReadHistory)
 		r.Get("/user/{username}", service.ListUserHistories)
-		//r.Post("/", service.CreateHistory)
-
-		r.Route("/match/{matchId}", func(r chi.Router) {
-			r.Put("/", service.CreateOrUpdateHistory)
-			r.Get("/", service.ReadHistory)
-			//r.Put("/", service.UpdateHistory)
-			//r.Delete("/", service.DeleteHistory)
-		})
+		r.Get("/user/{username}/question/{questionDocRefId}", service.ListUserQuestionHistories)
 	})
 }
 

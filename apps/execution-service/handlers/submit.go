@@ -22,13 +22,13 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 		return
 	}
 
-	var collab models.Collaboration
-	if err := utils.DecodeJSONBody(w, r, &collab); err != nil {
+	var submission models.Submission
+	if err := utils.DecodeJSONBody(w, r, &submission); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validateCollaborationFields(collab); err != nil {
+	if err := validateSubmissionFields(submission); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -43,6 +43,7 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer iter.Stop()
 
 	var test models.Test
 	if err := doc.DataTo(&test); err != nil {
@@ -51,8 +52,8 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 	}
 
 	testResults, err := utils.ExecuteVisibleAndHiddenTests(models.Code{
-		Code:     collab.Code,
-		Language: collab.Language,
+		Code:     submission.Code,
+		Language: submission.Language,
 	}, test)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -61,20 +62,23 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 
 	// Save the collaboration history via the history-service
 	// TODO: convert to message queue
-	collabHistory := models.CollaborationHistory{
-		Title:              collab.Title,
-		Code:               collab.Code,
-		Language:           collab.Language,
-		User:               collab.User,
-		MatchedUser:        collab.MatchedUser,
-		MatchID:            collab.MatchID,
-		MatchedTopics:      collab.MatchedTopics,
-		QuestionDocRefID:   questionDocRefId,
-		QuestionDifficulty: collab.QuestionDifficulty,
-		QuestionTopics:     collab.QuestionTopics,
+	submissionReq := models.Submission{
+		Code:               submission.Code,
+		Language:           submission.Language,
+		User:               submission.User,
+		MatchedUser:        submission.MatchedUser,
+		MatchedTopics:      submission.MatchedTopics,
+		Title:              submission.Title,
+		QuestionDifficulty: submission.QuestionDifficulty,
+		QuestionTopics:     submission.QuestionTopics,
+	}
+	submissionHistoryReq := models.SubmissionHistory{
+		Submission:       submissionReq,
+		QuestionDocRefID: questionDocRefId,
+		Status:           testResults.Status,
 	}
 
-	jsonData, err := json.Marshal(collabHistory)
+	jsonData, err := json.Marshal(submissionHistoryReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -87,7 +91,7 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 		return
 	}
 
-	req, err := http.NewRequest(http.MethodPut, historyServiceUrl+"histories/match/"+collabHistory.MatchID,
+	req, err := http.NewRequest(http.MethodPost, historyServiceUrl+"histories",
 		bytes.NewBuffer(jsonData))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -105,7 +109,7 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Failed to save collaboration history", http.StatusInternalServerError)
+		http.Error(w, "Failed to save submission history", http.StatusInternalServerError)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -113,28 +117,24 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 	json.NewEncoder(w).Encode(testResults)
 }
 
-func validateCollaborationFields(collab models.Collaboration) error {
-	if collab.Title == "" {
+func validateSubmissionFields(submission models.Submission) error {
+	if submission.Title == "" {
 		return fmt.Errorf("title is required")
 	}
 
-	if !constants.IS_VALID_LANGUAGE[collab.Language] {
+	if !constants.IS_VALID_LANGUAGE[submission.Language] {
 		return fmt.Errorf("invalid language")
 	}
 
-	if collab.User == "" {
+	if submission.User == "" {
 		return fmt.Errorf("user is required")
 	}
 
-	if collab.MatchedUser == "" {
+	if submission.MatchedUser == "" {
 		return fmt.Errorf("matchedUser is required")
 	}
 
-	if collab.MatchID == "" {
-		return fmt.Errorf("matchId is required")
-	}
-
-	if collab.QuestionDifficulty == "" {
+	if submission.QuestionDifficulty == "" {
 		return fmt.Errorf("questionDifficulty is required")
 	}
 

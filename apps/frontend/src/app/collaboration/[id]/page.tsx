@@ -8,8 +8,6 @@ import {
   Modal,
   message,
   Row,
-  Select,
-  Tabs,
   TabsProps,
   Tag,
   Typography,
@@ -17,26 +15,25 @@ import {
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { GetSingleQuestion, Question } from "@/app/services/question";
 import {
   ClockCircleOutlined,
   CodeOutlined,
-  FileDoneOutlined,
   InfoCircleFilled,
   MessageOutlined,
-  PlayCircleOutlined,
   SendOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
-import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
 import CollaborativeEditor, {
   CollaborativeEditorHandle,
 } from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { CreateOrUpdateHistory } from "@/app/services/history";
-import { Language } from "@codemirror/language";
+import { CreateHistory } from "@/app/services/history";
 import { WebrtcProvider } from "y-webrtc";
 import { ExecuteVisibleAndCustomTests, ExecuteVisibleAndHiddenTestsAndSubmit, ExecutionResults, GetVisibleTests, isTestResult, SubmissionHiddenTestResultsAndStatus, SubmissionResults, Test, TestData, TestResult } from "@/app/services/execute";
+import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
+import VideoPanel from "@/components/VideoPanel/VideoPanel";
 
 interface CollaborationProps {}
 
@@ -166,6 +163,26 @@ export default function CollaborationPage(props: CollaborationProps) {
     });
   }
 
+  const sendExecutingStateToMatchedUser = (executing: boolean) => {
+    if (!providerRef.current) {
+      throw new Error("Provider not initialized");
+    }
+    providerRef.current.awareness.setLocalStateField("executingState", {
+      executing: executing,
+      id: Date.now(),
+    });
+  }
+
+  const sendSubmittingStateToMatchedUser = (submitting: boolean) => {
+    if (!providerRef.current) {
+      throw new Error("Provider not initialized");
+    }
+    providerRef.current.awareness.setLocalStateField("submittingState", {
+      submitting: submitting,
+      id: Date.now(),
+    });
+  }
+
   const sendExecutionResultsToMatchedUser = (data: ExecutionResults) => {
     if (!providerRef.current) {
       throw new Error("Provider not initialized");
@@ -192,57 +209,52 @@ export default function CollaborationPage(props: CollaborationProps) {
     if (!questionDocRefId) {
       throw new Error("Question ID not found");
     }
-
     setIsLoadingTestCase(true);
-    try {
-      const data = await ExecuteVisibleAndCustomTests(
-        questionDocRefId,
-        {
-          code: code,
-          language: selectedLanguage,
-          customTestCases: "",
-        }
-      );
-      setVisibleTestCases(data.visibleTestResults);
-      infoMessage("Test cases executed. Review the results below.")
-      sendExecutionResultsToMatchedUser(data);
-    } finally {
-      setIsLoadingTestCase(false);
-    }
+    sendExecutingStateToMatchedUser(true);
+    const data = await ExecuteVisibleAndCustomTests(
+      questionDocRefId,
+      {
+        code: code,
+        language: selectedLanguage,
+        customTestCases: "",
+      }
+    );
+    setVisibleTestCases(data.visibleTestResults);
+    infoMessage("Test cases executed. Review the results below.")
+    sendExecutionResultsToMatchedUser(data);
+    setIsLoadingTestCase(false);
+    sendExecutingStateToMatchedUser(false);
   }
 
   const handleSubmitCode = async () => {
     if (!questionDocRefId) {
       throw new Error("Question ID not found");
     }
-
     setIsLoadingSubmission(true);
-    try {
-      const data = await ExecuteVisibleAndHiddenTestsAndSubmit(
-        questionDocRefId,
-        {
-          title: questionTitle ?? "",
-          code: code,
-          language: selectedLanguage,
-          user: currentUser ?? "",
-          matchedUser: matchedUser ?? "",
-          matchId: collaborationId ?? "",
-          matchedTopics: matchedTopics ?? [],
-          questionDifficulty: complexity ?? "",
-          questionTopics: categories,
-        }
-      );
-      setVisibleTestCases(data.visibleTestResults);
-      setSubmissionHiddenTestResultsAndStatus({
-        hiddenTestResults: data.hiddenTestResults,
-        status: data.status,
-      });
-      sendSubmissionResultsToMatchedUser(data);
-      successMessage("Code saved successfully!");
-    } finally {
-      setIsLoadingSubmission(false);
-    }
-  };
+    sendSubmittingStateToMatchedUser(true);
+    const data = await ExecuteVisibleAndHiddenTestsAndSubmit(
+      questionDocRefId,
+      {
+        code: code,
+        language: selectedLanguage,
+        user: currentUser ?? "",
+        matchedUser: matchedUser ?? "",
+        matchedTopics: matchedTopics ?? [],
+        title: questionTitle ?? "",
+        questionDifficulty: complexity ?? "",
+        questionTopics: categories,
+      }
+    );
+    setVisibleTestCases(data.visibleTestResults);
+    setSubmissionHiddenTestResultsAndStatus({
+      hiddenTestResults: data.hiddenTestResults,
+      status: data.status,
+    });
+    sendSubmissionResultsToMatchedUser(data);
+    successMessage("Code saved successfully!");
+    setIsLoadingSubmission(false);
+    sendSubmittingStateToMatchedUser(false);
+  }
 
   const handleCodeChange = (code: string) => {
     setCode(code);
@@ -302,7 +314,17 @@ export default function CollaborationPage(props: CollaborationProps) {
   var items: TabsProps["items"] = visibleTestCases.map((item, index) => {
     return {
       key: index.toString(),
-      label: `Case ${index + 1}`,
+      label: (
+        <span
+          style={{
+            color: !isTestResult(item) 
+              ? "" 
+              : (item.passed ? "green" : "red"),
+          }}
+        >
+          Case {index + 1}
+        </span>
+      ),
       children: (
         <div>
           <Input.TextArea
@@ -411,61 +433,17 @@ export default function CollaborationPage(props: CollaborationProps) {
         </Modal>
         <Row gutter={0} className="collab-row">
           <Col span={7} className="first-col">
-            <Row className="question-row">
-              <div className="question-container">
-                <div className="question-title">{questionTitle}</div>
-                <div className="question-difficulty">
-                  <Tag
-                    className="complexity-tag"
-                    style={{
-                      color:
-                        complexity === "easy"
-                          ? "#2DB55D"
-                          : complexity === "medium"
-                          ? "orange"
-                          : "red",
-                    }}
-                  >
-                    {complexity &&
-                      complexity.charAt(0).toUpperCase() + complexity.slice(1)}
-                  </Tag>
-                </div>
-                <div className="question-topic">
-                  <span className="topic-label">Topics: </span>
-                  {categories.map((category) => (
-                    <Tag key={category}>{category}</Tag>
-                  ))}
-                </div>
-                <div className="question-description">{description}</div>
-              </div>
-            </Row>
-            <Row className="test-row">
-              <div className="test-container">
-                <div className="test-top-container">
-                  <div className="test-title">
-                    <FileDoneOutlined className="title-icons" />
-                    Test Cases
-                  </div>
-                  {/* TODO: Link to execution service for running code against test-cases */}
-                  <div className="test-button-container">
-                    <div className="spinner-container">
-                      {isLoadingTestCase && <Spin tip="Running test cases..." />}
-                    </div>
-                    <Button
-                      icon={<PlayCircleOutlined />}
-                      iconPosition="end"
-                      className="test-case-button"
-                      onClick={handleRunTestCases}
-                    >
-                      Run Test Cases
-                    </Button>
-                  </div>
-                </div>
-                <div className="test-cases-container">
-                  <Tabs items={items} defaultActiveKey="1" />
-                </div>
-              </div>
-            </Row>
+            <QuestionDetailFull
+              questionTitle={questionTitle}
+              complexity={complexity}
+              categories={categories}
+              description={description}
+              testcaseItems={items}
+              shouldShowSubmitButton
+              handleRunTestCases={handleRunTestCases}
+              isLoadingTestCase={isLoadingTestCase}
+              buttonIsDisabled={isLoadingTestCase || isLoadingSubmission}
+            />
           </Col>
           <Col span={11} className="second-col">
             <Row className="code-row">
@@ -478,12 +456,13 @@ export default function CollaborationPage(props: CollaborationProps) {
                   {/* TODO: Link to execution service for code submission */}
                   <div className="test-button-container">
                     <div className="spinner-container">
-                      {isLoadingSubmission && <Spin tip="Running test cases..." />}
+                      {isLoadingSubmission && <Spin tip="Saving code..." />}
                     </div>
                     <Button
                       icon={<SendOutlined />}
                       iconPosition="end"
-                      onClick={() => handleSubmitCode()}
+                      onClick={handleSubmitCode}
+                      disabled={isLoadingSubmission || isLoadingTestCase}
                     >
                       Submit
                     </Button>
@@ -502,6 +481,8 @@ export default function CollaborationPage(props: CollaborationProps) {
                     updateExecutionResults={updateExecutionResults}
                     matchedUser={matchedUser}
                     onCodeChange={handleCodeChange}
+                    updateExecuting={setIsLoadingTestCase}
+                    updateSubmitting={setIsLoadingSubmission}
                   />
                 )}
                 <div className="hidden-test-results">
@@ -518,7 +499,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                         : "gray", // color for "Not Attempted"
                     }}
                   >
-                    {submissionHiddenTestResultsAndStatus ? submissionHiddenTestResultsAndStatus.status : "Not Attempted"}
+                    Session Status: {submissionHiddenTestResultsAndStatus ? submissionHiddenTestResultsAndStatus.status : "Not Attempted"}
                   </Typography.Text>
                   <br />
                   {submissionHiddenTestResultsAndStatus && (
@@ -586,15 +567,14 @@ export default function CollaborationPage(props: CollaborationProps) {
             <Row className="chat-row">
               <div className="chat-container">
                 <div className="chat-title">
-                  <MessageOutlined className="title-icons" />
-                  Chat
+                  <VideoCameraOutlined className="title-icons" />
+                  Video
                 </div>
-
-                <div className="chat-message-box">
+                <VideoPanel />
+                {/* <div className="chat-message-box">
                   <div className="chat-header-message">
                     Matched with {matchedUser}
                   </div>
-                  {/* TODO: Map and input the history of messages sent here */}
                   <div></div>
                 </div>
                 <div className="chat-typing-box">
@@ -603,7 +583,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     placeholder="Send Message Here"
                     rows={4}
                   />
-                </div>
+                </div> */}
               </div>
             </Row>
           </Col>

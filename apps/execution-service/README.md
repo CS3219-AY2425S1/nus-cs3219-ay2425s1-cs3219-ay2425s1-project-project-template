@@ -168,7 +168,6 @@ curl -X POST http://localhost:8083/tests/{questioinDocRefId}/submit \
 "language": "Python",
 "user": "user123",
 "matchedUser": "user456",
-"matchId": "match123",
 "matchedTopics": ["topic1", "topic2"],
 "questionDifficulty": "Medium",
 "questionTopics": ["Loops", "Strings"]

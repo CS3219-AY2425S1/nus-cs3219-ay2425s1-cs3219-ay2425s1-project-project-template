@@ -1,24 +1,25 @@
 package handlers
 
 import (
-	"cloud.google.com/go/firestore"
 	"encoding/json"
+	"history-service/models"
+	"history-service/utils"
+	"net/http"
+
+	"cloud.google.com/go/firestore"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"history-service/models"
-	"history-service/utils"
-	"net/http"
 )
 
-// Update an existing code snippet
+// Update an existing code snippet: Unused
 func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
 	matchId := chi.URLParam(r, "matchId")
-	var updatedHistory models.CollaborationHistory
+	var updatedHistory models.SubmissionHistory
 	if err := utils.DecodeJSONBody(w, r, &updatedHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -70,7 +71,7 @@ func (s *Service) UpdateHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	updatedHistory.MatchID = doc.Ref.ID
+	updatedHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

@@ -269,6 +269,7 @@ Return the result table in any order.`,
 				return err // Abort transaction if delete fails
 			}
 		}
+		defer iter.Stop()
 
 		// Step 2: Add new questions
 		currentCounter := 0
@@ -322,6 +323,7 @@ func repopulateTests(dbClient *firestore.Client) error {
 			"docRefId": doc.Ref.ID,
 		})
 	}
+	defer iter.Stop()
 
 	jsonData, err := json.Marshal(questions)
 	if err != nil {

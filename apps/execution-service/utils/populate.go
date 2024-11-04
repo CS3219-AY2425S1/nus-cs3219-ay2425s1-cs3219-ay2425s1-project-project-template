@@ -29,6 +29,7 @@ func RepopulateTests(ctx context.Context, client *firestore.Client,
 			return fmt.Errorf("failed to delete test: %v", err)
 		}
 	}
+	defer iter.Stop()
 
 	var tests = []models.Test{
 		{

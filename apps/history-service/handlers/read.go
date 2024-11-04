@@ -2,20 +2,21 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"google.golang.org/api/iterator"
 	"history-service/models"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"google.golang.org/api/iterator"
 )
 
 // Read a code snippet by ID
 func (s *Service) ReadHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	matchId := chi.URLParam(r, "matchId")
+	historyDocRefId := chi.URLParam(r, "historyDocRefId")
 
 	// Reference document
-	docRef := s.Client.Collection("collaboration-history").Doc(matchId)
+	docRef := s.Client.Collection("collaboration-history").Doc(historyDocRefId)
 
 	// Get data
 	doc, err := docRef.Get(ctx)
@@ -29,16 +30,16 @@ func (s *Service) ReadHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	var collaborationHistory models.CollaborationHistory
-	if err := doc.DataTo(&collaborationHistory); err != nil {
+	var submissionHistory models.SubmissionHistory
+	if err := doc.DataTo(&submissionHistory); err != nil {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.MatchID = doc.Ref.ID
+	submissionHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(collaborationHistory)
+	json.NewEncoder(w).Encode(submissionHistory)
 }
 
 //curl -X GET http://localhost:8082/histories/largSKbROswF5pveMkEL \

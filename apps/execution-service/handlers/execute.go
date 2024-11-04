@@ -34,6 +34,7 @@ func (s *Service) ExecuteVisibleAndCustomTests(w http.ResponseWriter, r *http.Re
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer iter.Stop()
 
 	var test models.Test
 	if err := doc.DataTo(&test); err != nil {

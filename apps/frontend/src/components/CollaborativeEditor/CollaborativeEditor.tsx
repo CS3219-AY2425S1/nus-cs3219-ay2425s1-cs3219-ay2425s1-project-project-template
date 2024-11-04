@@ -40,6 +40,8 @@ interface CollaborativeEditorProps {
   onCodeChange: (code: string) => void;
   updateSubmissionResults: (results: SubmissionResults) => void;
   updateExecutionResults: (results: ExecutionResults) => void;
+  updateExecuting: (executing: boolean) => void;
+  updateSubmitting: (submitting: boolean) => void;
 }
 
 export interface CollaborativeEditorHandle {
@@ -65,6 +67,14 @@ interface Awareness {
   };
   executionResultsState: {
     executionResults: ExecutionResults;
+    id: number;
+  }
+  executingState: {
+    executing: boolean;
+    id: number;
+  }
+  submittingState: {
+    submitting: boolean;
     id: number;
   }
 }
@@ -96,59 +106,65 @@ const CollaborativeEditor = forwardRef(
 
     const languageConf = new Compartment();
 
-    // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
-    const autoLanguage = EditorState.transactionExtender.of((tr) => {
-      if (!tr.docChanged) return null;
-
-      const snippet = tr.newDoc.sliceString(0, 100);
-
-      // Handle code change
-      props.onCodeChange(tr.newDoc.toString());
-
-      // Test for various language
-      const docIsPython = /^\s*(def|class)\s/.test(snippet);
-      const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
-        snippet
-      ); // Java has some problems
-      const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
-      const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
-
-      let newLanguage;
-      let languageType;
-      let languageLabel;
-
-      if (docIsPython) {
-        newLanguage = python();
-        languageLabel = "Python";
-        languageType = pythonLanguage;
-      } else if (docIsJava) {
-        newLanguage = java();
-        languageLabel = "Java";
-        languageType = javaLanguage;
-      } else if (docIsGo) {
-        newLanguage = go();
-        languageLabel = "Go";
-        languageType = goLanguage;
-      } else if (docIsCpp) {
-        newLanguage = cpp();
-        languageLabel = "C++";
-        languageType = cppLanguage;
-      } else {
-         // Default to Python
-        newLanguage = python();
-        languageLabel = "Python";
-        languageType = pythonLanguage;
+    const codeChangeListener = EditorView.updateListener.of((update) => {
+      if (update.docChanged) {
+        props.onCodeChange(update.state.doc.toString());
       }
-
-      const stateLanguage = tr.startState.facet(language);
-      if (languageType == stateLanguage) return null;
-
-      setSelectedLanguage(languageLabel);
-
-      return {
-        effects: languageConf.reconfigure(newLanguage),
-      };
     });
+    
+    
+    // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
+    // const autoLanguage = EditorState.transactionExtender.of((tr) => {
+    //   if (!tr.docChanged) return null;
+
+    //   const snippet = tr.newDoc.sliceString(0, 100);
+
+    //   // Handle code change
+    //   props.onCodeChange(tr.newDoc.toString());
+
+    //   // Test for various language
+    //   const docIsPython = /^\s*(def|class)\s/.test(snippet);
+    //   const docIsJava = /^\s*(class|public\s+static\s+void\s+main)\s/.test(
+    //     snippet
+    //   ); // Java has some problems
+    //   const docIsCpp = /^\s*(#include|namespace|int\s+main)\s/.test(snippet); // Yet to test c++
+    //   const docIsGo = /^(package|import|func|type|var|const)\s/.test(snippet);
+
+    //   let newLanguage;
+    //   let languageType;
+    //   let languageLabel;
+
+    //   if (docIsPython) {
+    //     newLanguage = python();
+    //     languageLabel = "Python";
+    //     languageType = pythonLanguage;
+    //   } else if (docIsJava) {
+    //     newLanguage = java();
+    //     languageLabel = "Java";
+    //     languageType = javaLanguage;
+    //   } else if (docIsGo) {
+    //     newLanguage = go();
+    //     languageLabel = "Go";
+    //     languageType = goLanguage;
+    //   } else if (docIsCpp) {
+    //     newLanguage = cpp();
+    //     languageLabel = "C++";
+    //     languageType = cppLanguage;
+    //   } else {
+    //     newLanguage = javascript(); // Default to JavaScript
+    //     languageLabel = "JavaScript";
+    //     languageType = javascriptLanguage;
+    //   }
+
+    //   const stateLanguage = tr.startState.facet(language);
+    //   if (languageType == stateLanguage) return null;
+
+    //   setSelectedLanguage(languageLabel);
+
+    //   return {
+    //     effects: languageConf.reconfigure(newLanguage),
+    //   };
+    // });
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -182,6 +198,8 @@ const CollaborativeEditor = forwardRef(
 
     let latestExecutionId: number = (new Date(0)).getTime();
     let latestSubmissionId: number = (new Date(0)).getTime();
+    let latestExecutingId: number = (new Date(0)).getTime();
+    let latestSubmittingId: number = (new Date(0)).getTime();
 
     useImperativeHandle(ref, () => ({
       endSession: () => {
@@ -192,9 +210,17 @@ const CollaborativeEditor = forwardRef(
             true
           );
           success("Session ended. All participants will be notified.");
+
+          // Event when peer disconnected, in between 0-15s user decides to end session before auto end session is triggered from inactivity
+          if (sessionEndTimeout) {
+            clearTimeout(sessionEndTimeout);
+            sessionEndTimeout = null;
+          }
         }
       },
     }));
+
+    let sessionEndTimeout: any;
 
     useEffect(() => {
       if (process.env.NEXT_PUBLIC_SIGNALLING_SERVICE_URL === undefined) {
@@ -230,6 +256,27 @@ const CollaborativeEditor = forwardRef(
       // Listen for awareness changes
       provider.awareness.on("change", () => {
         const updatedStates = provider.awareness.getStates();
+
+        // Check the length of updatedStates, if it is equal to 1, we trigger endsession in 15s but if updated to 2, cancel endsession
+        if (sessionEndTimeout && updatedStates.size == 2) {
+          clearTimeout(sessionEndTimeout);
+          sessionEndTimeout = null;
+        }
+
+        // If there's only one participant, set a timeout for 15 seconds
+        if (updatedStates.size === 1) {
+          sessionEndTimeout = setTimeout(() => {
+            // Trigger end session logic here
+            info(
+              `Session has ended due to inactivity from matched user ${props.matchedUser}`
+            );
+            props.handleCloseCollaboration("peer");
+            if (props.providerRef.current) {
+              props.providerRef.current.disconnect();
+            }
+          }, 15000); // 15 seconds
+        }
+
         for (const [clientID, state] of Array.from(updatedStates)) {
           if (state.sessionEnded && state.user.name !== props.user) {
             if (!sessionEndNotified) {
@@ -286,11 +333,45 @@ const CollaborativeEditor = forwardRef(
               latestExecutionId = state.executionResultsState.id;
               props.updateExecutionResults(state.executionResultsState.executionResults);
               messageApi.open({
-                type: "info",
+                type: "success",
                 content: `${
                   props.matchedUser ?? "Peer"
-                } executed test cases. Review the results below.`,
+                } ran test cases. Review the results below.`,
               });
+            }
+
+            if (
+              state && 
+              state.executingState && 
+              state.executingState.id !== latestExecutingId
+            ) {
+              latestExecutingId = state.executingState.id;
+              props.updateExecuting(state.executingState.executing);
+              if (state.executingState.executing) {
+                messageApi.open({
+                  type: "info",
+                  content: `${
+                    props.matchedUser ?? "Peer"
+                  } is running test cases...`,
+                });
+              }
+            }
+
+            if (
+              state && 
+              state.submittingState && 
+              state.submittingState.id !== latestSubmittingId
+            ) {
+              latestSubmittingId = state.submittingState.id;
+              props.updateSubmitting(state.submittingState.submitting);
+              if (state.submittingState.submitting) {
+                messageApi.open({
+                  type: "info",
+                  content: `${
+                    props.matchedUser ?? "Peer"
+                  } is saving code...`,
+                });
+              }
             }
           });
       });
@@ -299,10 +380,12 @@ const CollaborativeEditor = forwardRef(
         doc: ytext.toString(),
         extensions: [
           basicSetup,
-          languageConf.of(javascript()),
-          autoLanguage,
+          languageConf.of(python()),
+          // languageConf.of(javascript()),
+          // autoLanguage,
           yCollab(ytext, provider.awareness, { undoManager }),
           keymap.of([indentWithTab]),
+          codeChangeListener,
         ],
       });
 
@@ -336,9 +419,9 @@ const CollaborativeEditor = forwardRef(
           ref={editorRef}
           style={{ height: "400px", border: "1px solid #ddd" }}
         />
-        <div className="language-detected">
+        {/* <div className="language-detected">
           <strong>Current Language Detected: </strong> {selectedLanguage}
-        </div>
+        </div> */}
       </>
     );
   }

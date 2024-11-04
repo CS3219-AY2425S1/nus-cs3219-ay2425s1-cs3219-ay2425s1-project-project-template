@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"cloud.google.com/go/firestore"
 	"encoding/json"
-	"google.golang.org/api/iterator"
 	"history-service/models"
 	"history-service/utils"
 	"net/http"
+
+	"cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 )
 
 // Create a new code snippet
@@ -14,26 +15,26 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	var collaborationHistory models.CollaborationHistory
-	if err := utils.DecodeJSONBody(w, r, &collaborationHistory); err != nil {
+	var submissionHistory models.SubmissionHistory
+	if err := utils.DecodeJSONBody(w, r, &submissionHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Document reference ID in firestore mapped to the match ID in model
-	docRef := s.Client.Collection("collaboration-history").Doc(collaborationHistory.MatchID)
+	collection := s.Client.Collection("collaboration-history")
 
-	_, err := docRef.Set(ctx, map[string]interface{}{
-		"title":              collaborationHistory.Title,
-		"code":               collaborationHistory.Code,
-		"language":           collaborationHistory.Language,
-		"user":               collaborationHistory.User,
-		"matchedUser":        collaborationHistory.MatchedUser,
-		"matchedTopics":      collaborationHistory.MatchedTopics,
-		"questionDocRefId":   collaborationHistory.QuestionDocRefID,
-		"questionDifficulty": collaborationHistory.QuestionDifficulty,
-		"questionTopics":     collaborationHistory.QuestionTopics,
-		"status":             collaborationHistory.Status,
+	docRef, _, err := collection.Add(ctx, map[string]interface{}{
+		"title":              submissionHistory.Title,
+		"code":               submissionHistory.Code,
+		"language":           submissionHistory.Language,
+		"user":               submissionHistory.User,
+		"matchedUser":        submissionHistory.MatchedUser,
+		"matchedTopics":      submissionHistory.MatchedTopics,
+		"questionDocRefId":   submissionHistory.QuestionDocRefID,
+		"questionDifficulty": submissionHistory.QuestionDifficulty,
+		"questionTopics":     submissionHistory.QuestionTopics,
+		"status":             submissionHistory.Status,
 		"createdAt":          firestore.ServerTimestamp,
 		"updatedAt":          firestore.ServerTimestamp,
 	})
@@ -54,15 +55,15 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	if err := doc.DataTo(&collaborationHistory); err != nil {
+	if err := doc.DataTo(&submissionHistory); err != nil {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.MatchID = doc.Ref.ID
+	submissionHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(collaborationHistory)
+	json.NewEncoder(w).Encode(submissionHistory)
 }
 
 //curl -X POST http://localhost:8082/histories \

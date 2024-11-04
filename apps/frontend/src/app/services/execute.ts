@@ -44,13 +44,12 @@ export interface Code {
     customTestCases: string;
 }
 
-export interface Collaboration {
+export interface Submission {
     title: string
     code: string
     language: string
     user: string
     matchedUser: string
-    matchId: string
     matchedTopics: string[]
     questionDifficulty: string
     questionTopics: string[]
@@ -104,7 +103,7 @@ export const ExecuteVisibleAndCustomTests = async (
 
 export const ExecuteVisibleAndHiddenTestsAndSubmit = async (
     questionDocRefId: string,
-    collaboration: Collaboration,
+    collaboration: Submission,
 ): Promise<SubmissionResults> => {
     const response = await fetch(
         `${EXECUTION_SERVICE_URL}tests/${questionDocRefId}/submit`,
