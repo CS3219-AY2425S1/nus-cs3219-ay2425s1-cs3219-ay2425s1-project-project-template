@@ -53,6 +53,7 @@ ngx-monaco-editor {
   text-align: right;
   height: 30px;
   box-sizing: border-box;
+  margin-bottom: 2.5%;
 }
 
 .format-button {
