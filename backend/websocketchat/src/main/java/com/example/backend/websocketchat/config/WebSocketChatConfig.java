@@ -1,6 +1,5 @@
 package com.example.backend.websocketchat.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -18,7 +17,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
-    private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+    // private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+    private final String allowedOrigin = "*";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
