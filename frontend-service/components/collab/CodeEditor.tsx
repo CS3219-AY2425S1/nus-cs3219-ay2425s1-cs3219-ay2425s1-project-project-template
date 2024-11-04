@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import MonacoEditor from '@monaco-editor/react'
+import MonacoEditor, { OnMount } from '@monaco-editor/react'
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Select, Text } from '@chakra-ui/react'
 import { FIREBASE_DB } from '../../FirebaseConfig'
 import { ref, onValue, set } from 'firebase/database'
@@ -25,17 +25,18 @@ interface CodeEditorProps {
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
-  // const { roomId } = useParams<{ roomId: string }>();
   const [code, setCode] = useState('//Start writing your code here..')
-  const [codeLanguage, setCodeLanguage] = useState('Javascript') // default code language is javascript
+  const [codeLanguage, setCodeLanguage] = useState(null)
   const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null)
 
   const [question, setQuestion] = useState<Question | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`)
+  const languageRef = ref(FIREBASE_DB, `rooms/${roomId}/currentLanguage`)
 
   const cancelRef = useRef(null)
+  const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
   const navigate = useNavigate()
 
@@ -66,19 +67,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
     setupSyntaxHighlighting().catch(console.error)
   }, [])
 
+  // fetch placeholder code and get current language from firebase
   useEffect(() => {
     const unsubscribe = onValue(codeRef, (snapshot) => {
       const updatedCode = snapshot.val()
       if (updatedCode !== null && updatedCode !== code) {
         setCode(updatedCode)
-        // apply syntax highlighting each time a code is updated
-        if (monaco) {
-          monaco.editor.setModelLanguage(monaco.editor.getModels([0]), codeLanguage)
-        }
       }
     })
-    return () => unsubscribe()
-  }, [roomId, codeRef])
+    const unsubscribeLanguage = onValue(languageRef, (snapshot) => {
+      const savedLanguage = snapshot.val()
+      if (savedLanguage) {
+        setCodeLanguage(savedLanguage)
+      }
+    })
+    return () => {
+      unsubscribe()
+      unsubscribeLanguage()
+    }
+  }, [code, codeLanguage])
 
   const handleEditorChange = (newValue: string | undefined) => {
     if (newValue !== undefined) {
@@ -149,12 +156,31 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
     }
   }
 
-  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedLanguage = event.target.value
-    setCodeLanguage(selectedLanguage)
+  // create a use effect to update code template when language changes
+  useEffect(() => {
+    if (languageType[codeLanguage]) {
+      setCode(languageType[codeLanguage])
+      set(codeRef, languageType[codeLanguage])
+    }
+  }, [codeLanguage])
+
+  const handleLanguageChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedLanguage = event.target.value.toLowerCase()
     setCode(languageType[selectedLanguage])
-    set(codeRef, languageType[selectedLanguage])
+    await set(languageRef, selectedLanguage)
+
+    if (monaco && monacoEditorRef.current) {
+      const model = monacoEditorRef.current.getModel()
+      monaco.editor.setModelLanguage(model, selectedLanguage)
+      monacoEditorRef.current.layout()
+    }
   }
+
+  const handleEditorDidMount: OnMount = (editor) => {
+    monacoEditorRef.current = editor
+    editor.layout()
+  }
+
 
   return (
     <Box display="flex" height="100vh">
@@ -220,13 +246,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
         </Box>
 
         {/* Monaco Editor */}
-        <Box height="80vh" borderRadius="8px" overflow="hidden">
+        <Box height="80vh" borderRadius="8px" width="100%" overflow="hidden">
           <MonacoEditor
             height="100%"
             language={codeLanguage}
             theme="vs-light" // Use a light theme similar to LeetCode
             value={code}
             onChange={handleEditorChange}
+            onMount={handleEditorDidMount}
             options={{
               fontSize: 16,
               fontFamily: "'Fira Code', monospace",

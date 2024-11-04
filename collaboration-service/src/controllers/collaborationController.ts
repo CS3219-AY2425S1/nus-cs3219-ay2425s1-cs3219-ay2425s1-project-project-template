@@ -87,6 +87,7 @@ export const createRoom = async (req: Request, res: Response) => {
       createdAt: Date.now(),
       selectedQuestionId: 0, // default number when not selected yet
       status: "active",
+      currentLanguage: "javascript",
     };
 
     await set(roomRef, newRoom);
