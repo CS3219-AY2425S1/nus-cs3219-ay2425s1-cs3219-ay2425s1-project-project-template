@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@codemirror/collab": "^6.1.1",
+    "@codemirror/lang-cpp": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/lang-python": "^6.1.6",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@liveblocks/client": "^2.10.0",
     "@liveblocks/yjs": "^2.10.0",

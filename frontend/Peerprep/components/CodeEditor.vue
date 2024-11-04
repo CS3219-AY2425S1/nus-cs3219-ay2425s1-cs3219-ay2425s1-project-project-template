@@ -7,6 +7,8 @@ import { yCollab } from "y-codemirror.next";
 import { EditorView, basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { javascript } from "@codemirror/lang-javascript";
+import { cpp } from "@codemirror/lang-cpp";
+import { python } from "@codemirror/lang-python";
 import { useCollaborationStore } from '~/stores/collaborationStore'; // Store for real-time sync
 import { useFirebaseApp, useFirestore } from 'vuefire';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -15,7 +17,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 const parent = ref(null);
 const leave = ref(null);
 const view = ref(null);
-
+const language = ref("javascript");
 const firebaseApp = useFirebaseApp();
 const db = useFirestore(firebaseApp);
 const collaborationStore = useCollaborationStore();
@@ -36,6 +38,22 @@ const yDoc = new Y.Doc();
 const yText = yDoc.getText("codemirror");
 const yProvider = new LiveblocksYjsProvider(room, yDoc);
 
+// Set up a shared map for the language selection
+const yMap = yDoc.getMap("settings");
+yMap.set("language", language.value); // Initialize shared language
+
+// Function to get the current language extension
+const getLanguageExtension = () => {
+  switch (language.value) {
+    case "python":
+      return python();
+    case "cpp":
+      return cpp();
+    default:
+      return javascript();
+  }
+};
+
 onMounted(async () => {
     // Create the Firestore document reference
     const docRef = doc(db, 'collaborations', session_info.uid);
@@ -51,7 +69,7 @@ onMounted(async () => {
         doc: yText.toString(),
         extensions: [
         basicSetup,
-        javascript(),
+        getLanguageExtension(),
         yCollab(yText, yProvider.awareness),
         oneDark,
         ],
@@ -61,6 +79,29 @@ onMounted(async () => {
     view.current = new EditorView({
         state,
         parent: parent.value,
+    });
+
+    // Watch for language changes and update the editor
+    watch(language, (newLang) => {
+        yMap.set("language", newLang); // Update shared language state
+        const newState = EditorState.create({
+        doc: yText.toString(),
+        extensions: [
+            basicSetup,
+            getLanguageExtension(),
+            yCollab(yText, yProvider.awareness),
+            oneDark,
+        ],
+        });
+        view.current.setState(newState);
+    });
+
+    // Observe changes in the shared Yjs map for language updates from other users
+    yMap.observe(event => {
+        const newLanguage = yMap.get("language");
+        if (language.value !== newLanguage) {
+            language.value = newLanguage; // Sync local language with shared state
+        }
     });
 
     // Save to Firestore when the document changes
@@ -79,5 +120,10 @@ onUnmounted(() => {
 </script>
 
 <template>
+    <select v-model="language">
+      <option value="javascript">JavaScript</option>
+      <option value="python">Python</option>
+      <option value="cpp">C++</option>
+    </select>
     <div ref="parent"></div>
 </template>
