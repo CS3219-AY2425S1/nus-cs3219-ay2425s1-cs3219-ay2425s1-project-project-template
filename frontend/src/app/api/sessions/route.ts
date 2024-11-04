@@ -35,3 +35,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
   }
 }
+
+  export async function POST(request: Request) {
+    try {
+      const { db } = await connectToDatabase();
+      const body = await request.json();
+      const result = await db.collection('sessions').insertOne(body);
+      return NextResponse.json({ message: 'Session created', id: result.insertedId }, { status: 201 });
+    } catch (error) {
+      console.error('Error creating session:', error);
+      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
+    }
+}
