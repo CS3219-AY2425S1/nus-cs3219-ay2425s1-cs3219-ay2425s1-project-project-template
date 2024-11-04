@@ -1,23 +1,14 @@
 import React from 'react';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/MatchPopup.css';
 import questionService from '../../services/question-service';
 import useAuth from '../../hooks/useAuth';
 
-const generateRoomId = (difficulty, topic, language, matchedUser) => {
-  const { user1, user2 } = matchedUser;
-  const timestamp = new Date().getDate();
-  const data = `${difficulty}-${topic}-${language}-${user1}-${user2}-${timestamp}`;
-  const roomId = btoa(data); // encode using base64
-  return roomId;
-};
 
 const MatchFound = ({ matchData, closePopup }) => {
     const { cookies } = useAuth();
     const navigate = useNavigate();
-    const { difficulty, topic, language, matchedUser } = matchData;
-    const roomId = generateRoomId(difficulty, topic, language, matchedUser);
+    const { difficulty, topic, language, matchedUser, roomId } = matchData;
 
     const handleStartSession = async () => {
         closePopup();

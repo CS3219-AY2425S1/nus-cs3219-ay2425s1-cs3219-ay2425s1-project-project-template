@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const { v4: uuidv4 } = require('uuid');
 
 let waitingUsers = []; 
 
@@ -32,7 +33,12 @@ async function findMatch(user, notifyMatch) {
 
         // Remove matched users from waiting list
         waitingUsers.splice(matchIndex, 1);
-        notifyMatch(user, matchedUser);
+
+        // Generate a unique room ID for the matched pair
+        const roomId = uuidv4();
+
+        // Notify both users with the same room ID
+        notifyMatch({ ...user, roomId }, { ...matchedUser, roomId });
 
         // Log queue status after the match is found
         console.log(`Queue after match: ${waitingUsers.length} users waiting`);
