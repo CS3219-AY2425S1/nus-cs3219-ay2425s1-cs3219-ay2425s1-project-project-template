@@ -27,7 +27,7 @@ export class MatchModalComponent implements OnInit {
   isVisible: boolean = true;
   isCounting: boolean = false;
   matchFound: boolean = false;
-  timeout: boolean = true;
+  timeout: boolean = false;
   displayMessage: string = 'Finding Suitable Match...';
   countdownSubscription: Subscription | undefined;
   matchCheckSubscription: Subscription | undefined;
