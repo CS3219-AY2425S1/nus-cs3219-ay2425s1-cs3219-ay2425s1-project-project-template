@@ -96,6 +96,7 @@ services:
       - /app/node_modules
     ports:
       - "4444:4444"
+      - "5555:5555"
     networks:
       - peerprep-network
     env_file:

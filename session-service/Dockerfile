@@ -28,7 +28,7 @@ CMD ["pnpm", "dev"]
 FROM base AS production
 ENV NODE_ENV=production
 ENV PORT=4444
-
+ENV AUDIO_PORT=5555
 # Copy source files
 COPY src ./src
 COPY tsconfig.json ./
@@ -36,6 +36,6 @@ COPY tsconfig.json ./
 # Build the TypeScript code
 RUN pnpm build
 
-EXPOSE ${PORT}
+EXPOSE ${PORT} ${AUDIO_PORT}
 
 CMD ["pnpm", "start"]
