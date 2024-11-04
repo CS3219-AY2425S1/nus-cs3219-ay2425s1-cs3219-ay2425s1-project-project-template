@@ -98,8 +98,8 @@ export default function Chat({ roomId }: { roomId: string }) {
         id: crypto.randomUUID(),
         userId: "ai",
         text:
-          data.choices && data.choices[0]?.message?.content
-            ? data.choices[0].message.content
+          data.data.choices && data.data.choices[0]?.message?.content
+            ? data.data.choices[0].message.content
             : "An error occurred. Please try again.",
         timestamp: new Date(),
       };

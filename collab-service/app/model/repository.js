@@ -9,7 +9,7 @@ export async function newRoom(user1, user2, roomId, questionId) {
   try {
     // Remove any existing rooms where either user1 or user2 is a participant
     await UsersSession.deleteMany({ users: { $in: [user1, user2] } });
-    
+
     const newRoom = new UsersSession({
       users: [user1, user2],
       roomId: roomId,
@@ -34,7 +34,6 @@ export async function getRoomId(user) {
     return null;
   }
 }
-
 
 export async function getAllRooms() {
   try {
@@ -112,5 +111,26 @@ export async function getQuestionIdByRoomId(roomId) {
   } catch (error) {
     console.error(`Error finding questionId for roomId ${roomId}:`, error);
     return null;
+  }
+}
+
+export async function sendAiMessage(message) {
+  try {
+    console.log("sending to openai");
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        'Content-Type': "application/json",
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: message }],
+      }),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in sending AI message:", error);
   }
 }
