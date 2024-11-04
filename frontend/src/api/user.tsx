@@ -44,11 +44,11 @@ export const getAuthStatus = () => {
 
 const NEXT_PUBLIC_IAM_USER_SERVICE =
   process.env.NEXT_PUBLIC_IAM_USER_SERVICE ||
-  "https://user-service-598285527681.us-central1.run.app/api/auth";
+  "http://35.192.214.143:80/api/iam/auth";
 
 const NEXT_PUBLIC_IAM_AUTH_SERVICE =
   process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE ||
-  "https://user-service-598285527681.us-central1.run.app/api/users";
+  "http://35.192.214.143:80/api/iam/users";
 
 export const verifyToken = async (token: string) => {
   const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {

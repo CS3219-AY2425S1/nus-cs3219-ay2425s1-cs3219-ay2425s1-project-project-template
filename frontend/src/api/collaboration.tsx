@@ -1,8 +1,7 @@
 import { NewSession, SessionExists, SessionFull } from "@/types/session";
 
 const COLLABORATION_SERVICE =
-  process.env.NEXT_PUBLIC_COLLABORATION_SERVICE ||
-  "https://collaboration-service-598285527681.us-central1.run.app/api";
+  process.env.NEXT_PUBLIC_COLLABORATION_SERVICE || "http://35.192.214.143:80/api/collaboration";
 
 export const createSession = async (data: NewSession): Promise<SessionFull> => {
   const url = `${COLLABORATION_SERVICE}/create`;

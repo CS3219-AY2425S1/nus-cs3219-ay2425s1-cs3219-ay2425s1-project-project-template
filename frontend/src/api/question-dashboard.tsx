@@ -1,8 +1,7 @@
 import { QuestionAll, QuestionFull, NewQuestionData } from "@/types/find-match";
 
 const QUESTION_SERVICE =
-  process.env.NEXT_PUBLIC_QUESTION_SERVICE ||
-  "https://question-service-2-598285527681.us-central1.run.app/api";
+  process.env.NEXT_PUBLIC_QUESTION_SERVICE || "http://35.192.214.143:80/api/question";
 
 export const createSingleQuestion = async (
   data: NewQuestionData

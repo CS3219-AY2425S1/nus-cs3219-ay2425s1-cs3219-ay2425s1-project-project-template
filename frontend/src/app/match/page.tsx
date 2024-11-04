@@ -77,7 +77,7 @@ const closeLoadingSpinner = () => {
 
 const SOCKET_URL =
   process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
-  "http://localhost:3005/matching-websocket";
+  "http://localhost:3005/matching-websocket" || "http://35.192.214.143:80/matching-websocket";
 
 const CURRENT_USER = getUsername(); // Username is unique
 

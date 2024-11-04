@@ -18,41 +18,41 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: collaboration-service
+            name: collaboration
             port:
               number: 3001
       - path: /api/matching
         pathType: Prefix
         backend:
           service:
-            name: matching-service
+            name: matching
             port:
               number: 3002
       - path: /api/question
         pathType: Prefix
         backend:
           service:
-            name: question-service
+            name: question
             port:
               number: 3003
       - path: /api/iam
         pathType: Prefix
         backend:
           service:
-            name: user-service
+            name: user
             port:
               number: 3004
       - path: /matching-websocket
         pathType: Prefix
         backend:
           service:
-            name: websocket-service
+            name: websocket
             port:
               number: 3005
       - path: /chat-websocket
         pathType: Prefix
         backend:
           service:
-            name: chatwebsocket-service
+            name: websocketchat
             port:
               number: 3007

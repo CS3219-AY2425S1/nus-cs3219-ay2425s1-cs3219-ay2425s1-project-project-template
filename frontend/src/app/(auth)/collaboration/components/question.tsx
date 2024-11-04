@@ -19,7 +19,7 @@ import SockJS from "sockjs-client";
 
 const CHAT_SOCKET_URL =
   process.env["NEXT_PUBLIC_CHAT_SERVICE_WEBSOCKET"] ||
-  "http://localhost:3007/chat-websocket";
+  "http://localhost:3007/chat-websocket" || "http://35.192.214.143:80/chat-websocket";
 
 interface Message {
   position: "left" | "right";
