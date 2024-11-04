@@ -26,6 +26,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     useState<boolean>(false);
   const [localVideoSourceObject, setLocalVideoSourceObject] =
     useState<boolean>(false);
+  let usernameFragment: string;
 
   useEffect(() => {
     const pc = new RTCPeerConnection({
@@ -56,13 +57,44 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     };
 
     peerConnectionRef.current = pc;
-    //startCall();
     return () => {
       if (pc) {
         pc.close();
       }
     };
   }, [provider]);
+
+  const startPC = () => {
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    });
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        provider.awareness.setLocalStateField("webrtc", {
+          type: "candidate",
+          candidate: event.candidate,
+        });
+        console.log("Sent ICE candidate:", event.candidate);
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log("Received remote track:", event.track);
+      if (remoteStreamRef.current) {
+        remoteStreamRef.current.addTrack(event.track);
+      } else {
+        remoteStreamRef.current = new MediaStream([event.track]);
+      }
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+        setRemoteVideoSourceObject(true);
+      }
+    };
+
+    peerConnectionRef.current = pc;
+    console.log("new connection done");
+  };
 
   useEffect(() => {
     const awarenessListener = ({ added, updated, removed }) => {
@@ -83,6 +115,8 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             remoteVideoRef.current.srcObject = null;
             remoteStreamRef.current = null;
             setRemoteVideoSourceObject(false);
+            iceCandidatesQueue.current = [];
+            startPC();
             startCall();
           } else {
             setVideoStart(false);
@@ -100,48 +134,52 @@ const VideoCall = ({ provider }: VideoCallProps) => {
   }, [provider]);
 
   const handleSignalingMessage = async (message, from) => {
-    if (peerConnectionRef.current) {
-      switch (message.type) {
-        case "offer":
-          console.log("Received offer:", message.offer);
-          console.log(peerConnectionRef.current.signalingState);
-          await peerConnectionRef.current.setRemoteDescription(
-            new RTCSessionDescription(message.offer)
-          );
-          const answer = await peerConnectionRef.current.createAnswer();
-          await peerConnectionRef.current.setLocalDescription(answer);
-          provider.awareness.setLocalStateField("webrtc", {
-            type: "answer",
-            answer: answer,
-          });
-          await processIceCandidatesQueue();
-          console.log("Sent answer:", answer);
-          break;
-        case "answer":
-          console.log("Received answer:", message.answer);
-          console.log(peerConnectionRef.current.signalingState);
-          await peerConnectionRef.current.setRemoteDescription(
-            new RTCSessionDescription(message.answer)
-          );
-          await processIceCandidatesQueue();
+    try {
+      if (peerConnectionRef.current) {
+        switch (message.type) {
+          case "offer":
+            console.log("Received offer:", message.offer);
+            console.log(peerConnectionRef.current.signalingState);
+            await peerConnectionRef.current.setRemoteDescription(
+              new RTCSessionDescription(message.offer)
+            );
+            const answer = await peerConnectionRef.current.createAnswer();
+            await peerConnectionRef.current.setLocalDescription(answer);
+            provider.awareness.setLocalStateField("webrtc", {
+              type: "answer",
+              answer: answer,
+            });
+            await processIceCandidatesQueue();
+            console.log("Sent answer:", answer);
+            break;
+          case "answer":
+            console.log("Received answer:", message.answer);
+            console.log(peerConnectionRef.current.signalingState);
+            if (peerConnectionRef.current.signalingState !== "stable") {
+              await peerConnectionRef.current.setRemoteDescription(
+                new RTCSessionDescription(message.answer)
+              );
+              await processIceCandidatesQueue();
+            }
 
-          break;
-        case "candidate":
-          console.log("Received ICE candidate:", message.candidate);
-          if (peerConnectionRef.current?.remoteDescription) {
-            await peerConnectionRef.current?.addIceCandidate(
-              new RTCIceCandidate(message.candidate)
-            );
-          } else {
-            iceCandidatesQueue.current.push(
-              new RTCIceCandidate(message.candidate)
-            );
-          }
-          break;
-        default:
-          break;
+            break;
+          case "candidate":
+            console.log("Received ICE candidate:", message.candidate);
+            if (peerConnectionRef.current?.remoteDescription) {
+              await peerConnectionRef.current?.addIceCandidate(
+                new RTCIceCandidate(message.candidate)
+              );
+            } else {
+              iceCandidatesQueue.current.push(
+                new RTCIceCandidate(message.candidate)
+              );
+            }
+            break;
+          default:
+            break;
+        }
       }
-    }
+    } catch {}
   };
 
   const processIceCandidatesQueue = async () => {
