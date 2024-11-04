@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { verifyToken } from '@/lib/api-user'
 import toast from 'react-hot-toast';
 import CodeEditorContainer from '@/components/collaboration/code-editor-container';
+import VideoDisplay from '@/components/collaboration/VideoDisplay';
 
 
 interface CollaborationPageProps {
@@ -288,7 +289,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
 
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden relative">
       <header className="bg-background border-b flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -419,7 +420,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             <TabsTrigger value="feedback">Chat</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden pb-1">
-            <Card className="flex flex-col mt-1 mb-4 h-full overflow-hidden">
+            <Card className="flex flex-col mt-1 mb-4 h-3/4 overflow-hidden">
               <div className="space-y-4 p-2 overflow-auto">
                 <CardHeader className="p-4">
                   <CardTitle className="text-2xl font-bold mb-2">{question?.title}</CardTitle>
@@ -431,7 +432,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             </Card>
           </TabsContent>
           <TabsContent value="feedback" className="flex-1 pb-1 h-full overflow-hidden">
-            <Card className="p-2 mt-1 h-full overflow-hidden">
+            <Card className="p-2 mt-1 h-3/4 overflow-hidden">
               <div className="space-y-4 p-4 flex flex-col h-full overflow-hidden">
                 <div className="flex-1 overflow-y-auto">
                   {messages.map((msg, index) => (
@@ -581,6 +582,9 @@ Found indices: [0, 1]
             </CardContent>
           </Card>
         </div>
+      </div>
+      <div className="absolute bottom-0 left-0 z-50">
+        <VideoDisplay />
       </div>
     </div>
   )
