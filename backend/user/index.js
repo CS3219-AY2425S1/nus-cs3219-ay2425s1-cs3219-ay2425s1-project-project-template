@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
 
   // Browsers usually send this before PUT or POST Requests
@@ -30,8 +30,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/users", userRoutes);
-app.use("/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
