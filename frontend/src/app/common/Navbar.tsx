@@ -27,7 +27,7 @@ const Navbar = () => {
           Home
         </Link>
         <Link
-          href=""
+          href="/about"
           className={`text-primary-300 hover:underline ${
             isActive("/about") ? "opacity-100" : "opacity-50 hover:opacity-100"
           }`}
