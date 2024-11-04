@@ -31,11 +31,11 @@ export default function CollaborationPage() {
 
   return (
     <PanelGroup direction="horizontal" autoSaveId={room}>
-      <Panel defaultSize={45} minSize={30}>
+      <Panel defaultSize={45} minSize={35}>
         <Question collabid={room} />
       </Panel>
       <PanelResizeHandle />
-      <Panel defaultSize={55} minSize={30}>
+      <Panel defaultSize={55} minSize={35}>
         <Collaboration room={room} language={language} />
       </Panel>
     </PanelGroup>
