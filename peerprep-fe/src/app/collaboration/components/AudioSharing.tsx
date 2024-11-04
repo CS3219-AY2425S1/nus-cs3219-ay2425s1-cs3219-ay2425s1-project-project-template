@@ -14,47 +14,56 @@ const AudioSharing = () => {
   const socketRef = useRef<Socket | null>(null);
   const peerRef = useRef<Instance | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
+  const initializedRef = useRef(false);
 
   const SERVER_URL =
     process.env.NEXT_PUBLIC_AUDIO_SERVER_URL || 'http://localhost:5555';
 
   useEffect(() => {
-    socketRef.current = io(SERVER_URL, {
-      transports: ['websocket'],
-      path: '/socket.io/',
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    if (initializedRef.current) return;
+    initializedRef.current = true;
 
-    socketRef.current.on('connect', () => {
-      console.log('Socket connected');
-    });
+    const timeoutId = setTimeout(() => {
+      socketRef.current = io(SERVER_URL, {
+        transports: ['websocket'],
+        path: '/socket.io/',
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
 
-    socketRef.current.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-    });
+      socketRef.current.on('connect', () => {
+        console.log('Socket connected');
+      });
 
-    socketRef.current.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
-    });
+      socketRef.current.on('connect_error', (error) => {
+        console.error('Connection error:', error);
+      });
 
-    socketRef.current.on('error', (error) => {
-      console.error('Socket error:', error);
-    });
+      socketRef.current.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
+      });
 
-    socketRef.current.on('signal', (data) => {
-      if (peerRef.current) {
-        peerRef.current.signal(data);
-      }
-    });
+      socketRef.current.on('error', (error) => {
+        console.error('Socket error:', error);
+      });
+
+      socketRef.current.on('signal', (data) => {
+        if (peerRef.current) {
+          peerRef.current.signal(data);
+        }
+      });
+    }, 100);
 
     return () => {
+      clearTimeout(timeoutId);
       if (socketRef.current) {
         socketRef.current.disconnect();
+        socketRef.current = null;
       }
       if (audioStreamRef.current) {
         audioStreamRef.current.getTracks().forEach((track) => track.stop());
+        audioStreamRef.current = null;
       }
     };
   }, [SERVER_URL]);
@@ -69,13 +78,12 @@ const AudioSharing = () => {
         trickle: false,
         stream: stream,
         config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' }, // Google's public STUN server
-          ],
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
         },
       });
 
       peerRef.current.on('signal', (data: SimplePeer.SignalData) => {
+        console.log('Sending signal data:', data);
         socketRef.current?.emit('signal', data);
       });
 
