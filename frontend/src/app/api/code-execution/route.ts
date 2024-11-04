@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-const CODE_EXECUTION_SERVICE_URL = 'http://localhost:9001/api/code-execution';
+const CODE_EXECUTION_SERVICE_URL = process.env.NEXT_PUBLIC_CODE_EXECUTION_SERVICE_URL || 'http://localhost:9001/api/code-execution';
 
 export interface CodeExecutionResponse {
   totalTests: number;

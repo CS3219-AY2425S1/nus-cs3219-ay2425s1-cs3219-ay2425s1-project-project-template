@@ -3,13 +3,16 @@ import { BullModule } from '@nestjs/bull';
 import { CodeExecutionController } from './code-execution.controller';
 import { CodeExecutionService } from './code-execution.service';
 import { CodeExecutionProcessor } from './code-execution.processor';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Module({
   imports: [
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
-        port: 6379,
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT || '6379'),
       },
     }),
     BullModule.registerQueue({

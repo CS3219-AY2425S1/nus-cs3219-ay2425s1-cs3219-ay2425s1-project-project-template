@@ -2,12 +2,15 @@ import { Process, Processor } from '@nestjs/bull';
 import { Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { Job } from 'bull';
 import axios from 'axios';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Processor('code-execution')
 export class CodeExecutionProcessor {
   private readonly logger = new Logger(CodeExecutionProcessor.name);
-  private readonly PISTON_API_URL = 'https://emkc.org/api/v2/piston';
-  private readonly QUESTION_SERVICE_URL = 'http://localhost:8000/questions';
+  private readonly PISTON_API_URL = process.env.PISTON_API_URL;
+  private readonly QUESTION_SERVICE_URL = process.env.QUESTION_SERVICE_URL;
 
   private readonly EXECUTION_TIMEOUT = 10000; // 10 seconds
   private readonly MEMORY_LIMIT = 256 * 1024 * 1024; // 256MB in bytes
@@ -54,6 +57,7 @@ export class CodeExecutionProcessor {
 
   private async executeTestCaseWithRetry(testCase: any, index: number, language: string, code: string, retryCount = 0): Promise<any> {
     try {
+      console.log("PISTON_API_URL:", this.PISTON_API_URL);
       const response = await axios.post(
         `${this.PISTON_API_URL}/execute`,
         {
