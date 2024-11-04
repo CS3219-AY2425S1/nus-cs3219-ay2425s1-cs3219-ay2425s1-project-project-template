@@ -28,4 +28,4 @@ spec:
             cpu: "1000m"
         env:
         - name: "FRONTEND_CORS_ALLOWED_ORIGINS"
-          value: "https://frontend-2-598285527681.us-central1.run.app/"
+          value: "http://35.184.99.208/match"
