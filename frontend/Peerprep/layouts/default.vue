@@ -15,7 +15,7 @@ import Navbar from '~/components/navigation/Navbar.vue';
 export default {
     computed: {
         showNavbar() {
-            const hiddenNavbarPaths = ['/users/login', '/users/register'];
+            const hiddenNavbarPaths = ['/users/login', '/users/register', '/collaboration'];
 
             return !hiddenNavbarPaths.includes(this.$route.path);
         }
