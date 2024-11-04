@@ -327,6 +327,8 @@ const CollabPageView: React.FC = () => {
         return;
       }
 
+      console.log(import.meta.env.VITE_HISTORY_SERVICE_CREATE_QUESTION_BACKEND_URL);
+
       const storeUserExecutedCode =
       import.meta.env.VITE_HISTORY_SERVICE_STORE_USER_CODE_BACKEND_URL ||
       "http://localhost:5005/store-user-executed-code";
