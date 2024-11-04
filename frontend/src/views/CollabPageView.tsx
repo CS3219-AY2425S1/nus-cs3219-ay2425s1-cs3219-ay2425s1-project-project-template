@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import Editor from "@monaco-editor/react";
+import moment from 'moment-timezone';
 import {
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ const CollabPageView: React.FC = () => {
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
   const socketInitialized = useRef(false);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [dateAttempted, setDateAttempted] = useState("");
 
   useEffect(() => {
     const verifySession = async () => {
@@ -117,11 +119,44 @@ const CollabPageView: React.FC = () => {
         newSocket.emit("sessionJoined", sessionIdObj, uid);
       });
 
-      newSocket.on("sessionData", ({ sessionIdObj, uid, questionData }) => {
+      newSocket.on("sessionData", async ({ sessionIdObj, uid, questionData }) => {
         sessionIdObj = sessionIdObj;
         // Set state with the received data
         setUserId(uid);
         setQuestionData(questionData);
+
+        const attemptDate = moment().tz("Asia/Singapore").format();
+        setDateAttempted(attemptDate);
+
+        const token = newSocket.handshake.auth.token;
+
+        const createQuestionAttempted =
+        import.meta.env.VITE_HISTORY_SERVICE_CREATE_QUESTION_BACKEND_URL ||
+        "http://localhost:5005/create-question-attempted";
+
+        const requestBody = {
+          userUid: uid, 
+          questionUid: questionData.id, 
+          dateAttempted: attemptDate,
+        };
+
+        const response = await fetch(createQuestionAttempted, {
+          method: "POST",
+          headers: {
+              'Authorization': `Bearer ${token}`, // If using JWT or similar
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+            const error = await response.json();
+            console.error('Error creating question:', error.message);
+        }
+
       });
 
       console.log("Current user ID:", userId);
@@ -267,6 +302,37 @@ const CollabPageView: React.FC = () => {
       jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
         ? setIsError(true)
         : setIsError(false);
+
+      const requestBody = {
+        userUid: userId, 
+        questionUid: questionData.id, 
+        dateAttempted: dateAttempted,
+      };
+
+      const token = socket.handshake.auth.token;
+
+      const storeUserExecutedCode =
+      import.meta.env.VITE_HISTORY_SERVICE_STORE_USER_CODE_BACKEND_URL ||
+      "http://localhost:5005/store-user-executed-code";
+
+
+      const result = await fetch(storeUserExecutedCode, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`, // If using JWT or similar
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (result.ok) {
+        const output = await result.json();
+        console.log(output.message);
+      } else {
+          const error = await result.json();
+          console.error('Error creating question:', error.message);
+      }
+      
     } catch (error) {
       alert(error);
     } finally {
