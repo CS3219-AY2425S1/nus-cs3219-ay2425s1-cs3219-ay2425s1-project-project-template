@@ -13,7 +13,6 @@ async function connectToDatabase() {
   }
 
   const client = await MongoClient.connect(uri, {
-    useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 
@@ -24,26 +23,39 @@ async function connectToDatabase() {
 
   return { client, db };
 }
-
 export async function GET(request: Request) {
+  let client: MongoClient | null = null;
   try {
-    const { db } = await connectToDatabase();
+    const { client: connectedClient, db } = await connectToDatabase();
+    client = connectedClient;
+
     const sessions = await db.collection('sessions').find({}).toArray();
     return NextResponse.json(sessions, { status: 200 });
   } catch (error) {
     console.error('Error fetching sessions:', error);
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
 }
 
-  export async function POST(request: Request) {
-    try {
-      const { db } = await connectToDatabase();
-      const body = await request.json();
-      const result = await db.collection('sessions').insertOne(body);
-      return NextResponse.json({ message: 'Session created', id: result.insertedId }, { status: 201 });
-    } catch (error) {
-      console.error('Error creating session:', error);
-      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
+export async function POST(request: Request) {
+  let client: MongoClient | null = null;
+  try {
+    const { client: connectedClient, db } = await connectToDatabase();
+    client = connectedClient;
+
+    const body = await request.json();
+    const result = await db.collection('sessions').insertOne(body);
+    return NextResponse.json({ message: 'Session created', id: result.insertedId }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating session:', error);
+    return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
+  } finally {
+    if (client) {
+      await client.close();
     }
+  }
 }
