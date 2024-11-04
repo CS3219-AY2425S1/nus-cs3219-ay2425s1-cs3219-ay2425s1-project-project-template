@@ -183,7 +183,7 @@ const deleteQuestion = async (req, res) => {
 };
 
 // get questions from an array of question ids
-const getQuestions = async (req, res) => {
+const getQuestionsByIds = async (req, res) => {
   try {
     const questionIds = req.body.questionIds;
 
@@ -201,20 +201,22 @@ const getQuestions = async (req, res) => {
         .doc(questionId)
         .get();
 
-      const questionData = questionDoc.data();
-
-      if (!questionData) {
-        console.log("Question doesn't exists!");
+      if (!questionDoc.exists) {
+        console.log(`Question ID "${questionId}" doesn't exist!`);
         continue;
       }
 
+      const questionData = questionDoc.data();
+
       const tempQuestion = {
+        id: questionId,
         title: questionData.title,
         description: questionData.description,
         difficulty: questionData.difficulty,
         topics: questionData.topics,
         examples: questionData.examples,
         constraints: questionData.constraints,
+        dateCreated: questionData.dateCreated,
       };
       questionDataArray.push(tempQuestion);
     }
@@ -232,5 +234,5 @@ module.exports = {
   createQuestion,
   editQuestion,
   deleteQuestion,
-  getQuestions,
+  getQuestionsByIds,
 };

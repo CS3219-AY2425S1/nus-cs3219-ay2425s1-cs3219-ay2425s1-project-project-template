@@ -5,7 +5,7 @@ const {
   createQuestion,
   editQuestion,
   deleteQuestion,
-  getQuestions,
+  getQuestionsByIds,
 } = require("../controllers/questionController");
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.put("/edit-question", editQuestion);
 // Route to delete a question
 router.delete("/delete-question", deleteQuestion);
 
-// route to get question(s)
-router.post("/get-questions", getQuestions);
+// route to get question(s) by question id
+router.post("/get-questions-by-ids", getQuestionsByIds);
 
 module.exports = router;
