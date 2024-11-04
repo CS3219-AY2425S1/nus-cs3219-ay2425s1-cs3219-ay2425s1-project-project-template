@@ -27,7 +27,7 @@ export class CollaborativeEditorComponent implements OnInit, OnDestroy {
     theme: 'vs-dark',
     language: 'javascript',
     paths: {
-      vs: '/assets/monaco/min/vs' // Use the local path for Monaco assets
+      vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/'
     }
   };
   code: string = '';
