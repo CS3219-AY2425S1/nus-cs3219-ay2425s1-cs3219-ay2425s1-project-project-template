@@ -6,7 +6,7 @@ from test_user_service import ENDPOINT as USER_SERVICE_ENDPOINT
 
 BASE_URL = "http://matching-service:3000/matcher"
 
-
+COUNTER = 0
 # Test data
 def create_match_request(user_id, socket_id):
     return {
@@ -26,14 +26,16 @@ def delete_account(access_token: str, user_id: str):
 
 
 def create_user(index: int):
+    global COUNTER
     endpoint = f"{USER_SERVICE_ENDPOINT}users"
     payload = {
-        "username": f"SampleUser{index}",
-        "email": f"sample{index}@gmail.com",
+        "username": f"SampleUser{index}{COUNTER}",
+        "email": f"sample{index}{COUNTER}@gmail.com",
         "password": "SecurePassword",
     }
     _ = requests.post(endpoint, json=payload)
-    resp = login(f"sample{index}@gmail.com", "SecurePassword")
+    resp = login(f"sample{index}{COUNTER}@gmail.com", "SecurePassword")
+    COUNTER += 1
     return (resp.json()["data"]["accessToken"], resp.json()["data"]["id"])
 
 
@@ -180,7 +182,6 @@ def test_cancel_match_during_search(two_users):
     cancel_response = requests.post(
         f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
     )
-    print("cancel_response", cancel_response.json())
     assert cancel_response.status_code == 200
 
     time.sleep(1)  # Make sure the request is cancelled
