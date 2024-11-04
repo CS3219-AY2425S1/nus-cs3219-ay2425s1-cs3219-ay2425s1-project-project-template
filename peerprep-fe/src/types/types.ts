@@ -62,6 +62,25 @@ interface UserMatchingResponse {
   match: UserMatchingRequest;
 }
 
+/**
+ * Types for the collaboration editor
+ */
+
+interface AwarenessUser {
+  name: string;
+  color: string;
+}
+
+interface AwarenessState {
+  client: number;
+  user: AwarenessUser;
+}
+
+interface ConnectedClient {
+  id: number;
+  user: AwarenessUser;
+}
+
 export type {
   Problem,
   ProblemDialogData,
@@ -71,4 +90,6 @@ export type {
   User,
   UserMatchingResponse,
   UserMatchingRequest,
+  AwarenessState,
+  ConnectedClient,
 };

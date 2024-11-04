@@ -8,8 +8,9 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 # Copy package.json and pnpm-lock.yaml
-COPY package.json ./
+COPY package.json pnpm-lock.yaml ./
 
+# Install all dependencies
 RUN pnpm install
 
 # Development stage
@@ -28,8 +29,12 @@ FROM base AS production
 ENV NODE_ENV=production
 ENV PORT=4444
 
+# Copy source files
 COPY src ./src
 COPY tsconfig.json ./
+
+# Build the TypeScript code
+RUN pnpm build
 
 EXPOSE ${PORT}
 

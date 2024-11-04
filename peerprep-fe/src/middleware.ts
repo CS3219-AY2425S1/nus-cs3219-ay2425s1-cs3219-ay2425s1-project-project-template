@@ -5,11 +5,11 @@ const baseURL =
   process.env.NEXT_PUBLIC_AUTH_SERVICE_DOCKER_URL ||
   'http://172.17.0.1:3001/api/v1';
 
-// This function can be marked `async` if using `await` inside
+// This function can be marked `async` if using `await` inside.
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('access-token');
 
-  // Check if token exists
+  // Check if token exists.
   if (!token) {
     return NextResponse.redirect(new URL('/signin', request.url));
   }

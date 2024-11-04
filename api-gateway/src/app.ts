@@ -13,9 +13,9 @@ import WebSocket from 'ws';
 
 const app = express();
 
-// Middleware
-app.use(cors(config.corsOptions));
 app.use(express.json());
+app.use(cors()); // configured so any one can use
+app.options('*', cors());
 
 // Logging middleware
 // app.use((req, res, next) => {

@@ -8,6 +8,8 @@ import ProblemInputDialog from './ProblemInputDialog';
 import { AxiosResponse } from 'axios';
 import InformationDialog from '../dialogs/InformationDialog';
 import ActionDialog from '../dialogs/ActionDialog';
+import { useRouter } from 'next/navigation';
+import { axiosClient } from '@/network/axiosClient';
 
 function ProblemStatus({ status }: { status: string }) {
   if (status === 'solved') {
@@ -41,6 +43,7 @@ export default function ProblemRow({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [informationDialog, setInformationDialog] = useState('');
+  const router = useRouter();
 
   const handleDeleteClick = async () => {
     if (!handleDelete) return;
@@ -59,6 +62,28 @@ export default function ProblemRow({
     handleEdit(problemData).catch((e: Error) => {
       setInformationDialog(e.message);
     });
+  };
+
+  const handleMatch = async () => {
+    try {
+      const profileDetails = await getProfileDetails();
+      const message = {
+        _id: profileDetails.id,
+        name: profileDetails.username,
+        topic: problem.tags[0],
+        difficulty: problem.difficulty,
+        type: 'match',
+      };
+      await axiosClient.post('/matching/send', message);
+      router.push('/match');
+    } catch (err) {
+      console.error('Error in handleMatch:', err);
+    }
+  };
+
+  const getProfileDetails = async () => {
+    const result = await axiosClient.get('/auth/verify-token');
+    return result.data.data;
   };
 
   return (
@@ -129,8 +154,7 @@ export default function ProblemRow({
         title={problem.title}
         subtitle={'Difficulty: ' + getDifficultyString(problem.difficulty)}
         description={problem.description}
-        // TODO: add match callback
-        callback={() => console.log('Match clicked')}
+        callback={handleMatch}
         callbackTitle="Match"
       />
       {/* Dialog for deleting question */}

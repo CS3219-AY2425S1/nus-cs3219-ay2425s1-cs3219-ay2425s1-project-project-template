@@ -9,6 +9,7 @@ import { axiosClient } from '@/network/axiosClient';
 
 export default function LoadingPage() {
   const { user } = useAuthStore();
+
   // Add connection status handling
   const { lastMessage, disconnect } = useWebSocket(
     process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8001',
@@ -24,7 +25,7 @@ export default function LoadingPage() {
       if (lastMessage.status === 'matched') {
         console.log('Match found, your partner is', lastMessage.match.name);
         setMatchStatus('matched');
-        const matchId = lastMessage.matchId; 
+        const matchId = lastMessage.matchId;
         setTimeout(() => {
           router.push(`/collaboration?matchId=${matchId}`);
         }, 4000);

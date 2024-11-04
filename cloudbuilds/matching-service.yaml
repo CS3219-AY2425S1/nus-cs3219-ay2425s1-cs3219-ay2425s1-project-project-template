@@ -1,0 +1,45 @@
+steps:
+  # Step 1: build and push all images to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest",
+        "-f",
+        "matching-service/Dockerfile",
+        "matching-service",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest",
+      ]
+
+  # Step 2: Clean up and deploy to GKE
+  - name: "ubuntu"
+    args: ["rm", "-rf", "output"]
+
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=k8s/matching-service.yml
+      - --image=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest
+      - --location=asia-southeast1
+      - --cluster=cs3219-g11-peerprep-kubes
+
+  # Step 3: update the deployments with the new images
+  - name: "gcr.io/cloud-builders/kubectl"
+    args:
+      - "set"
+      - "image"
+      - "deployment/matching-svc"
+      - "matching-svc=asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=asia-southeast1"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cs3219-g11-peerprep-kubes"
+
+images:
+  - "asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest"
