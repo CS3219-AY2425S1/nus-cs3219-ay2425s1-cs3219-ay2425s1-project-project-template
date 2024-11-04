@@ -13,17 +13,19 @@ const QuestionContainer = ({ question }) => {
                 <h3>Difficulty: {question.difficulty}</h3>
             </div>
 
-            <p>{question.description}</p>
+            <div className="question-content">
+                <p>{question.description}</p>
 
-            {question.images && question.images.map((image, index) => (
-                <img key={index} src={image} alt={`Question diagram ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-            ))}
-            
-            {question.leetcode_link && (
-                <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
-                    View on LeetCode
-                </a>
-            )}
+                {question.images && question.images.map((image, index) => (
+                    <img key={index} src={image} alt={`Question diagram ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
+                ))}
+                
+                {question.leetcode_link && (
+                    <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
+                        View on LeetCode
+                    </a>
+                )}
+            </div>
         </div>
     )
 }
