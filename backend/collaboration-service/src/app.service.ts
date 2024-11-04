@@ -13,6 +13,7 @@ export class AppService {
   ) {}
 
   async getSessionDetails(id: string): Promise<CollabSession> {
+    console.log('session details: ' + id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new RpcException('Invalid session Id format');
     }

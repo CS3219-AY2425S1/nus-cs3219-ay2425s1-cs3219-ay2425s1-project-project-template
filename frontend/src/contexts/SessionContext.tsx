@@ -8,7 +8,13 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { UserProfile, UserProfilesSchema } from "@/types/User";
+import {
+  SessionUserProfile,
+  SessionUserProfiles,
+  SessionUserProfilesSchema,
+  UserProfile,
+  UserProfilesSchema,
+} from "@/types/User";
 import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
 import { io } from "socket.io-client";
@@ -23,7 +29,7 @@ import { v4 as uuidv4 } from "uuid";
 interface SessionContextType {
   isConnected: boolean;
   sessionId: string;
-  sessionUserProfiles: UserProfile[];
+  sessionUserProfiles: SessionUserProfiles;
   userProfile: UserProfile | null;
   getUserProfileDetailByUserId: (userId: string) => UserProfile | undefined; // all profiles in a session including currUser
   messages: ChatMessage[];
@@ -57,9 +63,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
-  const [sessionUserProfiles, setSessionUserProfiles] = useState<UserProfile[]>(
-    []
-  );
+  const [sessionUserProfiles, setSessionUserProfiles] =
+    useState<SessionUserProfiles>([]);
   const [userProfile, setUserProfile] =
     useState<UserProfile>(initialUserProfile);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -172,7 +177,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   const sessionJoinRequest: SessionJoinRequest = {
     userId: userProfile.id,
-    sessionId: sessionId,
+    sessionId,
   };
 
   // connect to the session socket on mount
@@ -183,30 +188,27 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       socket.emit("sessionJoin", sessionJoinRequest);
     });
 
-    socket.on("sessionJoined", ({ userId, userProfiles }) => {
+    socket.on("sessionJoined", ({ userId, sessionUserProfiles }) => {
       console.log("sessionJoined occured");
       try {
         if (userId === userProfile.id) {
           setIsConnected(true);
-          // TODO: fetching of chats here
         }
 
-        console.log(userProfiles);
-
         const currentSessionUserProfiles =
-          UserProfilesSchema.parse(userProfiles);
+          SessionUserProfilesSchema.parse(sessionUserProfiles);
         setSessionUserProfiles([...currentSessionUserProfiles]);
       } catch (e) {
         console.log(e);
       }
     });
 
-    socket.on("sessionLeft", ({ userId, userProfiles }) => {
+    socket.on("sessionLeft", ({ userId, sessionUserProfiles }) => {
       try {
         console.log("sessionLeft occured");
 
         const currentSessionUserProfiles =
-          UserProfilesSchema.parse(userProfiles);
+          SessionUserProfilesSchema.parse(sessionUserProfiles);
         setSessionUserProfiles([...currentSessionUserProfiles]);
 
         console.log(userProfile);

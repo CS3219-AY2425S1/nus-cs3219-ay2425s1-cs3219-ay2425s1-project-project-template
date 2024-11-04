@@ -64,13 +64,19 @@ function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <div
       className={cn(
-        `flex flex-col mb-4 whitespace-pre-wrap`,
+        "flex flex-col mb-4 whitespace-pre-wrap",
         isSender ? "items-end" : "items-start"
       )}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-sm font-medium">
-          {profileDetails?.displayName}
+        <span
+          className={cn(
+            "flex flex-col text-xs font-medium",
+            isSender && "items-end"
+          )}
+        >
+          {`${profileDetails?.displayName}`}
+          <span className="text-xs text-foreground-100">{`@${profileDetails?.username}`}</span>
         </span>
       </div>
       <div

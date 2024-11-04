@@ -13,10 +13,14 @@ interface UserAvatarProps {
 export default function UserAvatar({
   userProfile,
   isHoverEnabled = true,
+  isViewProfileEnabled = true,
   className,
 }: UserAvatarProps) {
   return isHoverEnabled ? (
-    <ProfileMiniDetailsHoverCard userProfile={userProfile}>
+    <ProfileMiniDetailsHoverCard
+      isViewProfileEnabled={isViewProfileEnabled}
+      userProfile={userProfile}
+    >
       <AvatarWrapper userProfile={userProfile} className={className} />
     </ProfileMiniDetailsHoverCard>
   ) : (

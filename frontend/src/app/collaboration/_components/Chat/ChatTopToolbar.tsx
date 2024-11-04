@@ -17,8 +17,7 @@ export default function ChatTopToolbar({
   isCollapsed,
   setIsCollapsed,
 }: ChatTopToolbarProps) {
-  const { sessionUserProfiles } =
-    useSessionContext();
+  const { sessionUserProfiles } = useSessionContext();
 
   return (
     <CardHeader className="flex flex-col gap-4 h-fit">
@@ -41,9 +40,17 @@ export default function ChatTopToolbar({
           {isCollapsed ? <MessageSquareText /> : <ArrowRightIcon />}
         </Button>
         {!isCollapsed && <div className="mr-auto font-semibold">Text Chat</div>}
-        {sessionUserProfiles.map((profile) => (
-          <UserAvatar isHoverEnabled={false} userProfile={profile} />
-        ))}
+        {sessionUserProfiles.map((profile) =>
+          profile.isActive ? (
+            <UserAvatar
+              isViewProfileEnabled={false}
+              isHoverEnabled={true}
+              userProfile={profile}
+            />
+          ) : (
+            <></>
+          )
+        )}
       </div>
     </CardHeader>
   );
