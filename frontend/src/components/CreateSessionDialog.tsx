@@ -29,6 +29,7 @@ interface MatchResult {
   message: string;
   peerUserId?: string;
   difficulty?: string;
+  matchId?: string;
 }
 
 interface CreateSessionDialogProps {
@@ -56,6 +57,7 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
   const [socket, setSocket] = useState<Socket | null>(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [matchedUser, setMatchedUser] = useState<string>('');
+  const [matchId, setMatchId] = useState<string>('');
   const [difficultyMatched, setDifficultyMatched] = useState<string>('');
   const [userData, setUserData] = useState({
     username: "",
@@ -105,6 +107,10 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
         setRedirectTimer(5);
         setMatchedUser(data.peerUserId);
         setDifficultyMatched(data.difficulty)
+        if (data.matchId) {
+          setMatchId(data.matchId);
+        }
+
         const date = new Date();
         const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
         sessions.push({
@@ -162,9 +168,11 @@ export default function CreateSessionDialog({ sessions }: CreateSessionDialogPro
 
   useEffect(() => {
     if (shouldRedirect) {
-      router.push('/collaboration');
+      router.push(
+        `/collaboration/${matchId}`
+      );
     }
-  }, [shouldRedirect, router]);
+  }, [shouldRedirect, router, matchId]);
 
   const resetState = () => {
     setStatus('idle');

@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { EditorModule } from './editor/editor.module';
 import { ConfigModule } from '@nestjs/config';
-import { RedisModule } from './redis/redis.module';
-import { CollabModule } from './collaboration/collaboration.module';
-import { CodeExecutionModule } from './code-execution/code-execution.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 
 @Module({
@@ -12,11 +11,10 @@ import { CodeExecutionModule } from './code-execution/code-execution.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    RedisModule,
-    CollabModule,
-    CodeExecutionModule,
+    EditorModule,
+    MongooseModule.forRoot(process.env.MONGODB_URI),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
