@@ -119,6 +119,31 @@ router.get(
   }
 );
 
+// Check if a session exists with a specific user id in the users array
+router.get(
+  "/:id/check/:userid/:username",
+  [...idValidators],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { id, userid, username } = req.params;
+
+    try {
+      // Find a session that has the given collabid and has the given user id or username in the users array
+      const sessionExists = await Session.exists({
+        collabid: id,
+        $or: [{ users: userid }, { users: username }],
+      });
+
+      res.status(200).json({ exists: Boolean(sessionExists) });
+    } catch (error) {
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
+
 // Update a session by ID
 router.post(
   "/:id/update",

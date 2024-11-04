@@ -27,6 +27,14 @@ export async function findUserByUsername(username) {
   return UserModel.findOne({ username });
 }
 
+export async function findUserByUsernameOrId(userId) {
+  const length = userId.length;
+  if (length === 24) {
+    return await findUserById(userId);
+  }
+  return await findUserByUsername(userId);
+}
+
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
     $or: [

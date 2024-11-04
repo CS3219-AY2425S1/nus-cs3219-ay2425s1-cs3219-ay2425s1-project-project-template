@@ -40,6 +40,17 @@ export const checkSession = async (
   return data;
 };
 
+export const checkUserInSession = async (
+  collabid: string,
+  userId: string,
+  username: string
+): Promise<SessionExists> => {
+  const url = `${COLLABORATION_SERVICE}/${collabid}/check/${userId}/${username}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
 export const updateSession = async (
   collabid: string,
   code: string

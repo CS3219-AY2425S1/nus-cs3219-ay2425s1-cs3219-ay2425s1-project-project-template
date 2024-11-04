@@ -28,7 +28,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-xl my-10 p-4">
+    <div className="mx-auto max-w-3xl my-10 p-4">
       <h1 className="text-white font-extrabold text-h1">{user?.username}'s Profile!</h1>
       <div className="flex flex-col gap-y-4 mt-4">
         <h2 className="text-yellow-500 font-bold text-h3">Profile Age</h2>
@@ -41,10 +41,10 @@ const ProfilePage = () => {
         {user?.bio && <span className="text-white font-light text-lg">{user?.bio}</span>}
 
         <h2 className="text-yellow-500 font-bold text-h3">GitHub</h2>
-        {user?.github && <Link href={user?.github} className="text-white font-light text-lg">{user?.github}</Link>}
+        {user?.github && <Link href={user?.github} className="text-white font-light text-lg underline hover:text-yellow-500">{user?.github}</Link>}
 
         <h2 className="text-yellow-500 font-bold text-h3">LinkedIn</h2>
-        {user?.linkedin && <Link href={user?.linkedin} className="text-white font-light text-lg">{user?.linkedin}</Link>}
+        {user?.linkedin && <Link href={user?.linkedin} className="text-white font-light text-lg underline hover:text-yellow-500">{user?.linkedin}</Link>}
       </div>
     </div>
   );

@@ -2,19 +2,12 @@
 
 import { getAuthStatus, logout } from "@/api/user";
 import { AuthStatus } from "@/types/user";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { IconType } from "react-icons";
 import { CgProfile } from "react-icons/cg";
 import { IoIosLogIn, IoIosLogOut, IoMdSearch } from "react-icons/io";
 import { MdAdminPanelSettings, MdDashboard, MdHomeFilled } from "react-icons/md";
-
-interface SidebarMenuItemProps {
-  menuLabel: string;
-  menuIcon: IconType;
-  linksTo: string;
-  authStatus: AuthStatus | null;
-}
+import SidebarItem from "./SidebarItem";
+import { SidebarMenuItemProps } from "@/types/sidebar";
 
 const iconSize = 30;
 
@@ -65,20 +58,16 @@ const loginSidebarItem: SidebarMenuItemProps = {
   authStatus: AuthStatus.UNAUTHENTICATED
 }
 
-const SidebarItem = (item: SidebarMenuItemProps) => {
-  return <Link className="group grid text-primary-500 p-2 hover:bg-primary-700" href={item.linksTo} key={item.menuLabel}>
-    <item.menuIcon size={iconSize} className="mx-auto"/>
-    <p className="text-center text-[12px]">{item.menuLabel}</p>
-  </Link>;
-}
+
 
 const Sidebar = () => {
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
   const [sidebarItemsToShow, setSidebarItemsToShow] = useState<JSX.Element[]>([]);
+
   useEffect(() => {
     const status = getAuthStatus();
     setAuthStatus(status);
-    const sidebarItemsToShow = sidebarItems.filter(willShowItem(status)).map(SidebarItem);
+    const sidebarItemsToShow = sidebarItems.filter(willShowItem(status)).map(item => <SidebarItem item={item} key={item.linksTo}/>);
     setSidebarItemsToShow(sidebarItemsToShow);
   }, []);
 
@@ -90,7 +79,7 @@ const Sidebar = () => {
         <IoIosLogOut size={iconSize} className="group-hover:text-secondary mx-auto"/>
         <p className="text-center text-[12px]">Logout</p>
       </button> :
-      <SidebarItem {...loginSidebarItem}/>
+      <SidebarItem item={loginSidebarItem}/>
     }
   </nav>
 };

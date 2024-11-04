@@ -1,9 +1,10 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/app/common/Sidebar";
+import LoadingPage from "./common/LoadingPage";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,7 +16,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
       <body className="h-full">
       <div className="flex h-full overflow-y-auto">
         <Sidebar />
-        <div className="w-full overflow-y-scroll">{children}</div>
+        <Suspense fallback={<LoadingPage/>}>
+          <div className="w-full overflow-y-scroll">{children}</div>
+        </Suspense>
       </div>
       </body>
     </html>

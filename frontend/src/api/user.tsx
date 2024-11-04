@@ -14,52 +14,67 @@ export const getToken = () => {
 
 export const setUsername = (username: string) => {
   Cookie.set("username", username, { expires: 1 });
-}
+};
 
 export const getUsername = () => {
   return Cookie.get("username");
-}
+};
 
 export const setUserId = (id: string) => {
   Cookie.set("id", id, { expires: 1 });
-}
+};
 
 export const getUserId = () => {
   return Cookie.get("id");
-}
+};
 
-export const setIsAdmin = (isAdmin: string) => {
-  Cookie.set("isAdmin", isAdmin, { expires: 1 });
-}
+export const setIsAdmin = (isAdmin: boolean) => {
+  Cookie.set("isAdmin", isAdmin ? "Y" : "N", { expires: 1 });
+};
 
-export const getIsAdmin = () => {
-  return Cookie.get("isAdmin");
-}
+export const getIsAdmin = (): boolean => {
+  return Cookie.get("isAdmin") == "Y";
+};
 
 export const getAuthStatus = () => {
   if (!getToken()) return AuthStatus.UNAUTHENTICATED;
-  if (getIsAdmin() === "true") return AuthStatus.ADMIN;
+  if (getIsAdmin()) return AuthStatus.ADMIN;
   return AuthStatus.AUTHENTICATED;
-}
+};
 
-const NEXT_PUBLIC_USER_SERVICE = process.env.NEXT_PUBLIC_USER_SERVICE || "https://user-service-598285527681.us-central1.run.app";
+const NEXT_PUBLIC_IAM_USER_SERVICE =
+  process.env.NEXT_PUBLIC_IAM_USER_SERVICE ||
+  "https://user-service-598285527681.us-central1.run.app/api/auth";
+
+const NEXT_PUBLIC_IAM_AUTH_SERVICE =
+  process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE ||
+  "https://user-service-598285527681.us-central1.run.app/api/users";
 
 export const verifyToken = async (token: string) => {
-  const response = await fetch(
-    `${NEXT_PUBLIC_USER_SERVICE}/auth/verify-token`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
+  if (response.status !== 200) {
+    Cookie.remove("token");
+    Cookie.remove("username");
+    Cookie.remove("id");
+    Cookie.remove("isAdmin");
+    return false;
+  }
+
+  const data = await response.json();
+  setUsername(data.data.username);
+  setIsAdmin(data.data.isAdmin);
+  setUserId(data.data.id);
   return response.status === 200;
 };
 
 export const login = async (email: string, password: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/login`, {
+  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -101,7 +116,7 @@ export const register = async (
   password: string,
   username: string
 ) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users`, {
+  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -128,8 +143,7 @@ export const register = async (
 // optional userId parameter
 export const getUser = async (userId = "") => {
   const token = getToken();
-  const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`
-  console.log(url);
+  const url = `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId || getUserId()}`;
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -159,7 +173,7 @@ export const updateUser = async (userData: {
 }) => {
   const token = getToken();
   const userId = getUserId();
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users/${userId}`, {
+  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
