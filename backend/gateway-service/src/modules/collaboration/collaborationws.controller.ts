@@ -81,11 +81,22 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         userIds: validatedSessionDetails.userIds,
       });
 
+      // fetch the chatmessages
+      const { messages } = await firstValueFrom(
+        this.collaborationClient.send(
+          { cmd: 'get-session-chat-messages' },
+          sessionId,
+        ),
+      );
+
+      console.log('sessionjoin and messages retrieved:');
+      console.log(messages);
+
       // emit joined event
       this.server.to(sessionId).emit(SESSION_JOINED, {
         userId, // the user who recently joined
         sessionId,
-        message: 'A user joined the session',
+        messages, // chat messages
         sessionUserProfiles, // returns the all session member profiles
       });
     } catch (e) {
@@ -129,9 +140,11 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         message: 'A user left the session.',
         sessionUserProfiles,
       });
-    } catch (error) {
-      client.emit(EXCEPTION, `Error leaving session: ${error.message}`);
-      return;
+    } catch (e) {
+      return {
+        success: false,
+        error: `Failed to leave session: ${e.message}`,
+      };
     }
   }
 
@@ -142,16 +155,17 @@ export class CollaborationGateway implements OnGatewayDisconnect {
   ) {
     const { id, userId, sessionId, message, timestamp } = payload;
 
-    if (!id || !userId || !sessionId || !message) {
-      return {
-        success: false,
-        data: { id },
-        error: 'Failed to send chat message',
-      };
-    }
-
     try {
-      // TODO: add chat content inside redis memory
+      if (!id || !userId || !sessionId || !message) {
+        throw Error('Invalid send request payload.');
+      }
+      // add chat content inside redis memory
+      await firstValueFrom(
+        this.collaborationClient.send(
+          { cmd: 'add-chat-message' },
+          { id, userId, sessionId, message, timestamp },
+        ),
+      );
 
       this.server.to(sessionId).emit(CHAT_RECIEVE_MESSAGE, {
         id,
@@ -165,11 +179,12 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         success: true,
         data: { id },
       };
-    } catch (error) {
+    } catch (e) {
+      console.log(e);
       return {
         success: false,
         data: { id },
-        error: 'Failed to send chat message',
+        error: `Failed to send message: ${e.message}`,
       };
     }
   }

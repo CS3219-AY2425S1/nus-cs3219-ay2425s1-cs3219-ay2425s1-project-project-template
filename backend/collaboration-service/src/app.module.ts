@@ -6,6 +6,7 @@ import { config } from './configs';
 import { CollabSessionSchema } from './schema/collab-session.schema';
 import { CodeReviewService } from './code-review.service';
 import { ClientsModule } from '@nestjs/microservices';
+import { RedisService } from './services/redis.service';
 
 @Module({
   imports: [
@@ -38,6 +39,6 @@ import { ClientsModule } from '@nestjs/microservices';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, CodeReviewService],
+  providers: [AppService, CodeReviewService, RedisService],
 })
 export class AppModule {}
