@@ -83,6 +83,23 @@ services:
     networks:
       - peerprep-network
 
+  code_execution_service:
+    build:
+      context: ./backend/code-execution-service
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+    env_file:
+      - ./backend/code-execution-service/.env
+    volumes:
+      - ./backend/code-execution-service:/app
+      - code-execution-service-node-modules:/app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      - NODE_ENV=development
+    networks:
+      - peerprep-network
+
 networks:
   peerprep-network:
     driver: bridge
@@ -97,4 +114,6 @@ volumes:
   matching-service-node-modules:
     driver: local
   rabbitmq-data:
+    driver: local
+  code-execution-service-node-modules:
     driver: local
