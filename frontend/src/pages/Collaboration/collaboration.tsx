@@ -119,14 +119,14 @@ const CollaborationPage: FC = () => {
   }
 
   useEffect(() => {
-    setCollabSocket(io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
+    setCollabSocket(io(`${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username
       },
       transports: ["websocket"],
     }));
-    setCommSocket(io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
+    setCommSocket(io(`${process.env.REACT_APP_COMM_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username

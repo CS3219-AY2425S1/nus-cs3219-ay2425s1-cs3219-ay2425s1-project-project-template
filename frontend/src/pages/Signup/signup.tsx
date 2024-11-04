@@ -29,7 +29,7 @@ export default function SignupPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Record<string, string>) => {
-      return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users`, data)
+      return axios.post(`${process.env.REACT_APP_USER_SVC_PORT}/users`, data)
     },
     onSuccess: (data) => {
       toast.success("Account created!");

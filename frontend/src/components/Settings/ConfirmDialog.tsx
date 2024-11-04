@@ -19,7 +19,7 @@ export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, 
 
     const { mutate, isPending } = useMutation({
         mutationFn: async (data: Record<string, string>) => {
-            return axios.patch(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users/${user.id}`, data, {
+            return axios.patch(`${process.env.REACT_APP_USER_SVC_PORT}/users/${user.id}`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

@@ -66,10 +66,10 @@ const HistoryTable = () => {
       queryKey: ["history"],
       queryFn: async () => {
         const qMap = new Map();
-        const questions = (await axios.get(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
+        const questions = (await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
         questions.forEach((item: Question) => qMap.set(item.qid, item.title));
 
-        const history = (await axios.get(`http://localhost:${process.env.REACT_APP_HISTORY_SVC_PORT}/api/history/${user.id}`)).data;
+        const history = (await axios.get(`${process.env.REACT_APP_HISTORY_SVC_PORT}/api/history/${user.id}`)).data;
         history.forEach((item: Attempt) => {
           item.timestamp = new Date(item.timestamp);
           item.title = qMap.get(item.qid);

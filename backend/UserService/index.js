@@ -10,9 +10,10 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({
-  origin: `http://localhost:${process.env.FRONTEND_PORT}`, // config cors so that front-end can use
+  origin: [`${process.env.FRONTEND_PORT}`, `http://localhost:${process.env.PORT}`], // config cors so that front-end can use
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
+  
 }));
 app.use(cookieParser());
 

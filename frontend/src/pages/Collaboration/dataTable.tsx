@@ -33,7 +33,7 @@ function useGetQuestions() {
     queryFn: async () => {
       return (
         await axios.get(
-          `http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`
+          `${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`
         )
       ).data;
     },

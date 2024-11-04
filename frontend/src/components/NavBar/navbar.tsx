@@ -35,7 +35,7 @@ function NavBar() {
     {
       name: "Logout",
       onClick: () => {
-        axios.delete(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, {
+        axios.delete(`${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, {
           withCredentials: true,
         }).then(_ => {
           setIsAuthenticated(authState.FALSE);

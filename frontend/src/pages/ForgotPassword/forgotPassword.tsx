@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
 
     const { mutate, isPending } = useMutation({
         mutationFn: (email: String) => {
-            return axios.get(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users/forgotpassword/${email}`);
+            return axios.get(`${process.env.REACT_APP_USER_SVC_PORT}/users/forgotpassword/${email}`);
         },
         onSuccess: (data) => {
             setSuccess(true);

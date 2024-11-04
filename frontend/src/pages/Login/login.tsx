@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Record<string, string>) => {
-      return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, data, {
+      return axios.post(`${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, data, {
         withCredentials: true,
       });
     },

@@ -38,7 +38,7 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
 
   useEffect(() => {
     if (isMatching) {
-      socket.current = io(`http://localhost:${process.env.REACT_APP_MATCHING_SVC_PORT}`, {
+      socket.current = io(`${process.env.REACT_APP_MATCHING_SVC_PORT}`, {
         auth: {
           userId: user.id,
           username: user.username,
@@ -77,7 +77,7 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
         
         // Fetch random question from the question API
         try {
-          const response = await axios.get(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/random/${match.match.difficultyLevel}/${match.match.category}`);
+          const response = await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/random/${match.match.difficultyLevel}/${match.match.category}`);
           console.log('API response:', response);
           const question = response.data;
           navigate(`/collaboration/${match.uuid}`, {state:{question}});
