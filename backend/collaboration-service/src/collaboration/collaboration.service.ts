@@ -29,14 +29,24 @@ export class CollabService {
     matchId: string,
     id: string,
     username: string,
-  ): Promise<void> {
-    await this.collabRedisService.addWebSocketId(matchId, id);
+  ): Promise<boolean> {
+    const addWsIDtoTRedis = await this.collabRedisService.addWebSocketId(
+      matchId,
+      id,
+    );
+
+    if (!addWsIDtoTRedis) {
+      return false;
+    }
+
     const webSocketKey = {
       matchId: matchId,
       username: username,
     };
     await this.collabRedisService.addWebSocketKey(id, webSocketKey);
     this.logger.log(`WebSocket ID ${id} registered for session ${matchId}`);
+
+    return true;
   }
 
   async updateSessionQuestion(

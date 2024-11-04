@@ -125,6 +125,11 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
       setError(data.message);
     });
 
+    newSocket.on('invalidMatchId', (data: {message: string;}) => {
+      router.push('/sessions');
+      toast.error(data.message);
+    })
+
     newSocket.on('message', (data: MessageData) => {
       setMessages((prev) => [
         ...prev, data
@@ -148,17 +153,24 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     });
 
     newSocket.on('onloadData', (data: OnloadData) => {
+      if (!data.question) {
+        router.push('/sessions')
+        toast.error('No question for the selected paramters');
+      }
       setQuestion(data.question);
       setDifficulty(data.difficulty);
       setTopic(data.topic);
       setMessages(data.messages);
       setSessionName(data.sessionName);
       setEditedName(data.sessionName);
-      setJoinedUsers(data.joinedUsers);
+      const uniqueUsers = Array.from(new Set(data.joinedUsers));
+      setJoinedUsers(uniqueUsers);
     })
 
     newSocket.on('userList', (data: string[]) => {
-      setJoinedUsers(data)
+      const uniqueUsers = Array.from(new Set(data));
+      console.log(uniqueUsers);
+      setJoinedUsers(uniqueUsers);
     })
 
 
