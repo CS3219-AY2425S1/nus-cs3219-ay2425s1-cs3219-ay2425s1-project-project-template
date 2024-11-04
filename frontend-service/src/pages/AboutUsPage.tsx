@@ -10,7 +10,7 @@ const AboutUs: React.FC = () => {
           About PeerPrep
         </Heading>
         <Text fontSize="lg" mt={4} color="gray.600">
-          Practice Coding Together, Anytime, Anywhere!
+          Practice Coding Together, Anytime, Anywhere, with Anyone!!
         </Text>
       </Box>
 
@@ -18,7 +18,7 @@ const AboutUs: React.FC = () => {
       <Box bg="gray.50" p={6} borderRadius="md" boxShadow="md">
         <VStack spacing={4} align="start">
           <Text fontSize="md" color="gray.700">
-            <strong style={{ color: '#65afff' }}>PeerPrep</strong> is an interactive coding platform designed for programmers of all levels to improve their problem-solving skills and collaborate with peers in real-time. Inspired by platforms like <strong style={{ color: '#65afff' }}>LeetCode</strong>, PeerPrep offers a unique live-matching feature that connects you with other users for a collaborative coding experience.
+            <strong style={{ color: '#65afff' }}>PeerPrep</strong> is an interactive coding platform designed for programmers of all levels to improve their problem-solving skills and collaborate with peers in real-time. Inspired by platforms like <strong style={{ color: '#65afff' }}>LeetCode</strong> and taking cues from Google Docs, PeerPrep offers a unique live-matching feature that connects you with other users for a collaborative coding experience.
           </Text>
         </VStack>
       </Box>
@@ -29,12 +29,13 @@ const AboutUs: React.FC = () => {
           Why PeerPrep?
         </Heading>
         <Text fontSize="md" mt={4} color="gray.700">
-          At PeerPrep, we believe that learning is better together. Whether you're preparing for technical interviews or honing your programming skills, PeerPrep provides a supportive environment where you can:
+          At PeerPrep, we believe that learning together is better. Whether you're preparing for technical interviews or honing your programming skills, PeerPrep provides a supportive environment where you can:
         </Text>
 
         <VStack align="start" pl={4} spacing={3} mt={4}>
-          <Text>• Practice coding questions in a variety of topics and difficulty levels.</Text>
-          <Text>• Get matched with peers based on your topic and skill preferences.</Text>
+          <Text>• Practice coding questions across various topics and difficulty levels.</Text>
+          <Text>• Get matched with other peers based on your chosen topic and difficulty level.</Text>
+          <Text>• Chat with others in the coding editor with our chat function.</Text>
           <Text>• Collaborate in real-time with a shared coding editor.</Text>
           <Text>• Receive instant feedback and work through problems together.</Text>
         </VStack>
@@ -46,14 +47,15 @@ const AboutUs: React.FC = () => {
           Key Features
         </Heading>
         <Text fontSize="md" color="gray.700">
-          PeerPrep is packed with features to enhance your coding practice and collaborative experience:
+          PeerPrep contains a plethora of features that will enhance your coding and learning experience:
         </Text>
 
         <VStack align="start" pl={4} spacing={3} mt={4}>
-          <Text>• <strong style={{ color: '#65afff' }}>Real-Time Matching</strong>: Connect with other users looking to solve the same type of problems.</Text>
-          <Text>• <strong style={{ color: '#65afff' }}>Live Code Collaboration</strong>: Solve coding challenges together in a shared workspace, similar to Google Docs but for code.</Text>
-          <Text>• <strong style={{ color: '#65afff' }}>Wide Range of Questions</strong>: Practice a variety of questions, from easy to difficult, across different topics like arrays, algorithms, data structures, and more.</Text>
-          <Text>• <strong style={{ color: '#65afff' }}>Instant Feedback</strong>: Submit code for evaluation and receive immediate results.</Text>
+          <Text>• <strong style={{ color: '#65afff' }}>Live Matching</strong>: Connect with other users looking to solve the same type of problems as you!</Text>
+          <Text>• <strong style={{ color: '#65afff' }}>Chat</strong>: Chat with others in the same room, where you can share your thoughts with them.</Text>
+          <Text>• <strong style={{ color: '#65afff' }}>Real-time Code Collaboration</strong>: Solve coding challenges together with others in a shared workspace, similar to Google Docs but for code.</Text>
+          <Text>• <strong style={{ color: '#65afff' }}>Large question repository</strong>: Practice from a variety of questions, across different topics and difficulty levels such as Arrays, Algorithms, Data Structures, and more!</Text>
+          <Text>• <strong style={{ color: '#65afff' }}>Instant Feedback</strong>: Submit your code for evaluation and immediately know if you did it correctly.</Text>
         </VStack>
       </Box>
 
@@ -63,7 +65,7 @@ const AboutUs: React.FC = () => {
           Our Mission
         </Heading>
         <Text fontSize="md" color="gray.700">
-          Our mission is to create a collaborative learning environment that empowers programmers to achieve their best. Whether you're a beginner or a seasoned coder, PeerPrep is here to help you connect, learn, and grow with others.
+          Our mission is to foster a collaborative and interactive learning environment for programmers, by enabling you to learn together with others, and share your knowledge and experiences through coding.
         </Text>
       </Box>
 
@@ -73,7 +75,7 @@ const AboutUs: React.FC = () => {
           Join Us
         </Heading>
         <Text fontSize="md" color="gray.700">
-          Ready to start your coding journey with others? Join PeerPrep today and take your problem-solving skills to the next level!
+          Ready to start your coding journey? Join PeerPrep now and start acing your job interviews!
         </Text>
       </Box>
     </Container>
