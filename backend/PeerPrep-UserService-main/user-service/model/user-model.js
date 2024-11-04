@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-// Define the Question schema with a solution field
+// Define the Question schema with a attempt field
 const QuestionSchema = new Schema({
   title: {
     type: String,
@@ -28,7 +28,7 @@ const QuestionSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  solution: {
+  attempt: {
     type: String, // Adjust the type as needed (String, Object, etc.)
     required: false,
   },

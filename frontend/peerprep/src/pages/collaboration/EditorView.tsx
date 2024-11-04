@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { UserContext, UserQuestion } from "../../context/UserContext";
+import { UserContext, UserQuestion, useUserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
@@ -15,7 +15,7 @@ const EditorView: React.FC = () => {
   const [socketId, setSocketId] = useState<string | undefined>("");
   const [currentCode, setCurrentCode] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const userContext = useContext(UserContext);
+  const userContext = useUserContext();
   const user = userContext?.user;
 
   const [searchParams] = useSearchParams();
@@ -131,12 +131,13 @@ const EditorView: React.FC = () => {
           complexity: question?.Complexity,
           categories: question?.Categories,
           link: question?.Link,
-          solution: currentCode,
+          attempt: currentCode,
         };
         console.log("Added Question:", userQuestion);
         // Call addQuestionToUser function
         addQuestionToUser(user?.id, userQuestion, authApi);
       }
+      userContext.refetch();
       navigate("/dashboard");
     }
   };

@@ -10,7 +10,8 @@ export type UserQuestion = {
   complexity: string;
   categories: string[];
   link: string;
-  solution: string;
+  attempt: string;
+  completionDate?: string;
 };
 
 export type User = {
