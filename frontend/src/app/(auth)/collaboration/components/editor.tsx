@@ -16,7 +16,7 @@ type Props = {
   language: string;
 };
 
-function Collaboration({ room, language }: Props) {
+function Collaboration({ room, language }: Readonly<Props>) {
   const editorRef = useRef<any>(null); // Ref to store the editor instance
   const docRef = useRef(new Y.Doc()); // Initialize a single YJS document
   const providerRef = useRef<WebrtcProvider | null>(null); // Ref to store the provider instance
@@ -149,7 +149,7 @@ function Collaboration({ room, language }: Props) {
         <Cursors
           yProvider={providerRef.current}
           username={username}
-          cursorPosition={selectionRange || {}}
+          cursorPosition={selectionRange ?? {}}
         />
       ) : null}
       <Toolbar editor={editorRef.current} language={language} saving={saving} />

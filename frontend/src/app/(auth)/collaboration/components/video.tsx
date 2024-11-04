@@ -102,7 +102,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         if (clientId !== provider.awareness.clientID) {
           const state = provider.awareness.getStates().get(clientId);
           console.log(state);
-          if (state && state.webrtc) {
+          if (state?.webrtc) {
             handleSignalingMessage(state.webrtc, clientId);
           }
         }
@@ -137,7 +137,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     try {
       if (peerConnectionRef.current) {
         switch (message.type) {
-          case "offer":
+          case "offer": {
             console.log("Received offer:", message.offer);
             console.log(peerConnectionRef.current.signalingState);
             await peerConnectionRef.current.setRemoteDescription(
@@ -152,7 +152,8 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             await processIceCandidatesQueue();
             console.log("Sent answer:", answer);
             break;
-          case "answer":
+          }
+          case "answer": {
             console.log("Received answer:", message.answer);
             console.log(peerConnectionRef.current.signalingState);
             if (peerConnectionRef.current.signalingState !== "stable") {
@@ -163,7 +164,8 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             }
 
             break;
-          case "candidate":
+          }
+          case "candidate": {
             console.log("Received ICE candidate:", message.candidate);
             if (peerConnectionRef.current?.remoteDescription) {
               await peerConnectionRef.current?.addIceCandidate(
@@ -175,6 +177,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
               );
             }
             break;
+          }
           default:
             break;
         }
@@ -287,7 +290,9 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             autoPlay
             muted={isRemoteMuted}
             style={{ width: "180px" }}
-          />
+          >
+            <track kind="captions" />
+          </video>
           {remoteVideoSourceObject && (
             <div className="mt-1">
               <button onClick={toggleRemoteMute}>
