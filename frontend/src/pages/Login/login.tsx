@@ -49,8 +49,10 @@ export default function LoginPage() {
 
   const textBoxStyle = "border-2 border-black rounded-lg w-full h-12 pl-10"
 
-  return <div className="flex flex-row min-w-full min-h-screen">
-    <div className="flex-1 bg-black"></div>
+  return <div className="flex flex-row min-w-full min-h-screen max-h-screen">
+    <div className="flex-1 bg-black">
+      <img className="object-fill w-full h-full" src="/background.jpg" alt="background picture" />
+    </div>
     <div className="py-12 flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
       <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />
       <form className="flex w-3/5 flex-col gap-y-8" onSubmit={handleSubmit(onSubmit)}>
@@ -68,8 +70,8 @@ export default function LoginPage() {
             {...register("password", { required: { value: true, message: "Password is required." } })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
           {showPassword
-            ? <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)}/>
-            : <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)}/>}
+            ? <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)} />
+            : <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)} />}
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.password?.message}</span>
         </div>
         <div className="flex justify-between items-center">

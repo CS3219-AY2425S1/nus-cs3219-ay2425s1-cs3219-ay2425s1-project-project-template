@@ -54,6 +54,7 @@ export default function SettingsPage() {
     const handleSuccessChange = () => {
         reset();
         handleDeletePhoto();
+        window.location.reload();
     }
 
     const [formData, setFormData] = useState({ username: "" });
