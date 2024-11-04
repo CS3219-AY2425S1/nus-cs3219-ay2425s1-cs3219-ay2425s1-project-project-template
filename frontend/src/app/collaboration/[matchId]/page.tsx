@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import AttemptsTab from "@/components/attempts/attempts"
 import { useRouter } from 'next/navigation';
 import { verifyToken } from '@/lib/api-user'
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import CodeEditorContainer from '@/components/collaboration/code-editor-container';
 import VideoDisplay from '@/components/collaboration/VideoDisplay';
 
@@ -115,7 +115,6 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
         setDifficulty(data.difficulty);
         setTopic(data.topic);
         setFormError(null);
-        toast.success('New question loaded');
       }
     });
 
@@ -128,8 +127,9 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     });
 
     newSocket.on('invalidMatchId', (data: {message: string;}) => {
+      // toast.error(data.message);
+      alert(`${data.message}`);
       router.push('/sessions');
-      toast.error(data.message);
     })
 
     newSocket.on('message', (data: MessageData) => {
@@ -137,15 +137,16 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
         ...prev, data
       ])
       if (data.sender !== userData.username) {
-        toast(`${data.sender}: ${data.content}`, {
-          duration: 3000,
-          position: 'bottom-left',
-          style: {
-            background: '#333',
-            color: '#fff',
-          },
-          icon: '💬',
-        });
+        console.log('new message')
+        // toast(`${data.sender}: ${data.content}`, {
+        //   duration: 3000,
+        //   position: 'bottom-left',
+        //   style: {
+        //     background: '#333',
+        //     color: '#fff',
+        //   },
+        //   icon: '💬',
+        // });
       }
     })
 
@@ -156,8 +157,9 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
 
     newSocket.on('onloadData', (data: OnloadData) => {
       if (!data.question) {
+        // toast.error('No question for the selected paramters');
+        alert('No question for the selected paramters');
         router.push('/sessions')
-        toast.error('No question for the selected paramters');
       }
       setQuestion(data.question);
       setDifficulty(data.difficulty);
@@ -606,7 +608,7 @@ Found indices: [0, 1]
         </div>
       </div>
       <div className="absolute bottom-0 left-0 z-50">
-        <VideoDisplay />
+        {/* <VideoDisplay /> */}
       </div>
     </div>
   )
