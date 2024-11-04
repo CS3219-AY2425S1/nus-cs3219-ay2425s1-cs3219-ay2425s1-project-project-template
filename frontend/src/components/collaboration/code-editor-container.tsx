@@ -75,9 +75,9 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
       });
     });
 
-    socketInstance.on('sessionCompleted', () => {
-      router.push('/sessions');
-    });
+    // socketInstance.on('sessionCompleted', () => {
+    //   router.push('/sessions');
+    // });
 
     socket.current = socketInstance;
 
