@@ -28,7 +28,7 @@ import { ChatSendMessageRequestDto } from './dto/chat-send-message-request.dto';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { TestResultDto } from './dto/test-result.dto';
+import { TestResultDataDto } from './dto/test-result.dto';
 import { QuestionDto } from './dto/question.dto';
 
 @WebSocketGateway({
@@ -85,7 +85,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: LeaveCollabSessionRequestDto,
   ) {
-    console.log("session_leave received");
+    console.log('session_leave received');
     const { userId, sessionId } = payload;
 
     if (!userId || !sessionId) {
@@ -144,53 +144,93 @@ export class CollaborationGateway implements OnGatewayDisconnect {
       code: string;
     },
   ) {
-    const { userId, sessionId, questionId, code } = payload;
-
-    if (!userId || !sessionId || !code) {
-      client.emit(SESSION_ERROR, 'Invalid submit request payload.');
-      return;
-    }
-
-    this.server.to(sessionId).emit(SUBMITTING, {
-      message: 'Submitting code...',
-    });
-
-    // Retrieve the question
-    const question: QuestionDto = await firstValueFrom(
-      this.questionService.send(
-        { cmd: 'get-question' }, // TODO: update this to the correct command
-        { questionId: questionId },
-      ),
-    );
-
-    // Run the code against the test cases
-    const testResults: TestResultDto[] = await Promise.all(
-      question.testCases.map(async (testCase) => {
-        const result: TestResultDto = await firstValueFrom(
-          this.codeExecutionService.send(
-            { cmd: 'execute-code' },
-            {
-              code: code,
-              input: testCase.input,
-              language: 'python',
-              timeout: 5, // TODO: update this to the correct timeout, default is 5 seconds
-            },
-          ),
-        );
-        // Check statusCode == 200, if yes, then return
-        if (result.statusCode === 200) {
-          return result;
-        }
-      }),
-    );
-
-    // Send the result back to the clients
-    this.server.to(sessionId).emit(SUBMITTED, {
-      message: 'Code submitted!',
-      testResults,
-    });
-
     try {
+      // TODO: Remove
+      console.log('submit received');
+      const { userId, sessionId, questionId, code } = payload;
+      // TODO: Remove
+      console.log({
+        userId,
+        sessionId,
+        questionId,
+        code,
+      });
+
+      if (!userId || !sessionId || !code) {
+        client.emit(SESSION_ERROR, 'Invalid submit request payload.');
+        return;
+      }
+
+      this.server.to(sessionId).emit(SUBMITTING, {
+        message: 'Submitting code...',
+      });
+
+      // Retrieve the question
+      const question: QuestionDto = await firstValueFrom(
+        this.questionService.send(
+          { cmd: 'get-question-by-id' },
+          { id: questionId },
+        ),
+      );
+
+      // Run the code against the test cases
+      const testResults: TestResultDataDto[] = await Promise.all(
+        question.testCases.map(async (testCase) => {
+          const result: TestResultDataDto = await firstValueFrom(
+            this.codeExecutionService.send(
+              { cmd: 'execute-code' },
+              {
+                code: code,
+                input: testCase.input,
+                language: 'python3',
+                timeout: 5, // TODO: update this to the correct timeout, default is 5 seconds
+              },
+            ),
+          );
+          // Check statusCode == 200, if yes, then return
+          return result;
+        }),
+      );
+
+      console.log('printing testResults');
+      console.log(testResults);
+
+      // Map it to test case
+      const submissionResult = testResults.map(
+        (testResult: TestResultDataDto, index: number) => {
+          let passed = true;
+          if (testResult.status == 'error' || testResult.status == 'timeout') {
+            passed = false;
+          }
+          if (
+            testResult.status == 'ok' &&
+            testResult.result.stdout.trim() !==
+              question.testCases[index].expectedOutput
+          ) {
+            passed = false;
+          }
+
+          return {
+            passed,
+            compiled: testResult.status == 'ok',
+            input: question.testCases[index].input,
+            output:
+              testResult.status == 'ok'
+                ? testResult.result.stdout
+                : testResult.result.stderr,
+            expectedOutput: question.testCases[index].expectedOutput,
+            executionTime: testResult.result.executionTime,
+          };
+        },
+      );
+
+      console.log('printing submissionResult');
+      console.log(submissionResult);
+      // Send the result back to the clients
+      this.server.to(sessionId).emit(SUBMITTED, {
+        message: 'Code submitted!',
+        submissionResult,
+      });
     } catch (error) {
       client.emit(EXCEPTION, `Error submitting code: ${error.message}`);
       return;

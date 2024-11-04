@@ -24,10 +24,10 @@ export class TestResultDto {
 
   @IsNotEmpty()
   @ValidateNested()
-  data: DataDto;
+  data: TestResultDataDto;
 }
 
-class DataDto {
+export class TestResultDataDto {
   @IsString()
   @IsNotEmpty()
   status: string;
