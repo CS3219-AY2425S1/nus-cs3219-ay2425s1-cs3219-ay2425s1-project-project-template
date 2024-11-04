@@ -2,19 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getIsAdmin, verifyToken } from "@/api/user";
 import { checkUserInSession } from "./api/collaboration";
-import Swal from "sweetalert2";
-
-const toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer;
-    toast.onmouseleave = Swal.resumeTimer;
-  }
-});
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
