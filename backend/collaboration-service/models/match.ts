@@ -15,11 +15,11 @@ export interface Question {
   updatedAt: Date;
 }
 
-// Interface for Match document (similar to Pair)
 export interface Match {
   userOne: string;
   userTwo: string;
   room_id: string;
+  programming_language: string;
   complexity: string[];
   categories: string[];
   question: Question; // Single Question object

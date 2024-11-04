@@ -36,6 +36,7 @@ export function startRabbitMQ(io: Server) {
             room_id: matchResult.RoomID,
             complexity: matchResult.Complexity,
             categories: matchResult.Categories,
+            programming_languages: matchResult.programming_language,
             question: {} as Question,
           };
 

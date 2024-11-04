@@ -155,55 +155,38 @@ func MarkAsTimeout(matchingInfo models.MatchingInfo) error {
 	return nil
 }
 
-// UpdateMatchStatusAndRoomID updates the room_id of both users in MongoDB
+// UpdateMatchStatusAndRoomID updates the room_id of both users in MongoDB and deletes them after matching
 func UpdateMatchStatusAndRoomID(userID1, userID2, roomID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Update room_id and mark status as "Matched" for the first user
-	filter1 := bson.M{"user_id": userID1, "status": models.Pending} // Ensure user is Pending
-	update1 := bson.M{
-		"$set": bson.M{
-			"status":  models.Matched, // Set status to Matched
-			"room_id": roomID,         // Update the room_id
-		},
-	}
-	_, err := MatchingCollection.UpdateOne(ctx, filter1, update1)
-	if err != nil {
-		log.Printf("Error updating match status and room_id for user_id %s: %v", userID1, err)
-		return err
-	}
-	log.Printf("Updated user_id %s status to 'Matched' and room_id to %s", userID1, roomID)
+	users := []string{userID1, userID2}
+	for _, userID := range users {
+		// Set the filter and update instructions for each user
+		filter := bson.M{"user_id": userID, "status": models.Pending} // Ensure user is Pending
+		update := bson.M{
+			"$set": bson.M{
+				"status":  models.Matched, // Set status to Matched
+				"room_id": roomID,         // Update the room_id
+			},
+		}
 
-	// Update room_id and mark status as "Matched" for the second user
-	filter2 := bson.M{"user_id": userID2, "status": models.Pending} // Ensure user is Pending
-	update2 := bson.M{
-		"$set": bson.M{
-			"status":  models.Matched, // Set status to Matched
-			"room_id": roomID,         // Update the room_id
-		},
-	}
-	_, err = MatchingCollection.UpdateOne(ctx, filter2, update2)
-	if err != nil {
-		log.Printf("Error updating match status and room_id for user_id %s: %v", userID2, err)
-		return err
-	}
-	log.Printf("Updated user_id %s status to 'Matched' and room_id to %s", userID2, roomID)
+		// Attempt to update the user's status and room ID
+		_, err := MatchingCollection.UpdateOne(ctx, filter, update)
+		if err != nil {
+			log.Printf("Error updating match status and room_id for user_id %s: %v", userID, err)
+			return err
+		}
+		log.Printf("Updated user_id %s status to 'Matched' and room_id to %s", userID, roomID)
 
-	// Delete both users after they are matched
-	err = deleteUserFromDB(userID1)
-	if err != nil {
-		log.Printf("Error deleting user with user_id %s: %v", userID1, err)
-		return err
+		// Delete the user after successfully updating their match status and room ID
+		err = deleteUserFromDB(userID)
+		if err != nil {
+			log.Printf("Error deleting user with user_id %s: %v", userID, err)
+			return err
+		}
+		log.Printf("User with user_id %s has been deleted from the database", userID)
 	}
-	log.Printf("User with user_id %s has been deleted from the database", userID1)
-
-	err = deleteUserFromDB(userID2)
-	if err != nil {
-		log.Printf("Error deleting user with user_id %s: %v", userID2, err)
-		return err
-	}
-	log.Printf("User with user_id %s has been deleted from the database", userID2)
 
 	return nil
 }

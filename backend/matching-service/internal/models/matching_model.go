@@ -61,14 +61,15 @@ type Question struct {
 }
 
 type MatchResult struct {
-	UserOneSocketID string                   `json:"user_one_socket_id"`
-	UserTwoSocketID string                   `json:"user_two_socket_id"`
-	UserOnePeerID   string                   `json:"user_one_peer_id"`
-	UserTwoPeerID   string                   `json:"user_two_peer_id"`
-	UserOne         string                   `bson:"userOne"`
-	UserTwo         string                   `bson:"userTwo"`
-	RoomID          string                   `bson:"room_id"`
-	Complexity      []QuestionComplexityEnum `bson:"complexity"`
-	Categories      []string                 `bson:"categories"`
-	Question        Question                 `bson:"question"`
+	UserOneSocketID      string                    `json:"user_one_socket_id"`
+	UserTwoSocketID      string                    `json:"user_two_socket_id"`
+	UserOnePeerID        string                    `json:"user_one_peer_id"`
+	UserTwoPeerID        string                    `json:"user_two_peer_id"`
+	UserOne              string                    `bson:"userOne"`
+	UserTwo              string                    `bson:"userTwo"`
+	RoomID               string                    `bson:"room_id"`
+	Complexity           []QuestionComplexityEnum  `bson:"complexity"`
+	Categories           []string                  `bson:"categories"`
+	ProgrammingLanguages []ProgrammingLanguageEnum `bson:"programming_languages"`
+	Question             Question                  `bson:"question"`
 }
