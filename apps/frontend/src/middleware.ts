@@ -1,5 +1,6 @@
 import { NextURL } from "next/dist/server/web/next-url";
 import { type NextRequest, NextResponse } from "next/server";
+import { jwtDecode } from "jwt-decode";
 
 const PUBLIC_ROUTES = ["/login", "/register"];
 
@@ -17,6 +18,18 @@ async function isValidToken(TOKEN: string): Promise<boolean> {
   return status === 200;
 }
 
+function isTokenExpired(token: string) {
+  if (!token) return true;
+
+  try {
+    const decodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000; // Current time in seconds
+    return decodedToken?.exp != undefined && decodedToken.exp < currentTime;
+  } catch (error) {
+    return true; // Return true if token is invalid
+  }
+}
+
 export default async function middleware(request: NextRequest) {
   const REDIRECT_TO_LOGIN = NextResponse.redirect(
     new NextURL("/login", request.url)
@@ -26,7 +39,13 @@ export default async function middleware(request: NextRequest) {
     return REDIRECT_TO_LOGIN;
   }
 
-  // if (!await isValidToken(TOKEN.value)) {
+  if (isTokenExpired(TOKEN.value)) {
+    REDIRECT_TO_LOGIN.cookies.delete("TOKEN");
+    return REDIRECT_TO_LOGIN;
+  }
+
+  // FIXME: isValidToken check leads to error: not being able to access user service.
+  // if (!(await isValidToken(TOKEN.value))) {
   //   REDIRECT_TO_LOGIN.cookies.delete("TOKEN");
   //   return REDIRECT_TO_LOGIN;
   // }

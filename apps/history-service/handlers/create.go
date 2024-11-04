@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"cloud.google.com/go/firestore"
 	"encoding/json"
-	"google.golang.org/api/iterator"
 	"history-service/models"
 	"history-service/utils"
 	"net/http"
+
+	"cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 )
 
 // Create a new code snippet
@@ -14,16 +15,16 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	var collaborationHistory models.CollaborationHistory
+	var collaborationHistory models.SubmissionHistory
 	if err := utils.DecodeJSONBody(w, r, &collaborationHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Document reference ID in firestore mapped to the match ID in model
-	docRef := s.Client.Collection("collaboration-history").Doc(collaborationHistory.MatchID)
+	collection := s.Client.Collection("collaboration-history")
 
-	_, err := docRef.Set(ctx, map[string]interface{}{
+	docRef, _, err := collection.Add(ctx, map[string]interface{}{
 		"title":              collaborationHistory.Title,
 		"code":               collaborationHistory.Code,
 		"language":           collaborationHistory.Language,
@@ -57,7 +58,7 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.MatchID = doc.Ref.ID
+	collaborationHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
