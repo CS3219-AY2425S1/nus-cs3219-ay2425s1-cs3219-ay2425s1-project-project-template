@@ -1,9 +1,11 @@
 <script setup>
 import { useCollaborationStore } from '~/stores/collaborationStore';
 import CodeEditor from '~/components/CodeEditor.vue';
-import NavLink from '~/components/navigation/NavLink.vue';
-const collaborationStore = useCollaborationStore()
-console.log(collaborationStore.getCollaborationInfo)
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const collaborationStore = useCollaborationStore();
+const router = useRouter();
 
 const question = ref(null); // Store the fetched question
 const isLoading = ref(false);
@@ -39,6 +41,16 @@ const fetchQuestion = async (id) => {
 onMounted(() => {
   fetchQuestion(collaborationStore.getCollaborationInfo.question_id);
 });
+
+const terminateCollaboration = () => {
+    try {
+        collaborationStore.clearCollaborationInfo();
+        navigateTo('/');
+        // router.replace('/');
+    } catch (error) {
+        console.error('Error in terminateCollaboration:', error);
+    }
+};
 </script>
 
 <template>
@@ -49,8 +61,8 @@ onMounted(() => {
         </div>
         <CodeEditor/>
         <div style="margin-top: 8px; text-align: right;">
-            <button class="red-button">
-                <NavLink to="/" exact>Terminate Collaboration</NavLink>
+            <button class="red-button" @click="terminateCollaboration">
+                Terminate Collaboration
             </button>
         </div>
     </div>
@@ -76,7 +88,7 @@ onMounted(() => {
 
 .red-button {
   background-color: rgb(254, 254, 254);
-  border: 2px black;
+  border: 2px solid black;
   padding: 10px 20px;
   cursor: pointer;
   font-size: 16px;      
