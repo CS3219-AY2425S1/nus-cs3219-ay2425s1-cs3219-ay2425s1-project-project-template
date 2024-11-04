@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlayIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
+import DynamicTestCases from '../TestCaseCard';
+import { CodeExecutionResponse } from '@/app/api/code-execution/route';
+import { executeCode } from '@/lib/api-user';
 
 interface CodeEditorProps {
   sessionId?: string;
@@ -21,6 +24,62 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
   const [language, setLanguage] = useState(initialLanguage);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
+
+  const [executing, setExecuting] = useState<boolean>(false);
+  const [result, setResult] = useState<CodeExecutionResponse | null>(null);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  interface TestResult {
+    testCaseNumber: number;
+    input: string;
+    expectedOutput: string;
+    actualOutput: string;
+    passed: boolean;
+    error?: string;
+    compilationError?: string | null;
+  }
+
+  
+  const handleExecuteCode = async (questionId?: string) => {
+    if (!isConnected) {
+      toast({
+        variant: "destructive",
+        title: "Cannot Submit",
+        description: "Please wait until you're connected to the server",
+      });
+      return;
+    }
+
+    if (socket.current?.connected) {
+      socket.current.emit('submitCode', {
+        sessionId,
+        questionId,
+        code,
+        language,
+      });
+    }
+    setExecuting(true);
+    try {
+      if (!questionId) {
+        throw new Error('Question ID is required');
+      }
+      const result: CodeExecutionResponse = await executeCode({
+        questionId,
+        language: language,
+        code: code
+      });
+      setResult(result);
+      setTestResults(result.testResults);
+      if (result.testResults.some(test => test.error)) {
+        setError(result.testResults.find(test => test.error)?.error || 'Execution failed');
+      }
+    } catch (error) {
+      setError((error as any).message);
+    } finally {
+      setExecuting(false);
+    }
+  };
 
   // Initialize socket connection
   useEffect(() => {
@@ -153,11 +212,12 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
           variant="outline" 
           size="default" 
           className="bg-black text-white"
-          onClick={handleSubmit}
-          disabled={!isConnected}
+          // onClick={handleSubmit}
+          onClick={() => handleExecuteCode(questionId)} 
+          disabled={!isConnected || executing}
         >
           <PlayIcon className="h-4 w-4 mr-2" />
-          Run Code
+          {executing ? 'Running...' : 'Run Code'}
         </Button>
       </div>
 
@@ -178,6 +238,10 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
           }}
         />
       </Card>
+      <DynamicTestCases
+            questionId={questionId} 
+            testResults={testResults}
+          />
     </>
   );
 };

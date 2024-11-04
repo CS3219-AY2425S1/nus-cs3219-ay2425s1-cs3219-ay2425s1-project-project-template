@@ -18,7 +18,7 @@ interface TestResult {
 }
 
 interface TestCaseProps {
-  questionId: string;
+  questionId?: string;
   testResults: TestResult[];
 }
 
