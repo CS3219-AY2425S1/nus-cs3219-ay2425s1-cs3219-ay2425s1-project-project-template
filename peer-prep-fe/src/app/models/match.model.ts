@@ -7,6 +7,7 @@ export interface MatchRequest {
 
 export interface MatchResponse {
     matchedUsers: UserData[]; // 0 or 2 - is an array of UserDatas 
+    sessionId: string;
     timeout: boolean;
 }
 

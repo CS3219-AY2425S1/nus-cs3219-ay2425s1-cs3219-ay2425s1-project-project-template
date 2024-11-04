@@ -44,7 +44,9 @@ describe("QuestionBoxComponent", () => {
       question_title: "Mock Title",
       question_complexity: "Easy",
       question_description: "Test Description",
-      question_categories: []
+      question_categories: [],
+      examples: [],
+      constraints: []
     } as Question
     component.index = 0
 

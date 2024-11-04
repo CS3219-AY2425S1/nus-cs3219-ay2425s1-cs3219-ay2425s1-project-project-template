@@ -3,6 +3,7 @@ import { HttpClientModule } from "@angular/common/http"
 import { Component } from "@angular/core"
 import { FormsModule } from "@angular/forms"
 import { RouterLink, RouterOutlet } from "@angular/router"
+import { Router, NavigationEnd } from '@angular/router';
 
 import { QuestionListComponent } from "../components/question-list/question-list.component"
 import { AdminComponent } from "./admin/admin.component"
@@ -33,8 +34,9 @@ const MODULES = [
 export class AppComponent {
   title = "peer-prep-fe"
   userName: string | null = null
+  hideNavbar = false
 
-  constructor(private authService: authService) {}
+  constructor(private authService: authService, private router: Router) {}
 
   //Check if username is logged in, set this.userName
   ngOnInit(): void {
@@ -45,6 +47,12 @@ export class AppComponent {
         this.userName = null
       }
     })
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.hideNavbar = event.url === '/collab'; 
+      }
+    });
   }
 
   //For logout button

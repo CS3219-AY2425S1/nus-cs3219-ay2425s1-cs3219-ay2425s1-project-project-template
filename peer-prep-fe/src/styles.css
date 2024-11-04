@@ -8,7 +8,7 @@ body {
   padding: 0;
   height: 100%;
   font-family: "Signika Negative", sans-serif;
-  background-image: url(../assets/background.png);
+  background-image: url(./assets/background.png);
   overflow: hidden;
 }
 
