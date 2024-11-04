@@ -22,14 +22,14 @@ export const addQuestion = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { title, description, category, difficulty } = req.body;
+    const { questionId, title, description, category, difficulty } = req.body;
 
-    // Get the latest questionId
-    const lastQuestion = await Question.findOne().sort({ questionId: -1 });
-    const newQuestionId = lastQuestion ? lastQuestion.questionId + 1 : 1;
+    const newQuestionId = questionId
+      ? (parseInt(questionId, 10) + 1).toString()
+      : '1';
 
     const newQuestion = new Question({
-      questionId: newQuestionId,
+      questionId,
       title,
       description,
       category,
