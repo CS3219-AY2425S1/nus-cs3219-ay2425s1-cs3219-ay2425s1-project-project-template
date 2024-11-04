@@ -52,7 +52,6 @@ const getUserDisplayName = async (user_id: string) => {  // This function might 
             return "Unknown User";
         }
         const data = await response.json();
-        console.log(data);
 
         if (data && data.user && data.user.displayName) {
             return data.user.displayName;
