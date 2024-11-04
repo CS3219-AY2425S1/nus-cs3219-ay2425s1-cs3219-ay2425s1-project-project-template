@@ -87,7 +87,6 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
       }
       try {
         const res = await verifyToken(token) as { data: { username: string, email: string } }
-        console.log(res)
         setUserData({ username: res.data.username, email: res.data.email })
       } catch (error) {
         console.error('Token verification failed:', error)
@@ -109,7 +108,6 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     newSocket.emit('joinCollabSession', { matchId: matchId, username: userData.username });
 
     newSocket.on("question", (data: QuestionData) => {
-      console.log(data)
       if (data.question) {
         setQuestion(data.question);
         setDifficulty(data.difficulty);
@@ -464,7 +462,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
           </TabsContent>
         </Tabs>
         <div className="flex flex-col gap-0 h-full overflow-hidden">
-          <CodeEditorContainer />
+          <CodeEditorContainer sessionId={matchId} questionId={question?._id}  />
           <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
             <CardHeader className="pb-1 pt-4 font-bold text-xl">Test Cases</CardHeader>
             <CardContent className="flex-1 overflow-auto py-0">

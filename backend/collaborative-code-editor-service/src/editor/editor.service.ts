@@ -41,7 +41,11 @@ export class EditorService {
   }
 
   // TODO: Remove later
-  async createSession(sessionId: string): Promise<Session> {
+  async createSessionIfNotCompleted(sessionId: string): Promise<Session> {
+    const existingSession = await this.sessionModel.findOne({ sessionId, isCompleted: true }).exec();
+    if (existingSession) {
+      return null;
+    }
     const session = new this.sessionModel({
       sessionId,
       activeUsers: [],
@@ -148,6 +152,8 @@ export class EditorService {
   }
 
   async addUserToSession(sessionId: string, userId: string): Promise<void> {
+    await this.redis.sadd(`session:${sessionId}:users`, userId);
+
     await this.sessionModel.updateOne(
       { sessionId },
       {
@@ -157,16 +163,16 @@ export class EditorService {
       { upsert: true }
     );
 
-    await this.redis.sadd(`session:${sessionId}:users`, userId);
   }
 
   async removeUserFromSession(sessionId: string, userId: string): Promise<void> {
+    await this.redis.srem(`session:${sessionId}:users`, userId);
+
     await this.sessionModel.updateOne(
       { sessionId },
       { $pull: { activeUsers: userId } }
     );
 
-    await this.redis.srem(`session:${sessionId}:users`, userId);
   }
 
   async getActiveUsers(sessionId: string): Promise<string[]> {
@@ -176,7 +182,7 @@ export class EditorService {
     }
 
     const session = await this.sessionModel.findOne({ sessionId }).exec();
-    if (session.activeUsers.length > 0) {
+    if (session && session.activeUsers && session.activeUsers.length > 0) {
       await this.redis.sadd(`session:${sessionId}:users`, ...session.activeUsers);
       return session.activeUsers;
     }
@@ -191,5 +197,18 @@ export class EditorService {
     );
 
     await this.redis.del(`session:${sessionId}`);
+  }
+
+  async setActiveUsers(sessionId: string, userIds: string[]): Promise<void> {
+    if (userIds.length === 0) {
+      await this.redis.del(`session:${sessionId}:users`);
+      return;
+    }
+    await this.redis.sadd(`session:${sessionId}:users`, ...userIds);
+
+    await this.sessionModel.updateOne(
+      { sessionId },
+      { $set: { activeUsers: userIds } }
+    );
   }
 }
