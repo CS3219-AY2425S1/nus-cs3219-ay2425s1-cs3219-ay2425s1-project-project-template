@@ -52,7 +52,7 @@ jobs:
         run: curl -sL firebase.tools | bash
       
       - name: Run Go tests with Firebase emulator
-        run: firebase emulators:exec --only firestore 'cd ./apps/question-service'
+        run: firebase emulators:exec --only firestore 'cd ./apps/question-service; go test ./...'
 
   frontend-unit-tests:
     runs-on: ubuntu-latest
