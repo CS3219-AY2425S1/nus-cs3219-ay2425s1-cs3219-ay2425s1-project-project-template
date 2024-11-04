@@ -128,44 +128,50 @@ export default function Page() {
         <p>Had trouble authorising user!</p>
       ) : (
         <div>
-          <div className="flex items-end justify-end mb-1">
-            <Avatar
-              isBordered
-              color={isAvatarActive(otherUser)}
-              name={otherUser}
-            />
-            <Avatar
-              isBordered
-              className="mx-2"
-              color="success"
-              name={user?.username}
-            />
-            <Button className="mx-8" color="danger" onPress={onOpen}>
-              Exit Session
-            </Button>
-          </div>
           <div className="flex">
             {/* Question Section */}
-            <div className="flex-[2_2_0%] border-r border-gray-700">
+            <div className="flex-[1.6_1.6_0%] border-r border-gray-700">
               <QuestionDescription isCollab={true} question={question} />
             </div>
 
             {/* Editor Section */}
             <div className="flex-[2_2_0%] p-2 border-r border-gray-700">
-              <VoiceChat />
               <CodeEditor
                 language={language}
                 roomId={roomId as string}
                 setOutput={setOutput}
+                userEmail={user?.email || "unknown user"}
+                userId={user?.id || "unknown user"}
+                userName={user?.username || "unknown user"}
               />
             </div>
 
             {/* Output Section */}
-            <div className="flex-[1_1_0%] p-2 overflow-x-auto">
+            <div className="flex-col flex-[1_1_0%] p-2 overflow-x-auto space-y-4">
+              <div className="flex justify-between mb-1">
+                <div className="flex space-x-4">
+                  <Avatar
+                    isBordered
+                    color={isAvatarActive(otherUser)}
+                    name={otherUser}
+                  />
+                  <Avatar isBordered color="success" name={user?.username} />
+                </div>
+                <Button
+                  className="justify-self-end"
+                  color="danger"
+                  onPress={onOpen}
+                >
+                  Exit Session
+                </Button>
+              </div>
+              <VoiceChat className="bg-primary-300 order-1 flex-initial" />
               <div className="border border-gray-700 rounded-lg p-2">
                 <h3 className="font-semibold mb-2">Output:</h3>
-                <div className="overflow-x-auto">
-                  <pre>{output}</pre>
+                <div className="flex-1">
+                  <pre className="break-words text-wrap overflow-y-scroll">
+                    {output}
+                  </pre>
                 </div>
               </div>
             </div>
