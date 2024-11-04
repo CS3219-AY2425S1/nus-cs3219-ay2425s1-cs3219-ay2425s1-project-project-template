@@ -88,9 +88,6 @@ type Params = {
 
 // Fetch an unattempted question or fallback to the least attempted one
 export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }: Params) => {
-  /**
-   * 1. Both Unattempted
-   */
   // If an attempt contains either user's ID
   const ids = [userId1, userId2];
   const userIdClause = [
@@ -103,62 +100,90 @@ export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }
     or(...userIdClause),
   ];
 
-  // Build the filter clause
-  // - attempt ID null: No attempts
-  // - topics: If specified, must intersect using Array Intersect
-  const filterClause = [];
+  // Try different filter combinations in order of specificity
+  const filterCombinations = [
+    // Exact match
+    topics && difficulty
+      ? [arrayOverlaps(QUESTIONS_TABLE.topic, topics), eq(QUESTIONS_TABLE.difficulty, difficulty)]
+      : // Topic only
+        topics
+        ? [arrayOverlaps(QUESTIONS_TABLE.topic, topics)]
+        : // Difficulty only
+          difficulty
+          ? [eq(QUESTIONS_TABLE.difficulty, difficulty)]
+          : // No filters
+            [],
+  ];
 
-  if (topics) {
-    filterClause.push(arrayOverlaps(QUESTIONS_TABLE.topic, topics));
+  // Additional combinations if both topic and difficulty are provided
+  if (topics && difficulty) {
+    filterCombinations.push(
+      // Topic only
+      [arrayOverlaps(QUESTIONS_TABLE.topic, topics)],
+      // Difficulty only
+      [eq(QUESTIONS_TABLE.difficulty, difficulty)],
+      // No filters
+      []
+    );
   }
 
-  if (difficulty) {
-    filterClause.push(eq(QUESTIONS_TABLE.difficulty, difficulty));
-  }
-
-  const bothUnattempted = await db
-    .select({ question: QUESTIONS_TABLE })
-    .from(QUESTIONS_TABLE)
-    .leftJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
-    .where(and(isNull(QUESTION_ATTEMPTS_TABLE.attemptId), ...filterClause))
-    .orderBy(sql`RANDOM()`)
-    .limit(1);
-
-  if (bothUnattempted && bothUnattempted.length > 0) {
-    return bothUnattempted[0].question;
-  }
-
-  // 2. At least one user has attempted.
-  // - Fetch all questions, summing attempts by both users, ranking and selecting the lowest count.
-  const attempts = db.$with('at').as(
-    db
-      .select({
-        ...getTableColumns(QUESTIONS_TABLE),
-        user1Count:
-          sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId1}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId1}::uuid THEN 1 END)`.as(
-            'user1_attempts'
-          ),
-        user2Count:
-          sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId2}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId2}::uuid THEN 1 END)`.as(
-            'user2_attempts'
-          ),
-      })
+  for (const filterClause of filterCombinations) {
+    // Check if questions exist with current filters
+    const questionExists = await db
+      .select({ count: sql<number>`count(*)` })
       .from(QUESTIONS_TABLE)
-      .innerJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
       .where(and(...filterClause))
-      .groupBy(QUESTIONS_TABLE.id)
-  );
-  const result = await db
-    .with(attempts)
-    .select()
-    .from(attempts)
-    .orderBy(asc(sql`COALESCE(user1_attempts,0) + COALESCE(user2_attempts,0)`))
-    .limit(1);
+      .then((result) => Number(result[0].count) > 0);
 
-  if (result && result.length > 0) {
-    return { ...result[0], user1Count: undefined, user2Count: undefined };
+    if (!questionExists) {
+      continue;
+    }
+
+    // Try to find an unattempted question with current filters
+    const bothUnattempted = await db
+      .select({ question: QUESTIONS_TABLE })
+      .from(QUESTIONS_TABLE)
+      .leftJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
+      .where(and(isNull(QUESTION_ATTEMPTS_TABLE.attemptId), ...filterClause))
+      .orderBy(sql`RANDOM()`)
+      .limit(1);
+
+    if (bothUnattempted && bothUnattempted.length > 0) {
+      return bothUnattempted[0].question;
+    }
+
+    // If no unattempted question, try least attempted
+    const attempts = db.$with('at').as(
+      db
+        .select({
+          ...getTableColumns(QUESTIONS_TABLE),
+          user1Count:
+            sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId1}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId1}::uuid THEN 1 END)`.as(
+              'user1_attempts'
+            ),
+          user2Count:
+            sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId2}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId2}::uuid THEN 1 END)`.as(
+              'user2_attempts'
+            ),
+        })
+        .from(QUESTIONS_TABLE)
+        .innerJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
+        .where(and(...filterClause))
+        .groupBy(QUESTIONS_TABLE.id)
+    );
+
+    const result = await db
+      .with(attempts)
+      .select()
+      .from(attempts)
+      .orderBy(asc(sql`COALESCE(user1_attempts,0) + COALESCE(user2_attempts,0)`))
+      .limit(1);
+
+    if (result && result.length > 0) {
+      return { ...result[0], user1Count: undefined, user2Count: undefined };
+    }
   }
 
-  // This branch should not be reached
-  logger.info('Unreachable Branch - If first query fails, second query must return something');
+  logger.error('No questions found with any filter combination');
+  return null;
 };
