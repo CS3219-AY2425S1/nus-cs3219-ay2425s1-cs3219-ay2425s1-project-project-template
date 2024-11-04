@@ -10,7 +10,7 @@ import {
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
 import { fetchSession } from "@/api/collaboration";
-import { getUserId, getUsername } from "@/api/user";
+import { getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
@@ -38,7 +38,7 @@ const Question = ({ collabid }: { collabid: string }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const messageListRef = useRef<MessageList | null>(null);
+  const messageListRef = useRef<HTMLDivElement | null>(null);
 
   // NOTE: We use the username of the collaborator instead of the userID. This is because we cannot retrieve the collaborator's ID.
   // Thus, the backend identifies pairs of users by their username for now. However, this can introduce bugs as
@@ -132,7 +132,6 @@ const Question = ({ collabid }: { collabid: string }) => {
       await fetchSingleQuestion(data.question_id.toString()).then((data) => {
         setQuestion(data);
       });
-      console.log(question);
 
       setCollaborator(data.users.filter((user) => user !== userID)[0]);
     });
@@ -207,9 +206,12 @@ const Question = ({ collabid }: { collabid: string }) => {
           </span>
         ) : (
           <MessageList
-            referance={messageListRef}
+            referance={(el: HTMLDivElement | null) => {
+              messageListRef.current = el as unknown as HTMLDivElement;
+            }}
             className="overflow-y-auto h-full pt-3"
             lockable={true}
+            // @ts-expect-error: Suppressing type mismatch for MessageList dataSource temporarily
             dataSource={messages}
           />
         )}
