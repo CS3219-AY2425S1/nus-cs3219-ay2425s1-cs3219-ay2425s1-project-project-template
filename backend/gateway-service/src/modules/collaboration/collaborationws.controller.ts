@@ -27,7 +27,7 @@ import { LeaveCollabSessionRequestDto } from './dto/leave-collab-session-request
 import { ChatSendMessageRequestDto } from './dto/chat-send-message-request.dto';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { first, firstValueFrom, timestamp } from 'rxjs';
 import { TestResultDataDto } from './dto/test-result.dto';
 import { QuestionDto } from './dto/question.dto';
 
@@ -43,10 +43,13 @@ import { QuestionDto } from './dto/question.dto';
 export class CollaborationGateway implements OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private socketUserMap = new Map<string, string>(); // socketId -> userId
+  private userSocketMap = new Map<string, string>(); // userId -> socktId
 
   constructor(
     @Inject('QUESTION_SERVICE') private questionService: ClientProxy,
     @Inject('CODE_EXECUTION_SERVICE') private codeExecutionService: ClientProxy,
+    @Inject('COLLABORATION_SERVICE') private collaborationClient: ClientProxy,
+    @Inject('USER_SERVICE') private userClient: ClientProxy,
   ) {}
 
   @SubscribeMessage(SESSION_JOIN)
@@ -56,27 +59,41 @@ export class CollaborationGateway implements OnGatewayDisconnect {
   ) {
     const { userId, sessionId } = payload;
 
-    if (!userId || !sessionId) {
-      client.emit(SESSION_ERROR, 'Invalid join session request payload.');
-      return;
-    }
-
     try {
-      // TODO: validate session whether its active / user is allowed to be in it
+      // validate payload
+      if (!userId || !sessionId) {
+        throw new Error('Invalid join request payload.');
+      }
 
+      // validate session whether its active / user is allowed to be in it
+      const validatedSessionDetails = await this.validateSessionDetails(
+        sessionId,
+        userId,
+      );
+
+      // join session socket
       this.socketUserMap.set(client.id, userId);
+      this.userSocketMap.set(userId, client.id);
       client.join(sessionId);
 
-      this.debugFunction(`user joined`);
+      const sessionUserProfiles = await this.getSessionMembersUserProfiles({
+        sessionId,
+        userIds: validatedSessionDetails.userIds,
+      });
 
+      // emit joined event
       this.server.to(sessionId).emit(SESSION_JOINED, {
-        userId,
+        userId, // the user who recently joined
         sessionId,
         message: 'A user joined the session',
+        sessionUserProfiles, // returns the all session member profiles
       });
-    } catch (error) {
-      client.emit(EXCEPTION, `Error joining session: ${error.message}`);
-      return;
+    } catch (e) {
+      console.log(e);
+      return {
+        success: false,
+        error: `Failed to join session: ${e.message}`,
+      };
     }
   }
 
@@ -88,18 +105,29 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     console.log('session_leave received');
     const { userId, sessionId } = payload;
 
-    if (!userId || !sessionId) {
-      client.emit(SESSION_ERROR, 'Invalid leave session request payload.');
-      return;
-    }
-
     try {
+      if (!userId || !sessionId) {
+        throw new Error('Invalid leave request payload.');
+      }
+
+      // validate session whether its active / user is allowed to be in it
+      const validatedSessionDetails = await this.validateSessionDetails(
+        sessionId,
+        userId,
+      );
+
       client.leave(sessionId);
+
+      const sessionUserProfiles = await this.getSessionMembersUserProfiles({
+        sessionId,
+        userIds: validatedSessionDetails.userIds,
+      });
 
       this.server.to(sessionId).emit(SESSION_LEFT, {
         userId,
         sessionId,
         message: 'A user left the session.',
+        sessionUserProfiles,
       });
     } catch (error) {
       client.emit(EXCEPTION, `Error leaving session: ${error.message}`);
@@ -112,24 +140,37 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ChatSendMessageRequestDto,
   ) {
-    const { userId, sessionId, message } = payload;
+    const { id, userId, sessionId, message, timestamp } = payload;
 
-    if (!userId || !sessionId || !message) {
-      client.emit(SESSION_ERROR, 'Invalid send message request payload.');
-      return;
+    if (!id || !userId || !sessionId || !message) {
+      return {
+        success: false,
+        data: { id },
+        error: 'Failed to send chat message',
+      };
     }
 
     try {
       // TODO: add chat content inside redis memory
 
       this.server.to(sessionId).emit(CHAT_RECIEVE_MESSAGE, {
+        id,
         userId,
         sessionId,
         message,
+        timestamp,
       });
+
+      return {
+        success: true,
+        data: { id },
+      };
     } catch (error) {
-      client.emit(EXCEPTION, `Error sending chat message: ${error.message}`);
-      return;
+      return {
+        success: false,
+        data: { id },
+        error: 'Failed to send chat message',
+      };
     }
   }
 
@@ -241,7 +282,56 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     // When client disconnects from the socket
     console.log(`User: ${this.socketUserMap.get(client.id)} disconnected`);
     this.debugFunction(`disconnect`);
+    this.userSocketMap.delete(this.socketUserMap.get(client.id));
     this.socketUserMap.delete(client.id);
+  }
+
+  async validateSessionDetails(sessionId: string, userId: string) {
+    const sessionDetails = await firstValueFrom(
+      this.collaborationClient.send(
+        { cmd: 'get-session-details-by-id' },
+        { id: sessionId },
+      ),
+    );
+
+    if (!sessionDetails || !sessionDetails.userIds.includes(userId)) {
+      throw new Error(
+        'Invalid session or the user is not a participant of the session',
+      );
+    }
+
+    if (sessionDetails.status !== 'active') {
+      throw new Error('Session is not currently active');
+    }
+
+    return sessionDetails;
+  }
+
+  async getSessionMembersUserProfiles({ sessionId, userIds }) {
+    const activeUserIdSet = this.server.adapter['rooms'].get(sessionId);
+    console.log('getSessionUserProfiels invoked');
+    console.log(activeUserIdSet);
+    const userProfilePromises = [];
+    for (const userId of userIds) {
+      userProfilePromises.push(
+        firstValueFrom(this.userClient.send({ cmd: 'get-user-by-id' }, userId)),
+      );
+    }
+
+    // set isActive flag for each profile if user is in the session
+    let userProfiles = await Promise.all(userProfilePromises);
+    userProfiles = userProfiles
+      .map((profile) => {
+        const { _id, ...profileDetails } = profile;
+        return {
+          id: _id,
+          ...profileDetails,
+          isActive: activeUserIdSet.has(this.userSocketMap.get(profile._id)),
+        };
+      })
+      .sort((p1, p2) => p1.id.localeCompare(p2.id));
+
+    return userProfiles;
   }
 
   debugFunction(eventName: string) {

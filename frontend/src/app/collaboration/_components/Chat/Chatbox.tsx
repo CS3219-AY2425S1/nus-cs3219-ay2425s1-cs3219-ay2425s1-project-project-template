@@ -9,22 +9,7 @@ import ChatTopToolbar from "./ChatTopToolbar";
 import ChatBubbles from "./ChatBubbles";
 
 export default function Chatbox() {
-  const { messages } = useSessionContext();
-
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-
-  const [newMessage, setNewMessage] = React.useState("");
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    // if (newMessage.trim()) {
-    //   setMessages([
-    //     { id: messages.length + 1, sender: "You", content: newMessage },
-    //     ...messages,
-    //   ]);
-    //   setNewMessage("");
-    // }
-  };
 
   return (
     <Card
@@ -39,7 +24,7 @@ export default function Chatbox() {
           isCollapsed={isCollapsed}
           setIsCollapsed={setIsCollapsed}
         />
-        <ChatBubbles isCollapsed={isCollapsed} messages={messages} />
+        <ChatBubbles isCollapsed={isCollapsed} />
         <ChatBottomToolbar isCollapsed={isCollapsed} />
       </div>
     </Card>

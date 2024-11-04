@@ -1,58 +1,100 @@
+"use client";
+
 import { CardContent } from "@/components/ui/card";
+import { useSessionContext } from "@/contexts/SessionContext";
 import { cn } from "@/lib/utils";
-import { ChatMessage } from "@/types/ChatMessage";
+import { ChatMessage, ChatMessageStatusEnum } from "@/types/ChatMessage";
+import { Check, Clock, XCircle } from "lucide-react";
+import React, { useMemo } from "react";
 
 interface ChatBubblesProps {
   isCollapsed: boolean;
-  messages: ChatMessage[];
 }
 
-export default function ChatBubbles({
-  isCollapsed,
-  messages,
-}: ChatBubblesProps) {
+export default function ChatBubbles({ isCollapsed }: ChatBubblesProps) {
+  const { messages, userProfile } = useSessionContext();
+
+  if (!userProfile) {
+    return <div>Loading user profile...</div>;
+  }
+
   return (
     <CardContent
       className={cn(
         "transition-all duration-300",
-        "flex flex-col-reverse overflow-scroll whitespace-no-wrap",
+        "flex flex-col overflow-scroll whitespace-no-wrap",
         isCollapsed && "opacity-0"
       )}
     >
-      {messages.map((message, idx) => (
-        <ChatBubble
-          key={`${idx}`}
-          message={message}
-          isSender={idx % 2 === 0 ? true : false}
-        />
+      {messages.map((message) => (
+        <React.Fragment key={message.id}>
+          <ChatBubble message={message} />
+        </React.Fragment>
       ))}
     </CardContent>
   );
 }
 
 interface ChatBubbleProps {
-  key: string;
   message: ChatMessage;
-  isSender: boolean;
 }
 
-function ChatBubble({ key, message, isSender }: ChatBubbleProps) {
+function ChatBubble({ message }: ChatBubbleProps) {
+  const { userProfile, getUserProfileDetailByUserId } = useSessionContext();
+
+  const profileDetails = useMemo(() => {
+    return getUserProfileDetailByUserId(message.userId);
+  }, [message]);
+
+  const isSender = useMemo(() => {
+    return message.userId === userProfile?.id;
+  }, []);
+
+  const statusIcon = useMemo(() => {
+    switch (message.status) {
+      case ChatMessageStatusEnum.enum.sending:
+        return <Clock size={14} />;
+      case ChatMessageStatusEnum.enum.sent:
+        return <Check size={14} />;
+      default:
+        return <XCircle size={14} />;
+    }
+  }, [message.status]);
+
   return (
     <div
-      key={key}
-      className={`flex flex-col mb-4 whitespace-pre-wrap ${
+      className={cn(
+        "flex flex-col mb-4 whitespace-pre-wrap",
         isSender ? "items-end" : "items-start"
-      }`}
+      )}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-sm font-medium">{message.userId}</span>
+        <span
+          className={cn(
+            "flex flex-col text-xs font-medium",
+            isSender && "items-end"
+          )}
+        >
+          {`${profileDetails?.displayName}`}
+          <span className="text-xs text-foreground-100">{`@${profileDetails?.username}`}</span>
+        </span>
       </div>
       <div
-        className={`px-3 py-2 rounded-lg ${
-          isSender ? "bg-primary text-primary-foreground" : "bg-violet-400/10"
-        }`}
+        className={cn(
+          `px-3 py-2 rounded-lg`,
+          isSender ? "bg-primary text-primary-foreground" : "bg-violet-400/15"
+        )}
       >
-        {message.message}
+        <p>{message.message}</p>
+        <div className="flex w-full justify-end">
+          <small className="flex items-center uppercase">
+            {new Date(message.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}{" "}
+            {isSender && statusIcon}
+          </small>
+        </div>
       </div>
     </div>
   );

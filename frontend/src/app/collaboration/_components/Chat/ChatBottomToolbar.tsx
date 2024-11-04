@@ -5,6 +5,7 @@ import { TextInput } from "@/components/form/TextInput";
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import { useSessionContext } from "@/contexts/SessionContext";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
@@ -27,12 +28,13 @@ export default function ChatBottomToolbar({
     resolver: zodResolver(FormSchema),
   });
 
+  const { handleSendMessage } = useSessionContext();
+
   const { handleSubmit, formState } = methods;
 
   const onSubmit = useCallback(async (data: z.infer<typeof FormSchema>) => {
     if (formState.isSubmitting || data.message.length === 0) return;
-
-    console.log(`send message submitted with: ${data.message}`);
+    handleSendMessage(data.message);
   }, []);
 
   return (
@@ -54,8 +56,8 @@ export default function ChatBottomToolbar({
             placeholder="Type your message..."
             className="bg-input-background-100 !mt-0 h-1 max-h-40"
           />
-          <Button type="submit" size="icon">
-            <Send className="w-4 h-4" />
+          <Button type="submit" size="icon" className="bg-primary">
+            <Send size={15} />
             <span className="sr-only">Send</span>
           </Button>
         </form>
