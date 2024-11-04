@@ -89,7 +89,7 @@ export default function SettingsPage() {
             newPassword: formData.newPassword,
             file: file,
         }
-        if (data.username || data.email || data.newPassword || preview != user.avatar) {
+        if (data.username || data.email || data.newPassword || data.file) {
             setFormData(data);
             handleDialogOpen();
         } else {
