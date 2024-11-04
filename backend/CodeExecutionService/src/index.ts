@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 // Configuration
-const JUDGE0_API_URL = 'http://judge0:2358';
+const JUDGE0_API_URL = `${process.env.JUDGE_0_ENDPOINT}`;
 const PORT = process.env.CODE_EXECUTION_SVC_PORT || 3000;
 
 interface CodeExecutionRequest {
