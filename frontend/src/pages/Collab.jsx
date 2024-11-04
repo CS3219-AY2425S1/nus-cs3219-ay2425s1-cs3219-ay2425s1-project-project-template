@@ -7,10 +7,11 @@ import { MonacoBinding } from "y-monaco";
 import io from 'socket.io-client';
 
 import CollabNavBar from "../components/navbar/CollabNavbar";
+import QuestionContainer from "../components/collaboration/QuestionContainer";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
+import TimeUpPopup from "../components/collaboration/TimeUpPopup";
 import useAuth from "../hooks/useAuth";
-import "../styles/collab.css";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
 const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
@@ -24,9 +25,15 @@ const Collab = () => {
     const editorRef = useRef(null);
     const socketRef = useRef(null);
     const providerRef = useRef(null);
+    const intervalRef = useRef(null);
+
+    const [countdown, setCountdown] = useState(20); // set to 1 min default timer
+    const [timeOver, setTimeOver] = useState(false);
 
     const [showQuitPopup, setShowQuitPopup] = useState(false);
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
+
+    const [isSoloSession, setIsSoloSession] = useState(false);
 
     // Ensure location state exists, else redirect to home
     useEffect(() => {
@@ -43,6 +50,13 @@ const Collab = () => {
         // Emit events on connection
         socketRef.current.emit("add-user", username?.toString());
         socketRef.current.emit("join-room", roomId);
+
+        // Listen for 'start-timer' event to start countdown (used for both new session and continue session)
+        socketRef.current.on('start-timer', () => {
+            setCountdown(20); // Reset to your desired starting time
+            setTimeOver(false);
+            startCountdown();
+        });
 
         // Listen for user-left event for the specific room
         socketRef.current.on("user-left", () => {
@@ -67,14 +81,17 @@ const Collab = () => {
         };
     }, []);
 
-    // Timer function
-
-    if (!location.state) {
-        return null;
-    }
-
-    const { question, language, matchedUser, roomId } = location.state;
-    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
+    const startCountdown = () => {
+        intervalRef.current = setInterval(() => {
+            setCountdown((prevCountdown) => {
+                if (prevCountdown <= 1) {
+                    clearInterval(intervalRef.current);
+                    setTimeOver(true);
+                }
+                return prevCountdown - 1;
+            });
+        }, 1000);
+    };
 
     // Initialize editor and Yjs 
     const handleEditorDidMount = (editor) => {
@@ -92,6 +109,13 @@ const Collab = () => {
         });
     };
 
+    if (!location.state) { return null; }
+
+    const { question, language, matchedUser, roomId } = location.state;
+    const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
+
+    const handleSubmit = () => { console.log("Submit code"); };
+
     const handleQuit = () => setShowQuitPopup(true);
 
     const handleQuitConfirm = () => {
@@ -103,29 +127,33 @@ const Collab = () => {
 
     const handleQuitCancel = () => setShowQuitPopup(false);
 
+    const handleContinueSession = () => {
+        socketRef.current.emit("continue-session", roomId);
+    };
+
+    const handleContinueSessionAlone = () => {
+        setCountdown(20); // Reset to your desired starting time
+        setTimeOver(false);
+        startCountdown();
+        setIsSoloSession(true);
+    }
+
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
             <CollabNavBar 
                 partnerUsername={partnerUsername} 
-                countdown={"30:00"} 
+                countdown={formatTime(countdown)} 
+                handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
             <div style={{ display: "flex", flex: 1 }}>
-                    <div className="question-container" >
-                        <div className="question-header" >
-                            <h2>{question.title}</h2>
-                        </div>
-                        <p>{question.description}</p>
-                        {question.images && question.images.map((image, index) => (
-                            <img key={index} src={image} alt={`Question diagram ${index + 1}`} style={{ maxWidth: "100%", margin: "10px 0" }} />
-                        ))}
-                        {question.leetcode_link && (
-                            <a href={question.leetcode_link} target="_blank" rel="noopener noreferrer">
-                                View on LeetCode
-                            </a>
-                        )}
-                    </div>
-
+                <QuestionContainer question={question} />
                 <Editor
                     height="100%"
                     width="50%"
@@ -152,6 +180,13 @@ const Collab = () => {
                     confirmQuit={handleQuitConfirm} 
                     cancelQuit={() => setShowPartnerQuitPopup(false)} 
                 />
+            )}
+            {timeOver && (
+                <TimeUpPopup 
+                    continueSession={handleContinueSession}
+                    quitSession={handleQuitConfirm}
+                    continueAlone={handleContinueSessionAlone}
+                    isSoloSession={isSoloSession}/>
             )}
         </div>
     );
