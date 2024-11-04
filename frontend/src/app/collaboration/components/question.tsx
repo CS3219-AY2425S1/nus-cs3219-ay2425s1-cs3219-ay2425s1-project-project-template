@@ -16,6 +16,7 @@ import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
 import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
+import ResizeObserver from "resize-observer-polyfill";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
@@ -35,6 +36,8 @@ const Question = ({ collabid }: { collabid: string }) => {
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const containerRef = useRef(null);
+  const [visibleCategories, setVisibleCategories] = useState([]);
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
@@ -137,59 +140,107 @@ const Question = ({ collabid }: { collabid: string }) => {
 
   const questionCategories = question?.category || [];
 
-  const firstThreeQuestionPills = questionCategories
-    .slice(0, 3)
-    .map((category) => <Pill key={category} text={category} />);
+  useEffect(() => {
+    const calculateVisibleCategories = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        console.log(containerWidth);
+        let totalWidth = 200;
+        const visible = [];
 
-  const remainingCategories = questionCategories.slice(3);
+        for (const category of questionCategories) {
+          const testElement = document.createElement("span");
+          testElement.style.visibility = "hidden";
+          testElement.style.position = "absolute";
+          testElement.className =
+            "bg-primary-900 text-grey-300 py-1 px-2 rounded-full text-xs";
+          testElement.innerText = category;
+          document.body.appendChild(testElement);
 
-  if (questionCategories.length > 3) {
-    firstThreeQuestionPills.push(
-      <div
-        key="more"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        className="bg-primary-900 text-grey-300 py-1 px-2 rounded-full text-xs relative"
-      >
-        <Pill text={`+${questionCategories.length - 3} more`} />
-        {showTooltip && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              backgroundColor: "#333",
-              color: "#fff",
-              padding: "5px",
-              borderRadius: "5px",
-              whiteSpace: "nowrap",
-              zIndex: 1000,
-            }}
-          >
-            {remainingCategories.join(", ")}
-          </div>
-        )}
-      </div>
-    );
-  }
+          const elementWidth = testElement.clientWidth;
+          document.body.removeChild(testElement);
+
+          if (totalWidth + elementWidth < containerWidth) {
+            totalWidth += elementWidth;
+            visible.push(category);
+          } else {
+            break;
+          }
+        }
+
+        setVisibleCategories(visible);
+      }
+    };
+
+    const observer = new ResizeObserver(calculateVisibleCategories);
+    observer.observe(containerRef.current);
+
+    calculateVisibleCategories();
+
+    window.addEventListener("resize", calculateVisibleCategories);
+
+    return () => {
+      window.removeEventListener("resize", calculateVisibleCategories);
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, [questionCategories]);
+
+  const remainingCategories = questionCategories.slice(
+    visibleCategories.length
+  );
 
   return (
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
-        <div className="flex flex-col">
+        <div className="flex flex-col" ref={containerRef}>
           <h1 className="text-yellow-500 text-xl font-bold pb-2">
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            {...firstThreeQuestionPills}
+            {visibleCategories.map((category, index) => (
+              <Pill key={category} text={category} />
+            ))}
+            {remainingCategories.length > 0 && (
+              <div
+                key="more"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                className="bg-primary-900 text-grey-300 py-1 px-2 rounded-full text-xs relative"
+              >
+                <Pill text={`+${remainingCategories.length} more`} />
+                {showTooltip && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#333",
+                      color: "#fff",
+                      padding: "5px",
+                      borderRadius: "5px",
+                      whiteSpace: "nowrap",
+                      zIndex: 1000,
+                    }}
+                  >
+                    {remainingCategories.join(", ")}
+                  </div>
+                )}
+              </div>
+            )}
             <ComplexityPill complexity={question?.complexity || ""} />
           </span>
           <h2 className="text-grey-300 text-s pt-3 leading-[0]">
             Your collaborator: {collaborator}
           </h2>
         </div>
-        <Button className="self-end" variant="destructive" onClick={handleExit}>
+        <Button
+          className="mt-10 w-36 justify-self-end"
+          variant="destructive"
+          onClick={handleExit}
+        >
           Exit Room
         </Button>
       </div>

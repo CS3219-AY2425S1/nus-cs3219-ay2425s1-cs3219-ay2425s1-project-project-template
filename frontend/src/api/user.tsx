@@ -13,7 +13,7 @@ const toast = Swal.mixin({
   didOpen: (toast) => {
     toast.onmouseenter = Swal.stopTimer;
     toast.onmouseleave = Swal.resumeTimer;
-  }
+  },
 });
 
 export const setToken = (token: string) => {
@@ -87,7 +87,7 @@ export const login = async (email: string, password: string) => {
   toast.fire({
     icon: "info",
     title: "Logging in...",
-  })
+  });
   const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/login`, {
     method: "POST",
     headers: {
@@ -133,7 +133,7 @@ export const register = async (
   toast.fire({
     icon: "info",
     title: "Registering...",
-  })
+  });
   const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}`, {
     method: "POST",
     headers: {

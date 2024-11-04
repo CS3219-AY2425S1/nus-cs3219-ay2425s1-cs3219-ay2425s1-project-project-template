@@ -45,6 +45,7 @@
     "react-resizable-panels": "^2.1.6",
     "react-spinners": "^0.14.1",
     "react-syntax-highlighter": "^15.5.0",
+    "resize-observer-polyfill": "^1.5.1",
     "sockjs-client": "^1.6.1",
     "sweetalert2": "^11.14.1",
     "tailwind-merge": "^2.5.2",
