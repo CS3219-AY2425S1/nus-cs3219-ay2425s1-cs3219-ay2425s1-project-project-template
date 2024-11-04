@@ -18,6 +18,9 @@ export class Session {
 
   @Prop({ type: Boolean, default: false })
   isCompleted: boolean;
+
+  @Prop({ type: String, default: 'Coding Session' })
+  sessionName: string;
 }
 
 export type SessionDocument = HydratedDocument<Session>;

@@ -65,6 +65,7 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
             language: questionAttempt.currentLanguage
           });
         } else {
+          console.log('Calling createQuestionAttempt', sessionId, questionId, username_socket_id);
           await this.editorService.createQuestionAttempt(sessionId, questionId);
         }
 
@@ -118,6 +119,7 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             if (filteredUsers.length === 0) {
               await this.editorService.completeSession(sessionId);
+              this.server.to(`${sessionId}:${questionId}`).emit('sessionCompleted');
             }
           } catch (error) {
             console.error('Error in completion timeout handler:', error);
