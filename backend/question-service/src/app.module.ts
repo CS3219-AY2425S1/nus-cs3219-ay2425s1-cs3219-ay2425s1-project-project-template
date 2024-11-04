@@ -8,7 +8,7 @@ import { QuestionHistoryModule } from './question-history/question-history.modul
 @Module({
   imports: [
     QuestionsModule,
-    QuestionHistoryModule,
+    // QuestionHistoryModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
