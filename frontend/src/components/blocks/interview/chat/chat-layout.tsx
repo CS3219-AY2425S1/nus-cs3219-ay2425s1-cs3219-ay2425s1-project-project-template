@@ -1,12 +1,27 @@
-import { Loader2, MessageSquare, Send, X } from 'lucide-react';
+import { Loader2, MessageSquare, Send, Trash2, X } from 'lucide-react';
 import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 
 import { ChatMessage, ChatMessageType } from './chat-message';
+
+type CustomElemProps = {
+  onSend: (message: string) => void;
+};
 
 interface ChatLayoutProps {
   isOpen: boolean;
@@ -16,9 +31,11 @@ interface ChatLayoutProps {
   isLoading: boolean;
   error: string | null;
   title: string;
+  onClearHistory?: () => void;
+  CustomPlaceHolderElem?: React.FC<CustomElemProps>;
 }
 
-export const ChatLayout: React.FC<ChatLayoutProps> = ({
+export const ChatLayout = ({
   isOpen,
   onClose,
   messages,
@@ -26,7 +43,9 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   isLoading,
   error,
   title,
-}) => {
+  onClearHistory,
+  CustomPlaceHolderElem,
+}: ChatLayoutProps) => {
   const [input, setInput] = useState<string>('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,7 +54,6 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Focus and scroll to bottom on window open
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
@@ -43,12 +61,10 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
     }
   }, [isOpen]);
 
-  // Scroll to bottom on reception of messages
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Resize textarea on input, up to a maximum height
   useEffect(() => {
     const textAreaEl = inputRef.current;
 
@@ -82,6 +98,32 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
           <h2 className='font-semibold'>{title}</h2>
         </div>
         <div className='flex items-center gap-2'>
+          {onClearHistory && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='hover:bg-secondary rounded-full'
+                  disabled={messages.length === 0}
+                >
+                  <Trash2 className='size-4' />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Chat History</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to clear the chat history? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onClearHistory}>Clear History</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button
             variant='ghost'
             size='icon'
@@ -96,8 +138,14 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
       <ScrollArea id='chat-messages' className='h-full flex-1 overflow-y-auto p-4'>
         {messages.length === 0 && (
           <div className='flex h-full flex-col items-center justify-center text-gray-500'>
-            <MessageSquare className='mb-4 size-12 opacity-50' />
-            <p className='text-center'>No messages yet. Start a conversation!</p>
+            {CustomPlaceHolderElem ? (
+              <CustomPlaceHolderElem onSend={onSend} />
+            ) : (
+              <>
+                <MessageSquare className='mb-4 size-12 opacity-50' />
+                <p className='text-center'>No messages yet. Start a conversation!</p>
+              </>
+            )}
           </div>
         )}
         {messages.map((msg, index) => (
@@ -105,9 +153,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         ))}
         {isLoading && (
           <div className='mb-4 flex justify-start'>
-            <div className='rounded-lg bg-gray-50 px-4 py-2'>
-              <Loader2 className='size-5 animate-spin text-gray-500' />
-            </div>
+            <Loader2 className='size-5 animate-spin text-gray-500' />
           </div>
         )}
         {error && (

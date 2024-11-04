@@ -9,6 +9,7 @@ import pino from 'pino-http';
 import { UI_HOST } from '@/config';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
+import aiChatRoutes from '@/routes/chat';
 import roomRoutes from '@/routes/room';
 
 import { setUpWSServer } from './ws';
@@ -38,6 +39,7 @@ app.use(
   })
 );
 
+app.use('/ai', aiChatRoutes);
 app.use('/room', roomRoutes);
 
 // Health Check for Docker

@@ -29,9 +29,16 @@ type EditorProps = {
   room: string;
   onAIClick: () => void;
   onPartnerClick: () => void;
+  onCodeChange?: (code: string, language: LanguageName) => void;
 };
 
-export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorProps) => {
+export const Editor = ({
+  questionId,
+  room,
+  onAIClick,
+  onPartnerClick,
+  onCodeChange,
+}: EditorProps) => {
   const { userId } = useAuthedRoute();
   const { height } = useWindowSize();
   const [theme, setTheme] = useState<IEditorTheme>('vscodeDark');
@@ -51,6 +58,21 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
   const themePreset = useMemo(() => {
     return getTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    onCodeChange?.(code, language);
+  }, [code, language, onCodeChange]);
+
+  const handleLanguageChange = (val: string) => {
+    const newLanguage = val as LanguageName;
+    setLanguage(newLanguage);
+    onCodeChange?.(code, newLanguage);
+  };
+
+  const handleCodeChange = (value: string) => {
+    setCode(value);
+    onCodeChange?.(value, language);
+  };
 
   const [completionState, setCompletionState] = useState('');
 
@@ -81,7 +103,7 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
           <div className='flex gap-4'>
             <div className='flex flex-col gap-2'>
               <Label>Language</Label>
-              <Select value={language} onValueChange={(val) => setLanguage(val as LanguageName)}>
+              <Select value={language} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='focus-visible:ring-secondary-foreground/60 max-w-[150px]'>
                   <SelectValue />
                 </SelectTrigger>
@@ -111,21 +133,18 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
             </div>
           </div>
           <div className='flex items-center gap-2'>
-            <div className='flex flex-row gap-2'>
-              <div className='flex gap-1 font-mono text-xs'>
-                {/* TODO: Get user avatar and display */}
-                {members.map((member, index) => (
-                  <div
-                    className='grid size-8 place-items-center !overflow-clip rounded-full border-2 p-1 text-xs'
-                    style={{
-                      borderColor: member.color,
-                    }}
-                    key={index}
-                  >
-                    <span className='translate-x-[calc(-50%+12px)]'>{member.userId}</span>
-                  </div>
-                ))}
-              </div>
+            <div className='flex gap-1 font-mono text-xs'>
+              {members.map((member, index) => (
+                <div
+                  className='grid size-8 place-items-center !overflow-clip rounded-full border-2 p-1 text-xs'
+                  style={{
+                    borderColor: member.color,
+                  }}
+                  key={index}
+                >
+                  <span className='translate-x-[calc(-50%+12px)]'>{member.userId}</span>
+                </div>
+              ))}
             </div>
             <CompleteDialog
               {...{
@@ -173,9 +192,7 @@ export const Editor = ({ questionId, room, onAIClick, onPartnerClick }: EditorPr
           }}
           height={`${Math.max((height as number) - EXTENSION_HEIGHT, MIN_EDITOR_HEIGHT)}px`}
           value={code}
-          onChange={(value, _viewUpdate) => {
-            setCode(value);
-          }}
+          onChange={handleCodeChange}
           theme={themePreset}
           lang={language}
           basicSetup={{
