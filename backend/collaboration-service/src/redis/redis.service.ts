@@ -47,6 +47,7 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
     matchId: string,
     topic: string,
     difficulty: string,
+    userIds: string[],
   ): Promise<void> {
     const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
     const value = {
@@ -58,7 +59,7 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
       messages: [],
       sessionName: 'Coding Session',
       joinedUsers: [],
-      allowedUsers: [],
+      allowedUsers: userIds,
     };
 
     await this.redis.set(key, JSON.stringify(value));
@@ -103,14 +104,17 @@ export class CollabRedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async addWebSocketId(matchId: string, websocketId: string): Promise<boolean> {
+  async addWebSocketId(matchId: string, websocketId: string, username:string): Promise<boolean> {
     const key = `${REDIS_CONFIG.keys.sessionQuestion}:${matchId}`;
     const value = await this.getCollabSessionData(matchId);
 
     if (value) {
-      value.webSockets.push(websocketId);
-      await this.redis.set(key, JSON.stringify(value));
-      return true;
+      if (value.allowedUsers.includes(username)) {
+        value.webSockets.push(websocketId);
+        await this.redis.set(key, JSON.stringify(value));
+        return true;
+      }
+      this.logger.warn(`${username} is not allowed to join ${matchId}`);
     }
 
     return false;

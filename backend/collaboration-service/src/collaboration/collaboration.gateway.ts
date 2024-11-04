@@ -87,7 +87,7 @@ export class CollabGateway implements OnGatewayDisconnect {
       );
 
       if (!registerSuccess) {
-        client.emit('invalidMatchId', { message: 'Invalid matchId' });
+        client.emit('invalidMatchId', { message: 'Not allowed.' });
       } else {
         await this.collabService.addUserIfAllowed(matchId, username);
         const sessionMetaData = await this.collabService.getOnloadData(matchId);

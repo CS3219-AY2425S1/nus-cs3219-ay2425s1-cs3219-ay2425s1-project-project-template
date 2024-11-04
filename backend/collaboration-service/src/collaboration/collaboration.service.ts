@@ -33,6 +33,7 @@ export class CollabService {
     const addWsIDtoTRedis = await this.collabRedisService.addWebSocketId(
       matchId,
       id,
+      username,
     );
 
     if (!addWsIDtoTRedis) {
@@ -92,11 +93,13 @@ export class CollabService {
     matchId: string,
     difficulty: string,
     topic: string,
+    userIds: string[],
   ): Promise<any> {
     await this.collabRedisService.addCollabRecordToRedis(
       matchId,
       topic,
       difficulty,
+      userIds,
     );
 
     const initQuestion = await this.updateSessionQuestion(
