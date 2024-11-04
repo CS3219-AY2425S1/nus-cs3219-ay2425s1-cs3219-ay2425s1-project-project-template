@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Session, SessionDocument } from './schemas/session.schema';
 import { QuestionAttempt } from './schemas/question-attempt.schema';
-import { QuestionSubmission } from './schemas/question-submission.schema';
+import { ExecutionResults, QuestionSubmission } from './schemas/question-submission.schema';
 import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { stringify } from 'querystring';
@@ -40,6 +40,73 @@ export class EditorService {
     return null;
   }
 
+  async getSession(sessionId: string): Promise<Session | null> {
+    const cachedSession = await this.redis.get(`session:${sessionId}`);
+    if (cachedSession) {
+      return JSON.parse(cachedSession);
+    }
+
+    const session = await this.sessionModel.findOne({ sessionId }).exec();
+    if (session) {
+      await this.redis.setex(
+        `session:${sessionId}`,
+        3600,
+        JSON.stringify(session)
+      );
+      return session;
+    }
+    return null;
+  }
+
+  async getLastSubmissionExecutionResult(sessionId: string, questionId: string): Promise<QuestionSubmission|null> {
+    const session = await this.getSession(sessionId);
+    if (!session) {
+      return null;
+    }
+    const questionAttempt = session.questionAttempts.find(
+      (attempt) => attempt.questionId === questionId
+    );
+    if (!questionAttempt) {
+      return null;
+    }
+    const lastSubmission = questionAttempt.submissions[questionAttempt.submissions.length - 1];
+    if (!lastSubmission) {
+      return null;
+    }
+    return lastSubmission;
+  }
+
+  async updateLastSubmission(
+    sessionId: string,
+    questionId: string,
+    status: 'pending' | 'accepted' | 'rejected',
+    executionResults: ExecutionResults,
+  ): Promise<QuestionSubmission> {
+    const session = await this.sessionModel.findOne({ sessionId }).exec();
+    if (!session) {
+      throw new Error(`Session not found for ID: ${sessionId}`);
+    }
+
+    const questionAttempt = session.questionAttempts.find(
+      (attempt) => attempt.questionId === questionId,
+    );
+    if (!questionAttempt) {
+      throw new Error(`Question attempt not found for ID: ${questionId}`);
+    }
+
+    const lastSubmission =
+      questionAttempt.submissions[questionAttempt.submissions.length - 1];
+    if (!lastSubmission) {
+      throw new Error(`No submission found for question: ${questionId}`);
+    }
+
+    lastSubmission.status = status;
+    lastSubmission.executionResults = executionResults;
+
+    await session.save();
+    return lastSubmission;
+  }
+
   // TODO: Remove later
   async createSessionIfNotCompleted(sessionId: string): Promise<Session> {
     const existingSession = await this.sessionModel.findOne({ sessionId, isCompleted: true }).exec();
@@ -63,6 +130,10 @@ export class EditorService {
     sessionId: string,
     questionId: string,
   ): Promise<QuestionAttempt> {
+    // Invalidate cache
+    await this.redis.del(`session:${sessionId}`);
+    console.log('Creating question attempt', sessionId, questionId);
+
     // TODO: Add default current language in some config file
     const questionAttempt: QuestionAttempt = {
       questionId,
@@ -77,13 +148,55 @@ export class EditorService {
       {
         $push: { questionAttempts: questionAttempt },
       }
-    );
+    ).exec();
 
-    // Invalidate cache
-    await this.redis.del(`session:${sessionId}`);
+    // Remove multiple question attempts if available
+    await this.removMultipleQuestionAttemptsIfAvailable(sessionId, questionId);
+
+    // set time out to remove duplicate question attempts
+    setTimeout(async () => {
+      await this.removMultipleQuestionAttemptsIfAvailable(sessionId, questionId);
+    }, 3000);
 
     return questionAttempt;
   }
+
+  private async removMultipleQuestionAttemptsIfAvailable(sessionId: string, questionId: string) {
+    const session = await this.sessionModel.findOne({ sessionId }).exec();
+    if (!session) {
+      return;
+    }
+
+    const questionAttempt = session.questionAttempts.find(
+      (attempt) => attempt.questionId === questionId
+    );
+    if (!questionAttempt) {
+      return;
+    }
+
+    const questionAttemptIndices = session.questionAttempts
+      .map((qa, i) => (qa.questionId === questionId ? i : null))
+      .filter(Number);
+
+      if (questionAttemptIndices.length === 0) {
+        return;
+      }
+      const questionAttemptIndicesExceptLast = questionAttemptIndices.slice(0, questionAttemptIndices.length - 1);
+
+      if (questionAttemptIndicesExceptLast.length > 0) {
+        // Attempts except questionAttemptIndicesExceptLast
+        const questionAttempts = session.questionAttempts.filter(
+          (qa, i) => !questionAttemptIndicesExceptLast.includes(i)
+        )
+        await this.sessionModel.updateOne(
+          { sessionId },
+          {
+            $set: { questionAttempts },
+          }
+        ).exec();
+      }
+    }
+    
 
   async updateQuestionCode(
     sessionId: string,
@@ -162,7 +275,7 @@ export class EditorService {
         $setOnInsert: { questionAttempts: [] }
       },
       { upsert: true }
-    );
+    ).exec();
 
   }
 
@@ -172,7 +285,7 @@ export class EditorService {
     await this.sessionModel.updateOne(
       { sessionId },
       { $pull: { activeUsers: userId } }
-    );
+    ).exec();
 
   }
 
@@ -210,6 +323,6 @@ export class EditorService {
     await this.sessionModel.updateOne(
       { sessionId },
       { $set: { activeUsers: userIds } }
-    );
+    ).exec();
   }
 }

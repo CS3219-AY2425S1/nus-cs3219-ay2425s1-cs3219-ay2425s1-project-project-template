@@ -14,10 +14,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import AttemptsTab from "@/components/attempts/attempts"
 import { useRouter } from 'next/navigation';
 import { executeCode, verifyToken } from '@/lib/api-user'
 import toast from 'react-hot-toast';
 import CodeEditorContainer from '@/components/collaboration/code-editor-container';
+import VideoDisplay from '@/components/collaboration/VideoDisplay';
 import DynamicTestCases from '@/components/TestCaseCard';
 import { CodeExecutionResponse } from '@/app/api/code-execution/route';
 
@@ -164,6 +166,11 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
       setError(data.message);
     });
 
+    newSocket.on('invalidMatchId', (data: {message: string;}) => {
+      router.push('/sessions');
+      toast.error(data.message);
+    })
+
     newSocket.on('message', (data: MessageData) => {
       setMessages((prev) => [
         ...prev, data
@@ -187,18 +194,24 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     });
 
     newSocket.on('onloadData', (data: OnloadData) => {
-      console.log("jdjdjdj", data.question)
+      if (!data.question) {
+        router.push('/sessions')
+        toast.error('No question for the selected paramters');
+      }
       setQuestion(data.question);
       setDifficulty(data.difficulty);
       setTopic(data.topic);
       setMessages(data.messages);
       setSessionName(data.sessionName);
       setEditedName(data.sessionName);
-      setJoinedUsers(data.joinedUsers);
+      const uniqueUsers = Array.from(new Set(data.joinedUsers));
+      setJoinedUsers(uniqueUsers);
     })
 
     newSocket.on('userList', (data: string[]) => {
-      setJoinedUsers(data)
+      const uniqueUsers = Array.from(new Set(data));
+      console.log(uniqueUsers);
+      setJoinedUsers(uniqueUsers);
     })
 
 
@@ -238,11 +251,28 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
     setIsEditing(true);
   };
 
-  const handleNameSubmit = () => {
+  const handleNameSubmit = async ()  => {
     setIsEditing(false);
     setSessionName(editedName);
 
     socket?.emit('updateSessionName', { newSessionName: editedName, matchId: matchId });
+    try {
+        const sessionId = matchId;
+        const response = await fetch(`/api/sessions/${sessionId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionName: editedName }),
+        });
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+        }
+    
+      } catch (error) {
+        console.error('Error updating session:', error);
+    }
   };
 
   const handleExitSession = () => {
@@ -316,7 +346,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
 
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden relative">
       <header className="bg-background border-b flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -444,10 +474,11 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
         <Tabs defaultValue="question" className="flex flex-col pb-1 overflow-hidden">
           <TabsList className="w-fit">
             <TabsTrigger value="question">Question</TabsTrigger>
+            <TabsTrigger value="attempts">Attempts</TabsTrigger>
             <TabsTrigger value="feedback">Chat</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden pb-1">
-            <Card className="flex flex-col mt-1 mb-4 h-full overflow-hidden">
+            <Card className="flex flex-col mt-1 mb-4 h-3/4 overflow-hidden">
               <div className="space-y-4 p-2 overflow-auto">
                 <CardHeader className="p-4">
                   <CardTitle className="text-2xl font-bold mb-2">{question?.title}</CardTitle>
@@ -459,7 +490,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             </Card>
           </TabsContent>
           <TabsContent value="feedback" className="flex-1 pb-1 h-full overflow-hidden">
-            <Card className="p-2 mt-1 h-full overflow-hidden">
+            <Card className="p-2 mt-1 h-3/4 overflow-hidden">
               <div className="space-y-4 p-4 flex flex-col h-full overflow-hidden">
                 <div className="flex-1 overflow-y-auto">
                   {messages.map((msg, index) => (
@@ -500,10 +531,16 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
               </div>
             </Card>
           </TabsContent>
+          <TabsContent value="attempts">
+            <AttemptsTab></AttemptsTab>
+          </TabsContent>
         </Tabs>
         <div className="flex flex-col gap-0 h-full overflow-hidden">
           <CodeEditorContainer sessionId={matchId} questionId={question?._id} userData={userData} />
         </div>
+      </div>
+      <div className="absolute bottom-0 left-0 z-50">
+        <VideoDisplay />
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { CalendarIcon, ClockIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
@@ -78,6 +79,12 @@ export default function SessionsPage() {
       </div>
       <div className="space-y-6">
         {renderYearSessions(2024, sessions)}
+      </div>
+
+      <div className="mt-8">
+        <Link href="/session-history">
+          View Session History
+        </Link>
       </div>
     </main>
   )

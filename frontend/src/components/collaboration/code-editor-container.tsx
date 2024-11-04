@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlayIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation';
 import DynamicTestCases from '../TestCaseCard';
 import { CodeExecutionResponse } from '@/app/api/code-execution/route';
 import { executeCode } from '@/lib/api-user';
@@ -24,63 +25,6 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
   const [language, setLanguage] = useState(initialLanguage);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
-
-  const [executing, setExecuting] = useState<boolean>(false);
-  const [result, setResult] = useState<CodeExecutionResponse | null>(null);
-  const [testResults, setTestResults] = useState<TestResult[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  interface TestResult {
-    testCaseNumber: number;
-    input: string;
-    expectedOutput: string;
-    actualOutput: string;
-    passed: boolean;
-    error?: string;
-    compilationError?: string | null;
-  }
-
-  
-  const handleExecuteCode = async (questionId?: string) => {
-    if (!isConnected) {
-      toast({
-        variant: "destructive",
-        title: "Cannot Submit",
-        description: "Please wait until you're connected to the server",
-      });
-      return;
-    }
-
-    if (socket.current?.connected) {
-      socket.current.emit('submitCode', {
-        sessionId,
-        questionId,
-        code,
-        language,
-      });
-    }
-    setExecuting(true);
-    try {
-      if (!questionId) {
-        throw new Error('Question ID is required');
-      }
-      const result: CodeExecutionResponse = await executeCode({
-        sessionId,
-        questionId,
-        language: language,
-        code: code
-      });
-      setResult(result);
-      setTestResults(result.testResults);
-      if (result.testResults.some(test => test.error)) {
-        setError(result.testResults.find(test => test.error)?.error || 'Execution failed');
-      }
-    } catch (error) {
-      setError((error as any).message);
-    } finally {
-      setExecuting(false);
-    }
-  };
 
   // Initialize socket connection
   useEffect(() => {
@@ -105,15 +49,12 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         title: "Connected",
         description: "Successfully connected to the coding session",
       });
+      setCode('');
+      setLanguage(initialLanguage);
     });
 
     socketInstance.on('disconnect', () => {
       setIsConnected(false);
-      toast({
-        variant: "destructive",
-        title: "Disconnected",
-        description: "Lost connection to the server",
-      });
     });
 
     socketInstance.on('error', (errorMessage: string) => {
@@ -134,6 +75,10 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         title: "Code Submitted",
         description: `Submission recorded at ${new Date(timestamp).toLocaleTimeString()}`,
       });
+    });
+
+    socketInstance.on('sessionCompleted', () => {
+      router.push('/sessions');
     });
 
     socket.current = socketInstance;
