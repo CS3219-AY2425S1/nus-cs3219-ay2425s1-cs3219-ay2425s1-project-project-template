@@ -82,6 +82,10 @@ const Collab = () => {
     }, []);
 
     const startCountdown = () => {
+
+        // Clear any existing interval to avoid multiple intervals running at once
+        if (intervalRef.current) clearInterval(intervalRef.current);
+
         intervalRef.current = setInterval(() => {
             setCountdown((prevCountdown) => {
                 if (prevCountdown <= 1) {
