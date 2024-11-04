@@ -14,7 +14,7 @@ services:
     networks:
       - peer-prep-network
     restart: on-failure:10
-  
+
   signaling:
     build: ./backend/signaling
     container_name: signaling-container
@@ -61,6 +61,19 @@ services:
       - ./backend/websocket/.env
     volumes:
       - ./backend/websocket/src:/app/src
+    networks:
+      - peer-prep-network
+    restart: on-failure:10
+
+  websocketchat:
+    build: ./backend/websocketchat
+    container_name: websocket-chat-container
+    ports:
+      - "3007:3007"
+    env_file:
+      - ./backend/websocketchat/.env # Env file for matching service, to test in prod
+    volumes:
+      - ./backend/websocketchat/src:/app/src
     networks:
       - peer-prep-network
     restart: on-failure:10
