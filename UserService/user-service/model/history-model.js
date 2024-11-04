@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const HistorySchema = new Schema({
+    sessionId: {
+        type: String,
+        required: true,
+    },
     questionId: {
         type: String,
         required: true,

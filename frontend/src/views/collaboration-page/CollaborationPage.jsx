@@ -99,19 +99,33 @@ const CollaborationPage = () => {
         const interval = setTimeout(() => {
             console.log('Saving codeSnippet to localStorage');
             localStorage.setItem(`codeSnippet-${language}`, content);
+            handleUpdateHistoryNow();
         }, 2000); // save after every 2 seconds
         return () => clearTimeout(interval);
     }, [content, language]);
 
     useEffect(() => {
-        window.addEventListener('beforeunload', handleSessionEnd);
+        window.addEventListener('beforeunload', handleUpdateHistoryNow);
 
         return () => {
-            window.removeEventListener('beforeunload', handleSessionEnd);
-            handleSessionEnd(); 
+            window.removeEventListener('beforeunload', handleUpdateHistoryNow);
+            handleUpdateHistoryNow(); 
             socketRef.current.disconnect();
         };
     }, [codeSnippets, question, cookies.userId, cookies.username]);
+
+    const handleUpdateHistoryNow = async () => {
+        const updatePromises = Object.entries(codeSnippets).map(([lang, code]) => {
+            return handleHistoryUpdate(cookies.userId, roomId, question, lang, code);
+        });
+
+        try {
+            await Promise.all(updatePromises);
+            console.log('All history updates completed.');
+        } catch (error) {
+            console.error('Error updating history:', error);
+        }
+    }
 
     const handleEditorChange = (newContent) => {
         setContent(newContent);
@@ -123,22 +137,8 @@ const CollaborationPage = () => {
         socketRef.current.emit('editDocument', { roomId, content: newContent });
     };
 
-    const handleSessionEnd = async () => {
-        const userId = cookies.userId;
-        const updatePromises = Object.entries(codeSnippets).map(([lang, code]) => {
-            return handleHistoryUpdate(userId, question, lang, code);
-        });
-
-        try {
-            await Promise.all(updatePromises);
-            console.log('All history updates completed.');
-        } catch (error) {
-            console.error('Error updating history:', error);
-        }
-    }
-
     const handleLeave = () => {
-        handleSessionEnd();
+        handleUpdateHistoryNow();
 
         const username = cookies.username;
         console.log('Emitting custom_disconnect before navigating away');

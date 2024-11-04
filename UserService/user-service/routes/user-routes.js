@@ -21,7 +21,7 @@ router.post("/", createUser);
 
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 
-router.post("/:id/history", verifyAccessToken, verifyIsOwnerOrAdmin, addUserHistory);
+router.post("/:id/history", verifyAccessToken, addUserHistory);
 
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 

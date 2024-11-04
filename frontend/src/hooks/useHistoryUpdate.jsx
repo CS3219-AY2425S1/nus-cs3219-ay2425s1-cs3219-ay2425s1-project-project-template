@@ -1,13 +1,17 @@
 import { useState } from "react";
 
+/**
+ * This should be used to update the History information
+ */
 const useHistoryUpdate = () => {
     const [isLoading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
 
-    const handleHistoryUpdate = async (userId, questionId, language, codeSnippet) => {
+    const handleHistoryUpdate = async (userId, sessionId, questionId, language, codeSnippet) => {
         setLoading(true);
         setError(false);
         const historyEntry = {
+            sessionId: sessionId,
             questionId: questionId,
             language: language,
             codeSnippet: codeSnippet,
@@ -17,6 +21,7 @@ const useHistoryUpdate = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cookies.accessToken}`
                 },
                 body: JSON.stringify({
                     historyEntry

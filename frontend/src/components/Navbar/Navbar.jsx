@@ -2,7 +2,7 @@ import useLogout from '../../hooks/useLogout';
 import styles from './Navbar.module.css'
 import { useCookies } from 'react-cookie';
 import { useLocation } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
     const { handleLogout } = useLogout();
@@ -18,6 +18,20 @@ const Navbar = () => {
         }
     };
 
+    // temp method 
+    const navigate = useNavigate();
+    const handleProfile = () => {
+        navigate("/profile", { replace: true} );
+    }
+
+    const handleProfileClick = () => {
+        if (isInCollabRoom) {
+            alert("You cannot view profile while in a collaboration room. Leave the room first!"); // Alert if in collaboration room
+        } else {
+            handleProfile();
+        }
+    };
+
     return (
         <div className={styles.nav}>
             <nav className={styles.navContent}>
@@ -30,6 +44,9 @@ const Navbar = () => {
                             Hello, {cookies.username}
                         </div>
                     )}
+                    <button className={styles.navButton} onClick={() => { handleProfileClick() }}>
+                        Profile
+                    </button>
                     <button className={styles.navButton} onClick={() => { handleLogoutClick() }}>
                         Log out
                     </button>

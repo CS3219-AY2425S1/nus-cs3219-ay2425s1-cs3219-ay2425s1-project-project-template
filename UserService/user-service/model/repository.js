@@ -41,16 +41,45 @@ export async function findAllUsers() {
 }
 
 export async function addHistoryEntry(userId, historyEntry) {
-  return UserModel.findByIdAndUpdate(
-    userId,
+  const { sessionId, questionId, language, codeSnippet } = historyEntry;
+
+  return UserModel.findOneAndUpdate(
     {
-      $push: {
-        history: historyEntry,
+      _id: userId,
+      history: {
+        $elemMatch: {
+          sessionId: sessionId,
+          questionId: questionId,
+          language: language,
+        },
+      }
+    },
+    {
+      $set: {
+        'history.$.codeSnippet': codeSnippet,
+        'history.$.timestamp': new Date(),
       },
     },
-    { new: true } 
-  );
+    {
+      new: true, // Return the updated document
+      upsert: false, // Do not create a new entry if one is not found (for this query)
+    }
+  ).then((result) => {
+    if (!result) {
+      return UserModel.findByIdAndUpdate(
+        userId,
+        {
+          $push: {
+            history: historyEntry,
+          },
+        },
+        { new: true }
+      );
+    }
+    return result;
+  });
 }
+
 
 export async function updateUserById(userId, username, email, password, proficiency, displayName) {
   return UserModel.findByIdAndUpdate(

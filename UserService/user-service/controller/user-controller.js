@@ -71,19 +71,26 @@ export async function getAllUsers(req, res) {
 export async function addUserHistory(req, res) {
   try {
     const userId = req.params.id;
-    const { questionId, language, codeSnippet } = req.body;
-    const timestamp = new Date(); 
+    const { sessionId, questionId, language, codeSnippet } = req.body;
+    const timestamp = new Date();
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: `Invalid user ID: ${userId}` });
     }
-    const user = await findUserById(userId);
+    const user = await _findUserById(userId);
     if (!user) {
       return res.status(404).json({ message: `User ${userId} not found` });
     }
-    if (!questionId || !language || !codeSnippet) {
-      return res.status(400).json({ message: 'Missing required fields in history entry' });
+    if (!sessionId || !questionId || !language || !codeSnippet) {
+      return res.status(400).json({ 
+        message: `Missing required fields in history entry. Provided: 
+        Session Id: ${sessionId}, 
+        Question Id: ${questionId},
+        Language: ${language},
+        codeSnippet: ${codeSnippet}` 
+      });
     }
     const historyEntry = {
+      sessionId,
       questionId,
       language,
       codeSnippet,
@@ -199,5 +206,6 @@ export function formatUserResponse(user) {
     displayName: user.displayName,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
+    history: user.history
   };
 }
