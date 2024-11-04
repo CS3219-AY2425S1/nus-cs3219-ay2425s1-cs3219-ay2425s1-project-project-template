@@ -57,7 +57,6 @@ export class CodeExecutionProcessor {
 
   private async executeTestCaseWithRetry(testCase: any, index: number, language: string, code: string, retryCount = 0): Promise<any> {
     try {
-      console.log("PISTON_API_URL:", this.PISTON_API_URL);
       const response = await axios.post(
         `${this.PISTON_API_URL}/execute`,
         {
