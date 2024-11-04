@@ -43,6 +43,8 @@ const DynamicTestCases = ({ questionId, testResults }: TestCaseProps) => {
 
     if (questionId) {
       fetchTestCases();
+    } else {
+      setLoading(false);
     }
   }, [questionId]);
 
@@ -67,6 +69,45 @@ const DynamicTestCases = ({ questionId, testResults }: TestCaseProps) => {
       <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
         <CardHeader className="pb-1 pt-4 text-red-500">Error Loading Test Cases</CardHeader>
         <CardContent>{error}</CardContent>
+      </Card>
+    );
+  }
+
+  const hasRunResults = testResults.length > 0;
+  
+  if (!testCases.length) {
+    return (
+      <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
+        <CardHeader className="pb-1 pt-4 font-bold text-xl">Test Cases</CardHeader>
+        <CardContent className="flex-1 overflow-auto py-0">
+          {!hasRunResults && (
+            <div className="text-gray-500 text-center py-4">
+              No test cases available
+            </div>
+          )}
+          {hasRunResults && (
+            <Card>
+              <CardContent className="flex flex-col gap-4 p-4">
+                <div>
+                  <CardDescription className="font-medium text-sm mb-1">Latest Run Output</CardDescription>
+                  <pre className="bg-muted p-2 rounded-md overflow-auto">{testResults[0].actualOutput}</pre>
+                </div>
+                {testResults[0].error && (
+                  <div>
+                    <CardDescription className="font-medium text-sm mb-1 text-red-500">Error</CardDescription>
+                    <pre className="bg-red-50 text-red-500 p-2 rounded-md overflow-auto">{testResults[0].error}</pre>
+                  </div>
+                )}
+                {testResults[0].compilationError && (
+                  <div>
+                    <CardDescription className="font-medium text-sm mb-1 text-red-500">Compilation Error</CardDescription>
+                    <pre className="bg-red-50 text-red-500 p-2 rounded-md overflow-auto">{testResults[0].compilationError}</pre>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </CardContent>
       </Card>
     );
   }
