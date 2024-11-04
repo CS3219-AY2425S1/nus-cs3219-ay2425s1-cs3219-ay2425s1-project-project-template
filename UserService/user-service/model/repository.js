@@ -41,7 +41,7 @@ export async function findAllUsers() {
 }
 
 export async function addHistoryEntry(userId, historyEntry) {
-  const { sessionId, questionId, language, codeSnippet } = historyEntry;
+  const { sessionId, questionId, questionDescription, language, codeSnippet } = historyEntry;
 
   return UserModel.findOneAndUpdate(
     {
@@ -50,6 +50,7 @@ export async function addHistoryEntry(userId, historyEntry) {
         $elemMatch: {
           sessionId: sessionId,
           questionId: questionId,
+          questionDescription: questionDescription,
           language: language,
         },
       }

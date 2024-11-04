@@ -71,7 +71,7 @@ export async function getAllUsers(req, res) {
 export async function addUserHistory(req, res) {
   try {
     const userId = req.params.id;
-    const { sessionId, questionId, language, codeSnippet } = req.body;
+    const { sessionId, questionId, questionDescription, language, codeSnippet } = req.body;
     const timestamp = new Date();
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: `Invalid user ID: ${userId}` });
@@ -85,6 +85,7 @@ export async function addUserHistory(req, res) {
         message: `Missing required fields in history entry. Provided: 
         Session Id: ${sessionId}, 
         Question Id: ${questionId},
+        Question Title: ${questionDescription}
         Language: ${language},
         codeSnippet: ${codeSnippet}` 
       });
@@ -92,6 +93,7 @@ export async function addUserHistory(req, res) {
     const historyEntry = {
       sessionId,
       questionId,
+      questionDescription,
       language,
       codeSnippet,
       timestamp,

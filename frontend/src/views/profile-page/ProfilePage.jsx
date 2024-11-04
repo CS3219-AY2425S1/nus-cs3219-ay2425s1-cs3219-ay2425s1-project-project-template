@@ -44,15 +44,15 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const sortedHistory = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+
         const map = new Map();
         sortedHistory.forEach(entry => {
-            console.log(`getUniqueSessions: ${entry.sessionId} ${entry.questionId} ${entry.timestamp}`);
+            console.log(`getUniqueSessions: ${entry.sessionId} ${entry.questionId} ${entry.questionDescription} ${entry.timestamp}`);
             if (!map.has(entry.sessionId)) {
-                map.set(entry.sessionId, [entry.questionId, entry.timestamp]);
+                map.set(entry.sessionId, [entry.questionId, entry.questionDescription, entry.timestamp]);
             }
         });
-    
+
         setSessionMap(map);
         setNumQuestions(map.size);
     }, [username, email, createdAt, history]);
@@ -90,10 +90,10 @@ const ProfilePage = () => {
                     <h2>Question History</h2>
                 </div>
                 <ul className={styles.questionList}>
-                    {Array.from(sessionMap.entries()).map(([sessionId, [questionId, timestamp]], index) => (
+                    {Array.from(sessionMap.entries()).map(([sessionId, [questionId, questionDescription, timestamp]], index) => (
                         <li key={index} className={styles.questionItem}>
                             <div className={styles.questionHeader} onClick={() => handleToggle(sessionId)}>
-                                <span>{questionId}</span>
+                                <span className={styles.label}>{questionId}</span>
                                 <span>{new Date(timestamp).toLocaleDateString()}</span>
                                 <span className={styles.toggleIcon}>
                                     {expandedSessionId === sessionId ? '▲' : '▼'}
@@ -101,6 +101,10 @@ const ProfilePage = () => {
                             </div>
                             {expandedSessionId === sessionId && (
                                 <div className={styles.snippetContainer}>
+                                    <div className={styles.questionDescription}>
+                                        <div className={styles.label}>Description:</div>
+                                        <div>{questionDescription}</div>
+                                    </div>
                                     <div className={styles.tabContainer}>
                                         {[...new Set(history.filter(h => h.sessionId === sessionId).map(h => h.language))].map((language, index) => (
                                             <button

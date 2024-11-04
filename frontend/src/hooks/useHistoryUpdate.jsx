@@ -9,7 +9,7 @@ const useHistoryUpdate = () => {
     const [isError, setError] = useState(false);
     const [cookies] = useCookies(['accessToken']);
 
-    const handleHistoryUpdate = async (userId, sessionId, questionId, language, codeSnippet) => {
+    const handleHistoryUpdate = async (userId, sessionId, questionId, questionDescription, language, codeSnippet) => {
         setLoading(true);
         setError(false);
         try {
@@ -22,6 +22,7 @@ const useHistoryUpdate = () => {
                 body: JSON.stringify({
                     sessionId: sessionId,
                     questionId: questionId,
+                    questionDescription: questionDescription,
                     language: language,
                     codeSnippet: codeSnippet,
                 })
@@ -33,7 +34,6 @@ const useHistoryUpdate = () => {
                 throw new Error(errorData.message || 'Failed to update history');
             }
             const data = await response.json();
-            console.log(`useHistoryUpdate ${data}`);
             console.log(`useHistoryUpdate: Successfully updated history. sessionId ${sessionId}, questionId ${questionId}, language ${language}`);
         } catch (error) {
             setLoading(false);

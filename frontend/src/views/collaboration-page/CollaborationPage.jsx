@@ -81,13 +81,11 @@ const CollaborationPage = () => {
         socketRef.current.on('documentUpdate', (data) => {
             console.log('documentUpdate event received: ', data.content);
             setContent(data.content);
-            // handleUpdateHistoryNow(language, data.content);
         });
 
         socketRef.current.on('languageUpdate', (data) => {
             console.log('languageUpdate event received: ', data.language);
             setLanguage(data.language);
-            // handleUpdateHistoryNow(data.language, content);
         });
 
         socketRef.current.on('partner_disconnect', (data) => {
@@ -114,7 +112,7 @@ const CollaborationPage = () => {
     const handleUpdateHistoryNow = async (lang, code) => {
         console.log(`handleUpdateHistoryNow`)
         try {
-            await handleHistoryUpdate(cookies.userId, roomId, questionTitle, lang, code);
+            await handleHistoryUpdate(cookies.userId, roomId, questionTitle, questionContent, lang, code);
             console.log('History update completed.');
         } catch (error) {
             console.error('Error updating history:', error);

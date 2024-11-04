@@ -11,6 +11,10 @@ const HistorySchema = new Schema({
         type: String,
         required: true,
     },
+    questionDescription: {
+        type: String,
+        required: true,
+    },
     language: {
         type: String,
         required: true,

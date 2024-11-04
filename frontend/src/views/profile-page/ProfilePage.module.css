@@ -89,6 +89,7 @@
 .questionHeader {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px;
     cursor: pointer;
     background-color: #1f2937;
@@ -98,6 +99,27 @@
 
 .questionHeader:hover {
     background-color: #444;
+}
+
+.snippetContainer {
+    padding: 15px;
+    background-color: #1e1f26;
+    border-radius: 4px;
+}
+
+.questionDescription {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.label {
+    font-weight: bold; 
+    font-size: 1.2em;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .tabContainer {
@@ -126,13 +148,6 @@
     color: #2a2a4d; /* Text color when active */
     font-weight: bold; /* Bold text when active */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional shadow for emphasis */
-}
-
-.snippetContainer {
-    padding: 15px;
-    background-color: #1e1f26;
-    border-radius: 4px;
-    margin-top: 10px;
 }
 
 .codeBlock {
