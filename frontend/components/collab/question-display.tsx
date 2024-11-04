@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import clsx from "clsx";
 import {
   Card,
   CardContent,
@@ -26,7 +27,15 @@ interface Question {
   description: string;
 }
 
-export default function QuestionDisplay({ roomId }: { roomId: string }) {
+export default function QuestionDisplay({
+  roomId,
+  className,
+  date,
+}: {
+  roomId: string;
+  className?: string;
+  date?: Date;
+}) {
   const auth = useAuth();
   const token = auth?.token;
   const [question, setQuestion] = useState<Question | null>(null);
@@ -66,16 +75,21 @@ export default function QuestionDisplay({ roomId }: { roomId: string }) {
   if (!question) {
     return <div>Question not found</div>;
   }
+  date && console.log(date.toLocaleString());
+  date && console.log(date.toLocaleString("en-GB"));
 
   return (
-    <Card className="flex-shrink-0">
+    <Card className={clsx("flex-shrink-0", className)}>
       <CardHeader>
         <CardTitle>{question.title}</CardTitle>
-        <CardDescription className="flex items-center space-x-2">
-          <span>{question.categories}</span>
-          <Badge className={`${difficultyColors[question.complexity]}`}>
-            {question.complexity}
-          </Badge>
+        <CardDescription className="flex items-center justify-between">
+          <div className="flex space-x-2">
+            <span>{question.categories}</span>
+            <Badge className={`${difficultyColors[question.complexity]}`}>
+              {question.complexity}
+            </Badge>
+          </div>
+          {date && <span>{new Date(date).toLocaleString()}</span>}
         </CardDescription>
       </CardHeader>
       <CardContent>

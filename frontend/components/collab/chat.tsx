@@ -11,12 +11,21 @@ import { io, Socket } from "socket.io-client";
 import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
+import { getChatHistory } from "@/lib/api/collab-service/get-chat-history";
 
 interface Message {
   id: string;
   userId: string;
   text: string;
   timestamp: Date;
+  messageIndex?: number;
+}
+
+interface ChatHistoryMessage {
+  messageIndex: number;
+  userId: string;
+  text: string;
+  timestamp: string;
 }
 
 export default function Chat({ roomId }: { roomId: string }) {
@@ -28,10 +37,45 @@ export default function Chat({ roomId }: { roomId: string }) {
   const [partnerMessages, setPartnerMessages] = useState<Message[]>([]);
   const [aiMessages, setAiMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!auth?.user?.id) return; // Avoid connecting if user is not authenticated
+    const fetchChatHistory = async () => {
+      try {
+        const response = await getChatHistory(roomId);
+
+        if (response.ok) {
+          const history: ChatHistoryMessage[] = await response.json();
+          const formattedHistory = history.map((msg) => ({
+            id: msg.messageIndex.toString(),
+            userId: msg.userId,
+            text: msg.text,
+            timestamp: new Date(msg.timestamp),
+            messageIndex: msg.messageIndex,
+          }));
+
+          formattedHistory.sort(
+            (a: Message, b: Message) =>
+              (a.messageIndex ?? 0) - (b.messageIndex ?? 0)
+          );
+
+          setPartnerMessages(formattedHistory);
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (roomId) {
+      fetchChatHistory();
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!auth?.user?.id) return;
 
     const socketInstance = io(
       process.env.NEXT_PUBLIC_COLLAB_SERVICE_URL || "http://localhost:3002",
@@ -52,7 +96,24 @@ export default function Chat({ roomId }: { roomId: string }) {
     });
 
     socketInstance.on("chatMessage", (message: Message) => {
-      setPartnerMessages((prev) => [...prev, message]);
+      setPartnerMessages((prev) => {
+        const exists = prev.some(
+          (msg) => msg.messageIndex === message.messageIndex
+        );
+        if (exists) return prev;
+
+        const newMessage = {
+          ...message,
+          id: message.messageIndex?.toString() || crypto.randomUUID(),
+          timestamp: new Date(message.timestamp),
+        };
+
+        const newMessages = [...prev, newMessage].sort(
+          (a, b) => (a.messageIndex ?? 0) - (b.messageIndex ?? 0)
+        );
+
+        return newMessages;
+      });
     });
 
     setSocket(socketInstance);
@@ -77,13 +138,6 @@ export default function Chat({ roomId }: { roomId: string }) {
   const sendMessage = async () => {
     if (!newMessage.trim() || !socket || !isConnected || !own_user_id) return;
 
-    const message = {
-      id: crypto.randomUUID(),
-      userId: own_user_id,
-      text: newMessage,
-      timestamp: new Date(),
-    };
-
     if (chatTarget === "partner") {
       socket.emit("sendMessage", {
         roomId,
@@ -91,6 +145,12 @@ export default function Chat({ roomId }: { roomId: string }) {
         text: newMessage,
       });
     } else {
+      const message: Message = {
+        id: crypto.randomUUID(),
+        userId: own_user_id,
+        text: newMessage,
+        timestamp: new Date(),
+      };
       setAiMessages((prev) => [...prev, message]);
       const response = await sendAiMessage(newMessage);
       const data = await response.json();
@@ -110,7 +170,10 @@ export default function Chat({ roomId }: { roomId: string }) {
   };
 
   const formatTimestamp = (date: Date) => {
-    return new Date(date).toLocaleTimeString([], {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+    return date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -134,7 +197,7 @@ export default function Chat({ roomId }: { roomId: string }) {
     </div>
   );
 
-  if (!own_user_id) {
+  if (!own_user_id || isLoading) {
     return <LoadingScreen />;
   }
 
