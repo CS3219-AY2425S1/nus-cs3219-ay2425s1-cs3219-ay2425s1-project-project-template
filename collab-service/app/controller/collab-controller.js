@@ -19,7 +19,7 @@ export async function createRoom(req, res) {
   }
 
   // Generate a unique room ID by hashing the two user IDs
-  const timeSalt = new Date().toISOString().slice(0, 13);
+  const timeSalt = new Date().toISOString().slice(0, 19);
   const roomId = crypto
     .createHash("sha256")
     .update(user1 + user2 + timeSalt)
