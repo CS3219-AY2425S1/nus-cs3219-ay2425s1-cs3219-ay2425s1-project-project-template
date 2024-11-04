@@ -27,7 +27,7 @@ enum Topic {
 }
 
 interface IQuestion extends Document {
-  questionId: number;
+  questionId: string;
   title: string;
   description: string;
   category: Topic[];
@@ -36,7 +36,7 @@ interface IQuestion extends Document {
 
 const questionSchema: Schema = new Schema({
   questionId: {
-    type: Number,
+    type: String,
     required: true,
     unique: true,
   },

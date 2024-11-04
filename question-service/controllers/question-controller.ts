@@ -1,9 +1,6 @@
 import express, { Request, Response } from "express";
 import Question from "../models/question-model";
 
-// @desc Fetch all questions
-// @route GET /api/questions
-// @access Public
 export const fetchAllQuestions = async (
   req: Request,
   res: Response
@@ -20,9 +17,6 @@ export const fetchAllQuestions = async (
   }
 };
 
-// @desc Create a new question
-// @route POST /api/questions
-// @access Public
 export const addQuestion = async (
   req: Request,
   res: Response
@@ -50,9 +44,6 @@ export const addQuestion = async (
   }
 };
 
-// @desc Update a question by ID
-// @route PUT /api/questions/:id
-// @access Public
 export const updateQuestionById = async (
   req: Request,
   res: Response
@@ -85,9 +76,6 @@ export const updateQuestionById = async (
   }
 };
 
-// @desc Delete a question by ID
-// @route DELETE /api/questions/:id
-// @access Public
 export const deleteQuestionById = async (
   req: Request,
   res: Response
@@ -106,9 +94,6 @@ export const deleteQuestionById = async (
   }
 };
 
-// @desc Find a question by ID
-// @route GET /api/questions/:id
-// @access Public
 export const getQuestionById = async (
   req: Request,
   res: Response
@@ -127,9 +112,6 @@ export const getQuestionById = async (
   }
 };
 
-// @desc Get questions by difficulty level
-// @route GET /api/questions?difficulty=<level>
-// @access Public
 export const getQuestionsByDifficulty = async (
   req: Request,
   res: Response
