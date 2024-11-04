@@ -61,10 +61,13 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
       setLoading(true);
       collabSocket?.emit("console-load", roomId, true);
       const result = await executeCode(language, sourceCode);
-      const consoleResults = result.output.split("\n");
+      let consoleResults = result.output.split("\n");
+      if (result.output === "" && result.error) {
+        consoleResults = result.error.split("\n");
+      }
       setOutput(consoleResults);
       collabSocket?.emit("console-change", roomId, qid, consoleResults);
-      result.stderr ? setIsError(true) : setIsError(false);
+      result.error ? setIsError(true) : setIsError(false);
     } catch (error) {
       console.log(error);
       <Snackbar

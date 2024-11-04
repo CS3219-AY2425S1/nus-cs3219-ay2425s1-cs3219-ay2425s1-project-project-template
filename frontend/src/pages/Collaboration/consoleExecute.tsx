@@ -5,7 +5,7 @@ interface ExecuteCodeRequest {
 
 interface ExecuteCodeResponse {
   output: string;
-  stderr?: string;
+  error?: string;
 }
 
 interface ExecuteCodeError {
@@ -36,7 +36,7 @@ export const executeCode = async (
     const data = await response.json() as ExecuteCodeResponse;
     return {
       output: data.output || '',
-      stderr: data.stderr
+      error: data.error
     };
   } catch (error) {
     if (error instanceof Error) {
