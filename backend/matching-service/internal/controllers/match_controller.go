@@ -24,6 +24,9 @@ func AddUserHandler(c *gin.Context) {
 	matchingInfo.Status = models.Pending
 	matchingInfo.RoomID = uuid.New().String()
 
+	//Clearing not pending records from db
+	services.DeleteUnusedFromDB()
+
 	// Insert matching info into MongoDB
 	_, err := services.InsertMatching(matchingInfo)
 	if err != nil {
@@ -192,14 +195,9 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			roomID := matchingInfo.RoomID
 
 			// Update the status and room_id of both users in MongoDB (only after the match is confirmed)
-			err = services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, "Matched", roomID)
+			err = services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, matchedUser.UserID, roomID)
 			if err != nil {
-				log.Printf("Error updating status for user_id: %s", matchingInfo.UserID)
-			}
-
-			err = services.UpdateMatchStatusAndRoomID(matchedUser.UserID, "Matched", roomID)
-			if err != nil {
-				log.Printf("Error updating status for user_id: %s", matchedUser.UserID)
+				log.Printf("Error updating status for user_id: %s and user_id: %s", matchingInfo.UserID, matchedUser.UserID)
 			}
 
 			// Find the intersection of complexities and categories
@@ -208,14 +206,15 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 
 			// Prepare the match result
 			matchResult := models.MatchResult{
-				UserOneSocketID: matchingInfo.SocketID,
-				UserTwoSocketID: matchedUser.SocketID,
-				UserOne:         matchingInfo.UserID,    // Set UserOne as the ID of the first user
-				UserTwo:         matchedUser.UserID,     // Set UserTwo as the ID of the matched user
-				RoomID:          roomID,                 // Use the roomID generated for this match
-				Complexity:      complexityIntersection, // Pass the intersection of complexities
-				Categories:      categoriesIntersection, // Pass the intersection of categories
-				Question:        models.Question{},      // Initially, Question will be empty
+				UserOneSocketID:      matchingInfo.SocketID,
+				UserTwoSocketID:      matchedUser.SocketID,
+				UserOne:              matchingInfo.UserID,    // Set UserOne as the ID of the first user
+				UserTwo:              matchedUser.UserID,     // Set UserTwo as the ID of the matched user
+				RoomID:               roomID,                 // Use the roomID generated for this match
+				Complexity:           complexityIntersection, // Pass the intersection of complexities
+				Categories:           categoriesIntersection, // Pass the intersection of categories
+				ProgrammingLanguages: matchedUser.ProgrammingLanguages,
+				Question:             models.Question{}, // Initially, Question will be empty
 			}
 
 			// Publish the match result to RabbitMQ

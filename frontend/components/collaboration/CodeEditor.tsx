@@ -1,7 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { type editor } from "monaco-editor";
-import axios from "axios";
+import axios from "@/utils/axios";
 import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
@@ -21,7 +21,6 @@ interface CodeEditorProps {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
 
-// Mapping Monaco editor languages to API language IDs
 const LANGUAGE_MAP: Record<string, number> = {
   javascript: 63,
   python: 71,
@@ -42,47 +41,37 @@ export default function CodeEditor({
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
   const { theme } = useTheme();
+  const [userInput, setUserInput] = useState("");
 
-  // Function to handle code execution
   const executeCode = async () => {
     if (!codeEditorRef.current) return;
     const code = codeEditorRef.current.getValue();
-
-    // Get the language from the Monaco editor
     const currentLanguage = codeEditorRef.current.getModel()?.getLanguageId();
-
-    // Safely check if currentLanguage is defined, and fetch from languageMap
     const languageId =
       currentLanguage && LANGUAGE_MAP[currentLanguage]
         ? LANGUAGE_MAP[currentLanguage]
-        : 63; // Default to JavaScript if not found
+        : 63;
 
     try {
-      // Submit code to backend for execution
-      const response = await axios.post(`${API_BASE_URL}/api/code-execute`, {
+      const response = await axios.post(`/collaboration-service/code-execute`, {
         source_code: code,
         language_id: languageId,
       });
-
-      // Extract token and ensure it is a string
       const token = response.data.token;
 
-      // Poll for result using the token
       const intervalId = setInterval(async () => {
         try {
           const { data } = await axios.get(
-            `${API_BASE_URL}/api/code-execute/${token}`,
+            `/collaboration-service/code-execute/${token}`,
             {
               params: { base64_encoded: "false", fields: "*" },
-            },
+            }
           );
 
           if (data.status.id === 3) {
-            // Check if execution completed
             clearInterval(intervalId);
             setOutput(data.stdout || data.stderr || "No output");
           } else if (data.status.id > 3) {
-            // Handle errors
             clearInterval(intervalId);
             setOutput(data.stderr || "An error occurred");
           }
@@ -90,7 +79,7 @@ export default function CodeEditor({
           clearInterval(intervalId);
           console.error("Error fetching code execution result:", error);
           setOutput(
-            "Something went wrong while fetching the code execution result.",
+            "Something went wrong while fetching the code execution result."
           );
         }
       }, 1000);
@@ -102,18 +91,14 @@ export default function CodeEditor({
 
   useEffect(() => {
     if (typeof window !== "undefined" && monaco) {
-      // create a yew yjs doc
       const ydoc = new Y.Doc();
-      // establish partykit as your websocket provider
       const provider = new WebsocketProvider(
         process.env.NEXT_PUBLIC_COLLAB_SERVICE_Y_SERVER_PATH ||
           "ws://localhost:2501",
         roomId,
         ydoc,
       );
-      // awareness for collaborative features
       const yAwareness = provider.awareness;
-      // get the text from the monaco editor
       const yDocTextMonaco = ydoc.getText("monaco");
 
       const editor = monaco.editor.getEditors()[0];
@@ -137,7 +122,7 @@ export default function CodeEditor({
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           changes.added.forEach((clientId) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const state = awarenessStates.get(clientId)?.user;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
             const color = state?.color;
@@ -187,15 +172,17 @@ export default function CodeEditor({
           {language}
         </p>
         <button
-          className="px-1 py-[2] rounded-md"
+          className="px-1 py-2 rounded-md"
           style={{
             alignSelf: "end",
-            backgroundColor: "#007bff",
+            backgroundColor: userInput ? "#007bff" : "#cccccc",
             color: "#fff",
             border: "none",
-            cursor: "pointer",
+            cursor: userInput ? "pointer" : "not-allowed",
+            opacity: userInput ? 1 : 0.6,
           }}
           onClick={executeCode}
+          disabled={!userInput}
         >
           Run Code
         </button>
@@ -216,6 +203,7 @@ export default function CodeEditor({
         onMount={(editor) => {
           codeEditorRef.current = editor;
         }}
+        onChange={(value) => setUserInput(value || "")} // Update userInput in real-time
       />
     </div>
   );
