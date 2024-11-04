@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useCookies } from "react-cookie";
 import useProfile from '../../hooks/useProfile';
 import styles from './ProfilePage.module.css';
-import { snippets } from '@codemirror/lang-javascript';
 
 const ProfilePage = () => {
-    const [selectedQuestionId, setSelectedQuestionId] = useState(null);
-    const [codeSnippets, setCodeSnippets] = useState([]);
+    const [numQuestions, setNumQuestions] = useState(0);
+    const [expandedSessionId, setExpandedSessionId] = useState(null);
+    const [codeSnippet, setCodeSnippet] = useState(null);
+    const [sessionMap, setSessionMap] = useState(new Map());
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
+    const [activeLanguage, setActiveLanguage] = useState(null);
+
     const {
         username,
         email,
@@ -16,25 +19,42 @@ const ProfilePage = () => {
         error,
         isLoading
     } = useProfile(cookies.userId);
-    const sessionMap = new Map();
 
-    const getUniqueSessions = () => {
-        history.forEach(entry => {
-            if (!sessionMap.has(entry.sessionId)) {
-                sessionMap.set(entry.sessionId, entry.questionId);
-            }
-        });
+    const getCodeSnippet = (sessionId, language) => {
+        const match = history.find(entry => entry.sessionId === sessionId && entry.language === language);
+        if (match) {
+            setCodeSnippet(match.codeSnippet);
+        } else {
+            setCodeSnippet(null);
+        }
+        console.log(codeSnippet);
     }
 
-    const handleQuestionSelect = (sessionId) => {
-        const snippets = history.filter(entry => entry.sessionId === sessionId);
-        setSelectedQuestionId(questionId);
-        setCodeSnippets(snippets);
+    const handleToggle = (sessionId) => {
+        setExpandedSessionId(prevId => (prevId === sessionId ? null : sessionId));
+        setActiveLanguage(null);
+        setCodeSnippet(null);
+        console.log(`handleToggle: sessionId: ${sessionId} active: ${activeLanguage}, expanded: ${expandedSessionId}`);
+    };
+
+    const handleLanguageSelect = (language) => {
+        setActiveLanguage(language);
+        getCodeSnippet(expandedSessionId, language);
     };
 
     useEffect(() => {
-        getUniqueSessions();
-        console.log('ProfilePage.jsx: Updated state:', { username, email, createdAt, history });
+        const sortedHistory = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+        const map = new Map();
+        sortedHistory.forEach(entry => {
+            console.log(`getUniqueSessions: ${entry.sessionId} ${entry.questionId} ${entry.timestamp}`);
+            if (!map.has(entry.sessionId)) {
+                map.set(entry.sessionId, [entry.questionId, entry.timestamp]);
+            }
+        });
+    
+        setSessionMap(map);
+        setNumQuestions(map.size);
     }, [username, email, createdAt, history]);
 
     if (isLoading) return <p>Loading...</p>;
@@ -57,7 +77,7 @@ const ProfilePage = () => {
                     </div>
                     <div className={styles.infoBlock}>
                         <p>Questions Answered</p>
-                        <strong>{sessionMap.size}</strong>
+                        <strong>{numQuestions}</strong>
                     </div>
                     <div className={styles.infoBlock}>
                         <p>Member Since</p>
@@ -69,41 +89,43 @@ const ProfilePage = () => {
                 <div>
                     <h2>Question History</h2>
                 </div>
-                {/* <ul className={styles.questionList}>
-                    {history.map((entry) => (
-                        <li key={entry.questionId} className={styles.questionItem}>
-                            <div className={styles.questionHeader} onClick={() => handleQuestionSelect(entry.questionId)}>
-                                <span>{entry.questionTitle}</span>
-                                <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
-                                <span className={styles.toggleIcon}>{expandedQuestionId === entry.questionId ? '▲' : '▼'}</span>
+                <ul className={styles.questionList}>
+                    {Array.from(sessionMap.entries()).map(([sessionId, [questionId, timestamp]], index) => (
+                        <li key={index} className={styles.questionItem}>
+                            <div className={styles.questionHeader} onClick={() => handleToggle(sessionId)}>
+                                <span>{questionId}</span>
+                                <span>{new Date(timestamp).toLocaleDateString()}</span>
+                                <span className={styles.toggleIcon}>
+                                    {expandedSessionId === sessionId ? '▲' : '▼'}
+                                </span>
                             </div>
-                            {expandedQuestionId === entry.questionId && (
+                            {expandedSessionId === sessionId && (
                                 <div className={styles.snippetContainer}>
                                     <div className={styles.tabContainer}>
-                                        {[...new Set(history.filter(h => h.questionId === entry.questionId).map(h => h.language))].map((language, index) => (
+                                        {[...new Set(history.filter(h => h.sessionId === sessionId).map(h => h.language))].map((language, index) => (
                                             <button
                                                 key={index}
-                                                className={styles.tabButton}
-                                                onClick={() => setExpandedQuestionId(entry.questionId)}
+                                                className={`${styles.tabButton} ${activeLanguage === language ? styles.activeTab : ''}`}
+                                                onClick={() => handleLanguageSelect(language)}
                                             >
                                                 {language}
                                             </button>
                                         ))}
                                     </div>
-                                    <div className={styles.codeContainer}>
-                                        {history.filter(h => h.questionId === entry.questionId).map((snippet, index) => (
-                                            <div key={index}>
-                                                <pre className={styles.codeBlock}>
-                                                    <code>{snippet.codeSnippet}</code>
+                                    {codeSnippet && (
+                                        <div className={styles.codeContainer}>
+                                            <div key={index} className={styles.codeBlock}>
+                                                <pre>
+                                                    <code>{codeSnippet}</code>
                                                 </pre>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </li>
                     ))}
-                </ul> */}
+                </ul>
             </div>
         </div>
     );

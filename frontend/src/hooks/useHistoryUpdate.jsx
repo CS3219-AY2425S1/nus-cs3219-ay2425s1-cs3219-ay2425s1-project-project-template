@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useCookies } from 'react-cookie';
 
 /**
  * This should be used to update the History information
@@ -6,16 +7,11 @@ import { useState } from "react";
 const useHistoryUpdate = () => {
     const [isLoading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
+    const [cookies] = useCookies(['accessToken']);
 
     const handleHistoryUpdate = async (userId, sessionId, questionId, language, codeSnippet) => {
         setLoading(true);
         setError(false);
-        const historyEntry = {
-            sessionId: sessionId,
-            questionId: questionId,
-            language: language,
-            codeSnippet: codeSnippet,
-        };
         try {
             const response = await fetch(`http://localhost:3001/users/${userId}/history`, {
                 method: 'POST',
@@ -24,7 +20,10 @@ const useHistoryUpdate = () => {
                     'Authorization': `Bearer ${cookies.accessToken}`
                 },
                 body: JSON.stringify({
-                    historyEntry
+                    sessionId: sessionId,
+                    questionId: questionId,
+                    language: language,
+                    codeSnippet: codeSnippet,
                 })
             });
             if (!response.ok) {
@@ -34,13 +33,12 @@ const useHistoryUpdate = () => {
                 throw new Error(errorData.message || 'Failed to update history');
             }
             const data = await response.json();
-            console.log(data);
-            console.log(`successfully updated history. Data: ${historyEntry}`);
+            console.log(`useHistoryUpdate ${data}`);
+            console.log(`useHistoryUpdate: Successfully updated history. sessionId ${sessionId}, questionId ${questionId}, language ${language}`);
         } catch (error) {
             setLoading(false);
             setError(true)
             console.log(error);
-            alert(error);
         }
     }
 

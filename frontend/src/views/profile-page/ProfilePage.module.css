@@ -65,8 +65,9 @@
     max-width: 800px;
     max-height: max-content;
     margin: 20px auto;
-    padding: 20px;
+    border-radius: 8px;
     color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .questionHistory h2 {
@@ -90,11 +91,55 @@
     justify-content: space-between;
     padding: 10px;
     cursor: pointer;
-    background-color: #333;
+    background-color: #1f2937;
     border-radius: 6px;
     transition: background-color 0.3s;
 }
 
 .questionHeader:hover {
     background-color: #444;
+}
+
+.tabContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+}
+
+.tabButton {
+    background-color: #2a2a4d; 
+    border: none;
+    color: #ffffff; 
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tabButton:hover {
+    background-color: #e0e0e0; 
+}
+
+.tabButton.activeTab {
+    background-color: #ffffff; /* Active background color */
+    color: #2a2a4d; /* Text color when active */
+    font-weight: bold; /* Bold text when active */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional shadow for emphasis */
+}
+
+.snippetContainer {
+    padding: 15px;
+    background-color: #1e1f26;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.codeBlock {
+    background-color: #27282d;
+    padding: 10px;
+    border-radius: 4px;
+    color: white;
+    overflow-x: auto;
+    margin-top: 10px;
 }

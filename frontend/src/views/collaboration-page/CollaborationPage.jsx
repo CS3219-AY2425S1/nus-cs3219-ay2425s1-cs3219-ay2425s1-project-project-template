@@ -14,9 +14,10 @@ const CollaborationPage = () => {
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
     const { roomId } = useParams();
     const [question, setQuestion] = useState(null);
+    const [questionTitle, setQuestionTitle] = useState(null);
+    const [questionContent, setQuestionContent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [content, setContent] = useState(''); // actual content to be displayed
-    const [codeSnippets, setCodeSnippets] = useState({}); // used to store the code for different lang locally
     const [partnerUsername, setPartnerUsername] = useState('');
     const [isConnected, setIsConnected] = useState(false);
     const [language, setLanguage] = useState("javascript");
@@ -43,6 +44,8 @@ const CollaborationPage = () => {
 
         socketRef.current.on('collaboration_ready', (data) => {
             setQuestion(data.question);
+            setQuestionTitle(data.question["Question Title"]);
+            setQuestionContent(data.question["Question Description"])
             setIsLoading(false);
             console.log('collaboration_ready event received');
             console.log('Emitting joinRoom');
@@ -54,6 +57,8 @@ const CollaborationPage = () => {
 
         socketRef.current.on('load_room_content', (data) => {
             setQuestion(data.question);
+            setQuestionTitle(data.question["Question Title"]);
+            setQuestionContent(data.question["Question Description"])
             setContent(data.documentContent);
             setIsLoading(false);
             console.log('load_room_content event received');
@@ -76,11 +81,13 @@ const CollaborationPage = () => {
         socketRef.current.on('documentUpdate', (data) => {
             console.log('documentUpdate event received: ', data.content);
             setContent(data.content);
+            // handleUpdateHistoryNow(language, data.content);
         });
 
         socketRef.current.on('languageUpdate', (data) => {
             console.log('languageUpdate event received: ', data.language);
             setLanguage(data.language);
+            // handleUpdateHistoryNow(data.language, content);
         });
 
         socketRef.current.on('partner_disconnect', (data) => {
@@ -99,46 +106,29 @@ const CollaborationPage = () => {
         const interval = setTimeout(() => {
             console.log('Saving codeSnippet to localStorage');
             localStorage.setItem(`codeSnippet-${language}`, content);
-            handleUpdateHistoryNow();
-        }, 2000); // save after every 2 seconds
+            handleUpdateHistoryNow(language, content);
+        }, 2000);
         return () => clearTimeout(interval);
     }, [content, language]);
 
-    useEffect(() => {
-        window.addEventListener('beforeunload', handleUpdateHistoryNow);
-
-        return () => {
-            window.removeEventListener('beforeunload', handleUpdateHistoryNow);
-            handleUpdateHistoryNow(); 
-            socketRef.current.disconnect();
-        };
-    }, [codeSnippets, question, cookies.userId, cookies.username]);
-
-    const handleUpdateHistoryNow = async () => {
-        const updatePromises = Object.entries(codeSnippets).map(([lang, code]) => {
-            return handleHistoryUpdate(cookies.userId, roomId, question, lang, code);
-        });
-
+    const handleUpdateHistoryNow = async (lang, code) => {
+        console.log(`handleUpdateHistoryNow`)
         try {
-            await Promise.all(updatePromises);
-            console.log('All history updates completed.');
+            await handleHistoryUpdate(cookies.userId, roomId, questionTitle, lang, code);
+            console.log('History update completed.');
         } catch (error) {
             console.error('Error updating history:', error);
         }
-    }
+    };
 
     const handleEditorChange = (newContent) => {
         setContent(newContent);
-        setCodeSnippets(prev => ({
-            ...prev,
-            [language]: newContent
-        }));
         console.log('Emitting editDocument with new content: ', newContent);
         socketRef.current.emit('editDocument', { roomId, content: newContent });
     };
 
     const handleLeave = () => {
-        handleUpdateHistoryNow();
+        handleUpdateHistoryNow(language, content);
 
         const username = cookies.username;
         console.log('Emitting custom_disconnect before navigating away');
@@ -197,8 +187,8 @@ const CollaborationPage = () => {
                         <div className={styles.questionArea}>
                             {question ? (
                                 <Question
-                                    name={question["Question Title"]}
-                                    description={question["Question Description"]}
+                                    name={questionTitle}
+                                    description={questionContent}
                                     topics={question["Question Categories"]}
                                     leetcode_link={question["Link"]}
                                     difficulty={question["Question Complexity"]}
