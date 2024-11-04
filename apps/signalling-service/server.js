@@ -14,6 +14,7 @@ const pingTimeout = 30000;
 const port = process.env.PORT || 4444;
 const wss = new WebSocketServer({ noServer: true });
 
+// Initialise the signalling server for collaboration editor
 const server = http.createServer((request, response) => {
   response.writeHead(200, {
     "Content-Type": "text/plain",
@@ -107,6 +108,7 @@ const onconnection = (conn) => {
           break;
         case "ping":
           send(conn, { type: "pong" });
+          break;
       }
     }
   });

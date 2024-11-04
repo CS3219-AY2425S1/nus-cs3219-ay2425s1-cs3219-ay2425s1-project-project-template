@@ -21,6 +21,7 @@ import {
   CodeOutlined,
   MessageOutlined,
   SendOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 import CollaborativeEditor, {
   CollaborativeEditorHandle,
@@ -28,6 +29,7 @@ import CollaborativeEditor, {
 import { CreateHistory } from "@/app/services/history";
 import { WebrtcProvider } from "y-webrtc";
 import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
+import VideoPanel from "@/components/VideoPanel/VideoPanel";
 
 interface CollaborationProps {}
 
@@ -408,15 +410,14 @@ export default function CollaborationPage(props: CollaborationProps) {
             <Row className="chat-row">
               <div className="chat-container">
                 <div className="chat-title">
-                  <MessageOutlined className="title-icons" />
-                  Chat
+                  <VideoCameraOutlined className="title-icons" />
+                  Video
                 </div>
-
-                <div className="chat-message-box">
+                <VideoPanel />
+                {/* <div className="chat-message-box">
                   <div className="chat-header-message">
                     Matched with {matchedUser}
                   </div>
-                  {/* TODO: Map and input the history of messages sent here */}
                   <div></div>
                 </div>
                 <div className="chat-typing-box">
@@ -425,7 +426,7 @@ export default function CollaborationPage(props: CollaborationProps) {
                     placeholder="Send Message Here"
                     rows={4}
                   />
-                </div>
+                </div> */}
               </div>
             </Row>
           </Col>
