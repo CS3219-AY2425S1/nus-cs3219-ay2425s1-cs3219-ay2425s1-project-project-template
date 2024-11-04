@@ -53,6 +53,10 @@ function App() {
           if (data.message == "Token verified") {
             setIsAuthenticated(true);
             setUserIsAdmin(data.data.isAdmin);
+            setUserData(data.data);
+            if (data.data.mustUpdatePassword) {
+              setIsChangePasswordModalOpen(true);
+            }
           } else {
             localStorage.removeItem("token");
             setIsAuthenticated(false);
@@ -60,7 +64,8 @@ function App() {
           }
           setLoading(false);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error("Error verifying token:", error);
           localStorage.removeItem("token");
           setIsAuthenticated(false);
           setUserIsAdmin(false);
