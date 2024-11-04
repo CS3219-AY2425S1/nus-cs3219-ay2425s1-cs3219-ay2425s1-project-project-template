@@ -5,13 +5,13 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
+import QuestionDisplay from "./QuestionDisplay";
+import Chat from "./Chat";
 import { addQuestionToUser } from "./updateQuestionController";
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
-  const [messages, setMessages] = useState<string[]>([]);
-  const [message, setMessage] = useState<string>("");
   const [socketId, setSocketId] = useState<string | undefined>("");
   const [currentCode, setCurrentCode] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -32,7 +32,12 @@ const EditorView: React.FC = () => {
   useEffect(() => {
     const disconnected = sessionStorage.getItem("disconnected");
 
-    if (disconnected === "true" || roomId === null || roomId === "" || !questionId) {
+    if (
+      disconnected === "true" ||
+      roomId === null ||
+      roomId === "" ||
+      !questionId
+    ) {
       navigate("/dashboard");
       return;
     }
@@ -46,37 +51,10 @@ const EditorView: React.FC = () => {
     if (socket === null) return;
 
     socket.on("connect", () => {
+      console.log("connected");
       setSocketId(socket.id);
     });
 
-    // socket.on("assignSocketId", (data: { socketId: string }) => {
-    //   setSocketId(data.socketId);
-    //   setMessages((prevMessages) => [
-    //     ...prevMessages,
-    //     `You are assigned to: ${data.socketId}`,
-    //   ]);
-    // });
-
-    // socket.on("message", (data: string) => {
-    //   setMessages((prevMessages) => [...prevMessages, data]);
-    //   if (chatBoxRef.current) {
-    //     chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    //   }
-    // });
-
-    // socket.on(
-    //   "receiveMessage",
-    //   (data: { username: string; message: string }) => {
-    //     setMessages((prevMessages) => [
-    //       ...prevMessages,
-    //       `${data.username}: ${data.message}`,
-    //     ]);
-    //     if (chatBoxRef.current) {
-    //       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    //     }
-    //   }
-    // );
-    fetchQuestion();
     return () => {
       if (socketRef.current !== null) {
         socketRef.current.disconnect();
@@ -88,28 +66,6 @@ const EditorView: React.FC = () => {
     // You can replace this with an API call to save the code on your backend
     setCurrentCode(code);
     console.log("Code saved:", code);
-  };
-
-  const fetchQuestion = async () => {
-    try {
-      const response = await api.get(`/questionsById?id=${questionId}`);
-      setQuestion(response.data.questions[0]);
-      console.log(response.data.questions[0]);
-    } catch (error) {
-      console.error("Error fetching question:", error);
-    }
-  };
-
-  const sendMessage = () => {
-    if (message.trim() && socketRef) {
-      socketRef.current?.emit("sendMessage", {
-        room: roomId,
-        message,
-        username: user?.username,
-      });
-      setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
-      setMessage("");
-    }
   };
 
   const disconnectAndGoBack = () => {
@@ -141,7 +97,8 @@ const EditorView: React.FC = () => {
       navigate("/dashboard");
     }
   };
-  
+
+  console.log(socketRef.current);
 
   return (
     <div style={styles.container}>
@@ -172,63 +129,21 @@ const EditorView: React.FC = () => {
       </style>
 
       {/* Question Section */}
-      {question && (
-        <div style={styles.questionSection} className="editor-scrollbar">
-          <h2 style={styles.questionTitle}>{question.Title}</h2>
-          
-          <div style={styles.questionDetail}>
-            <p><strong>Complexity:</strong> {question.Complexity}</p>
-          </div>
-
-          <h3 style={styles.questionSubheading}>Description:</h3>
-          <div style={styles.questionDetail} dangerouslySetInnerHTML={{ __html: question.Description }} />
-
-          <h3 style={styles.questionSubheading}>Categories:</h3>
-          <p style={styles.questionDetail}>{question.Categories.join(", ")}</p>
-
-          <a href={question.Link} target="_blank" rel="noopener noreferrer" style={styles.leetCodeLink}>
-            View on LeetCode
-          </a>
-        </div>
-      )}
+      <QuestionDisplay questionId={questionId} styles={styles} />
 
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
-        <div style={styles.topRight}>
-          {/* Video Section */}
-          <div style={styles.videoContainer}>
-            <div style={styles.videoPlaceholder}>Video Placeholder</div>
-          </div>
-
-          {/* Chat Section */}
-          <div style={styles.chatContainer} className="editor-scrollbar">
-            <div style={styles.disconnectButtonContainer}>
-              <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
-                End Session
-              </button>
-            </div>
-            <div ref={chatBoxRef} style={styles.chatBox} className="editor-scrollbar">
-              {messages.map((msg, index) => (
-                <div key={index} style={styles.message}>{msg}</div>
-              ))}
-            </div>
-            <div style={styles.socketIdDisplay}>
-              {socketId && <div>Your Socket ID: {socketId}</div>}
-            </div>
-            <div style={styles.messageInputContainer}>
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Message"
-                style={styles.input}
-              />
-              <button onClick={sendMessage} style={styles.sendButton}>
-                Send
-              </button>
-            </div>
-          </div>
+        <div style={styles.disconnectButtonContainer}>
+          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
+            End Session
+          </button>
         </div>
+        <Chat
+          socketRef={socketRef}
+          // socketId={socketId}
+          styles={styles}
+          chatBoxRef={chatBoxRef}
+        />
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
           {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
@@ -236,7 +151,7 @@ const EditorView: React.FC = () => {
       </div>
     </div>
   );
-};  
+};
 
 const styles = {
   questionSection: {
@@ -279,7 +194,7 @@ const styles = {
     height: "100vh",
     backgroundColor: "#1e1e2e",
   },
-  
+
   rightSection: {
     display: "flex",
     flexDirection: "column" as const,
@@ -384,6 +299,5 @@ const styles = {
     color: "#ffffff",
   },
 };
-
 
 export default EditorView;

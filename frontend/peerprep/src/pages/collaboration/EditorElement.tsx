@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { langs } from "@uiw/codemirror-extensions-langs";
 import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
@@ -52,6 +52,12 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
       socket.off("disconnect", handleDisconnect);
     };
   }, [socket]);
+
+  // use Memo to prevent the plugin from being reinstantiated upon rerender
+  const plugin = useMemo(
+    () => peerExtension(socket, version || 0),
+    [socket, version]
+  );
 
   // Handler for when the code in the editor changes
   const handleCodeChange = (value: string) => {
@@ -135,8 +141,9 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
         extensions={[
           indentUnit.of("\t"),
           basicSetup(),
-          langs[language](), 
-          peerExtension(socket, version),
+          langs[language](),
+          plugin,
+          // peerExtension(socket, version),
         ]}
         value={doc}
         onChange={handleCodeChange} // Capture changes to the code
