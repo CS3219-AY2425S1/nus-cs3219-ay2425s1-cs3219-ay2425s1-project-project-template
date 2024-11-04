@@ -26,7 +26,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     useState<boolean>(false);
   const [localVideoSourceObject, setLocalVideoSourceObject] =
     useState<boolean>(false);
-  let usernameFragment: string;
 
   useEffect(() => {
     const pc = new RTCPeerConnection({
