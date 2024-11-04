@@ -80,3 +80,4 @@ services:
     environment:
       - PORT=$COLLAB_SVC_PORT
       - DB_URI=$COLLAB_SVC_DB_URI
+      - OPENAI_API_KEY=$OPENAI_API_KEY
