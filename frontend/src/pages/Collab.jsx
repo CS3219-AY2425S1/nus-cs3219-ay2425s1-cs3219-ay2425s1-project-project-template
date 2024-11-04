@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Editor from "@monaco-editor/react";
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
@@ -34,6 +36,7 @@ const Collab = () => {
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
 
     const [isSoloSession, setIsSoloSession] = useState(false);
+    const [showSnackbar, setShowSnackbar] = useState(false);
 
     // Ensure location state exists, else redirect to home
     useEffect(() => {
@@ -82,6 +85,8 @@ const Collab = () => {
     }, []);
 
     const startCountdown = () => {
+        
+        setShowSnackbar(true);
 
         // Clear any existing interval to avoid multiple intervals running at once
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -148,51 +153,69 @@ const Collab = () => {
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
 
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setShowSnackbar(false);
+    };
+
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
-            <CollabNavBar 
-                partnerUsername={partnerUsername} 
-                countdown={formatTime(countdown)} 
-                handleSubmit={handleSubmit}
-                handleQuit={handleQuit}
-            />
-            <div style={{ display: "flex", flex: 1 }}>
-                <QuestionContainer question={question} />
-                <Editor
-                    height="100%"
-                    width="50%"
-                    theme="vs-dark"
-                    defaultLanguage="python"
-                    language={language}
-                    onMount={handleEditorDidMount}
-                    options={{
-                        fontSize: 16,
-                        scrollBeyondLastLine: false,
-                        minimap: { enabled: false }
-                    }}
+        <>
+            <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
+                <CollabNavBar 
+                    partnerUsername={partnerUsername} 
+                    countdown={formatTime(countdown)} 
+                    handleSubmit={handleSubmit}
+                    handleQuit={handleQuit}
                 />
+                <div style={{ display: "flex", flex: 1 }}>
+                    <QuestionContainer question={question} />
+                    <Editor
+                        height="100%"
+                        width="50%"
+                        theme="vs-dark"
+                        defaultLanguage="python"
+                        language={language}
+                        onMount={handleEditorDidMount}
+                        options={{
+                            fontSize: 16,
+                            scrollBeyondLastLine: false,
+                            minimap: { enabled: false }
+                        }}
+                    />
+                </div>
+                {/* Conditionally render popups */}
+                {showQuitPopup && (
+                    <QuitConfirmationPopup 
+                        confirmQuit={handleQuitConfirm} 
+                        cancelQuit={handleQuitCancel} 
+                    />
+                )}
+                {!isSoloSession && showPartnerQuitPopup && (
+                    <PartnerQuitPopup 
+                        confirmQuit={handleQuitConfirm} 
+                        cancelQuit={() => setShowPartnerQuitPopup(false)} 
+                    />
+                )}
+                {timeOver && (
+                    <TimeUpPopup 
+                        continueSession={handleContinueSession}
+                        quitSession={handleQuitConfirm}
+                        continueAlone={handleContinueSessionAlone}
+                        isSoloSession={isSoloSession}/>
+                )}
             </div>
-            {/* Conditionally render popups */}
-            {showQuitPopup && (
-                <QuitConfirmationPopup 
-                    confirmQuit={handleQuitConfirm} 
-                    cancelQuit={handleQuitCancel} 
-                />
-            )}
-            {showPartnerQuitPopup && (
-                <PartnerQuitPopup 
-                    confirmQuit={handleQuitConfirm} 
-                    cancelQuit={() => setShowPartnerQuitPopup(false)} 
-                />
-            )}
-            {timeOver && (
-                <TimeUpPopup 
-                    continueSession={handleContinueSession}
-                    quitSession={handleQuitConfirm}
-                    continueAlone={handleContinueSessionAlone}
-                    isSoloSession={isSoloSession}/>
-            )}
-        </div>
+            <Snackbar
+                open={showSnackbar}
+                onClose={handleCloseSnackbar}
+                message="Session Started"
+                autoHideDuration={3000} // Auto-hide after 3 seconds
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                className="custom-snackbar"
+            />
+            <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%', backgroundColor: 'white', color: 'black' }}>
+                Session Started
+            </Alert>
+        </>
     );
 };
 
