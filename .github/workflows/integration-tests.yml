@@ -17,4 +17,4 @@ jobs:
           up-flags: "--build"
           down-flags: "--volumes"
           test-container: "tests"
-          test-command: "pytest -v --maxworker=1 --dist=no"
+          test-command: "pytest"
