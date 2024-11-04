@@ -11,6 +11,8 @@ import InjectableCursorStyles from "./InjectableCursorStyles";
 import { UserProfile } from "@/types/User";
 import { getRandomColor } from "@/lib/cursorColors";
 import { useSessionContext } from "@/contexts/SessionContext";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface CollaborativeEditorProps {
   sessionId: string;
@@ -27,7 +29,7 @@ export default function CollaborativeEditor({
   language = "python",
   themeName = "clouds-midnight",
 }: CollaborativeEditorProps) {
-  const { codeReview } = useSessionContext();
+  const { codeReview, submitCode, submitting } = useSessionContext();
   const { setCurrentClientCode } = codeReview;
   const [editorRef, setEditorRef] = useState<editor.IStandaloneCodeEditor>();
   const [provider, setProvider] = useState<WebsocketProvider>();
@@ -80,7 +82,21 @@ export default function CollaborativeEditor({
   );
 
   return (
-    <div className="w-full h-full overflow-scroll">
+    <div className="relative w-full h-full overflow-scroll">
+      <Button
+        className="absolute bottom-4 right-8 z-10"
+        onClick={submitCode}
+        disabled={submitting}
+      >
+        {submitting ? (
+          <span className="flex flex-row items-center gap-2">
+            <LoadingSpinner />
+            <p>Submitting</p>
+          </span>
+        ) : (
+          "Submit"
+        )}
+      </Button>
       {provider && (
         <InjectableCursorStyles
           yProvider={provider}
@@ -91,8 +107,8 @@ export default function CollaborativeEditor({
       <Editor
         defaultValue={"class Solution {\n" + "  \n" + "}"}
         onMount={handleEditorOnMount}
-        height={"100%"}
-        width={"100%"}
+        height="100%"
+        width="100%"
         theme={themeName}
         language={language}
         options={{

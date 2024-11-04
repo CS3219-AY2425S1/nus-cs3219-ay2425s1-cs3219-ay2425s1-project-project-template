@@ -59,6 +59,7 @@ export default async function Page(props: { params: Params }) {
     <SessionProvider
       initialSessionId={sessionId}
       initialUserProfile={userProfile}
+      question={question}
       socketUrl={socketUrl}
     >
       <div className="flex flex-row w-full h-full overflow-hidden">

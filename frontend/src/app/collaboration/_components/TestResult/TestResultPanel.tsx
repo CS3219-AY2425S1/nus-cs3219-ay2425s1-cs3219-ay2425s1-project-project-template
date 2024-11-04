@@ -4,12 +4,15 @@ import TestCasesTabContent from "./TestCasesTabContent";
 import TestResultTabContent from "./TestResultTabContent";
 import AICodeReviewTabContent from "./AICodeReviewTabContent";
 import { Question } from "@/types/Question";
+import { useSessionContext } from "@/contexts/SessionContext";
 
 interface TestResultPanelProps {
   question: Question;
 }
 
 export default function TestResultPanel({ question }: TestResultPanelProps) {
+  const { testResultPanel, setTestResultPanel } = useSessionContext();
+
   const tabs: Tab[] = [
     {
       value: "test-cases",
@@ -31,5 +34,12 @@ export default function TestResultPanel({ question }: TestResultPanelProps) {
     },
   ];
 
-  return <TabPanel tabs={tabs} defaultValue="test-cases" />;
+  return (
+    <TabPanel
+      tabs={tabs}
+      defaultValue="test-cases"
+      value={testResultPanel}
+      onValueChange={setTestResultPanel}
+    />
+  );
 }

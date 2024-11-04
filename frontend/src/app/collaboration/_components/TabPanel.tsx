@@ -14,17 +14,26 @@ export interface Tab {
 
 export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
   tabs: Tab[];
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
 export default function TabPanel({
   tabs,
   defaultValue,
+  value,
+  onValueChange,
   ...props
 }: TabPanelProps) {
   return (
     <Card className="h-full p-0" {...props}>
-      <Tabs defaultValue={defaultValue} className="flex flex-col h-full">
+      <Tabs
+        defaultValue={defaultValue}
+        value={value}
+        onValueChange={onValueChange}
+        className="flex flex-col h-full"
+      >
         <CardHeader className="flex-shrink-0 p-0 overflow-x-hidden rounded-t-lg bg-background-200">
           <TabOptions
             options={tabs.map((tab) => {
