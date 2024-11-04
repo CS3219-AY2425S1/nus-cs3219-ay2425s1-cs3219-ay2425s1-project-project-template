@@ -68,11 +68,10 @@ app.get("/get-session", verifyAccessToken, getSessionHandler);
 app.post("/save-code", saveCodeHandler);
 
 // POST endpoint to submit code for execution
-app.post("/api/code-execute", async (req: Request, res: Response) => {
+app.post("/code-execute", async (req: Request, res: Response) => {
   try {
     const { source_code, language_id } = req.body; // Extract language_id from the request body
     const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
-
     const response = await axios.post(
       url,
       { source_code, language_id },
@@ -98,7 +97,7 @@ app.post("/api/code-execute", async (req: Request, res: Response) => {
 
 
 // GET endpoint to check code execution status
-app.get("/api/code-execute/:token", async (req: Request, res: Response) => {
+app.get("/code-execute/:token", async (req: Request, res: Response) => {
   try {
     const token = req.params.token;
     const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions/${token}`;

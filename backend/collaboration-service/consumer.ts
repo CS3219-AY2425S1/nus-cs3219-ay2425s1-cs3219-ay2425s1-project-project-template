@@ -36,8 +36,10 @@ export function startRabbitMQ(io: Server) {
             room_id: matchResult.RoomID,
             complexity: matchResult.Complexity,
             categories: matchResult.Categories,
+            programming_language: matchResult.ProgrammingLanguages,
             question: {} as Question,
           };
+          console.log(matchInfo.programming_language)
 
           try {
             // Fetch a question matching the specified categories and complexity
