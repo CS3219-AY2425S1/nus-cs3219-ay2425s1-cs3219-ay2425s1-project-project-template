@@ -189,7 +189,7 @@ export default function Chat({ roomId }: { roomId: string }) {
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           Chat

@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export default function CollabRoom({ roomId }: { roomId: string }) {
   return (
-    <div className="h-full flex flex-col mx-4 p-4">
+    <div className="h-screen flex flex-col mx-4 p-4 overflow-hidden">
       <header className="flex justify-between border-b">
         <h1 className="text-2xl font-bold mb-4">Collab Room {roomId}</h1>
         <Link href="/app/history">
@@ -18,10 +18,12 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
           </Button>
         </Link>
       </header>
-      <div className="flex flex-1">
-        <div className="w-2/5 p-4 flex flex-col space-y-4">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-2/5 p-4 flex flex-col space-y-4 overflow-hidden">
           <QuestionDisplay roomId={roomId} />
-          <Chat roomId={roomId} />
+          <div className="flex-1 overflow-hidden">
+            <Chat roomId={roomId} />
+          </div>
         </div>
         <CodeEditor roomId={roomId} />
       </div>
