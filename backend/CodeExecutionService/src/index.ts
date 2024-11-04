@@ -41,13 +41,12 @@ interface Judge0Response {
 
 // Language mapping
 const LANGUAGE_MAP: Record<string, number> = {
-  'python': 71,    // Python (3.8.1)
-  'javascript': 63,// Node.js (12.14.0)
-  'java': 62,      // Java (OpenJDK 13.0.1)
-  'cpp': 54,       // C++ (GCC 9.2.0)
-  'php': 68,       // PHP (7.4.1)
-  'ruby': 72,      // Ruby (2.7.0)
-  'R': 80,         // R (4.0.0)
+  "C++": 54,        // (GCC 9.2.0)
+  "Java": 62,       // (OpenJDK 13.0.1)
+  "Python 3": 71,   // (Python 3.8.1)
+  "C#": 51,         // (Mono 6.6.0.161)
+  "Javascript": 63, // (12.14.0)
+  "SQL": 82,        // (SQLite 3.27.2)
 };
 
 // Rate limiting
@@ -100,9 +99,9 @@ app.post('/execute', async (req: Request<{}, {}, CodeExecutionRequest>, res: Res
       return res.status(400).json({ error: 'Language and code are required' });
     }
 
-    const languageId = LANGUAGE_MAP[language.toLowerCase()];
+    const languageId = LANGUAGE_MAP[language];
     if (!languageId) {
-      return res.status(400).json({ error: 'Unsupported programming language' });
+      return res.status(400).json({ error: `${language} is not a supported programming language` });
     }
 
     // Create submission
