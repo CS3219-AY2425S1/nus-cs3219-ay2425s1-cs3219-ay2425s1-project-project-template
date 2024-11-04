@@ -61,7 +61,6 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
 
   // Handler for when the code in the editor changes
   const handleCodeChange = (value: string) => {
-    console.log("Current code:", value);
     onCodeChange(value);
     setDoc(value);
   };

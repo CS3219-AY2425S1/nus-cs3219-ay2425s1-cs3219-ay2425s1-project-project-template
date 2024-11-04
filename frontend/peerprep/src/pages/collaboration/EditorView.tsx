@@ -17,12 +17,8 @@ const EditorView: React.FC = () => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const userContext = useUserContext();
   const user = userContext?.user;
-
   const [searchParams] = useSearchParams();
-  const topic = searchParams.get("topic");
-  const difficulty = searchParams.get("difficulty");
   const [question, setQuestion] = useState<Question | null>(null);
-  const api = useQuesApiContext();
   const authApi = useAuthApiContext();
 
 
@@ -63,37 +59,38 @@ const EditorView: React.FC = () => {
   }, []);
 
   const saveCode = (code: string) => {
-    // You can replace this with an API call to save the code on your backend
     setCurrentCode(code);
     console.log("Code saved:", code);
   };
 
-  const disconnectAndGoBack = () => {
+  const saveQuestion = (question : Question) => {
+    setQuestion(question);
+  }
+
+  const handleQuestionUpdate = async () => {
+    if (question && currentCode && user) {
+      const userQuestion = {
+        questionId: question.ID,
+        title: question.Title,
+        description: question.Description,
+        complexity: question.Complexity,
+        categories: question.Categories,
+        link: question.Link,
+        attempt: currentCode,
+      };
+      console.log("Added Question:", userQuestion);
+      await addQuestionToUser(user.id, userQuestion, authApi);
+    }
+    await userContext.refetch();
+  };
+
+  const disconnectAndGoBack = async () => {
     const confirmDisconnect = window.confirm("Are you sure you want to disconnect?");
-  
     if (confirmDisconnect) {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      socketRef.current?.disconnect();
       sessionStorage.setItem("disconnected", "true");
       sessionStorage.removeItem("reconnectUrl");
-
-      if (question && currentCode && user) {
-        // Create UserQuestion object
-        const userQuestion: UserQuestion = {
-          questionId: question?.ID,
-          title: question?.Title,
-          description: question?.Description,
-          complexity: question?.Complexity,
-          categories: question?.Categories,
-          link: question?.Link,
-          attempt: currentCode,
-        };
-        console.log("Added Question:", userQuestion);
-        // Call addQuestionToUser function
-        addQuestionToUser(user?.id, userQuestion, authApi);
-      }
-      userContext.refetch();
+      await handleQuestionUpdate();
       navigate("/dashboard");
     }
   };
@@ -129,7 +126,7 @@ const EditorView: React.FC = () => {
       </style>
 
       {/* Question Section */}
-      <QuestionDisplay questionId={questionId} styles={styles} />
+      <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
 
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
