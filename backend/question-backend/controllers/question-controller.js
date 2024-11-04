@@ -269,15 +269,15 @@ export const getQuestionByTopicAndDifficulty = async (req, res) => {
     const { topic, difficulty } = req.query;
 
     try {
-        const question = await Question.findOne({ 
-            topic: { $in: [topic] }, 
-            difficulty 
-        });
+        const question = await Question.aggregate([
+            { $match: { topic: { $in: [topic] }, difficulty } },
+            { $sample: { size: 1 } } // Randomly select 1 document
+        ]);
         if (!question) {
             return res.status(404).json({ message: "Question not found" });
         }
 
-        res.status(200).json(question);
+        res.status(200).json(question[0]);
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
