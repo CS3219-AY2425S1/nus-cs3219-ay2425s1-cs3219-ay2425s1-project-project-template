@@ -4,16 +4,20 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const authStore = useAuthStore();
   const collabStore = useCollaborationStore();
 
-  if (!collabStore.isCollaborating && to.path == "/collaboration") {
-    return navigateTo("/");
-  }
-
   if (!authStore.user) {
     await authStore.refreshUser();
   }
 
   if (authStore.user) {
     // Check if the route requires admin access
+
+    if (!collabStore.isCollaborating && to.path == "/collaboration") {
+      return navigateTo("/");
+    }
+
+    if (collabStore.isCollaborating && to.path != "/collaboration") {
+      return navigateTo("/collaboration");
+    }
     if (to.meta.requiresAdmin && !authStore.isAdmin) {
       return navigateTo("/unauthorized");
     }
