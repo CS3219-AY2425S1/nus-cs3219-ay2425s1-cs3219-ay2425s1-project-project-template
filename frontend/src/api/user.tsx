@@ -42,20 +42,21 @@ export const getAuthStatus = () => {
   return AuthStatus.AUTHENTICATED;
 };
 
-const NEXT_PUBLIC_USER_SERVICE =
-  process.env.NEXT_PUBLIC_USER_SERVICE ||
-  "https://user-service-598285527681.us-central1.run.app";
+const NEXT_PUBLIC_IAM_USER_SERVICE =
+  process.env.NEXT_PUBLIC_IAM_USER_SERVICE ||
+  "https://user-service-598285527681.us-central1.run.app/api/auth";
+
+const NEXT_PUBLIC_IAM_AUTH_SERVICE =
+  process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE ||
+  "https://user-service-598285527681.us-central1.run.app/api/users";
 
 export const verifyToken = async (token: string) => {
-  const response = await fetch(
-    `${NEXT_PUBLIC_USER_SERVICE}/api/auth/verify-token`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (response.status !== 200) {
     Cookie.remove("token");
@@ -73,7 +74,7 @@ export const verifyToken = async (token: string) => {
 };
 
 export const login = async (email: string, password: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/api/auth/login`, {
+  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -115,7 +116,7 @@ export const register = async (
   password: string,
   username: string
 ) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/api/users`, {
+  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -142,7 +143,7 @@ export const register = async (
 // optional userId parameter
 export const getUser = async (userId = "") => {
   const token = getToken();
-  const url = `${NEXT_PUBLIC_USER_SERVICE}/api/users/${userId || getUserId()}`;
+  const url = `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId || getUserId()}`;
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -172,17 +173,14 @@ export const updateUser = async (userData: {
 }) => {
   const token = getToken();
   const userId = getUserId();
-  const response = await fetch(
-    `${NEXT_PUBLIC_USER_SERVICE}/api/users/${userId}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(userData),
-    }
-  );
+  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData),
+  });
   const data = await response.json();
 
   if (response.status !== 200) {
