@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlayIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation';
 
 interface CodeEditorProps {
   sessionId?: string;
@@ -21,6 +22,7 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
   const [language, setLanguage] = useState(initialLanguage);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   // Initialize socket connection
   useEffect(() => {
@@ -45,15 +47,12 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         title: "Connected",
         description: "Successfully connected to the coding session",
       });
+      setCode('');
+      setLanguage(initialLanguage);
     });
 
     socketInstance.on('disconnect', () => {
       setIsConnected(false);
-      toast({
-        variant: "destructive",
-        title: "Disconnected",
-        description: "Lost connection to the server",
-      });
     });
 
     socketInstance.on('error', (errorMessage: string) => {
@@ -74,6 +73,10 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         title: "Code Submitted",
         description: `Submission recorded at ${new Date(timestamp).toLocaleTimeString()}`,
       });
+    });
+
+    socketInstance.on('sessionCompleted', () => {
+      router.push('/sessions');
     });
 
     socket.current = socketInstance;
