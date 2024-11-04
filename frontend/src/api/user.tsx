@@ -14,39 +14,41 @@ export const getToken = () => {
 
 export const setUsername = (username: string) => {
   Cookie.set("username", username, { expires: 1 });
-}
+};
 
 export const getUsername = () => {
   return Cookie.get("username");
-}
+};
 
 export const setUserId = (id: string) => {
   Cookie.set("id", id, { expires: 1 });
-}
+};
 
 export const getUserId = () => {
   return Cookie.get("id");
-}
+};
 
 export const setIsAdmin = (isAdmin: boolean) => {
   Cookie.set("isAdmin", isAdmin ? "Y" : "N", { expires: 1 });
-}
+};
 
 export const getIsAdmin = (): boolean => {
   return Cookie.get("isAdmin") == "Y";
-}
+};
 
 export const getAuthStatus = () => {
   if (!getToken()) return AuthStatus.UNAUTHENTICATED;
   if (getIsAdmin()) return AuthStatus.ADMIN;
   return AuthStatus.AUTHENTICATED;
-}
+};
 
-const NEXT_PUBLIC_USER_SERVICE = process.env.NEXT_PUBLIC_USER_SERVICE || "https://user-service-598285527681.us-central1.run.app";
+const NEXT_PUBLIC_USER_SERVICE =
+  process.env.NEXT_PUBLIC_USER_SERVICE ||
+  "https://user-service-598285527681.us-central1.run.app";
 
 export const verifyToken = async (token: string) => {
   const response = await fetch(
-    `${NEXT_PUBLIC_USER_SERVICE}/auth/verify-token`,
+    `${NEXT_PUBLIC_USER_SERVICE}/api/auth/verify-token`,
     {
       method: "GET",
       headers: {
@@ -71,7 +73,7 @@ export const verifyToken = async (token: string) => {
 };
 
 export const login = async (email: string, password: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/login`, {
+  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/api/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -113,7 +115,7 @@ export const register = async (
   password: string,
   username: string
 ) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users`, {
+  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/api/users`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -140,7 +142,7 @@ export const register = async (
 // optional userId parameter
 export const getUser = async (userId = "") => {
   const token = getToken();
-  const url = `${NEXT_PUBLIC_USER_SERVICE}/users/${userId || getUserId()}`;
+  const url = `${NEXT_PUBLIC_USER_SERVICE}/api/users/${userId || getUserId()}`;
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -170,14 +172,17 @@ export const updateUser = async (userData: {
 }) => {
   const token = getToken();
   const userId = getUserId();
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users/${userId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(userData),
-  });
+  const response = await fetch(
+    `${NEXT_PUBLIC_USER_SERVICE}/api/users/${userId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    }
+  );
   const data = await response.json();
 
   if (response.status !== 200) {
