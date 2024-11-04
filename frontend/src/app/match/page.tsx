@@ -249,7 +249,7 @@ const FindPeer = () => {
       );
       return false;
     }
-  }
+  };
 
   const sendMatchRequest = async (userFilter: FindMatchFormOutput) => {
     checkUser(CURRENT_USER);

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["react-icons"]
+  reactStrictMode: false,
+  transpilePackages: ["react-icons"],
 };
 
 export default nextConfig;
