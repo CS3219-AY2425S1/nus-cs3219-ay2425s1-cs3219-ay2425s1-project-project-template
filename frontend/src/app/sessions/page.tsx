@@ -84,25 +84,35 @@ export default function SessionsPage() {
   useEffect(() => {
     const fetchUserNames = async () => {
       const userIds = sessions.flatMap(session => session.activeUsers);
-      try {
-        const userNamesMap: { [key: string]: string } = {};
-        await Promise.all(userIds.map(async (userId) => {
-          try {
-            const res = await fetch(`/api/users/${userId}`);
-            if (!res.ok) {
-              throw new Error('User not found');
-            }
-            const user = await res.json();
-            userNamesMap[userId] = user.username;
-          } catch (error) {
-            console.error(`Error fetching user ${userId}:`, error);
-            userNamesMap[userId] = userId; // Return userId if user is not found
+      const obj = userIds.reduce((acc, item) => {
+        const [key, value] = item.split(":");
+          if (key && value) {
+              acc[key] = value;
           }
-        }));
-        setUserNames(userNamesMap);
-      } catch (error) {
-        console.error('Error fetching user names:', error);
-      }
+          return acc;
+      }, {} as { [key: string]: string });
+      
+      setUserNames(obj);
+      console.log(obj);
+      //try {
+        // const userNamesMap: { [key: string]: string } = {};
+        // await Promise.all(userIds.map(async (userId) => {
+        //   try {
+        //     const res = await fetch(`/api/users/${userId}`);
+        //     if (!res.ok) {
+        //       throw new Error('User not found');
+        //     }
+        //     const user = await res.json();
+        //     userNamesMap[userId] = user.username;
+        //   } catch (error) {
+        //     console.error(`Error fetching user ${userId}:`, error);
+        //     userNamesMap[userId] = userId; // Return userId if user is not found
+        //   }
+        // }));
+        //setUserNames(username);
+      // } catch (error) {
+      //   console.error('Error fetching user names:', error);
+      // }
     };
 
     if (sessions.length > 0) {
@@ -177,7 +187,8 @@ function renderYearSessions(year: number, sessions: Session[], userNames: { [key
                       <div>
                         <h4 className="text-lg font-semibold">{session.sessionName}</h4>
                         <div className="text-sm text-muted-foreground">
-                          {session.activeUsers.map(userId => userNames[userId] || userId).join(', ')}
+                          {/* {session.activeUsers.map(userId => userNames[userId] || userId).join(', ')} */}
+                          {session.activeUsers.map(userId => userId.split(':')[0]).join(', ')}
                         </div>
                       </div>
                     </div>
