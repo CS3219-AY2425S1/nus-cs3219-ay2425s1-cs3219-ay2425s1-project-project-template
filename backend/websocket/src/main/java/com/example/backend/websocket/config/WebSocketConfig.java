@@ -29,10 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private JedisPool jedisPool;
 
     // private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
-    private final String[] allowedOrigins = {
-        "http://35.184.99.208",
-        "http://35.192.214.143"
-    };
+    private final String allowedOrigin = "http://localhost:3000";
 
     private final String ACTIVE_USERS = "ActiveUsers";
 
@@ -40,7 +37,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // HTTP URL for the WebSocket connection used by the client
         registry.addEndpoint("/matching-websocket")
-                .setAllowedOrigins(allowedOrigins) 
+                .setAllowedOriginPatterns("*")
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();  
     }
