@@ -12,6 +12,10 @@ export const siteConfig = (isAdmin: boolean) => ({
       label: "Questions",
       href: isAdmin ? "/admin/questions" : "/questions",
     },
+    {
+      label: "History",
+      href: "/history",
+    },
   ],
   navMenuItems: [
     {
