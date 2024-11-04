@@ -24,6 +24,12 @@ def delete_account(access_token: str, user_id: str):
     )
     assert resp.status_code == 200
 
+def cancel_request(user_id, token):
+    response = requests.post(
+        f"{BASE_URL}/cancel", json={"userId": user_id}, cookies={"accessToken": token}
+    )
+    # Don't need to assert as this is just a cleanup function
+
 
 def create_user(index: int):
     global COUNTER
@@ -112,11 +118,8 @@ def test_match_users_same_criteria(two_users):
 
     # Clean up
     # Cancel match request to make sure it doesn't affect the next test
-    response = requests.post(
-        f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
-    )
-    assert response.status_code == 200
-
+    cancel_request(user_id1, token1)
+    cancel_request(user_id2, token2)
     delete_account(token1, user_id1)
     delete_account(token2, user_id2)
 
@@ -156,63 +159,58 @@ def test_match_users_different_difficulty(two_users):
 
     # Clean up
     # Cancel match request to make sure it doesn't affect the next test
-    response = requests.post(
-        f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
-    )
-    assert response.status_code == 200
-
+    cancel_request(user_id1, token1)
+    cancel_request(user_id2, token2)
     delete_account(token1, user_id1)
     delete_account(token2, user_id2)
 
 
-# @pytest.mark.serial
-# def test_cancel_match_during_search(two_users):
-#     """Test cancelling a match request while searching"""
-#     (token1, user_id1), (token2, user_id2) = two_users
+@pytest.mark.serial
+def test_cancel_match_during_search(two_users):
+    """Test cancelling a match request while searching"""
+    (token1, user_id1), (token2, user_id2) = two_users
 
-#     # First user sends match request
-#     response1 = requests.post(
-#         f"{BASE_URL}/match",
-#         json=create_match_request(user_id1, "socket1"),
-#         cookies={"accessToken": token1},
-#     )
-#     assert response1.status_code == 200
+    # First user sends match request
+    response1 = requests.post(
+        f"{BASE_URL}/match",
+        json=create_match_request(user_id1, "socket1"),
+        cookies={"accessToken": token1},
+    )
+    assert response1.status_code == 200
 
-#     # First user cancels their request
-#     cancel_response = requests.post(
-#         f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
-#     )
-#     print(cancel_response.json())
-#     assert cancel_response.status_code == 200
+    # First user cancels their request
+    cancel_response = requests.post(
+        f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
+    )
+    print(cancel_response.json())
+    assert cancel_response.status_code == 200
 
-#     time.sleep(1)  # Make sure the request is cancelled
+    time.sleep(1)  # Make sure the request is cancelled
 
-#     # Second user sends match request
-#     response2 = requests.post(
-#         f"{BASE_URL}/match",
-#         json=create_match_request(user_id2, "socket2"),
-#         cookies={"accessToken": token2},
-#     )
-#     assert response2.status_code == 200
+    # Second user sends match request
+    response2 = requests.post(
+        f"{BASE_URL}/match",
+        json=create_match_request(user_id2, "socket2"),
+        cookies={"accessToken": token2},
+    )
+    assert response2.status_code == 200
 
-#     # Wait briefly to ensure no match is made
-#     time.sleep(2)
-#     # Check if the second user is still in queue
-#     response2 = requests.post(
-#         f"{BASE_URL}/match",
-#         json=create_match_request(user_id2, "socket2"),
-#         cookies={"accessToken": token2},
-#     )
-#     assert response2.status_code == 400
+    # Wait briefly to ensure no match is made
+    time.sleep(2)
+    # Check if the second user is still in queue
+    response2 = requests.post(
+        f"{BASE_URL}/match",
+        json=create_match_request(user_id2, "socket2"),
+        cookies={"accessToken": token2},
+    )
+    assert response2.status_code == 400
 
-#     # Clean up
-#     # Cancel user 2's match attempt
-#     cancel_response = requests.post(
-#         f"{BASE_URL}/cancel", json={"userId": user_id2}, cookies={"accessToken": token2}
-#     )
-#     assert cancel_response.status_code == 200
-#     delete_account(token1, user_id1)
-#     delete_account(token2, user_id2)
+    # Clean up
+    # Cancel user 2's match attempt
+    cancel_request(user_id1, token1)
+    cancel_request(user_id2, token2)
+    delete_account(token1, user_id1)
+    delete_account(token2, user_id2)
 
 
 @pytest.mark.serial
@@ -238,11 +236,7 @@ def test_multiple_match_requests_same_user(user_data):
     assert response2.status_code == 400
 
     # Clean up
-    # Cancel request
-    cancel_response = requests.post(
-        f"{BASE_URL}/cancel", json={"userId": user_id1}, cookies={"accessToken": token1}
-    )
-    assert cancel_response.status_code == 200
+    cancel_request(user_id1, token1)
     delete_account(token1, user_id1)
 
 
