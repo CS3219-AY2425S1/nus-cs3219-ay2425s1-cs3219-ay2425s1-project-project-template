@@ -274,7 +274,7 @@ export default function VideoDisplay() {
   };
 
   return (
-      <div className="fixed bottom-4 left-4 flex space-x-4">
+      <div className="fixed bottom-4 left-4 flex space-x-4 mx-3">
         <VideoContainer isLocal={true} />
         <VideoContainer isLocal={false} />
       </div>
