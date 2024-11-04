@@ -9,13 +9,15 @@ export class CodeExecutionController {
   async executeCode(
     @Body() 
     body: {
+      sessionId: string;
       questionId: string;
       language: string;
       code: string;
     }
   ) {
-    const { questionId, language, code } = body;
+    const { sessionId, questionId, language, code } = body;
     return await this.codeExecutionService.executeCode(
+      sessionId,
       questionId,
       language,
       code

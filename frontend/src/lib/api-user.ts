@@ -125,6 +125,7 @@ export const updatePassword = async (userId: string, token: string, password: st
 };
 
 export async function executeCode({
+  sessionId,
   questionId,
   language,
   code,

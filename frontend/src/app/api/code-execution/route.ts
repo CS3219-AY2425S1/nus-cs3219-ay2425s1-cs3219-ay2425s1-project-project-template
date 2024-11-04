@@ -19,6 +19,7 @@ export interface CodeExecutionResponse {
 }
 
 export interface ExecuteCodeParams {
+  sessionId?: string;
   questionId: string;
   language: string;
   code: string;
@@ -28,7 +29,7 @@ export interface ExecuteCodeParams {
 export async function POST(request: Request) {
   try {
     const body = await request.json() as ExecuteCodeParams;
-    const { questionId, language, code, stdin } = body;
+    const { sessionId, questionId, language, code, stdin } = body;
 
     if (!questionId) {
       return NextResponse.json(
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
     const response = await axios.post<CodeExecutionResponse>(
       CODE_EXECUTION_SERVICE_URL,  
       {
+        sessionId, 
         questionId,
         language,
         code,

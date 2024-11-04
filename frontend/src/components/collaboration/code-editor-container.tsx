@@ -65,6 +65,7 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         throw new Error('Question ID is required');
       }
       const result: CodeExecutionResponse = await executeCode({
+        sessionId,
         questionId,
         language: language,
         code: code
