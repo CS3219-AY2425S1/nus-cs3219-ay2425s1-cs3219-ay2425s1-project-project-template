@@ -3,6 +3,7 @@ import { useCollaborationStore } from '~/stores/collaborationStore';
 import CodeEditor from '~/components/CodeEditor.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Chat from '~/components/chat/chat.vue';
 
 const collaborationStore = useCollaborationStore();
 const router = useRouter();
@@ -66,6 +67,8 @@ const terminateCollaboration = () => {
             </button>
         </div>
     </div>
+
+    <Chat />
 </template>
 
 <style scoped>

@@ -56,10 +56,10 @@ services:
     container_name: ui
     build:
       context: ./frontend/Peerprep
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     volumes:
       - ./frontend/Peerprep:/src
-      - node_modules:/src/node_modules  # Only for development
+      # - node_modules:/src/node_modules  # Only for development
     ports:
       - "3000:3000"
     environment:
