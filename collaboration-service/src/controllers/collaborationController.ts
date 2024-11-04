@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import database from "../config/firebaseConfig";
 import { ref, get, set, update } from "firebase/database";
 import { Room } from "../models/room-model";
+import { HistoryModel } from "../models/history-model";
 
 export const joinRoom = async (req: Request, res: Response) => {
   try {
@@ -99,6 +100,7 @@ export const createRoom = async (req: Request, res: Response) => {
         .json({ message: "Cannot create room with 2 same User ID." });
     }
 
+    const currTime = Date.now();
     const newRoom: Room = {
       roomId: roomId,
       code: "// Enter your code here:",
@@ -106,7 +108,7 @@ export const createRoom = async (req: Request, res: Response) => {
         [userId1]: false,
         [userId2]: false,
       },
-      createdAt: Date.now(),
+      createdAt: currTime,
       selectedQuestionId: selectedId,
       status: "active",
       currentLanguage: "javascript",
@@ -119,6 +121,19 @@ export const createRoom = async (req: Request, res: Response) => {
 
     const userRoomsRef2 = ref(database, `userRooms/${userId2}`);
     await set(userRoomsRef2, roomId);
+
+    const newHistory: HistoryModel = {
+      roomId: roomId,
+      selectedQuestionId: selectedId,
+      questionTitle: randQuestion.title,
+      attemptDateTime: currTime, 
+    }
+
+    const historyRef1 = ref(database, `history/${userId1}/${roomId}`);
+    await set(historyRef1, newHistory);
+
+    const historyRef2 = ref(database, `history/${userId2}/${roomId}`);
+    await set(historyRef2, newHistory);
 
     res.status(201).json({ message: "Room created successfully", roomId });
     console.log(
