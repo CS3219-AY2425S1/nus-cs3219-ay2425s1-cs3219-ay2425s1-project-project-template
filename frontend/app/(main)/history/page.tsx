@@ -23,11 +23,12 @@ export default function Page() {
       ) : (
         <div className="flex justify-center">
           <HistoryTable
+            username={user?.username || ""}
             handlePageOnClick={handleOnPageClick}
-            isAdmin={false}
             pageNumber={pageNumber}
             sessions={historyList?.sessions || []}
             totalPages={parseInt(historyList?.totalPages || "1")}
+            totalSessions={parseInt(historyList?.totalSessions || "")}  
           />
         </div>
       )}

@@ -6,6 +6,7 @@ export interface History {
   userTwo: string,
   code: string,
   question: Question,
+  index?: number;
 }
 
 export interface HistoryList {
