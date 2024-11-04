@@ -59,7 +59,29 @@ export const joinRoom = async (req: Request, res: Response) => {
 
 export const createRoom = async (req: Request, res: Response) => {
   try {
-    const { userId1, userId2 } = req.body;
+    const { userId1, userId2, topic } = req.body;
+
+    const questionsByCategory = await fetch(
+      `http://question-service:8080/api/questions/category?category=${topic}`, 
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    const questions = await questionsByCategory.json();
+
+    if (questions.length === 0) {
+      res.status(404).json(
+        {
+          message: "Cannot find questions on the topic selected."
+        }
+      )
+    }
+
+    // "random" algorithm to get a random question from the list of questions
+    const randQuestion = questions[Math.round(Math.random() * questions.length)];
+    const selectedId = randQuestion.questionId;
 
     const roomId = uuidv4();
 
@@ -85,7 +107,7 @@ export const createRoom = async (req: Request, res: Response) => {
         [userId2]: false,
       },
       createdAt: Date.now(),
-      selectedQuestionId: 0, // default number when not selected yet
+      selectedQuestionId: selectedId,
       status: "active",
       currentLanguage: "javascript",
     };
