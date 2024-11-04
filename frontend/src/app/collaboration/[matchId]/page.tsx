@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import AttemptsTab from "@/components/attempts/attempts"
 import { useRouter } from 'next/navigation';
 import { verifyToken } from '@/lib/api-user'
 import toast from 'react-hot-toast';
@@ -417,6 +418,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
         <Tabs defaultValue="question" className="flex flex-col pb-1 overflow-hidden">
           <TabsList className="w-fit">
             <TabsTrigger value="question">Question</TabsTrigger>
+            <TabsTrigger value="attempts">Attempts</TabsTrigger>
             <TabsTrigger value="feedback">Chat</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden pb-1">
@@ -472,6 +474,9 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
                 </div>
               </div>
             </Card>
+          </TabsContent>
+          <TabsContent value="attempts">
+            <AttemptsTab></AttemptsTab>
           </TabsContent>
         </Tabs>
         <div className="flex flex-col gap-0 h-full overflow-hidden">

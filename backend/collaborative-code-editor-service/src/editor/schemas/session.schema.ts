@@ -11,7 +11,7 @@ export class Session {
   activeUsers: string[];
 
   @Prop({ type: [String], default: [] })
-  allUsers: string[];
+  allUsers: string[]; 
 
   @Prop({ type: [QuestionAttemptSchema] })
   questionAttempts: QuestionAttempt[];
