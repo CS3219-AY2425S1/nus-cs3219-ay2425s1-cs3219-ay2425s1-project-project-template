@@ -286,11 +286,11 @@ const FindPeer = () => {
 
     showLoadingSpinner(cancelSocketConnection);
   };
-  const token = getToken();
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) window.location.href = "/login";
-  }, [token]);
+    setToken(getToken() || null);
+  }, []);
 
   const form = useForm({
     defaultValues: {
