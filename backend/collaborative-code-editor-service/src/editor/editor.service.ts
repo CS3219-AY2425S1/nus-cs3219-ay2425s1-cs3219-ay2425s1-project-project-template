@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Session, SessionDocument } from './schemas/session.schema';
 import { QuestionAttempt } from './schemas/question-attempt.schema';
-import { QuestionSubmission } from './schemas/question-submission.schema';
+import { ExecutionResults, QuestionSubmission } from './schemas/question-submission.schema';
 import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { stringify } from 'querystring';
@@ -38,6 +38,42 @@ export class EditorService {
       return session;
     }
     return null;
+  }
+
+  async getSession(sessionId: string): Promise<Session | null> {
+    const cachedSession = await this.redis.get(`session:${sessionId}`);
+    if (cachedSession) {
+      return JSON.parse(cachedSession);
+    }
+
+    const session = await this.sessionModel.findOne({ sessionId }).exec();
+    if (session) {
+      await this.redis.setex(
+        `session:${sessionId}`,
+        3600,
+        JSON.stringify(session)
+      );
+      return session;
+    }
+    return null;
+  }
+
+  async getLastSubmissionExecutionResult(sessionId: string, questionId: string): Promise<ExecutionResults|null> {
+    const session = await this.getSession(sessionId);
+    if (!session) {
+      return null;
+    }
+    const questionAttempt = session.questionAttempts.find(
+      (attempt) => attempt.questionId === questionId
+    );
+    if (!questionAttempt) {
+      return null;
+    }
+    const lastSubmission = questionAttempt.submissions[questionAttempt.submissions.length - 1];
+    if (!lastSubmission) {
+      return null;
+    }
+    return lastSubmission.executionResults;
   }
 
   // TODO: Remove later
