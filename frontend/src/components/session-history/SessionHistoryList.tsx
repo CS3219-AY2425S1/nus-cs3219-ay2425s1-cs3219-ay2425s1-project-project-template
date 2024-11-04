@@ -8,6 +8,7 @@ const SessionHistoryList = ({ sessionId }) => {
   const [sessionHistory, setSessionHistory] = useState(null);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [selectedAttempts, setSelectedAttempts] = useState([]);
+  const [questionDetails, setQuestionDetails] = useState({});
 
   useEffect(() => {
     async function fetchSessionHistory() {
@@ -15,10 +16,20 @@ const SessionHistoryList = ({ sessionId }) => {
         const response = await fetch(`/api/sessions/${sessionId}`);
         const data = await response.json();
         setSessionHistory(data);
+
+        const questionIds = data.questionAttempts.map(attempt => attempt.questionId);
+        const questionDetailsMap = {};
+        await Promise.all(questionIds.map(async (questionId) => {
+          const questionResponse = await fetch(`${process.env.NEXT_PUBLIC_QUESTION_API_URL}/questions/${questionId}`);
+          const questionData = await questionResponse.json();
+          questionDetailsMap[questionId] = questionData;
+        }));
+        setQuestionDetails(questionDetailsMap);
       } catch (error) {
         console.error('Failed to fetch session history:', error);
       }
     }
+
     fetchSessionHistory();
   }, [sessionId]);
 
@@ -49,7 +60,6 @@ const SessionHistoryList = ({ sessionId }) => {
 
   return (
     <div className="flex h-screen max-h-[800px] gap-4 p-4">
-      {/* Left Panel */}
       <Card className="w-1/2">
         <CardHeader>
           <CardTitle>
@@ -70,7 +80,6 @@ const SessionHistoryList = ({ sessionId }) => {
         <CardContent>
           <ScrollArea className="h-[700px] pr-4">
             {!selectedQuestion ? (
-              // Question List View
               <div className="space-y-4">
                 {sessionHistory.questionAttempts.map((attempt, index) => (
                   <Card 
@@ -79,7 +88,9 @@ const SessionHistoryList = ({ sessionId }) => {
                     onClick={() => handleQuestionSelect(attempt.questionId)}
                   >
                     <CardHeader className="p-4">
-                      <CardTitle className="text-sm">Question ID: {attempt.questionId}</CardTitle>
+                      <CardTitle className="text-sm">
+                        {questionDetails[attempt.questionId]?.title || `Question ID: ${attempt.questionId}`}
+                      </CardTitle>
                       <CardDescription className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         {formatDate(attempt.startedAt)}
@@ -89,54 +100,59 @@ const SessionHistoryList = ({ sessionId }) => {
                 ))}
               </div>
             ) : (
-              // Question Detail View
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Question ID: {selectedQuestion}</h3>
-                {/* Add question details here when available */}
-                <p className="text-gray-600">Question description would go here...</p>
+                <h3 className="text-lg font-semibold">
+                  {questionDetails[selectedQuestion]?.title || `Question ID: ${selectedQuestion}`}
+                </h3>
+                <p className="text-gray-600">
+                  {questionDetails[selectedQuestion]?.description || 'Question ID not found'}
+                </p>
               </div>
             )}
           </ScrollArea>
         </CardContent>
       </Card>
 
-      {/* Right Panel */}
       <Card className="w-1/2">
         <CardHeader>
           <CardTitle>Submission History</CardTitle>
           {selectedQuestion && (
             <CardDescription>
-              Showing all attempts for Question {selectedQuestion}
+              Showing all attempts for {questionDetails[selectedQuestion]?.title || `Question ${selectedQuestion}`}
             </CardDescription>
           )}
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[700px] pr-4">
             <div className="space-y-4">
-              {selectedAttempts.map((attempt, index) => (
-                <Card key={index} className="bg-gray-50">
-                  <CardHeader className="p-4">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">
-                        Submission {index + 1}
-                      </CardTitle>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(attempt.submissions[0]?.status)}
-                        <span className="text-sm capitalize">
-                          {attempt.submissions[0]?.status || 'No status'}
-                        </span>
-                      </div>
-                    </div>
-                    <CardDescription>
-                      Language: {attempt.currentLanguage}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
-                      <code>{attempt.currentCode}</code>
-                    </pre>
-                  </CardContent>
-                </Card>
+              {selectedAttempts.map((attempt, attemptIndex) => (
+                <div key={attemptIndex}>
+                  {attempt.submissions.map((submission, submissionIndex) => (
+                    <Card key={submissionIndex} className="bg-gray-50">
+                      <CardHeader className="p-4">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm">
+                            Submission {submissionIndex + 1}
+                          </CardTitle>
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(submission.status)}
+                            <span className="text-sm capitalize">
+                              {submission.status || 'No status'}
+                            </span>
+                          </div>
+                        </div>
+                        <CardDescription>
+                          Language: {submission.language}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-4">
+                        <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+                          <code>{submission.code}</code>
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               ))}
             </div>
           </ScrollArea>

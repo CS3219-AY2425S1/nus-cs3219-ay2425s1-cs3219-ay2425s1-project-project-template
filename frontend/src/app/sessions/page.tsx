@@ -154,11 +154,6 @@ export default function SessionsPage() {
         {renderYearSessions(2024, sessions, userNames)}
       </div>
 
-      <div className="mt-8">
-        <Link href="/session-history">
-          View Session History
-        </Link>
-      </div>
     </main>
   )
 }
@@ -179,36 +174,29 @@ function renderYearSessions(year: number, sessions: Session[], userNames: { [key
                 .filter(attempt => attempt.submissions.some(submission => submission.status === 'accepted'))
                 .map(attempt => attempt.questionId)
             );
-
             return (
-              <Card key={session._id} className="p-4 rounded-lg shadow-md">
-                <div className="flex flex-wrap items-center justify-between gap-4 px-4">
-                  <div className="flex items-center space-x-4 gap-6">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">{new Date(session.questionAttempts[0].startedAt).getDate()}</div>
-                      <div className="text-sm text-muted-foreground">{new Date(session.questionAttempts[0].startedAt).toLocaleString('default', { month: 'short' })}</div>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold">{session.sessionName}</h4>
-                      <div className="text-sm text-muted-foreground">
-                        {session.activeUsers.map(userId => userNames[userId] || userId).join(', ')}
+              <Link href={`/session-history/${session.sessionId}`} key={session._id}>
+                <Card className="p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-50">
+                  <div className="flex flex-wrap items-center justify-between gap-4 px-4">
+                    <div className="flex items-center space-x-4 gap-6">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">{new Date(session.questionAttempts[0].startedAt).getDate()}</div>
+                        <div className="text-sm text-muted-foreground">{new Date(session.questionAttempts[0].startedAt).toLocaleString('default', { month: 'short' })}</div>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold">{session.sessionName}</h4>
+                        <div className="text-sm text-muted-foreground">
+                          {session.activeUsers.map(userId => userNames[userId] || userId).join(', ')}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <Link href={`/session-history/${session.sessionId}`}>
+                    <div className="flex items-center space-x-4">
                       <span>{uniqueQuestions.size} Questions Attempted</span>
-                    </Link>
-                    <Link href={`/session-history/${session.sessionId}`}>
                       <span>{solvedQuestions.size} Solved</span>
-                    </Link>
+                    </div>
                   </div>
-                  {/* <div className="flex items-center space-x-4">
-                    <span>{uniqueQuestions.size} Questions Attempted</span>
-                    <span>{solvedQuestions.size} Solved</span>
-                  </div> */}
-                </div>
-              </Card>
+                </Card>
+              </Link>
             );
           })
         )}
@@ -216,6 +204,39 @@ function renderYearSessions(year: number, sessions: Session[], userNames: { [key
     </div>
   );
 }
+//             return (
+//               <Card key={session._id} className="p-4 rounded-lg shadow-md">
+//                 <div className="flex flex-wrap items-center justify-between gap-4 px-4">
+//                   <div className="flex items-center space-x-4 gap-6">
+//                     <div className="text-center">
+//                       <div className="text-2xl font-bold">{new Date(session.questionAttempts[0].startedAt).getDate()}</div>
+//                       <div className="text-sm text-muted-foreground">{new Date(session.questionAttempts[0].startedAt).toLocaleString('default', { month: 'short' })}</div>
+//                     </div>
+//                     <div>
+//                       <h4 className="text-lg font-semibold">{session.sessionName}</h4>
+//                       <div className="text-sm text-muted-foreground">
+//                         {session.activeUsers.map(userId => userNames[userId] || userId).join(', ')}
+//                       </div>
+//                     </div>
+//                   </div>
+//                   <div className="flex items-center space-x-4">
+//                     <Link href={`/session-history/${session.sessionId}`}>
+//                       <span>{uniqueQuestions.size} Questions Attempted</span>
+//                     </Link>
+//                     <Link href={`/session-history/${session.sessionId}`}>
+//                       <span>{solvedQuestions.size} Solved</span>
+//                     </Link>
+//                   </div>
+                  
+//                 </div>
+//               </Card>
+//             );
+//           })
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
 // function renderYearSessions(year: number, sessions: Session[], userNames: { [key: string]: string }) {
 //   return (
 //     <div key={year}>
