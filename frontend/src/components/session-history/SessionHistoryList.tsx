@@ -4,15 +4,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, Check, XCircle, Loader } from 'lucide-react';
 
-const SessionHistoryView = () => {
-  const [sessionHistory, setSessionHistory] = useState([]);
+const SessionHistoryList = ({ sessionId }) => {
+  const [sessionHistory, setSessionHistory] = useState(null);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [selectedAttempts, setSelectedAttempts] = useState([]);
 
   useEffect(() => {
     async function fetchSessionHistory() {
       try {
-        const response = await fetch('/api/sessions');
+        const response = await fetch(`/api/sessions/${sessionId}`);
         const data = await response.json();
         setSessionHistory(data);
       } catch (error) {
@@ -20,12 +20,10 @@ const SessionHistoryView = () => {
       }
     }
     fetchSessionHistory();
-  }, []);
+  }, [sessionId]);
 
   const handleQuestionSelect = (questionId) => {
-    const allAttempts = sessionHistory.flatMap(session => 
-      session.questionAttempts.filter(attempt => attempt.questionId === questionId)
-    );
+    const allAttempts = sessionHistory.questionAttempts.filter(attempt => attempt.questionId === questionId);
     setSelectedAttempts(allAttempts);
     setSelectedQuestion(questionId);
   };
@@ -44,6 +42,10 @@ const SessionHistoryView = () => {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
+
+  if (!sessionHistory) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex h-screen max-h-[800px] gap-4 p-4">
@@ -70,23 +72,21 @@ const SessionHistoryView = () => {
             {!selectedQuestion ? (
               // Question List View
               <div className="space-y-4">
-                {sessionHistory.flatMap(session =>
-                  session.questionAttempts.map((attempt, index) => (
-                    <Card 
-                      key={`${attempt.questionId}-${index}`}
-                      className="cursor-pointer hover:bg-gray-50"
-                      onClick={() => handleQuestionSelect(attempt.questionId)}
-                    >
-                      <CardHeader className="p-4">
-                        <CardTitle className="text-sm">Question ID: {attempt.questionId}</CardTitle>
-                        <CardDescription className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          {formatDate(attempt.startedAt)}
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  ))
-                )}
+                {sessionHistory.questionAttempts.map((attempt, index) => (
+                  <Card 
+                    key={`${attempt.questionId}-${index}`}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleQuestionSelect(attempt.questionId)}
+                  >
+                    <CardHeader className="p-4">
+                      <CardTitle className="text-sm">Question ID: {attempt.questionId}</CardTitle>
+                      <CardDescription className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {formatDate(attempt.startedAt)}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
               </div>
             ) : (
               // Question Detail View
@@ -146,123 +146,4 @@ const SessionHistoryView = () => {
   );
 };
 
-export default SessionHistoryView;
-// "use client";
-
-// import React, { useEffect, useState } from 'react';
-// import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { Button } from '@/components/ui/button';
-
-// export default function SessionHistoryList() {
-//   const [sessionHistory, setSessionHistory] = useState([]);
-//   const [selectedQuestion, setSelectedQuestion] = useState(null);
-
-//   useEffect(() => {
-//     async function fetchSessionHistory() {
-//       try {
-//         const response = await fetch('/api/sessions');
-//         const data = await response.json();
-//         setSessionHistory(data);
-//       } catch (error) {
-//         console.error('Failed to fetch session history:', error);
-//       }
-//     }
-
-//     fetchSessionHistory();
-//   }, []);
-
-//   return (
-//     <div className="h-screen p-6">
-//       <div className="grid grid-cols-2 gap-6 h-[calc(100vh-6rem)]">
-//         <div className="space-y-4 h-full">
-//           {!selectedQuestion ? (
-//             <div>
-//               {sessionHistory.map((session, index) => (
-//                 <Card key={index} onClick={() => setSelectedQuestion(session)}>
-//                   <CardHeader>
-//                     <CardTitle>Session ID: {session.sessionId}</CardTitle>
-//                     <CardDescription>Session Users: {session.allUsers.join(', ')}</CardDescription>
-//                   </CardHeader>
-//                   <CardContent>
-//                     {session.questionAttempts.map((attempt, i) => (
-//                       <div key={i}>
-//                         <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-//                           <code>{attempt.currentCode}</code>
-//                         </pre>
-//                         <div className="flex gap-4 text-sm text-muted-foreground">
-//                           <div className="flex items-center gap-2">
-//                             <CardDescription>Language: {attempt.currentLanguage}</CardDescription>
-//                           </div>
-//                         </div>
-//                       </div>
-//                     ))}
-//                   </CardContent>
-//                 </Card>
-//               ))}
-//             </div>
-//           ) : (
-//             <div>
-//               <Card>
-//                 <CardHeader>
-//                   <CardTitle>Session ID: {selectedQuestion.sessionId}</CardTitle>
-//                   <CardDescription>Active Users: {selectedQuestion.activeUsers.join(', ')}</CardDescription>
-//                 </CardHeader>
-//                 <CardContent>
-//                   {selectedQuestion.questionAttempts.map((attempt, i) => (
-//                     <div key={i}>
-//                       <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-//                         <code>{attempt.currentCode}</code>
-//                       </pre>
-//                       <div className="flex gap-4 text-sm text-muted-foreground">
-//                         <div className="flex items-center gap-2">
-//                           <CardDescription>Language: {attempt.currentLanguage}</CardDescription>
-//                         </div>
-//                       </div>
-//                     </div>
-//                   ))}
-//                 </CardContent>
-//               </Card>
-//               <Button variant="outline" onClick={() => setSelectedQuestion(null)}>
-//                 Back to Sessions
-//               </Button>
-//             </div>
-//           )}
-//         </div>
-//         <ScrollArea>
-//           <Card>
-//             <CardContent>
-//               <div className="space-y-4">
-//                 {sessionHistory.map((session, index) => (
-//                   <div key={index} className="space-y-2">
-//                     <div className="flex justify-between items-center">
-//                       <div className="text-sm text-muted-foreground">
-//                         Active Users: {session.activeUsers.join(', ')}
-//                       </div>
-//                     </div>
-//                     <Card>
-//                       <CardContent className="p-4 space-y-4">
-//                         {session.questionAttempts.map((attempt, i) => (
-//                           <div key={i}>
-//                             <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-//                               <code>{attempt.currentCode}</code>
-//                             </pre>
-//                             <div className="flex gap-4 text-sm text-muted-foreground">
-//                               <div className="flex items-center gap-2">
-//                                 <CardDescription>Language: {attempt.currentLanguage}</CardDescription>
-//                               </div>
-//                             </div>
-//                           </div>
-//                         ))}
-//                       </CardContent>
-//                     </Card>
-//                   </div>
-//                 ))}
-//               </div>
-//             </CardContent>
-//           </Card>
-//         </ScrollArea>
-//       </div>
-//     </div>
-//   );
-// }
+export default SessionHistoryList;
