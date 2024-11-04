@@ -82,9 +82,9 @@ export default function CollaborativeEditor({
   );
 
   return (
-    <div className="relative w-full h-full overflow-scroll">
+    <div className="relative w-full h-full min-h-24 min-w-24">
       <Button
-        className="absolute bottom-4 right-8 z-10"
+        className="absolute bottom-10 right-8 z-10"
         onClick={submitCode}
         disabled={submitting}
       >
@@ -105,10 +105,8 @@ export default function CollaborativeEditor({
         />
       )}
       <Editor
-        defaultValue={"class Solution {\n" + "  \n" + "}"}
         onMount={handleEditorOnMount}
-        height="100%"
-        width="100%"
+        className="w-full h-full"
         theme={themeName}
         language={language}
         options={{
