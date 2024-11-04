@@ -5,7 +5,7 @@ import { useSessionContext } from "@/contexts/SessionContext";
 import { cn } from "@/lib/utils";
 import { ChatMessage, ChatMessageStatusEnum } from "@/types/ChatMessage";
 import { Check, Clock, XCircle } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 interface ChatBubblesProps {
   isCollapsed: boolean;
@@ -13,13 +13,21 @@ interface ChatBubblesProps {
 
 export default function ChatBubbles({ isCollapsed }: ChatBubblesProps) {
   const { messages, userProfile } = useSessionContext();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   if (!userProfile) {
     return <div>Loading user profile...</div>;
   }
 
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <CardContent
+      ref={scrollRef}
       className={cn(
         "transition-all duration-300",
         "flex flex-col overflow-scroll whitespace-no-wrap",
@@ -86,7 +94,7 @@ function ChatBubble({ message }: ChatBubbleProps) {
         )}
       >
         <p>{message.message}</p>
-        <div className="flex w-full justify-end">
+        <div className="flex justify-end w-full">
           <small className="flex items-center uppercase">
             {new Date(message.timestamp).toLocaleTimeString([], {
               hour: "2-digit",

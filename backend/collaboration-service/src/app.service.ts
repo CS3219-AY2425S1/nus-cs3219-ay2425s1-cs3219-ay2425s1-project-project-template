@@ -4,12 +4,15 @@ import { CollabSession } from './schema/collab-session.schema';
 import mongoose, { Model } from 'mongoose';
 import { RpcException } from '@nestjs/microservices';
 import { CreateSessionDto } from './dto';
+import { ChatSendMessageRequestDto } from './dto/add-chat-message-request.dto';
+import { RedisService } from './services/redis.service';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectModel('CollabSession')
     private readonly sessionModel: Model<CollabSession>,
+    private redisService: RedisService,
   ) {}
 
   async getSessionDetails(id: string): Promise<CollabSession> {
@@ -42,5 +45,14 @@ export class AppService {
     } catch (error) {
       throw new RpcException(`Failed to create session: ${error.message}`);
     }
+  }
+
+  async addChatMessage(data: ChatSendMessageRequestDto) {
+    await this.redisService.addChatMessage(data);
+    return true;
+  }
+
+  async getAllChatMessages(id: string) {
+    return await this.redisService.getAllChatMessages(id);
   }
 }

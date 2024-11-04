@@ -1,12 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CodeReviewDto, CreateSessionDto } from './dto';
 import { CodeReviewService } from './code-review.service';
+import { ChatSendMessageRequestDto } from './dto/add-chat-message-request.dto';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private readonly codeReviewService: CodeReviewService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly codeReviewService: CodeReviewService,
+  ) {}
 
   @MessagePattern({ cmd: 'get-session-details-by-id' })
   async handleGetSessionDetails(@Payload() data: { id: string }) {
@@ -26,5 +30,16 @@ export class AppController {
     const { sessionId, code } = data;
     const review = await this.codeReviewService.reviewCode(sessionId, code);
     return review;
+  }
+
+  @MessagePattern({ cmd: 'add-chat-message' })
+  async handleAddChatMessage(@Payload() data: ChatSendMessageRequestDto) {
+    console.log('add-chat-message controller service invoked');
+    return await this.appService.addChatMessage(data);
+  }
+
+  @MessagePattern({ cmd: 'get-session-chat-messages' })
+  async handleGetSessionChatMessages(@Payload() id: string) {
+    return await this.appService.getAllChatMessages(id);
   }
 }

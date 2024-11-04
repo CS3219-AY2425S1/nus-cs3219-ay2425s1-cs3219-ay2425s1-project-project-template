@@ -11,13 +11,18 @@ const ChatMessageSchema = z.object({
   timestamp: z.string().datetime(),
 });
 
+const ChatMessagesSchema = z.array(ChatMessageSchema);
+
 type ChatMessageStatus = z.infer<typeof ChatMessageStatusEnum>;
 
 type ChatMessage = z.infer<typeof ChatMessageSchema>;
+type ChatMessages = z.infer<typeof ChatMessagesSchema>;
 
 export {
   ChatMessageStatusEnum,
   ChatMessageSchema,
+  ChatMessagesSchema,
   type ChatMessageStatus,
   type ChatMessage,
+  type ChatMessages,
 };

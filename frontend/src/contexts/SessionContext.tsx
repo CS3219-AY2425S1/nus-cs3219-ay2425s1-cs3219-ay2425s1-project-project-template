@@ -9,11 +9,9 @@ import {
   useEffect,
 } from "react";
 import {
-  SessionUserProfile,
   SessionUserProfiles,
   SessionUserProfilesSchema,
   UserProfile,
-  UserProfilesSchema,
 } from "@/types/User";
 import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
@@ -21,7 +19,9 @@ import { io } from "socket.io-client";
 import { SessionJoinRequest } from "@/types/SessionInfo";
 import {
   ChatMessage,
+  ChatMessages,
   ChatMessageSchema,
+  ChatMessagesSchema,
   ChatMessageStatusEnum,
 } from "@/types/ChatMessage";
 import { v4 as uuidv4 } from "uuid";
@@ -77,7 +77,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     useState<SessionUserProfiles>([]);
   const [userProfile, setUserProfile] =
     useState<UserProfile>(initialUserProfile);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessages>([]);
 
   const [codeReview, setCodeReview] = useState({
     isGeneratingCodeReview: false,
@@ -243,11 +243,18 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       socket.emit("sessionJoin", sessionJoinRequest);
     });
 
-    socket.on("sessionJoined", ({ userId, sessionUserProfiles }) => {
+    socket.on("sessionJoined", ({ userId, messages, sessionUserProfiles }) => {
       console.log("sessionJoined occured");
       try {
         if (userId === userProfile.id) {
           setIsConnected(true);
+          const currentMessages = ChatMessagesSchema.parse(
+            messages.map((message: ChatMessage) => ({
+              ...message,
+              status: ChatMessageStatusEnum.enum.sent,
+            }))
+          );
+          setMessages([...currentMessages]);
         }
 
         const currentSessionUserProfiles =

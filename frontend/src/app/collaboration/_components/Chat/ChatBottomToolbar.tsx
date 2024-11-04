@@ -30,17 +30,18 @@ export default function ChatBottomToolbar({
 
   const { handleSendMessage } = useSessionContext();
 
-  const { handleSubmit, formState } = methods;
+  const { handleSubmit, formState, reset } = methods;
 
   const onSubmit = useCallback(async (data: z.infer<typeof FormSchema>) => {
     if (formState.isSubmitting || data.message.length === 0) return;
     handleSendMessage(data.message);
+    reset({ message: "" });
   }, []);
 
   return (
     <CardFooter
       className={cn(
-        "transition-all duration-300",
+        "pt-3 transition-all duration-300",
         "flex mt-auto h-fit whitespace-normal",
         isCollapsed && "opacity-0"
       )}
