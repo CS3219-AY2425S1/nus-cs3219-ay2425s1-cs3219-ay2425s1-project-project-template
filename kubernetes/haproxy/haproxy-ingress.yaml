@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: haproxy-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "haproxy"
+    haproxy.org/check: "true"
+    haproxy.org/cors-allow-origin: "*"
+    haproxy.org/cors-allow-methods: "GET, POST, DELETE"
+    haproxy.org/pod-maxconn: "50"
+    haproxy.org/websocket: "true"
+
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api/collaboration
+        pathType: Prefix
+        backend:
+          service:
+            name: collaboration
+            port:
+              number: 3001
+      - path: /api/matching
+        pathType: Prefix
+        backend:
+          service:
+            name: matching
+            port:
+              number: 3002
+      - path: /api/question
+        pathType: Prefix
+        backend:
+          service:
+            name: question
+            port:
+              number: 3003
+      - path: /api/iam
+        pathType: Prefix
+        backend:
+          service:
+            name: user
+            port:
+              number: 3004
+      - path: /matching-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: websocket
+            port:
+              number: 3005
+      - path: /chat-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: websocketchat
+            port:
+              number: 3007

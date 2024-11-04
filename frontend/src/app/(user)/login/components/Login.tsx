@@ -28,10 +28,13 @@ const Login = () => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const loginIsSuccessful = await login(data.email, data.password);
-    if (!loginIsSuccessful) return;
+    if (!loginIsSuccessful) {
+      return;
+    }
 
+    if (!searchParams) return;
     // route based on search params retrieved using router
-    const redirectUrl = searchParams.get("redirect") || "dashboard";
+    const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
     // route the user to the redirect URL
     router.push(redirectUrl as string);
@@ -46,7 +49,7 @@ const Login = () => {
           Login to our platform to access its features! Don&apos;t have an account? <a href="/register" className="text-yellow-500 hover:underline">Register here!</a>
         </p>
         <Form {...form}>
-          <form className="my-10 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+          <form className="my-10 grid gap-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>
             <FormField
               control={form.control}
               name="email"

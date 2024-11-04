@@ -75,9 +75,7 @@ const closeLoadingSpinner = () => {
   Swal.close();
 };
 
-const SOCKET_URL =
-  process.env["NEXT_PUBLIC_MATCHING_SERVICE_WEBSOCKET"] ||
-  "http://localhost:3005/matching-websocket";
+const SOCKET_URL = "http://localhost:3005/matching-websocket";
 
 const CURRENT_USER = getUsername(); // Username is unique
 
@@ -288,11 +286,11 @@ const FindPeer = () => {
 
     showLoadingSpinner(cancelSocketConnection);
   };
-  const token = getToken();
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) window.location.href = "/login";
-  }, [token]);
+    setToken(getToken() || null);
+  }, []);
 
   const form = useForm({
     defaultValues: {

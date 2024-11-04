@@ -1,8 +1,20 @@
 /* eslint-disable */
 
-import toast from "@/components/modals/toast";
 import { AuthStatus } from "@/types/user";
 import Cookie from "js-cookie";
+import Swal from "sweetalert2";
+
+const toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 export const setToken = (token: string) => {
   Cookie.set("token", token, { expires: 1 });
@@ -43,11 +55,9 @@ export const getAuthStatus = () => {
 };
 
 const NEXT_PUBLIC_IAM_USER_SERVICE =
-  process.env.NEXT_PUBLIC_IAM_USER_SERVICE ||
   "https://user-service-598285527681.us-central1.run.app/api/iam/user";
 
 const NEXT_PUBLIC_IAM_AUTH_SERVICE =
-  process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE ||
   "https://user-service-598285527681.us-central1.run.app/api/iam/auth";
 
 export const verifyToken = async (token: string) => {
@@ -74,6 +84,10 @@ export const verifyToken = async (token: string) => {
 };
 
 export const login = async (email: string, password: string) => {
+  toast.fire({
+    icon: "info",
+    title: "Logging in...",
+  });
   const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/login`, {
     method: "POST",
     headers: {
@@ -116,6 +130,10 @@ export const register = async (
   password: string,
   username: string
 ) => {
+  toast.fire({
+    icon: "info",
+    title: "Registering...",
+  });
   const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}`, {
     method: "POST",
     headers: {

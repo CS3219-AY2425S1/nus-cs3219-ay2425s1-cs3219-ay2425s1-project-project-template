@@ -13,7 +13,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState<User>({});
 
   useEffect(() => {
-    const { id } = params;
+    const { id } = params as { id: string };
     getUser(id as string).then((res) => {
       setUser(res.data);
     });
