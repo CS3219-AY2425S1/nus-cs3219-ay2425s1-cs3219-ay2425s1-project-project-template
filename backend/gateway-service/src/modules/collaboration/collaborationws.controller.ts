@@ -27,7 +27,7 @@ import { LeaveCollabSessionRequestDto } from './dto/leave-collab-session-request
 import { ChatSendMessageRequestDto } from './dto/chat-send-message-request.dto';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { first, firstValueFrom, timestamp } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { TestResultDataDto } from './dto/test-result.dto';
 import { QuestionDto } from './dto/question.dto';
 
@@ -201,16 +201,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     },
   ) {
     try {
-      // TODO: Remove
-      console.log('submit received');
       const { userId, sessionId, questionId, code } = payload;
-      // TODO: Remove
-      console.log({
-        userId,
-        sessionId,
-        questionId,
-        code,
-      });
 
       if (!userId || !sessionId || !code) {
         client.emit(SESSION_ERROR, 'Invalid submit request payload.');
