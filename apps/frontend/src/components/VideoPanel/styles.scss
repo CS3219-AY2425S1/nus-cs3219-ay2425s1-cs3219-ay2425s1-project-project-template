@@ -5,8 +5,9 @@
 
 .user-video,
 .matched-user-video {
+  margin-top: 4px;
   width: 100%;
-  margin: 4px 0px 0px;
+  max-height: 40%; // Set the max height to 40%
 }
 
 .header-tag {
