@@ -1,14 +1,17 @@
 import { Request, Response, RequestHandler } from 'express';
 import { createCollaborationService, getSessionData } from '../services/collaboration.services';
+import { updateUserService } from '..';
 
 export const initiateCollaboration = async (sessionId: string, difficulty: string, category: string, username1: string, username2: string) => {
     try {
         // call service to CREATE collaboration session
         const session = await createCollaborationService(sessionId, difficulty, category, username1, username2);
+    
         if (!session) {
             console.log('No suitable question found for specified difficulty and category');
             return null;
         }
+        updateUserService(session);
         return session;
     } catch (error) {
         console.error('Error starting collaboration', error);

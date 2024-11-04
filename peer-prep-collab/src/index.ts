@@ -1,7 +1,10 @@
 import amqp, { Channel, Message } from "amqplib"
 import { initiateCollaboration } from "./controllers/collaboration.controller"
+import { Session } from "./models/session.model"
 
 let channel: Channel
+const COLLAB_QUEUE = 'collab_queue'
+const ADD_SESSION_QUEUE = 'add_session_queue'
 
 export const connectToRabbitMQ = async () => {
     try {
@@ -16,11 +19,11 @@ export const connectToRabbitMQ = async () => {
 
 const startConsume = async (onMessage: (message: Message) => void) => {
   try {
-    await channel.assertQueue('collab_queue', {
+    await channel.assertQueue(COLLAB_QUEUE, {
       durable: false,
       messageTtl: 30000,
     })
-    channel.consume('collab_queue', msg => {
+    channel.consume(COLLAB_QUEUE, msg => {
       if (msg) {
         onMessage(JSON.parse(msg.content.toString()))
         channel.ack(msg)
@@ -29,6 +32,11 @@ const startConsume = async (onMessage: (message: Message) => void) => {
   } catch (err) {
     console.log(err)
   }
+}
+
+export const updateUserService = (session: Session) => {
+  channel.assertQueue(ADD_SESSION_QUEUE,{durable: true})
+  channel.sendToQueue(ADD_SESSION_QUEUE, Buffer.from(session.toString()))
 }
 
 // To implement generation of session URL @LYNETTE @YUANTING -
