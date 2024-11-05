@@ -8,10 +8,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import { io, Socket } from "socket.io-client";
+import { useToast } from "@/components/hooks/use-toast";
 import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
 import { getChatHistory } from "@/lib/api/collab-service/get-chat-history";
+import {
+  AuthType,
+  baseApiGatewayUri,
+  constructUriSuffix,
+} from "@/lib/api/api-uri";
 
 interface Message {
   id: string;
@@ -30,6 +36,7 @@ interface ChatHistoryMessage {
 
 export default function Chat({ roomId }: { roomId: string }) {
   const auth = useAuth();
+  const { toast } = useToast();
   const own_user_id = auth?.user?.id;
   const [socket, setSocket] = useState<Socket | null>(null);
   const [chatTarget, setChatTarget] = useState<string>("partner");
@@ -43,7 +50,16 @@ export default function Chat({ roomId }: { roomId: string }) {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await getChatHistory(roomId);
+        if (!auth || !auth.token) {
+          toast({
+            title: "Access denied",
+            description: "No authentication token found",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const response = await getChatHistory(auth?.token, roomId);
 
         if (response.ok) {
           const history: ChatHistoryMessage[] = await response.json();
@@ -77,12 +93,10 @@ export default function Chat({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (!auth?.user?.id) return;
 
-    const socketInstance = io(
-      process.env.NEXT_PUBLIC_COLLAB_SERVICE_URL || "http://localhost:3002",
-      {
-        auth: { userId: own_user_id },
-      }
-    );
+    const socketInstance = io(baseApiGatewayUri(window.location.hostname), {
+      path: `${constructUriSuffix(AuthType.Public, "collab-service")}/chat`,
+      auth: { userId: own_user_id },
+    });
 
     socketInstance.on("connect", () => {
       console.log("Connected to Socket.IO");

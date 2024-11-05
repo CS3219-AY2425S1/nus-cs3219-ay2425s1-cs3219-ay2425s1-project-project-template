@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import LoadingScreen from "@/components/common/loading-screen";
 import { getQuestion } from "@/lib/api/question-service/get-question";
+import { useToast } from "@/components/hooks/use-toast";
 import { useAuth } from "@/app/auth/auth-context";
 import { getQuestionId } from "@/lib/api/collab-service/get-questionId";
 
@@ -37,6 +38,7 @@ export default function QuestionDisplay({
   date?: Date;
 }) {
   const auth = useAuth();
+  const { toast } = useToast();
   const token = auth?.token;
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,8 +46,18 @@ export default function QuestionDisplay({
   useEffect(() => {
     async function fetchQuestion() {
       try {
+        console.log(auth);
+        if (!auth || !auth.token) {
+          toast({
+            title: "Access denied",
+            description: "No authentication token found",
+            variant: "destructive",
+          });
+          return;
+        }
+
         // Call to the collab microservice to get questionId by roomId
-        const response = await getQuestionId(roomId);
+        const response = await getQuestionId(auth.token, roomId);
         const data = await response.json();
 
         if (data.questionId) {

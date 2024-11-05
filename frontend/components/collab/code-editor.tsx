@@ -15,6 +15,7 @@ import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
 import { editor as MonacoEditor } from "monaco-types";
 import Editor, { useMonaco } from "@monaco-editor/react";
+import { yjsWebSockUri } from "@/lib/api/api-uri";
 
 interface LanguageEntry {
   language: string;
@@ -52,7 +53,7 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
 
   useEffect(() => {
     const provider = new WebsocketProvider(
-      "ws://localhost:3002/yjs",
+      yjsWebSockUri(window.location.hostname),
       roomId,
       ydoc
     );

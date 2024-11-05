@@ -1,55 +1,69 @@
 services:
+  api-gateway:
+    image: nginx:1.26
+    volumes:
+      - ./api-gateway/templates:/etc/nginx/templates
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - $API_GATEWAY_PORT:$API_GATEWAY_PORT
+    environment:
+      - PORT=$API_GATEWAY_PORT
+      - FRONTEND_PORT=$FRONTEND_PORT
+      - USER_SVC_PORT=$USER_SVC_PORT
+      - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
+      - MATCHING_SVC_PORT=$MATCHING_SVC_PORT
+      - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
+    depends_on:
+      - frontend
+      - user-service
+      - question-service
+      - matching-service
+      - collab-service
+
   frontend:
     build:
       context: ./frontend
       args:
         - BASE_URI=$BASE_URI
-        - USER_SVC_PORT=$USER_SVC_PORT
-        - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
-        - MATCHING_SVC_PORT=$MATCHING_SVC_PORT
-        - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
-    ports:
-      - $FRONTEND_PORT:$FRONTEND_PORT
-    depends_on:
-      - question-service
-      - user-service
-      - collab-service
+        - API_GATEWAY_PORT=$API_GATEWAY_PORT
     environment:
       - PORT=$FRONTEND_PORT
+    expose:
+      - $FRONTEND_PORT
 
   question-service:
     build:
       context: ./question-service
-    ports:
-      - $QUESTION_SVC_PORT:$QUESTION_SVC_PORT
     environment:
       - PORT=$QUESTION_SVC_PORT
       - DB_URI=$QUESTION_SVC_DB_URI
       - FRONTEND_PORT=$FRONTEND_PORT
+    expose:
+      - $QUESTION_SVC_PORT
   
   user-service:
     build:
       context: ./user-service
-    ports:
-      - $USER_SVC_PORT:$USER_SVC_PORT
     environment:
       - PORT=$USER_SVC_PORT
       - DB_URI=$USER_SVC_DB_URI
       - JWT_SECRET=$JWT_SECRET
       - EMAIL_ADDRESS=$EMAIL_ADDRESS
       - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    expose:
+      - $USER_SVC_PORT
 
   matching-service:
     build:
       context: ./matching-service
-    ports:
-      - $MATCHING_SVC_PORT:$MATCHING_SVC_PORT
     environment:
       - PORT=$MATCHING_SVC_PORT
       - REDIS_HOST=redis
       - REDIS_PORT=$REDIS_PORT
       - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
       - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
+    expose:
+      - $MATCHING_SVC_PORT
     depends_on:
       - redis
       - question-service
@@ -58,26 +72,15 @@ services:
   redis:
     image: redis:7.4-alpine
     restart: always
-    ports:
-      - $REDIS_PORT:$REDIS_PORT
-
-  # access RedisInsight at http://localhost:5540
-  # connect to redis on redis insight at redis:6379
-  redisinsight:
-    image: redis/redisinsight:latest
-    restart: always
-    ports:
-      - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
-    depends_on:
-      - redis
+    expose:
+      - $REDIS_PORT
     
-  
   collab-service:
     build:
       context: ./collab-service
-    ports:
-      - $COLLAB_SVC_PORT:$COLLAB_SVC_PORT
     environment:
       - PORT=$COLLAB_SVC_PORT
       - DB_URI=$COLLAB_SVC_DB_URI
       - OPENAI_API_KEY=$OPENAI_API_KEY
+    expose:
+      - $COLLAB_SVC_PORT
