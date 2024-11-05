@@ -6,8 +6,6 @@ import MatchNotFound from "../matching/MatchNotFound";
 import MatchFound from "../matching/MatchFound";
 import QuestionNotFound from '../matching/QuestionNotFound';
 import QuestionNotFoundError from '../../errors/QuestionNotFoundError';
-import questionService from '../../services/question-service';
-import useAuth from '../../hooks/useAuth';
 
 const StartSession = ({ username }) => {
   const [difficulty, setDifficulty] = useState('Easy');
@@ -19,7 +17,6 @@ const StartSession = ({ username }) => {
   const [matchedUser, setMatchedUser] = useState(null);
   const [noMatchFound, setNoMatchFound] = useState(false);
   const [noQuestionFound, setNoQuestionFound] = useState(false);
-  const { cookies } = useAuth();
 
   const handleFindMatch = async () => {
     // Send a POST request to the backend to find a match
@@ -31,8 +28,6 @@ const StartSession = ({ username }) => {
     setShowPopup(true);
 
     try {
-      const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, cookies);
-
       const response = await fetch('http://localhost:3002/api/find-match', {
         method: 'POST',
         headers: {

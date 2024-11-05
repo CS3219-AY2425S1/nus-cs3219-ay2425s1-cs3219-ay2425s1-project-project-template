@@ -266,19 +266,25 @@ export const getQuestionById = async (req, res) => {
 // Get a question by topic and difficulty
 
 export const getQuestionByTopicAndDifficulty = async (req, res) => {
-    const { topic, difficulty } = req.query;
+    const { topic, difficulty, roomId } = req.query;
 
     try {
-        const question = await Question.aggregate([
-            { $match: { topic: { $in: [topic] }, difficulty } },
-            { $sample: { size: 1 } } // Randomly select 1 document
-        ]);
-        if (!question) {
+        const hash = Array.from(roomId).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+        const questionCount = await Question.countDocuments({ topic, difficulty });
+        if (questionCount === 0) {
             return res.status(404).json({ message: "Question not found" });
         }
+
+        const index = hash % questionCount;
+        const question = await Question.find({ topic, difficulty })
+            .sort({ _id: 1 })
+            .skip(index)
+            .limit(1);
 
         res.status(200).json(question[0]);
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
