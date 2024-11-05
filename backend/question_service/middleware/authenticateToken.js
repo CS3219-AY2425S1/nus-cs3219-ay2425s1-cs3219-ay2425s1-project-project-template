@@ -25,7 +25,7 @@ const authenticateToken = async (req, res, next) => {
       res.status(response.status).json({ message: errorData.message || 'Invalid Token' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Internal Question Service Server Error' });
+    res.status(500).json({ message: 'Internal History Service Server Error' });
   }
 };
 

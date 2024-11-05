@@ -29,30 +29,31 @@ const getAllAttemptedQuestions = async (req, res) => {
         const questionUids = [...new Set(questionsAttempted.map(attempt => attempt.questionUid))];
 
         // Fetch question information from question_service 
-        // const questionServiceUrl = process.env.QUESTION_SERVICE_URL || "http://localhost:5002/get-questions-by-questionuids";
-        // const questionResponse = await fetch(questionServiceUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ questionUids })
-        // });
 
-        // if (!questionResponse.ok) {
-        //     return res.status(500).json({ message: "Error retrieving question information" });
-        // }
+        const questionServiceUrl = (process.env.QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002") + "/get-questions-by-ids";
+        // Get token from request
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+  
+        if (token == null) return res.status(401).json({ message: 'Token required' });
 
-        // const questionData = await questionResponse.json();
-        
-        const questionsRef = db.collection("questions");
+        const questionResponse = await fetch(questionServiceUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ questionIds: questionUids })
+        });
 
-        // Fetch questions based on their questionUids using Promise.all for concurrent requests
-        const questionsData = await Promise.all(
-            questionUids.map(questionUid => questionsRef.doc(questionUid).get())
-        );
+        if (!questionResponse.ok) {
+            // Attempt to extract error message from the response body, if available
+            const errorDetails = await questionResponse.json().catch(() => null); // Handle non-JSON responses gracefully
+            const errorMessage = errorDetails?.message || "Error retrieving questions information";
+            return res.status(500).json({ message: errorMessage });
+        }
 
-        // Convert query results into an array of question data
-        const questionData = questionsData.map(doc => ({ id: doc.id, ...doc.data() }));
+        const questionData = await questionResponse.json();
 
         // Create a map for quick lookup of question details by questionUid
         const questionMap = {};
