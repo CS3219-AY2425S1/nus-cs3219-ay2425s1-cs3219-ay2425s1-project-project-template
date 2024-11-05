@@ -1,4 +1,4 @@
-import { useTheme, Button } from "@mui/material";
+import { useTheme, Button, Box } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import * as Y from "yjs";
@@ -19,78 +19,80 @@ export default function CodeEditor({ roomId, onRoomClosed }) {
         editorRef.current = editor;
 
         // Initialize yjs
-        const doc = new Y.Doc(); 
+        const doc = new Y.Doc();
 
         // Connect to peers with WebSocket
         providerRef.current = new WebsocketProvider(serverWsUrl, roomId, doc);
         const type = doc.getText("monaco");
 
         // Bind yjs doc to Monaco editor
-        const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]));
+        new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]));
 
-        // Attach WebSocket message listener
-        if (providerRef.current.ws) {
-            providerRef.current.ws.onmessage = handleRoomClosed;
-            providerRef.current.ws.onopen = () => {
-                console.log("Connected to WebSocket server");
-            };
-            providerRef.current.ws.onclose = () => {
-                console.log("Disconnected from WebSocket server");
-            };
-        }
+        // Set up awareness listener
+        const awarenessUpdateHandler = () => {
+            if (providerRef.current) {
+                providerRef.current.awareness.getStates().forEach((state) => {
+                    if (state.roomClosed) {
+                        handleRoomClosed();
+                    }
+                });
+            }
+        };
+
+        providerRef.current.awareness.on("update", awarenessUpdateHandler);
+
+        // Clean up awareness listener when unmounting or disconnecting
+        return () => {
+            if (providerRef.current) {
+                providerRef.current.awareness.off("update", awarenessUpdateHandler);
+            }
+        };
     }
 
     const handleLeaveRoom = () => {
         setIsLeaving(true);
-
+        
         if (providerRef.current) {
-            providerRef.current.disconnect(); 
+            providerRef.current.awareness.setLocalStateField("roomClosed", true);
         }
-        setIsLeaving(true);
         navigate("/users-match");
     };
 
-    const handleRoomClosed = (event) => {
-        console.log("Received data:", event);
-        try {
-            const message = JSON.parse(event.data);
-            console.log("Message:", message);
-
-            if (message.type === "roomClosed") {
-
-                if (providerRef.current) {
-                    providerRef.current.disconnect();
-                }
-
-                onRoomClosed()
-            }
-        } catch (error) {
-            console.error("Error parsing WebSocket message:", error);
+    const handleRoomClosed = () => {
+        if (providerRef.current) {
+            providerRef.current.disconnect();
+            providerRef.current = null;
         }
+        onRoomClosed();
     };
 
     useEffect(() => {
-        // Cleanup on unmount
+        // Cleanup on component unmount
         return () => {
-            if (providerRef.current && providerRef.current.ws) {
-                providerRef.current.ws.removeEventListener("message", handleRoomClosed);
+            if (providerRef.current) {
+                providerRef.current.disconnect();
+                providerRef.current = null;
             }
         };
-    }, [navigate]);
+    }, []);
 
     return (
-        <>
-            <Editor
-                height="100vh"
-                width="50%"
-                language={"cpp"}
-                defaultValue={"// your code here"}
-                theme={theme.palette.mode === "dark" ? "vs-dark" : "vs-light"}
-                onMount={handleEditorDidMount}
-            />
-            <Button variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
-                {isLeaving ? "Leaving..." : "Leave Room"}
-            </Button>
-        </>
+        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
+                <Button variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
+                    {isLeaving ? "Leaving..." : "Leave Room"}
+                </Button>
+            </Box>
+            <Box sx={{ width: "50%", flexGrow: 1 }}>
+                <Editor
+                    height="100vh"
+                    width="100%"
+                    language="cpp"
+                    defaultValue="// your code here"
+                    theme={theme.palette.mode === "dark" ? "vs-dark" : "vs-light"}
+                    onMount={handleEditorDidMount}
+                />
+            </Box>
+        </Box>
     );
 }
