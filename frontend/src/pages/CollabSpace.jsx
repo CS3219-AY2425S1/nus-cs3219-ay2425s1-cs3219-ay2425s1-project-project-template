@@ -1,6 +1,6 @@
 import * as React from "react";
 import CodeEditor from "../components/CodeEditor";
-import Chat from "../components/Chat"
+import Chat from "../components/Chat";
 import { Snackbar, Alert, Box, Button } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -23,11 +23,6 @@ const CollabSpace = () => {
         if (hasClosedRef.current) return; // Prevent multiple triggers
         hasClosedRef.current = true;
 
-        if (providerRef.current) {
-            providerRef.current.destroy();
-            providerRef.current = null;
-        }
-
         setShowRedirectMessage(true);
         setTimeout(() => {
             setShowRedirectMessage(false);
@@ -45,14 +40,11 @@ const CollabSpace = () => {
 
         if (providerRef.current) {
             providerRef.current.awareness.setLocalStateField("roomClosed", true);
-            // providerRef.current.destroy(); // Thorough cleanup
-            // providerRef.current = null; // Set to null to avoid repeated calls
 
-            // Delay navigation slightly to ensure state is shared before navigation
             setTimeout(() => {
                 navigate("/users-match");
                 setIsLeaving(false);
-            }, 300);
+            }, 3000);
         }
     };
 
@@ -86,6 +78,14 @@ const CollabSpace = () => {
 
         return () => {
             if (providerRef.current) {
+                const codeType = docRef.current.getText("monaco");
+                codeType.delete(0, codeType.length);
+                console.log("code deleted: ", codeType);
+                const messagesType = docRef.current.getArray("chatMessages");
+                messagesType.delete(0, messagesType.length);
+                console.log("message deleted: ", messagesType);
+                docRef.current.destroy();
+                docRef.current = null;
                 providerRef.current.awareness.off("update", awarenessUpdateHandler);
                 providerRef.current.destroy();
                 providerRef.current = null;
@@ -115,9 +115,7 @@ const CollabSpace = () => {
 
             <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                 <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
-                    <Chat provider={providerRef.current}>
-
-                    </Chat>
+                    {providerRef.current && <Chat provider={providerRef.current} />}
                 </Box>
 
                 <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
@@ -141,47 +139,3 @@ const CollabSpace = () => {
 };
 
 export default CollabSpace;
-
-// import * as React from "react";
-// import CodeEditor from "../components/CodeEditor";
-// import { Snackbar, Alert, Box } from "@mui/material";
-// import { useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-
-// const CollabSpace = () => {
-//     const { roomId } = useParams();
-//     const [showRedirectMessage, setShowRedirectMessage] = useState(false);
-//     const navigate = useNavigate();
-
-//     const handleRoomClosed = () => {
-//         setShowRedirectMessage(true);
-//         setTimeout(() => {
-//             setShowRedirectMessage(false);
-//             navigate("/users-match");
-//         }, 3000);
-//     };
-
-//     return (
-//         <>
-//             <h1>Room ID: {roomId}</h1>
-//             <Snackbar
-//                 open={showRedirectMessage}
-//                 autoHideDuration={3000}
-//                 onClose={() => setShowRedirectMessage(false)}
-//                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
-//             >
-//                 <Alert severity="info" variant="filled" onClose={() => setShowRedirectMessage(false)}>
-//                     You will be redirected soon as the room is closed.
-//                 </Alert>
-//             </Snackbar>
-//             <Box sx={{ width: "50%", display: "flex", justifyContent: "flex-end" }}>
-
-//             </Box>
-//             <Box sx={{ width: "50%", display: "flex", justifyContent: "flex-end" }}>
-//                 <CodeEditor roomId={roomId} onRoomClosed={handleRoomClosed}></CodeEditor>
-//             </Box>
-//         </>
-//     );
-// };
-
-// export default CollabSpace;
