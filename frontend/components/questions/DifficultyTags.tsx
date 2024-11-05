@@ -11,7 +11,7 @@ interface DifficultyTagProps {
 const DifficultyTags: React.FC<DifficultyTagProps> = ({ difficulty }) => {
   return (
     <p
-      className={`text-semibold ${DIFFICULTY_COLOURS[difficulty.toLocaleLowerCase()]} capitalize`}
+      className={`text-semibold ${DIFFICULTY_COLOURS[difficulty.toLowerCase()]} capitalize`}
     >
       {difficulty}
     </p>

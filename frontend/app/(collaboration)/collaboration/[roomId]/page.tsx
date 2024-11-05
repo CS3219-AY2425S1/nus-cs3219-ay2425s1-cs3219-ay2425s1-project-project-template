@@ -27,7 +27,6 @@ import {
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
-  const [language, setLanguage] = useState("JavaScript");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId || "";
@@ -46,8 +45,9 @@ export default function Page() {
     constraints: "",
   });
 
-  const { data: matchedQuestion, isPending: isQuestionPending } =
+  const { data: roomInfo, isPending: isQuestionPending } =
     useGetMatchedQuestion(roomId as string);
+
   const {
     data: isAuthorisedUser,
     isPending: isAuthorisationPending,
@@ -85,6 +85,8 @@ export default function Page() {
 
   useEffect(() => {
     if (!isQuestionPending) {
+      const matchedQuestion = roomInfo.question;
+
       setQuestion({
         title: matchedQuestion?.title || "",
         complexity: matchedQuestion?.complexity || "",
@@ -137,7 +139,7 @@ export default function Page() {
             {/* Editor Section */}
             <div className="flex-[2_2_0%] p-2 border-r border-gray-700">
               <CodeEditor
-                language={language}
+                language={roomInfo["programming_language"][0] || "javaScript"}
                 roomId={roomId as string}
                 setOutput={setOutput}
                 userEmail={user?.email || "unknown user"}

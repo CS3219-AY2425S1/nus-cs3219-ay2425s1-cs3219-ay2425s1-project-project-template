@@ -53,7 +53,7 @@ export const getQuestionHandler = async (req: Request, res: Response): Promise<v
     }
 
     // Send the question as a JSON response
-    res.json(match.question);
+    res.json(match);
   } catch (error) {
     console.error("Error finding match:", error);
     res.status(500).json({ error: "Internal Server Error" });
