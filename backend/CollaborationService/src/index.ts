@@ -129,6 +129,18 @@ io.on("connection", (socket: Socket) => {
       roomDocs[roomId].toString()
     );
   });
+
+  socket.on("disconnect", () => {
+    // check only have one user?
+    if (io.sockets.adapter.rooms.get(roomId)?.size === 1) {
+      socket.leave(roomId);
+      delete roomUpdates[roomId];
+      delete roomDocs[roomId];
+      delete pending[roomId];
+
+      console.log("room updates", roomUpdates);
+    }
+  });
 });
 
 const port = process.env.PORT || 8000;
