@@ -89,18 +89,18 @@ const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }
 const styles = {
     chatContainer: {
         flex: "1",
-        backgroundColor: "#1e1e2f", // Slightly darker color for contrast
+        backgroundColor: "#1e1e2f", 
         borderRadius: "8px",
         padding: "10px",
         display: "flex",
         flexDirection: "column",
         overflowY: "hidden",
         transition: "height 0.3s ease",
-        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", // Added shadow for depth
+        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", 
     },
     toggleButton: {
         padding: "8px",
-        backgroundColor: "#4CAF50",
+        backgroundColor: "#5636a7", 
         color: "white",
         border: "none",
         borderRadius: "4px",
@@ -117,13 +117,13 @@ const styles = {
         padding: "10px",
         maxHeight: "300px",
         borderRadius: "5px",
-        backgroundColor: "#2b2b3a", // Slightly lighter color for message background
+        backgroundColor: "#2b2b3a", 
     },
     message: {
         marginBottom: "15px",
         padding: "8px",
         borderRadius: "5px",
-        backgroundColor: "#3e3e4e", // Background for individual message blocks
+        backgroundColor: "#3e3e4e", 
     },
     inputContainer: {
         display: "flex",
@@ -143,7 +143,7 @@ const styles = {
     },
     sendButton: {
         padding: "10px 15px",
-        backgroundColor: "#4CAF50",
+        backgroundColor: "#5636a7", 
         color: "white",
         border: "none",
         borderRadius: "4px",

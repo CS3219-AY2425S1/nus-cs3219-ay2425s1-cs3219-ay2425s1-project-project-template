@@ -106,10 +106,8 @@ const EditorView: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      {/* Inline CSS for dark scrollbars */}
       <style>
         {`
-          /* Custom dark scrollbar styling */
           .editor-scrollbar::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -124,14 +122,12 @@ const EditorView: React.FC = () => {
           .editor-scrollbar::-webkit-scrollbar-thumb:hover {
             background-color: #555;
           }
-          /* Firefox-specific scrollbar styling */
           .editor-scrollbar {
             scrollbar-color: #444 #2e2e3e;
             scrollbar-width: thin;
           }
         `}
       </style>
-      {/* Question Section */}
       <Box style={styles.leftSection}>
         <QuestionDisplay
           className="editor-scrollbar"
@@ -140,19 +136,23 @@ const EditorView: React.FC = () => {
           onFetchQuestion={saveQuestion}
         />
       </Box>
-
-      {/* Editor and Chat Section */}
+  
       <Box style={styles.rightSection}>
-        <Box style={styles.topSection}>
-          <GeminiChat socketRef={socketRef} />
-          <ChatBox
-            roomId={roomId}
-            user={user ?? null}
-            style={styles.chatContainer}
-            onEndSession={disconnectAndGoBack}
-            question={question}
-            currentCode={currentCode}
-          />
+        <Box style={styles.chatGeminiContainer}>
+          <Box style={styles.geminiChatContainer}>
+            <h2 style={styles.chatTitle}>GenAI Assistant</h2> {/* GenAI Assistant */}
+            <GeminiChat socketRef={socketRef} />
+          </Box>
+          <Box style={styles.chatContainer}>
+            <h2 style={styles.chatTitle}>User Chat</h2> {/* User Chat */}
+            <ChatBox
+              roomId={roomId}
+              user={user ?? null}
+              onEndSession={disconnectAndGoBack}
+              question={question}
+              currentCode={currentCode}
+            />
+          </Box>
         </Box>
         <Box style={styles.editorContainer} className="editor-scrollbar">
           {socketRef.current && (
@@ -176,6 +176,12 @@ const styles = {
     flexDirection: "column" as const,
     width: "30%",
     padding: "20px",
+  },
+  chatTitle: {
+    fontSize: "1.2rem",
+    fontWeight: "bold",
+    color: "#82AAFF",  // Matches the theme color
+    marginBottom: "10px",
   },
   questionSection: {
     color: "#ffffff",
@@ -219,6 +225,21 @@ const styles = {
   topSection: {
     display: "flex",
     marginBottom: "15px",
+  },
+  chatGeminiContainer: {
+    display: "flex",
+    flexDirection: "row" as const,  // Arrange GeminiChat and ChatBox side-by-side
+    marginBottom: "15px",
+    gap: "10px",  // Adds space between GeminiChat and ChatBox
+  },
+  geminiChatContainer: {
+    flex: 1,  // Makes GeminiChat take up half the space
+    display: "flex",
+    flexDirection: "column" as const,
+    padding: "10px",
+    backgroundColor: "#2e2e3e",
+    borderRadius: "8px",
+    overflowY: "auto",
   },
   chatContainer: {
     flex: 1,
