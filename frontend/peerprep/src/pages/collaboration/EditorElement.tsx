@@ -28,7 +28,7 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
   const [version, setVersion] = useState<number | null>(null);
   const [doc, setDoc] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageKey>("javascript"); // Default language
-  
+
   useEffect(() => {
     const fetchDocument = async () => {
       try {

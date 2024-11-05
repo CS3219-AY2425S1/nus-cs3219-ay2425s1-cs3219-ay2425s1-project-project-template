@@ -33,6 +33,12 @@ const EditorView: React.FC = () => {
 
   useEffect(() => {
     const disconnected = sessionStorage.getItem("disconnected");
+    const savedCode = sessionStorage.getItem("code");
+
+    if (savedCode) {
+      console.log(saveCode);
+      setCurrentCode(savedCode);
+    }
 
     if (
       disconnected === "true" ||
@@ -66,6 +72,7 @@ const EditorView: React.FC = () => {
 
   const saveCode = (code: string) => {
     setCurrentCode(code);
+    sessionStorage.setItem("code", code);
     console.log("Code saved:", code);
   };
 
@@ -101,6 +108,7 @@ const EditorView: React.FC = () => {
     socketRef.current?.disconnect();
     sessionStorage.setItem("disconnected", "true");
     sessionStorage.removeItem("reconnectUrl");
+    sessionStorage.removeItem("code");
     navigate("/dashboard");
   };
 
