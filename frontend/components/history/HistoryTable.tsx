@@ -82,7 +82,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
         return <DifficultyTags difficulty={question?.complexity || "N/A"} />;
       }
       case "language": {
-        return <h2>{session.language || "N/A"}</h2>;
+        return <h2>{session.programming_language || "N/A"}</h2>;
       }
       case "partner": {
         return <h2>{session.userTwo == username ? session.userOne : session.userTwo|| "N/A"}</h2>;

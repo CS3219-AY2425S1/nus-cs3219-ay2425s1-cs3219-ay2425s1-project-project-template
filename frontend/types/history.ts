@@ -7,7 +7,7 @@ export interface History {
   code: string,
   question: Question,
   createdAt: Date,
-  language: string,
+  programming_language: string,
   index?: number;
 }
 

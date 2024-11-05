@@ -27,7 +27,7 @@ export interface Match {
 }
 
 // Mongoose schema for the Question model
-const questionSchema = new Schema<Question>({
+export const questionSchema = new Schema<Question>({
   questionId: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: false },
