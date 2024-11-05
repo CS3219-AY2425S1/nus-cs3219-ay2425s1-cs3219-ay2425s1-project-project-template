@@ -45,7 +45,7 @@ func main() {
 	shouldPopulate := flag.Bool("populate", false, "Populate database")
 	flag.Parse()
 	if *shouldPopulate {
-		utils.Populate(client)
+		utils.Populate(client, true)
 		return
 	}
 
