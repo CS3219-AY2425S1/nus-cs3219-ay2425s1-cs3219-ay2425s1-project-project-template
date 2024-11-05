@@ -46,7 +46,6 @@ export default function QuestionDisplay({
   useEffect(() => {
     async function fetchQuestion() {
       try {
-        console.log(auth);
         if (!auth || !auth.token) {
           toast({
             title: "Access denied",
