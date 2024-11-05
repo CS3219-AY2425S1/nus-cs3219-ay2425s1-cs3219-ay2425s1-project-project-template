@@ -72,8 +72,13 @@ const loadHistory = async (conversation: string) => {
 // when mount socket, set Socket.IO event
 onMounted(() => {
   socket.on('chat message', receiveMessage);
-  loadConversations(); // load convo list
+  socket.on('new_conversation', () => {
+    loadConversations(); // Reload conversations when a new one is created
+  });
+
+  loadConversations(); // Initial load
 });
+
 
 // when unmount socket, clear Socket.IO event
 onUnmounted(() => {
@@ -117,7 +122,8 @@ defineExpose({
       <div id="messages" class="messages">
         <div v-for="msg in messages" :key="msg.id" class="message-item">
           <div class="avatar">
-            <img :src="msg.avatar" :alt="msg.username" />
+          <!-- <img :src="msg.avatar" :alt="msg.username" /> -->
+          <img :src="msg.username"  />
           </div>
           <div class="message-content">
             <div class="username">{{ msg.username }}</div>
@@ -167,10 +173,7 @@ defineExpose({
 }
 
 .avatar img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
+  display: none;
 }
 
 .message-content {
