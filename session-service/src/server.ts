@@ -6,7 +6,7 @@ import { WebSocketServer } from "ws";
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
 /**
- * CORSConfiguration
+ * CORSConfiguration.
  */
 export const allowedOrigins = ["*"];
 
