@@ -24,10 +24,6 @@ export const addQuestion = async (
   try {
     const { questionId, title, description, category, difficulty } = req.body;
 
-    const newQuestionId = questionId
-      ? (parseInt(questionId, 10) + 1).toString()
-      : '1';
-
     const newQuestion = new Question({
       questionId,
       title,
