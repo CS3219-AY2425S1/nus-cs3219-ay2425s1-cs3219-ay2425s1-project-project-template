@@ -7,7 +7,7 @@ import {
   validateEmail,
   validatePassword,
   sendVerificationEmail,
-} from "./user-controller-utils.js";
+} from "./controller-utils.js";
 import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,

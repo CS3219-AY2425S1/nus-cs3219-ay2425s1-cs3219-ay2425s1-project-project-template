@@ -9,7 +9,7 @@ import {
   deleteTempEmailById as _deleteTempEmailById,
 } from "../model/repository.js";
 import { formatFullUserResponse } from "./user-controller.js";
-import { sendVerificationEmail } from "./user-controller-utils.js";
+import { sendVerificationEmail, validatePassword } from "./controller-utils.js";
 
 export async function handleLogin(req, res) {
   const { username, email, password } = req.body;
@@ -67,7 +67,7 @@ export async function handleVerifyEmailToken(req, res) {
 
   let decoded;
   try {
-    decoded = jwt.verify(token, process.env.JWT_VERIFICATION);
+    decoded = jwt.verify(token, process.env.JWT_EMAIL_VERIFICATION);
   } catch (err) {
     return err.name === 'TokenExpiredError'
       ? res.status(401).json({ message: `Expired token`})
@@ -123,3 +123,5 @@ export async function handleResendVerification(req, res) {
     return res.status(500).json({ message: "Unknown error when sending email!"});
   }
 }
+
+

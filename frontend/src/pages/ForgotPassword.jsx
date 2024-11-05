@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { validatePassword } from "../services/user-service";
 import AuthLayout from "../components/auth/AuthLayout";
 import '../styles/AuthForm.css';
 
@@ -34,8 +35,9 @@ const ForgotPassword = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		if (password !== confirmPassword) {
-			handleError("Passwords do not match");
+    const res = validatePassword(password, confirmPassword);
+		if (res) {
+			handleError(res);
 			return;
 		}
 		try {
@@ -51,7 +53,7 @@ const ForgotPassword = () => {
 				handleSuccess("OTP has been sent to your email.");
 				setTimeout(() => {
 					navigate("/forgot-password/otp", { state: { email } });
-				}, 1000);
+				}, 2500);
 			} else {
 				handleError(response.data.message);
 			}

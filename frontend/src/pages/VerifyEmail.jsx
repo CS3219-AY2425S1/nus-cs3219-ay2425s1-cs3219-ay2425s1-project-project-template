@@ -16,7 +16,7 @@ const VerifyEmail = () => {
   useEffect(() => { // send token to backend on page load
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-      
+
     axios.post(
       "http://localhost:3001/auth/verify-email",
       { token: token },

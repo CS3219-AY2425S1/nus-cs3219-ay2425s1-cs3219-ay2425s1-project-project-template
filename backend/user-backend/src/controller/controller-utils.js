@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import "dotenv/config";
@@ -109,7 +110,18 @@ function generateVerificationToken(userId, userEmail) {
 
   return jwt.sign(
     payload,
-    process.env.JWT_VERIFICATION,
+    process.env.JWT_EMAIL_VERIFICATION,
     { expiresIn: '1d'}
   );
+}
+
+function generateSecureOTP(length) {
+  let otp = '';
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array); // Generates cryptographically secure random numbers
+
+  for (let i = 0; i < length; i++)
+    otp += array[i] % 10; // Modulo 10 to get a single digit (0-9)
+  
+  return otp;
 }

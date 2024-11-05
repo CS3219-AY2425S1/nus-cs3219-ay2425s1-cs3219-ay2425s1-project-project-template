@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import GeneralNavbar from "../components/navbar/GeneralNavbar";
-import "../styles/Profile.css";
 import { validateEmail, validateUsername } from "../services/user-service";
+import GeneralNavbar from "../components/navbar/GeneralNavbar";
 import DefaultImage from '../assets/Default.jpg';
 import EditImage from '../assets/Edit.png';
 import useAuth from "../hooks/useAuth";
+import "../styles/Profile.css";
 
 const Profile = () => {
   const { userId, cookies } = useAuth();

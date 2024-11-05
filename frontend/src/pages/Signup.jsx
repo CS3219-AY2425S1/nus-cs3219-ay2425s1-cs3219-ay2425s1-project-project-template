@@ -27,7 +27,7 @@ const SignUp = () => {
   const handleError = (err) =>
     toast.error(err, {
       position: "bottom-left",
-      autoClose: 6000
+      autoClose: 6000,
     });
   const handleSuccess = (msg) =>
     toast.success(msg, {
