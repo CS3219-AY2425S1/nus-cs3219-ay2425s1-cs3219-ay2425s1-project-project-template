@@ -88,7 +88,7 @@ const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }
 
 const styles = {
     chatContainer: {
-        flex: "1 0 auto",
+        flex: "1",
         backgroundColor: "#1e1e2f", // Slightly darker color for contrast
         borderRadius: "8px",
         padding: "10px",
@@ -99,7 +99,7 @@ const styles = {
         boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", // Added shadow for depth
     },
     toggleButton: {
-        padding: "8px 16px",
+        padding: "8px",
         backgroundColor: "#4CAF50",
         color: "white",
         border: "none",

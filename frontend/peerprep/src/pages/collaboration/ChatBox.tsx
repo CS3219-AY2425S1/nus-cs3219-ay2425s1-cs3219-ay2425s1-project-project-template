@@ -13,7 +13,7 @@ interface ChatBoxProps {
   currentCode: string;
 }
   
-const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, styles, onEndSession, question, currentCode }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question, currentCode }) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const [socketId, setSocketId] = useState<string | undefined>("");
@@ -90,7 +90,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, styles, onEndSession, q
           End Session
       </button>
       {/* Chat UI */}
-      <div ref={chatBoxRef} style={styles.chatContainer}>
+      <div ref={chatBoxRef} style={{ maxHeight: "300px", overflowY: "auto" }}>
         {messages.map((msg, index) => (
           <div key={index}>{msg}</div>
         ))}
