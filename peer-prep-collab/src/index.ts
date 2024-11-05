@@ -8,7 +8,7 @@ const ADD_SESSION_QUEUE = 'add_session_queue'
 
 export const connectToRabbitMQ = async () => {
     try {
-        const amqpServer = "amqps://lguugvwb:UtQY1D0zOoX8s0ZvR4GunuRDk0xv8UuI@octopus.rmq3.cloudamqp.com/lguugvwb"
+        const amqpServer = process.env.AMQP_SERVER || "amqps://lguugvwb:UtQY1D0zOoX8s0ZvR4GunuRDk0xv8UuI@octopus.rmq3.cloudamqp.com/lguugvwb";
         const connection = await amqp.connect(amqpServer)
         channel = await connection.createChannel()
         console.log("Connected to RabbitMQ")
