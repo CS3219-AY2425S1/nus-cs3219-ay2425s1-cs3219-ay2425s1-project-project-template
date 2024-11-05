@@ -32,6 +32,18 @@ const LANGUAGE_MAP: Record<string, number> = {
   // Add more mappings as needed
 };
 
+const CODE_EDITOR_LANGUAGE_MAP: { [language: string]: string } = {
+  "c++": "cpp",
+  "c#": "csharp",
+  python: "python",
+  js: "javascript",
+  java: "java",
+  ruby: "ruby",
+  go: "go",
+  php: "php",
+  typescript: "typescript",
+};
+
 export default function CodeEditor({
   setOutput,
   roomId,
@@ -115,6 +127,7 @@ export default function CodeEditor({
         email: userEmail,
         color: userColor,
       });
+      console.log(monaco.languages.getLanguages());
 
       yAwareness.on(
         "change",
@@ -155,7 +168,7 @@ export default function CodeEditor({
       // create the monaco binding to the yjs doc
       new MonacoBinding(
         yDocTextMonaco,
-        editor?.getModel() || monaco.editor.createModel("", "javaScript"),
+        editor?.getModel() || monaco.editor.createModel("", CODE_EDITOR_LANGUAGE_MAP[language]),
         // @ts-expect-error TODO: fix this
         new Set([editor]),
         yAwareness,
@@ -194,7 +207,7 @@ export default function CodeEditor({
       </div>
       <Editor
         height="80vh"
-        language={language.toLowerCase()}
+        language={CODE_EDITOR_LANGUAGE_MAP[language]}
         options={{
           scrollBeyondLastLine: false,
           fixedOverflowWidgets: true,
