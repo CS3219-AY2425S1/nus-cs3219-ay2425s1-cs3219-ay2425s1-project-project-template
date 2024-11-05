@@ -9,14 +9,15 @@ interface UserData {
   username: string
   email: string
   isAdmin: boolean
+  mustUpdatePassword: boolean
 }
 
 interface LoginProps {
-  handleLoginSuccess: React.Dispatch<React.SetStateAction<UserData>>;
+  onLogin: (data: UserData) => void;
   updateAuthStatus: (isAuthenticated: boolean, userIsAdmin: boolean) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ handleLoginSuccess, updateAuthStatus }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, updateAuthStatus }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Login: React.FC<LoginProps> = ({ handleLoginSuccess, updateAuthStatus }) =
         console.log("Stored token:", localStorage.getItem("token"))
         console.log("Stored userId:", localStorage.getItem("userId"))
         console.log("Stored email:", localStorage.getItem("email"))
-        handleLoginSuccess(data.data);
+        onLogin(data.data);
         navigate("/questions");
         localStorage.setItem("token", data.data.accessToken);
 
