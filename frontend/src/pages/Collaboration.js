@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
+import AIChatbot from '../components/AIChatbot';
 
-const socket = io('http://localhost:3002'); // replace with your server URL
+//const socket = io('http://localhost:3002'); // replace with your server URL
 
 export const Collaboration = () => {
     const [chatMessages, setChatMessages] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-
+/*
     // Sync chat
     useEffect(() => {
         socket.on('chatMessage', (message) => {
@@ -28,7 +29,7 @@ export const Collaboration = () => {
             setCurrentMessage('');
         }
     };
-
+*/
     const handleLeaveButtonClick = () => {
        setShowModal(true);
     }
@@ -41,12 +42,13 @@ export const Collaboration = () => {
     const cancelLeave = () => {
         setShowModal(false);
     }
- 
+ /*
     const handleKeyDown = (e) => {
       if (e.key === 'Enter') {
         handleSendMessage();
       }
     };
+    */
 
     return (
         <div className="collaboration-container">
@@ -57,6 +59,9 @@ export const Collaboration = () => {
             </div>
             <div className="whiteboard">
                 <SharedSpace />
+            </div>
+            <div className="ai-chatbot-container">
+                <AIChatbot />
             </div>
           </div>
           <div className="chat-box-and-button">
@@ -75,10 +80,10 @@ export const Collaboration = () => {
                     type="text"
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
+
                     placeholder="Type a message..."
                 />
-                <button className="send-button" onClick={handleSendMessage}>Send</button>
+                <button className="send-button">Send</button>
             </div>
             
             <div className="leave-container">
