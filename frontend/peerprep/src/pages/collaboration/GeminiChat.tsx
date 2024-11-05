@@ -12,7 +12,7 @@ const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }
     // const apiKey = process.env.API_KEY;
     // console.log("Loaded API Key:", apiKey);
     // const genAI = new GoogleGenerativeAI(apiKey as string);
-    const genAI = new GoogleGenerativeAI("AIzaSyCAiYFWcbjQNYWtytkhleSq7ys13j8qKmM"); // for now because it can't read properly from .env
+    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY); // for now because it can't read properly from .env
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInput(event.target.value);
@@ -89,51 +89,68 @@ const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }
 const styles = {
     chatContainer: {
         flex: "1 0 auto",
-        backgroundColor: "#2e2e3e",
+        backgroundColor: "#1e1e2f", // Slightly darker color for contrast
         borderRadius: "8px",
         padding: "10px",
         display: "flex",
         flexDirection: "column",
-        overflowY: "hidden", // Change overflow to hidden to avoid scrollbars when collapsed
-        transition: 'height 0.3s ease', // Smooth transition for height change
+        overflowY: "hidden",
+        transition: "height 0.3s ease",
+        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", // Added shadow for depth
     },
     toggleButton: {
-        padding: "8px 12px",
+        padding: "8px 16px",
         backgroundColor: "#4CAF50",
         color: "white",
         border: "none",
         borderRadius: "4px",
         cursor: "pointer",
         marginBottom: "10px",
+        fontWeight: "bold",
+        fontSize: "0.9rem",
+        transition: "background-color 0.3s ease",
     },
     messages: {
         flex: 1,
         overflowY: "auto",
-        color: "#ffffff",
-        maxHeight: '300px',
+        color: "#f5f5f5",
+        padding: "10px",
+        maxHeight: "300px",
+        borderRadius: "5px",
+        backgroundColor: "#2b2b3a", // Slightly lighter color for message background
     },
     message: {
-        marginBottom: "10px",
+        marginBottom: "15px",
+        padding: "8px",
+        borderRadius: "5px",
+        backgroundColor: "#3e3e4e", // Background for individual message blocks
     },
     inputContainer: {
         display: "flex",
+        alignItems: "center",
+        marginTop: "10px",
     },
     input: {
         flex: 1,
         padding: "10px",
         borderRadius: "5px",
         backgroundColor: "#333",
-        border: "1px solid #444",
+        border: "1px solid #555",
         color: "#ffffff",
-        marginRight: "5px",
+        marginRight: "10px",
+        fontSize: "0.95rem",
+        outline: "none",
     },
     sendButton: {
-        padding: "8px 12px",
+        padding: "10px 15px",
         backgroundColor: "#4CAF50",
         color: "white",
         border: "none",
         borderRadius: "4px",
         cursor: "pointer",
+        fontWeight: "bold",
+        fontSize: "0.9rem",
+        transition: "background-color 0.3s ease",
     },
 };
 

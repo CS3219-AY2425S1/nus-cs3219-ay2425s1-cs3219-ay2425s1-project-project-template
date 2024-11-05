@@ -6,6 +6,7 @@ import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
 import Chat from "./Chat";
 import GeminiChat from "./GeminiChat"; 
+import { Box } from "@chakra-ui/react";
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
@@ -91,10 +92,15 @@ const EditorView: React.FC = () => {
           }
         `}
       </style>
-
-      {/* Question Section */}
-      <QuestionDisplay questionId={questionId} styles={styles} />
-
+      <Box style={styles.leftSection}>
+        {/* Question Section */}
+        
+        {/* Question Section */}
+        <QuestionDisplay questionId={questionId} styles={styles} />
+        {/* GeminiChat Section */}
+        <GeminiChat socketRef={socketRef} />
+      </Box>
+  
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
         <Chat
@@ -103,8 +109,6 @@ const EditorView: React.FC = () => {
           styles={styles}
           chatBoxRef={chatBoxRef}
         />
-        {/* GeminiChat Section */}
-         <GeminiChat socketRef={socketRef} />
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
           {socketRef.current && <EditorElement socket={socketRef.current} />}
@@ -120,9 +124,13 @@ const EditorView: React.FC = () => {
 };
 
 const styles = {
-  questionSection: {
+  leftSection: {
+    display: "flex",
+    flexDirection: "column" as const,
     width: "30%",
     padding: "20px",
+  },
+  questionSection: {
     color: "#ffffff",
     overflowY: "auto",
     backgroundColor: "#2e2e3e",
@@ -255,8 +263,6 @@ const styles = {
     transition: "background-color 0.3s ease",
   },
   editorContainer: {
-    flex: "0 1 auto", // Allocating 50% height for the editor container
-    //maxHeight: "220px",
     backgroundColor: "#1e1e2e",
     padding: "10px",
     borderRadius: "8px",
