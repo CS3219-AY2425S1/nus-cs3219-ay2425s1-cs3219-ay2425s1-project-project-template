@@ -29,6 +29,7 @@ const getAllAttemptedQuestions = async (req, res) => {
         const questionUids = [...new Set(questionsAttempted.map(attempt => attempt.questionUid))];
 
         // Fetch question information from question_service 
+
         const questionServiceUrl = (process.env.QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002") + "/get-questions-by-ids";
         // Get token from request
         const authHeader = req.headers.authorization;
