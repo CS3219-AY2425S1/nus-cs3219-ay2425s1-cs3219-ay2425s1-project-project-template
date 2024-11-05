@@ -20,7 +20,7 @@ var ctx = context.Background()
 
 func TestMain(m *testing.M) {
 	// Set FIRESTORE_EMULATOR_HOST environment variable.
-	err := os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
+	err := os.Setenv("FIRESTORE_EMULATOR_HOST", "127.0.0.1:8080")
 	if err != nil {
 		log.Fatalf("could not set env %v", err)
 	}
