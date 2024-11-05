@@ -24,7 +24,7 @@ const Home = () => {
           className="home_container"
           style={{maxWidth: '1200px', margin: 'auto'}}>
           <h1>Welcome back, <span style={{color: '#8576FF'}}>{username}</span>!</h1>
-          <StartSession />
+          <StartSession username={username}/>
         </div>
       </div>
       <ToastContainer />
