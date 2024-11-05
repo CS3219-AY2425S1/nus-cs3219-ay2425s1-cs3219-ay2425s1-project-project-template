@@ -206,18 +206,11 @@ const getQuestionsByIds = async (req, res) => {
         continue;
       }
 
-      const questionData = questionDoc.data();
-
       const tempQuestion = {
         id: questionId,
-        title: questionData.title,
-        description: questionData.description,
-        difficulty: questionData.difficulty,
-        topics: questionData.topics,
-        examples: questionData.examples,
-        constraints: questionData.constraints,
-        dateCreated: questionData.dateCreated,
+        ...questionDoc.data(),
       };
+      
       questionDataArray.push(tempQuestion);
     }
 

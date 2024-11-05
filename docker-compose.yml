@@ -95,6 +95,7 @@ services:
       context: ./backend/history_service # Path to the directory containing the Dockerfile for building the history service image.
       args:
         USER_SERVICE_BACKEND_URL: ${USER_SERVICE_BACKEND_URL}
+        QUESTION_SERVICE_BACKEND_URL: ${QUESTION_SERVICE_BACKEND_URL}
     ports:
       - 5005:5005 # Maps port 5005 on the host to port 5005 in the container, making the app accessible on the host.
     networks:
