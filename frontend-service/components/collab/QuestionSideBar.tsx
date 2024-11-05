@@ -31,7 +31,10 @@ const QuestionSideBar: React.FC<QuestionSideBarProps> = ({ onSelectQuestion }) =
       {isOpen && (
         <List spacing={3}>
           {questions.map((question) => <ListItem key={question.questionId}>
-            <Button variant="link" onClick={() => onSelectQuestion(question.questionId)}>
+            <Button
+              variant="link"
+              onClick={() => onSelectQuestion(question.questionId)}
+              color={question.difficulty === 'Easy' ? 'green.500' : question.difficulty === 'Medium' ? 'orange.500' : 'red.500'}>
               {question.title} - {question.difficulty}
             </Button>
           </ListItem>)}

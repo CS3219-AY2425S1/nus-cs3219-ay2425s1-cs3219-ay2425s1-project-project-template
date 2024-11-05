@@ -118,7 +118,13 @@ export const createRoom = async (req: Request, res: Response) => {
     const currTime = formatTime(Date.now());
     const newRoom: Room = {
       roomId: roomId,
-      code: "// Enter your code here:",
+      // code: "// Enter your code here:",
+      code: {
+        javascript: "// Start writing your JavaScript code here...",
+        python: "# Start writing your Python code here...",
+        java: "// Start writing your Java code here...",
+        csharp: "// Start writing your C# code here...",
+      },
       users: {
         [userId1]: false,
         [userId2]: false,

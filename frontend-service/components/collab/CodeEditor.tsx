@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import MonacoEditor, { OnMount } from '@monaco-editor/react'
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Select, Text } from '@chakra-ui/react'
 import { FIREBASE_DB } from '../../FirebaseConfig'
-import { ref, onValue, set } from 'firebase/database'
+import { ref, onValue, set, get } from 'firebase/database'
 import axios from 'axios'
 import QuestionSideBar from './QuestionSidebar'
 import { useNavigate } from 'react-router-dom'
@@ -26,7 +26,7 @@ interface CodeEditorProps {
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   const [code, setCode] = useState('//Start writing your code here..')
-  const [codeLanguage, setCodeLanguage] = useState(null)
+  const [codeLanguage, setCodeLanguage] = useState<string>('javascript')
   const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null)
 
   const [question, setQuestion] = useState<Question | null>(null)
@@ -71,8 +71,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   useEffect(() => {
     const unsubscribe = onValue(codeRef, (snapshot) => {
       const updatedCode = snapshot.val()
-      if (updatedCode !== null && updatedCode !== code) {
-        setCode(updatedCode)
+      if (updatedCode !== null && updatedCode[codeLanguage]) {
+        setCode(updatedCode[codeLanguage])
+      } else {
+        setCode(languageType[codeLanguage]) // Set to default if no snippet is saved
       }
     })
     const unsubscribeLanguage = onValue(languageRef, (snapshot) => {
@@ -90,7 +92,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   const handleEditorChange = (newValue: string | undefined) => {
     if (newValue !== undefined) {
       setCode(newValue)
-      set(codeRef, newValue) // write to firebase
+      // set(codeRef, newValue) // write to firebase
+      set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), newValue)
     }
   }
 
@@ -141,8 +144,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   }
 
   const handleResetCode = () => {
-    setCode(languageType[codeLanguage])
-    set(codeRef, languageType[codeLanguage])
+    const defaultCode = languageType[codeLanguage] || '// Start writing your code here...'
+    setCode(defaultCode)
+    set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), defaultCode)
   }
 
   // TODO:
@@ -156,18 +160,23 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
     }
   }
 
-  // create a use effect to update code template when language changes
-  useEffect(() => {
-    if (languageType[codeLanguage]) {
-      setCode(languageType[codeLanguage])
-      set(codeRef, languageType[codeLanguage])
-    }
-  }, [codeLanguage])
-
   const handleLanguageChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedLanguage = event.target.value.toLowerCase()
-    setCode(languageType[selectedLanguage])
+    const selectedLanguage = event.target.value
+    await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), code)
     await set(languageRef, selectedLanguage)
+    setCodeLanguage(selectedLanguage)
+
+    const codeSnippetsSnapshot = await get(codeRef)
+    const codeSnippets = codeSnippetsSnapshot.val()
+    if (codeSnippets && codeSnippets[selectedLanguage]) {
+      setCode(codeSnippets[selectedLanguage])
+    } else {
+      // If no code snippet exists for this language, use default
+      const defaultCode = languageType[selectedLanguage] || '// Start writing your code here...'
+      setCode(defaultCode)
+      // Save the default code snippet to Firebase
+      await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${selectedLanguage}`), defaultCode)
+    }
 
     if (monaco && monacoEditorRef.current) {
       const model = monacoEditorRef.current.getModel()
