@@ -7,7 +7,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 
-const serverWsUrl = "ws://localhost:4444";
+const serverWsUrl = import.meta.env.VITE_WS_COLLAB_URL;
 
 const CollabSpace = () => {
     const { roomId } = useParams();

@@ -13,7 +13,7 @@ const app = express()
 app.options(
     '*',
     cors({
-        origin: 'http://localhost:3000', // Define port frontend is on for access
+        origin: process.env.FRONTEND_URL, // Define port frontend is on for access
         optionsSuccessStatus: 200
     })
 )

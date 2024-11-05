@@ -13,7 +13,8 @@ await connectToDB().then(() => {
   server.listen(port);
   console.log("User service server listening on http://localhost:" + port);
 }).catch((err) => {
+  
   console.error("Failed to connect to DB");
-  console.error(err);
+  console.error(err); 
 });
 

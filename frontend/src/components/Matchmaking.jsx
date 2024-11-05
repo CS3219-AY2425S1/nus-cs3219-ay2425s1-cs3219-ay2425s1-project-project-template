@@ -7,7 +7,7 @@ import io from "socket.io-client";
 import axios from "axios";
 import Grid from "@mui/material/Grid2";
 
-const socket = io("http://localhost:8081");
+const socket = io(import.meta.env.VITE_USER_URL);
 
 const complexities = ["Easy", "Medium", "Hard"];
 
@@ -125,7 +125,7 @@ const MatchComponent = () => {
                 category: selectedCategory,
             };
 
-            await axios.post("http://localhost:8081/match/match-request", body, config);
+            await axios.post(`${import.meta.env.VITE_USER_URL}/match/match-request`, body, config);
         } catch (error) {
             console.error("Error requesting match:", error);
             setIsWaiting(false);
@@ -143,7 +143,7 @@ const MatchComponent = () => {
 
             const body = { socketId: socket.id };
 
-            await axios.post("http://localhost:8081/match/cancel-request", body, config);
+            await axios.post(`${import.meta.env.VITE_USER_URL}/match/cancel-request`, body, config);
         } catch (error) {
             console.error("Error canceling match:", error);
             setIsCanceling(false);
