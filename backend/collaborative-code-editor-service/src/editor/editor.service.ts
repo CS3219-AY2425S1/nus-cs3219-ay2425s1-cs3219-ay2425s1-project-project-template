@@ -23,10 +23,10 @@ export class EditorService {
   }
 
   async getSessionIfActive(sessionId: string): Promise<Session | null> {
-    const cachedSession = await this.redis.get(`session:${sessionId}`);
-    if (cachedSession) {
-      return JSON.parse(cachedSession);
-    }
+    // const cachedSession = await this.redis.get(`session:${sessionId}`);
+    // if (cachedSession) {
+    //   return JSON.parse(cachedSession);
+    // }
 
     const session = await this.sessionModel.findOne({ sessionId, isCompleted: false }).exec();
     if (session) {
@@ -58,7 +58,12 @@ export class EditorService {
     return null;
   }
 
-  async getLastSubmissionExecutionResult(sessionId: string, questionId: string): Promise<QuestionSubmission|null> {
+  async getAllSessions(): Promise<Session[]> {
+    const sessions = await this.sessionModel.find().exec();
+    return sessions;
+  }
+
+  async getLastSubmissionExecutionResult(sessionId: string, questionId: string): Promise<QuestionSubmission | null> {
     const session = await this.getSession(sessionId);
     if (!session) {
       return null;
@@ -178,25 +183,25 @@ export class EditorService {
       .map((qa, i) => (qa.questionId === questionId ? i : null))
       .filter(Number);
 
-      if (questionAttemptIndices.length === 0) {
-        return;
-      }
-      const questionAttemptIndicesExceptLast = questionAttemptIndices.slice(0, questionAttemptIndices.length - 1);
-
-      if (questionAttemptIndicesExceptLast.length > 0) {
-        // Attempts except questionAttemptIndicesExceptLast
-        const questionAttempts = session.questionAttempts.filter(
-          (qa, i) => !questionAttemptIndicesExceptLast.includes(i)
-        )
-        await this.sessionModel.updateOne(
-          { sessionId },
-          {
-            $set: { questionAttempts },
-          }
-        ).exec();
-      }
+    if (questionAttemptIndices.length === 0) {
+      return;
     }
-    
+    const questionAttemptIndicesExceptLast = questionAttemptIndices.slice(0, questionAttemptIndices.length - 1);
+
+    if (questionAttemptIndicesExceptLast.length > 0) {
+      // Attempts except questionAttemptIndicesExceptLast
+      const questionAttempts = session.questionAttempts.filter(
+        (qa, i) => !questionAttemptIndicesExceptLast.includes(i)
+      )
+      await this.sessionModel.updateOne(
+        { sessionId },
+        {
+          $set: { questionAttempts },
+        }
+      ).exec();
+    }
+  }
+
 
   async updateQuestionCode(
     sessionId: string,
@@ -290,27 +295,37 @@ export class EditorService {
   }
 
   async getActiveUsers(sessionId: string): Promise<string[]> {
-    const cachedUsers = await this.redis.smembers(`session:${sessionId}:users`);
-    if (cachedUsers.length > 0) {
-      return cachedUsers.map(user => user.split(':')[1]);
-    }
+    // const cachedUsers = await this.redis.smembers(`session:${sessionId}:users`);
+    // if (cachedUsers.length > 0) {
+    //   return cachedUsers.map(user => user.split(':')[1]);
+    // }
 
     const session = await this.sessionModel.findOne({ sessionId }).exec();
     if (session && session.activeUsers && session.activeUsers.length > 0) {
       await this.redis.sadd(`session:${sessionId}:users`, ...session.activeUsers);
-      return session.activeUsers.map(user => user.split(':')[1]);
+      return session.activeUsers;
     }
 
     return [];
   }
 
   async completeSession(sessionId: string): Promise<void> {
-    await this.sessionModel.updateOne(
-      { sessionId },
-      { $set: { isCompleted: true } }
-    );
+    let noActiveUsers = true;
+    for (let i = 0; i < 5; i++) {
+      const activeUsers = await this.getActiveUsers(sessionId);
+      if (activeUsers.length !== 0) {
+        noActiveUsers = false;
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
 
-    await this.redis.del(`session:${sessionId}`);
+    if (noActiveUsers) {
+      await this.sessionModel.updateOne(
+        { sessionId },
+        { $set: { isCompleted: true } }
+      );
+    }
   }
 
   async setActiveUsers(sessionId: string, userIds: string[]): Promise<void> {

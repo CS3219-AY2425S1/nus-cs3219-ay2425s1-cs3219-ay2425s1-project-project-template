@@ -8,7 +8,7 @@ services:
       - "8000:8000"
     volumes:
       - ./question-service:/usr/src/app
-      - /usr/src/app/node_modules 
+      - /usr/src/app/node_modules
     env_file:
       - ./question-service/.env
     environment:
@@ -99,6 +99,39 @@ services:
         condition: service_healthy
       question-service:
         condition: service_started
+    networks:
+      - app-network
+
+  collaborative-code-editor-service:
+    build: ./collaborative-code-editor-service
+    container_name: collaborative-code-editor-service-dev
+    ports:
+      - "3006:3006"
+    volumes:
+      - ./collaborative-code-editor-service:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./collaborative-code-editor-service/.env
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/code-editor
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: npm run start:dev
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
     networks:
       - app-network
 

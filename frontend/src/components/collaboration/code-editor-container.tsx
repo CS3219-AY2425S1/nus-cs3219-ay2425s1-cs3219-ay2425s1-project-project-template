@@ -189,9 +189,9 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
       setExecuting(false);
     });
 
-    socketInstance.on('sessionCompleted', () => {
-      router.push('/sessions');
-    });
+    // socketInstance.on('sessionCompleted', () => {
+    //   router.push('/sessions');
+    // });
 
     socket.current = socketInstance;
 
