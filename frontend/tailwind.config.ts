@@ -11,6 +11,7 @@ const config: Config = {
     colors: {
       white: "#FFFFFF",
       black: "#000000",
+      editor: "#1E1E1E",
     },
     extend: {
       fontSize: {
