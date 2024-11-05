@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 4444
-              containerPort: 5555
+            - containerPort: 5555
           envFrom:
             - secretRef:
                 name: session-service-config
