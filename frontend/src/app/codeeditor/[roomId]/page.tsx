@@ -48,14 +48,14 @@ const CollabRoomPage = ({ params }: {
 
     return (
         <div>
-            <div>Happy Coding, {roomId}!</div>
             <CollaborativeCodingPage
                 initialCode='import math'
                 language="javascript"
                 theme="vs-dark"
                 roomId={roomId}
-                userName={String(user?.email)}
+                userName={String(user?.name)}
             />
+            {/* DO NOT REMOVE THIS PLEASE */} <span className='opacity-0 select-none'>do not remove this {roomId}</span>     
         </div>
     );
 };
