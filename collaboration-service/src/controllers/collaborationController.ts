@@ -58,6 +58,21 @@ export const joinRoom = async (req: Request, res: Response) => {
   }
 };
 
+function formatTime(unixTime: number): string {
+  const date = new Date(unixTime);
+
+  const dd = date.getDate().toString().padStart(2, "0");
+  const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+  const yyyy = date.getFullYear().toString();
+
+  const hh = date.getHours().toString().padStart(2, "0");
+  const mmin = date.getMinutes().toString().padStart(2, "0");
+  const ss = date.getSeconds().toString().padStart(2, "0");
+
+  const res = `${dd}-${mm}-${yyyy}, ${hh}:${mmin}:${ss} UTC`;
+  return res;
+}
+
 export const createRoom = async (req: Request, res: Response) => {
   try {
     const { userId1, userId2, topic } = req.body;
@@ -100,7 +115,7 @@ export const createRoom = async (req: Request, res: Response) => {
         .json({ message: "Cannot create room with 2 same User ID." });
     }
 
-    const currTime = Date.now();
+    const currTime = formatTime(Date.now());
     const newRoom: Room = {
       roomId: roomId,
       code: "// Enter your code here:",
