@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { type editor } from "monaco-editor";
-import axios from "@/utils/axios";
 import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
 import { useTheme } from "next-themes";
+
+import axios from "@/utils/axios";
 
 var randomColor = require("randomcolor"); // import the script
 
@@ -28,6 +29,18 @@ const LANGUAGE_MAP: Record<string, number> = {
   cpp: 54,
   csharp: 51,
   // Add more mappings as needed
+};
+
+const CODE_EDITOR_LANGUAGE_MAP: { [language: string]: string } = {
+  "c++": "cpp",
+  "c#": "csharp",
+  python: "python",
+  js: "javascript",
+  java: "java",
+  ruby: "ruby",
+  go: "go",
+  php: "php",
+  typescript: "typescript",
 };
 
 export default function CodeEditor({
@@ -65,7 +78,7 @@ export default function CodeEditor({
             `/collaboration-service/code-execute/${token}`,
             {
               params: { base64_encoded: "false", fields: "*" },
-            }
+            },
           );
 
           if (data.status.id === 3) {
@@ -79,7 +92,7 @@ export default function CodeEditor({
           clearInterval(intervalId);
           console.error("Error fetching code execution result:", error);
           setOutput(
-            "Something went wrong while fetching the code execution result."
+            "Something went wrong while fetching the code execution result.",
           );
         }
       }, 1000);
@@ -110,6 +123,7 @@ export default function CodeEditor({
         email: userEmail,
         color: userColor,
       });
+      console.log(monaco.languages.getLanguages());
 
       yAwareness.on(
         "change",
@@ -122,7 +136,7 @@ export default function CodeEditor({
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           changes.added.forEach((clientId) => {
-             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const state = awarenessStates.get(clientId)?.user;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
             const color = state?.color;
@@ -150,7 +164,7 @@ export default function CodeEditor({
       // create the monaco binding to the yjs doc
       new MonacoBinding(
         yDocTextMonaco,
-        editor?.getModel() || monaco.editor.createModel("", "javaScript"),
+        editor?.getModel() || monaco.editor.createModel("", CODE_EDITOR_LANGUAGE_MAP[language]),
         // @ts-expect-error TODO: fix this
         new Set([editor]),
         yAwareness,
@@ -173,6 +187,7 @@ export default function CodeEditor({
         </p>
         <button
           className="px-1 py-2 rounded-md"
+          disabled={!userInput}
           style={{
             alignSelf: "end",
             backgroundColor: userInput ? "#007bff" : "#cccccc",
@@ -182,14 +197,13 @@ export default function CodeEditor({
             opacity: userInput ? 1 : 0.6,
           }}
           onClick={executeCode}
-          disabled={!userInput}
         >
           Run Code
         </button>
       </div>
       <Editor
         height="80vh"
-        language={language.toLowerCase()}
+        language={CODE_EDITOR_LANGUAGE_MAP[language]}
         options={{
           scrollBeyondLastLine: false,
           fixedOverflowWidgets: true,
@@ -200,10 +214,10 @@ export default function CodeEditor({
         }}
         theme={theme === "dark" ? "vs-dark" : "hc-light"}
         width="100%"
+        onChange={(value) => setUserInput(value || "")} // Update userInput in real-time
         onMount={(editor) => {
           codeEditorRef.current = editor;
         }}
-        onChange={(value) => setUserInput(value || "")} // Update userInput in real-time
       />
     </div>
   );
