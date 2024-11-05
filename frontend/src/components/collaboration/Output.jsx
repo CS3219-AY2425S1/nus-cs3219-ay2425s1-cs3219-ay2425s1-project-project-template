@@ -6,15 +6,19 @@ import '../../styles/output.css';
 
 const Output = ({editorRef, language}) => {
     const [output, setOutput] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const runCode = async () => {
         const sourceCode = editorRef.current.getValue();
         if (!sourceCode) return;
         try {
+            setLoading(true);
             const {run:result} = await codeExecutionService.executeCode(language, sourceCode);
             setOutput(result.output);
         } catch (error) {
             console.error("Error running code:", error)
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -22,7 +26,9 @@ const Output = ({editorRef, language}) => {
         <div className="output-container" >
             <div className="output-header" >
                 <h2>Output</h2>
-                <button className='run-button' onClick={runCode} >Run</button>            
+                <button className='run-button' onClick={runCode} disabled={loading}>
+                    {loading ? "Loading..." : "Run"}
+                </button>  
             </div>
 
             <div className="output-content" >

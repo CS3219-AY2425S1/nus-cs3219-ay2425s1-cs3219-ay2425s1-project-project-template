@@ -7,20 +7,25 @@ const CodeEditor = ({ language, onMount }) => {
 
     return (
         <div className="editor-container">
-            <Editor
-                theme="vs-light"
-                defaultLanguage="python"
-                language={language}
-                onMount={onMount}
-                defaultValue="// some comment pr"
-                value={value}
-                onChange={(value) => setValue(value)}
-                options={{
-                    fontSize: 16,
-                    scrollBeyondLastLine: false,
-                    minimap: { enabled: false }
-                }}
-            />
+            <div className="editor-header">
+                <h2>{language}</h2>
+            </div>
+            <div className="editor-content">
+                <Editor
+                    theme="vs-light"
+                    defaultLanguage="python"
+                    language={language}
+                    onMount={onMount}
+                    defaultValue=""
+                    value={value}
+                    onChange={(value) => setValue(value)}
+                    options={{
+                        fontSize: 12,
+                        scrollBeyondLastLine: false,
+                        minimap: { enabled: false }
+                    }}
+                />
+            </div>
         </div>
     )
 }

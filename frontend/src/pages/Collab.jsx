@@ -180,9 +180,9 @@ const Collab = () => {
                 handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "calc(100vh - 75px)", padding: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 3fr", height: "calc(100vh - 75px)", padding: "10px" }}>
                 <QuestionContainer question={question} />
-                <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", marginLeft: "10px", rowGap: "10px", overflow: "auto" }}>
+                <div style={{ display: "grid", gridTemplateRows: "3fr 2fr", marginLeft: "10px", rowGap: "10px", overflow: "auto" }}>
                     <CodeEditor language={language} onMount={handleEditorDidMount} />
                     <Output editorRef={editorRef} language={language} />
                 </div>
