@@ -1,17 +1,20 @@
 import axios from 'axios'
 import dotenv from 'dotenv'
 import { Server } from 'socket.io'
+import { createServer } from 'http'
 import { connectToDatabase } from './db'
 import { sendMatchingRequest } from '../producer/producer'
 import { activeMatches, startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
+import { addMatch } from '../utils/utils'
 
 dotenv.config({ path: './.env' })
 
 connectToDatabase()
 const connectedClients = new Map<string, string>()
 
-const io = new Server({
+const httpServer = createServer()
+const io = new Server(httpServer, {
     cors: {
         origin: '*',
     },
@@ -96,6 +99,13 @@ const io = new Server({
                             roomId: res.data.roomId,
                             language: res.data.language
                         })
+
+                        const payload = {
+                            matchId,
+                            collaborators: [userId, otherUserId],
+                            questionId: matchSession.question.questionId,
+                        }
+                        await addMatch(payload)
 
                         activeMatches.delete(matchId)
                     } else {

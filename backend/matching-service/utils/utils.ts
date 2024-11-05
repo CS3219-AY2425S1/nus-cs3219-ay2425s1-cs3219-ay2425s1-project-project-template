@@ -1,15 +1,11 @@
-import { Response } from 'express'
 import SuccessfulMatch from '../models/match'
-import { CreateMatchRequest } from '../models/types'
 import logger from '../utils/logger'
 
-const addMatch = async (req: CreateMatchRequest, res: Response) => {
-    const { matchId, collaborators, questionId } = req.body
+const addMatch = async (payload: any) => {
+    const { matchId, collaborators, questionId } = payload
 
     if (!matchId || !collaborators || collaborators.length == 0 || !questionId) {
-        return res
-            .status(400)
-            .json({ message: 'Collaborators and question ID are required' })
+        return
     }
 
     const match = new SuccessfulMatch({
@@ -20,9 +16,9 @@ const addMatch = async (req: CreateMatchRequest, res: Response) => {
 
     try {
         await match.save()
+        logger.info(`Match ${matchId} saved to database`)
     } catch (e) {
         logger.error('Error adding match to database', e)
-        return res.status(500).json({ message: 'Error adding match to database' })
     }
 }
 
