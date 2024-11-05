@@ -20,9 +20,6 @@ interface CodeEditorProps {
   userEmail: string;
 }
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
-
 const LANGUAGE_MAP: Record<string, number> = {
   javascript: 63,
   python: 71,

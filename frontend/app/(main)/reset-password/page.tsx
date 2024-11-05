@@ -19,10 +19,7 @@ function ResetPasswordContent() {
   ) as string;
   const { mutate: resetPassword } = useResetPassword();
 
-  const handleResetPassword = (
-    newPassword: string,
-    confirmPassword: string,
-  ) => {
+  const handleResetPassword = (newPassword: string) => {
     if (!tokenString) {
       console.error("Token is missing from the URL");
 

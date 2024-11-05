@@ -83,7 +83,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!isAuthorisationPending && !isAuthorisedUser?.authorised) {
-      router.push("/403");
+      // router.push("/403");
     }
   }, [isAuthorisationPending, isAuthorisedUser, router]);
 

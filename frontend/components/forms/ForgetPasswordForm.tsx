@@ -6,7 +6,9 @@ interface ForgetPasswordFormProps {
   onSubmit: (email: string) => void;
 }
 
-const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => {
+const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({
+  onSubmit,
+}) => {
   const [formData, setFormData] = useState({
     email: "",
   });
@@ -21,8 +23,8 @@ const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => 
 
     // Reset the email error if user starts typing after form submission
     setErrors((prevErrors) => ({
-        ...prevErrors,
-        email: false,
+      ...prevErrors,
+      email: false,
     }));
   };
 
@@ -46,22 +48,24 @@ const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8">
+    <form className="mt-8" onSubmit={handleSubmit}>
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center">Enter your registered email</h2>
+        <h2 className="text-2xl font-semibold text-center">
+          Enter your registered email
+        </h2>
       </div>
 
       <div className="mb-4">
-        <label htmlFor="email" className="block text-gray-400">
+        <label className="block text-gray-400" htmlFor="email">
           Email
         </label>
-        <Input 
-          errorMessage="Please provide a valid email." 
-          isInvalid={!!errors.email} 
-          isRequired={true} 
-          type="email" 
-          value={formData.email} 
-          onChange={handleEmailOnChange} 
+        <Input
+          errorMessage="Please provide a valid email."
+          isInvalid={!!errors.email}
+          isRequired={true}
+          type="email"
+          value={formData.email}
+          onChange={handleEmailOnChange}
         />
       </div>
 
@@ -71,7 +75,6 @@ const ForgetPasswordForm: React.FC<ForgetPasswordFormProps> = ({ onSubmit }) => 
       >
         Send Reset Email
       </Button>
-
     </form>
   );
 };

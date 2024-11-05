@@ -9,7 +9,11 @@ import { useUser } from "@/hooks/users";
 export default function Page() {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const { user } = useUser();
-  const { data: historyList, isLoading, isError } = useHistory(user?.username || "", pageNumber);
+  const {
+    data: historyList,
+    isLoading,
+    isError,
+  } = useHistory(user?.username || "", pageNumber);
   const handleOnPageClick = (page: number) => {
     setPageNumber(page);
   };
@@ -23,12 +27,12 @@ export default function Page() {
       ) : (
         <div className="flex justify-center">
           <HistoryTable
-            username={user?.username || ""}
             handlePageOnClick={handleOnPageClick}
             pageNumber={pageNumber}
             sessions={historyList?.sessions || []}
             totalPages={parseInt(historyList?.totalPages || "1")}
-            totalSessions={parseInt(historyList?.totalSessions || "")}  
+            totalSessions={parseInt(historyList?.totalSessions || "")}
+            username={user?.username || ""}
           />
         </div>
       )}

@@ -82,43 +82,41 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   return (
     <form className="mt-8" onSubmit={handleSubmit}>
       <div className="mb-4">
-        <h2 className="text-2xl font-semibold text-center">
-          Register
-        </h2>
+        <h2 className="text-2xl font-semibold text-center">Register</h2>
       </div>
       <div className="mb-4">
         <label htmlFor="username">Username</label>
-        <Input 
-          errorMessage="Please provide a username." 
+        <Input
+          errorMessage="Please provide a username."
           isInvalid={!!errors.username}
-          isRequired={true} 
-          type="text" 
-          value={formData.username} 
-          onChange={handleUsernameOnChange} 
+          isRequired={true}
+          type="text"
+          value={formData.username}
+          onChange={handleUsernameOnChange}
         />
       </div>
 
       <div className="mb-4">
         <label htmlFor="email">Email</label>
-        <Input 
-          errorMessage="Please provide a valid email." 
-          isInvalid={!!errors.email} 
-          isRequired={true} 
-          type="email" 
-          value={formData.email} 
-          onChange={handleEmailOnChange} 
+        <Input
+          errorMessage="Please provide a valid email."
+          isInvalid={!!errors.email}
+          isRequired={true}
+          type="email"
+          value={formData.email}
+          onChange={handleEmailOnChange}
         />
       </div>
 
       <div className="mb-6">
         <label htmlFor="password">Password</label>
-        <Input 
-          errorMessage="Password is required." 
+        <Input
+          errorMessage="Password is required."
           isInvalid={!!errors.password}
-          isRequired={true} 
-          type="password" 
-          value={formData.password} 
-          onChange={handlePasswordOnChange} 
+          isRequired={true}
+          type="password"
+          value={formData.password}
+          onChange={handlePasswordOnChange}
         />
       </div>
 

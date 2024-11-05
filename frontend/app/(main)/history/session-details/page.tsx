@@ -21,7 +21,7 @@ function HistoryContent() {
   ) : isError || !history ? (
     <p>Error fetching History</p>
   ) : (
-    <HistoryDescription username={user?.username || ""} session={history} />
+    <HistoryDescription session={history} username={user?.username || ""} />
   );
 }
 
