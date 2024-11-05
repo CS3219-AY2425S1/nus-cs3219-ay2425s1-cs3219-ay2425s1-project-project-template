@@ -125,7 +125,7 @@ const EditorView: React.FC = () => {
       </style>
       {/* Question Section */}
       <Box style={styles.leftSection}>
-        <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
+        <QuestionDisplay className="editor-scrollbar" questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
       </Box>
 
       {/* Editor and Chat Section */}
@@ -152,7 +152,6 @@ const EditorView: React.FC = () => {
 const styles = {
   container: {
     display: "flex",
-    height: "100vh",
     backgroundColor: "#1e1e2e",
     padding: "10px",
     borderRadius: "8px",
@@ -168,6 +167,8 @@ const styles = {
     backgroundColor: "#2e2e3e",
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    overflowY: "auto",
+    padding: "5px",
   },
   questionTitle: {
     fontSize: "1.5rem",
