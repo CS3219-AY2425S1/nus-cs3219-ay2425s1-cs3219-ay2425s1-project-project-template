@@ -113,7 +113,7 @@ const SessionHistoryList = ({ sessionId }) => {
         </CardContent>
       </Card>
 
-      <Card className="w-1/2">
+      <Card className="w-1/2 flex flex-col">
         <CardHeader>
           <CardTitle>Submission History</CardTitle>
           {selectedQuestion && (
@@ -122,13 +122,13 @@ const SessionHistoryList = ({ sessionId }) => {
             </CardDescription>
           )}
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[700px] pr-4">
+        <CardContent className='flex-1 overflow-hidden'>
+          <ScrollArea className="h-full max-h-full pr-4 overflow-y-auto">
             <div className="space-y-4">
               {selectedAttempts.map((attempt, attemptIndex) => (
                 <div key={attemptIndex}>
                   {attempt.submissions.map((submission, submissionIndex) => (
-                    <Card key={submissionIndex} className="bg-gray-50">
+                    <Card key={submissionIndex} className="bg-gray-50 mb-4">
                       <CardHeader className="p-4">
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-sm">

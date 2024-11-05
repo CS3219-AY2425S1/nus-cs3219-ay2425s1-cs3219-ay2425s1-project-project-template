@@ -136,7 +136,7 @@ export default function SessionsPage() {
             <CalendarIcon className="w-10 h-10" />
           </div>
         </Card>
-        <Card className="bg-secondary text-secondary-foreground p-6 rounded-lg shadow-md">
+        {/* <Card className="bg-secondary text-secondary-foreground p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-bold">-</h3>
@@ -144,7 +144,7 @@ export default function SessionsPage() {
             </div>
             <ClockIcon className="w-10 h-10" />
           </div>
-        </Card>
+        </Card> */}
       </div>
 
       <div className="flex justify-between items-center mb-6">

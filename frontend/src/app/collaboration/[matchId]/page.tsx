@@ -476,7 +476,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
         <Tabs defaultValue="question" className="flex flex-col pb-1 overflow-hidden">
           <TabsList className="w-fit">
             <TabsTrigger value="question">Question</TabsTrigger>
-            <TabsTrigger value="attempts">Attempts</TabsTrigger>
+            {/* <TabsTrigger value="attempts">Attempts</TabsTrigger> */}
             <TabsTrigger value="feedback">Chat</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden pb-1">
@@ -533,9 +533,9 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
               </div>
             </Card>
           </TabsContent>
-          <TabsContent value="attempts" className="flex-1 pb-1 h-full overflow-hidden">
+          {/* <TabsContent value="attempts" className="flex-1 pb-1 h-full overflow-hidden">
             <AttemptsTab />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
         <div className="flex flex-col gap-0 h-full overflow-hidden">
           <CodeEditorContainer sessionId={matchId} questionId={question?._id} userData={userData} />
