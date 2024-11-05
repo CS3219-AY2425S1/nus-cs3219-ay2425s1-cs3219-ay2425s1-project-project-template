@@ -1,61 +1,4 @@
 services:
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        - BASE_URI=$BASE_URI
-        - API_GATEWAY_PORT=$API_GATEWAY_PORT
-    environment:
-      - PORT=$FRONTEND_PORT
-    ports:
-      - $FRONTEND_PORT:$FRONTEND_PORT
-    networks:
-      - hidden
-
-  question-service:
-    build:
-      context: ./question-service
-    environment:
-      - PORT=$QUESTION_SVC_PORT
-      - DB_URI=$QUESTION_SVC_DB_URI
-      - FRONTEND_PORT=$FRONTEND_PORT
-    ports:
-      - $QUESTION_SVC_PORT:$QUESTION_SVC_PORT
-    networks:
-      - hidden
-  
-  user-service:
-    build:
-      context: ./user-service
-    environment:
-      - PORT=$USER_SVC_PORT
-      - DB_URI=$USER_SVC_DB_URI
-      - JWT_SECRET=$JWT_SECRET
-      - EMAIL_ADDRESS=$EMAIL_ADDRESS
-      - EMAIL_PASSWORD=$EMAIL_PASSWORD
-    ports:
-      - $USER_SVC_PORT:$USER_SVC_PORT
-    networks:
-      - hidden
-
-  matching-service:
-    build:
-      context: ./matching-service
-    environment:
-      - PORT=$MATCHING_SVC_PORT
-      - REDIS_HOST=redis
-      - REDIS_PORT=$REDIS_PORT
-      - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
-      - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
-    ports:
-      - $MATCHING_SVC_PORT:$MATCHING_SVC_PORT
-    depends_on:
-      - redis
-      - question-service
-      - collab-service
-    networks:
-      - hidden
-
   api-gateway:
     image: nginx:1.26
     volumes:
@@ -76,17 +19,61 @@ services:
       - question-service
       - matching-service
       - collab-service
-    networks:
-      - gateway
-      - hidden
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - BASE_URI=$BASE_URI
+        - API_GATEWAY_PORT=$API_GATEWAY_PORT
+    environment:
+      - PORT=$FRONTEND_PORT
+    expose:
+      - $FRONTEND_PORT
+
+  question-service:
+    build:
+      context: ./question-service
+    environment:
+      - PORT=$QUESTION_SVC_PORT
+      - DB_URI=$QUESTION_SVC_DB_URI
+      - FRONTEND_PORT=$FRONTEND_PORT
+    expose:
+      - $QUESTION_SVC_PORT
+  
+  user-service:
+    build:
+      context: ./user-service
+    environment:
+      - PORT=$USER_SVC_PORT
+      - DB_URI=$USER_SVC_DB_URI
+      - JWT_SECRET=$JWT_SECRET
+      - EMAIL_ADDRESS=$EMAIL_ADDRESS
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    expose:
+      - $USER_SVC_PORT
+
+  matching-service:
+    build:
+      context: ./matching-service
+    environment:
+      - PORT=$MATCHING_SVC_PORT
+      - REDIS_HOST=redis
+      - REDIS_PORT=$REDIS_PORT
+      - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
+      - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
+    expose:
+      - $MATCHING_SVC_PORT
+    depends_on:
+      - redis
+      - question-service
+      - collab-service
 
   redis:
     image: redis:7.4-alpine
     restart: always
-    ports:
-      - $REDIS_PORT:$REDIS_PORT
-    networks:
-      - hidden
+    expose:
+      - $REDIS_PORT
     
   collab-service:
     build:
@@ -95,13 +82,5 @@ services:
       - PORT=$COLLAB_SVC_PORT
       - DB_URI=$COLLAB_SVC_DB_URI
       - OPENAI_API_KEY=$OPENAI_API_KEY
-    ports:
-      - $COLLAB_SVC_PORT:$COLLAB_SVC_PORT
-    networks:
-      - hidden
-
-networks:
-  gateway:
-  
-  hidden:
-    internal: true
+    expose:
+      - $COLLAB_SVC_PORT
