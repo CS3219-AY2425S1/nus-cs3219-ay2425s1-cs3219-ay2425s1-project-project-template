@@ -113,40 +113,39 @@ export const getHistoryHandler = async (req: Request, res: Response): Promise<vo
 export const saveCodeHandler = async (req: Request, res: Response): Promise<void> => {
   res.setHeader("Content-Type", "application/json");
 
-  const { roomId, code } = req.body;
+  const { roomId, code, programming_language } = req.body;
+
   if (!roomId || !code) {
     res.status(400).json({ error: "Missing roomId or code" });
     return;
   }
 
   try {
-    // Check if a session already exists with the same room_id
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
     if (existingSession) {
-      // If session exists, do nothing and return success message
-      res.json({ message: "Code saved successfully", session: existingSession });
+      // If session exists, do nothing and return a success message
+      res.json({ message: "Session already exists", session: existingSession });
       return;
     }
 
-    // Retrieve the match associated with the roomId if no session exists
     const match = await MatchModel.findOne({ room_id: roomId }).exec();
     if (!match) {
       res.status(404).json({ error: "Match not found" });
       return;
     }
 
-    // Create and save the session document with code and match data
     const newSession = new SessionModel({
       userOne: match.userOne,
       userTwo: match.userTwo,
       room_id: roomId,
-      code,
+      code: code,
+      programming_language: programming_language,
       question: match.question,
       createdAt: new Date(),
     });
 
     await newSession.save();
-    res.json({ message: "Code saved successfully", session: newSession });
+    res.status(201).json({ message: "Code saved successfully", session: newSession });
   } catch (error) {
     console.error("Error saving code:", error);
     res.status(500).json({ error: "Internal Server Error" });

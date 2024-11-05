@@ -13,7 +13,7 @@ import {
 import { Button } from "@nextui-org/button";
 import { Avatar } from "@nextui-org/avatar";
 import { toast } from "react-toastify";
-
+import axios from "@/utils/axios";
 import { Question } from "@/types/questions";
 import QuestionDescription from "@/components/questions/QuestionDescription";
 import { SocketContext } from "@/context/SockerIOContext";
@@ -54,23 +54,30 @@ export default function Page() {
   };
 
   const saveCodeAndEndSession = async () => {
+    console.log(code);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/save-code`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, code })
-      });
-      
-      if (!response.ok) throw new Error("Failed to save code");
-
-      toast.success("Code saved successfully");
-      router.push("/match"); // Redirect after saving
+      if (code){
+        const response = await axios.post(`/collaboration-service/save-code`, {
+          roomId,
+          code,
+          language,
+        });
+        if (response.status !== 200) throw new Error("Failed to save code");
+    
+        toast.success("Code saved successfully");
+        //router.push("/match"); 
+      }
+      else {
+       // router.push("/match"); 
+       console.log("code is empty")
+      }
     } catch (error) {
       console.error("Error saving code:", error);
       toast.error("Error saving code");
+      //router.push("/match");
     }
   };
-
+  
   const { data: matchedQuestion, isPending: isQuestionPending } =
     useGetMatchedQuestion(roomId as string);
   const {
