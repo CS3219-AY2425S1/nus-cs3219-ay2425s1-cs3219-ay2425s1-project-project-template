@@ -4,7 +4,7 @@ const cors = require('cors');
 const aiRoutes = require('./routes/ai');
 
 const app = express();
-const PORT = 5004;
+const PORT = process.env.PORT || 3007;  // Use environment variable
 
 app.use(cors());
 app.use(express.json());
