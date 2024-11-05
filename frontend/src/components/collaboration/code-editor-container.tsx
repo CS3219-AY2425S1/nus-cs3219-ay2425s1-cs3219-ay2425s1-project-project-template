@@ -105,6 +105,7 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
       });
       setCode('');
       setLanguage(initialLanguage);
+      setTestResults([]);
     });
 
     socketInstance.on('disconnect', () => {
@@ -261,8 +262,8 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
             <SelectGroup>
               <SelectItem value="javascript">JavaScript</SelectItem>
               <SelectItem value="python">Python</SelectItem>
-              <SelectItem value="java">Java</SelectItem>
-              <SelectItem value="cpp">C++</SelectItem>
+              {/* <SelectItem value="java">Java</SelectItem>
+              <SelectItem value="cpp">C++</SelectItem> */}
             </SelectGroup>
           </SelectContent>
         </Select>

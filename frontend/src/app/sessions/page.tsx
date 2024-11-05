@@ -123,6 +123,10 @@ export default function SessionsPage() {
     return <div>Loading...</div>
   }
 
+  const filteredSessions = sessions.filter(session =>
+    session.allUsers.includes(userData.username)
+  );
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold mb-8">Welcome back, {userData.username}!</h1>
@@ -130,7 +134,7 @@ export default function SessionsPage() {
         <Card className="bg-primary text-primary-foreground p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-bold">{sessions.length}</h3>
+              <h3 className="text-2xl font-bold">{filteredSessions.length}</h3>
               <p className="text-sm">Coding Sessions Created</p>
             </div>
             <CalendarIcon className="w-10 h-10" />
@@ -152,7 +156,7 @@ export default function SessionsPage() {
         <CreateSessionDialog sessions={sessions} />
       </div>
       <div className="space-y-6">
-        {renderYearSessions(2024, sessions, userNames)}
+        {renderYearSessions(2024, filteredSessions, userNames)}
       </div>
 
     </main>
