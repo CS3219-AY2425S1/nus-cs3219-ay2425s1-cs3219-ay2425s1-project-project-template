@@ -352,13 +352,18 @@ func repopulateTests(dbClient *firestore.Client) error {
 	return nil
 }
 
-func Populate(client *firestore.Client) {
+func Populate(client *firestore.Client, populateTests bool) {
 	ctx := context.Background()
 
 	// Run the transaction to delete all questions and add new ones
 	err := populateSampleQuestionsInTransaction(ctx, client)
 	if err != nil {
 		log.Fatalf("Failed to populate sample questions in transaction: %v", err)
+	}
+
+	if !populateTests {
+		log.Println("Counter reset, all questions deleted and sample questions added successfully in a transaction.")
+		return
 	}
 
 	// Populate testcases in the execution-service

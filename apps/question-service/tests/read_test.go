@@ -42,7 +42,7 @@ func TestMain(m *testing.M) {
 // Returns the docref of one of the questions if a test need it
 func setupDb(t *testing.T) string {
 	// Repopulate document
-	utils.Populate(service.Client)
+	utils.Populate(service.Client, false)
 
 	coll := service.Client.Collection("questions")
 	if coll == nil {
