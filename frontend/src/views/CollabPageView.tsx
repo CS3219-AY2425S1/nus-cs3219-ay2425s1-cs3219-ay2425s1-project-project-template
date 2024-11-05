@@ -26,6 +26,8 @@ import {
   HTTP_SERVICE_HISTORY,
   SuccessObject,
   callFunction,
+  getToken,
+  getUid,
 } from "@/lib/utils";
 
 const customQuestion: Question = {
@@ -101,8 +103,8 @@ const CollabPageView: React.FC = () => {
         return;
       }
 
-      const token = sessionStorage.getItem("authToken");
-      const uid = sessionStorage.getItem("uid");
+      const token = await getToken();
+      const uid = getUid();
 
       // Initialize the WebSocket connection when the component mounts
       const newSocket = io(WS_SERVICE_COLLAB, {
@@ -117,7 +119,6 @@ const CollabPageView: React.FC = () => {
       newSocket.on("connect", () => {
         console.log("WebSocket connected");
         console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
-        const uid = sessionStorage.getItem("uid");
         newSocket.emit("sessionJoined", sessionIdObj, uid);
       });
 

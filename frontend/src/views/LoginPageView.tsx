@@ -28,18 +28,12 @@ const LoginPage: React.FC = () => {
     console.log("Login attempted"); 
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
 
-      const idToken = await userCredential.user.getIdToken();
-      const uid = userCredential.user.uid;
-
-      sessionStorage.setItem("authToken", idToken);
-      sessionStorage.setItem("uid", uid);
- 
       navigate("/questions");
     } catch {
       setError("Login failed. Please check your credentials.");

@@ -3,7 +3,7 @@ import { io } from "socket.io-client"; // WebSocket client for Socket.IO
 import { Button } from "@/components/ui/button";
 import { useStopwatch } from "react-timer-hook";
 import { useNavigate } from "react-router-dom";
-
+import { getToken, getUid } from "@/lib/utils";
 
 interface MatchingButtonProps {
   selectedTopic: string[];
@@ -23,92 +23,92 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
 
   useEffect(() => {
     if (isMatching) {
-      const matchingServiceBackendUrl = (import.meta.env.VITE_MATCHING_SERVICE_WS_BACKEND_URL || "ws://localhost:5003") + "/matching";
-      const token = sessionStorage.getItem("authToken");
-      const uid = sessionStorage.getItem("uid");
-
-      // Initialize WebSocket connection
-      socketRef.current = io(matchingServiceBackendUrl, {
-        auth: {
-          token: token,
-          uid: uid,
-        },
-        withCredentials: true,
-      });
-
-      socketRef.current.on("connect", () => {
-        console.log("Socket connected.");
-      });
-
-      socketRef.current.on("disconnect", () => {
-        console.log("Socket disconnected.");
-      });
-
-      // Listen for events from backend
-      socketRef.current.on("matched", (data: any) => {
-        reset(); // Reset stopwatch
-        setMatchFound(true);
-        console.log("Match found: ", data);
-        socketRef.current.emit("joinRoom", data.sessionData.uid, data.roomId);
-      });
-
-      socketRef.current.on("navigateToCollab", (data: any) => {
-        navigateToCollabPage(data); // Now we navigate to the collaboration page
-      });
-
-      socketRef.current.on("matchmakingTimedOut", (timedOutMessage: any) => {
-        reset(); // Reset stopwatch
-        setIsMatching(false);
-        alert(timedOutMessage);
-      });
-
-      socketRef.current.on(
-        "doubleMatchingRequest",
-        (doubleRequestMessage: any) => {
+      const initializeSocket = async () => {
+        const matchingServiceBackendUrl = (import.meta.env.VITE_MATCHING_SERVICE_WS_BACKEND_URL || "ws://localhost:5003") + "/matching";
+        
+        const token = await getToken();
+        const uid = getUid();
+  
+        // Initialize WebSocket connection
+        socketRef.current = io(matchingServiceBackendUrl, {
+          auth: {
+            token: token,
+            uid: uid,
+          },
+          withCredentials: true,
+        });
+  
+        socketRef.current.on("connect", () => {
+          console.log("Socket connected.");
+        });
+  
+        socketRef.current.on("disconnect", () => {
+          console.log("Socket disconnected.");
+        });
+  
+        // Listen for events from backend
+        socketRef.current.on("matched", (data: any) => {
+          reset(); // Reset stopwatch
+          setMatchFound(true);
+          console.log("Match found: ", data);
+          socketRef.current.emit("joinRoom", data.sessionData.uid, data.roomId);
+        });
+  
+        socketRef.current.on("navigateToCollab", (data: any) => {
+          navigateToCollabPage(data); // Now we navigate to the collaboration page
+        });
+  
+        socketRef.current.on("matchmakingTimedOut", (timedOutMessage: any) => {
+          reset(); // Reset stopwatch
+          setIsMatching(false);
+          alert(timedOutMessage);
+        });
+  
+        socketRef.current.on("doubleMatchingRequest", (doubleRequestMessage: any) => {
           reset(); // Reset stopwatch
           setIsMatching(false);
           alert(doubleRequestMessage);
-        }
-      );
-
-      socketRef.current.on(
-        "noQuestionsFound",
-        (noQuestionsFoundMessage: any) => {
+        });
+  
+        socketRef.current.on("noQuestionsFound", (noQuestionsFoundMessage: any) => {
           reset(); // Reset stopwatch
           setIsMatching(false);
           alert(noQuestionsFoundMessage);
+        });
+  
+        socketRef.current.on("DisconnectSocket", () => {
+          socketRef.current.disconnect();
+        });
+  
+        socketRef.current.on("error", (errorMessage: any) => {
+          reset(); // Reset stopwatch
+          setIsMatching(false);
+          alert(errorMessage);
+        });
+  
+        // Start matchmaking
+        socketRef.current.emit("startMatching", {
+          uid: uid,
+          difficulty: selectedDifficulty,
+          topic: selectedTopic,
+        });
+  
+        // Start the stopwatch
+        start();
+      };
+  
+      // Call the async function to initialize socket
+      initializeSocket();
+  
+      // Cleanup WebSocket connection on component unmount
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
         }
-      );
-
-      socketRef.current.on("DisconnectSocket", () => {
-        socketRef.current.disconnect();
-      });
-
-      socketRef.current.on("error", (errorMessage: any) => {
         reset(); // Reset stopwatch
-        setIsMatching(false);
-        alert(errorMessage);
-      });
-
-      // Start matchmaking
-      socketRef.current.emit("startMatching", {
-        uid: uid,
-        difficulty: selectedDifficulty,
-        topic: selectedTopic,
-      });
-
-      // Start the stopwatch
-      start();
+      };
     }
-
-    // Cleanup WebSocket connection on component unmount
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-      reset(); // Reset stopwatch
-    };
-  }, [isMatching]);
+  }, [isMatching]);  
 
   const handleStartMatchmaking = () => {
     if (!selectedTopic.length || !selectedDifficulty.length) {
@@ -128,7 +128,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
   const handleCancelMatchmaking = () => {
     reset();
     setIsMatching(false);
-    socketRef.current.emit("cancelMatching", sessionStorage.getItem("uid"));
+    socketRef.current.emit("cancelMatching", getUid());
   };
 
   const navigateToCollabPage = (data: any) => {
@@ -146,7 +146,7 @@ const MatchingButton: React.FC<MatchingButtonProps> = ({
       const collabPageUrl = `/collab/${sessionId}`;
       console.log("Navigating to URL:", collabPageUrl);
 
-      const uid = sessionStorage.getItem("uid");
+      const uid = getUid();
       console.log("User ID (uid):", uid);
       
       clearSocketSession();
