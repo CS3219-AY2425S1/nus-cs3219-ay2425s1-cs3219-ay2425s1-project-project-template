@@ -12,7 +12,7 @@ const isLoading = ref(true);
 const error = ref<string | null>(null);
 
 const checkIfUidAdmin = async (uid: string) => {
-    const { data, error } = await useFetch<boolean>(`http://localhost:5001/admin/users/${uid}/is_admin`)
+    const { data, error } = await useFetch<boolean>(`/api/users/${uid}/is_admin`)
 
     if (error.value) {  // If there is an error in the fetch
         throw new Error(error.value.message);
@@ -31,7 +31,7 @@ const fetchUsers = async () => {
         error.value = null;
 
         // Get a list of users
-        const { data, error: fetchError } = await useFetch('http://localhost:5001/users')
+        const { data, error: fetchError } = await useFetch(`/api/users`)
 
         if (fetchError.value) {
             throw new Error(fetchError.value.message);
@@ -74,11 +74,7 @@ onMounted(() => {
     <div class="container py-10">
         <div v-if="isLoading">Loading...</div>
         <div v-else-if="error">An error occurred: {{ error }}</div>
-        <UserTable
-            v-else
-            :data="users"
-            :key="users.length"
-        />
+        <UserTable v-else :data="users" :key="users.length" />
         <div class="flex flex-col items-center py-10">
             <router-link to="/admin/token_test">
                 <Button>Admin Token Test Page</Button>

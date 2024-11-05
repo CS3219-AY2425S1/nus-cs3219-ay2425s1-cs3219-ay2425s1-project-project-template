@@ -21,16 +21,18 @@ jobs:
     - name: Set up environment variables for frontend (Peerprep)
       run: echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" > frontend/Peerprep/.env
 
-    - name: Set up environment variables for backend services (question-service, user-service)
+    - name: Set up environment variables for backend services (question-service, user-service, chat-service)
       run: |
         echo "CRED_PATH=./firebase-cred.json" > backend/question_service/.env
         echo "CRED_PATH=./firebase-cred.json" > backend/user_service/.env
+        echo "CRED_PATH=./firebase-cred.json" > backend/chat_service/.env
 
     # Add firebase-cred.json file to backend services
     - name: Add Firebase credentials
       run: |
         echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/question_service/firebase-cred.json
         echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/user_service/firebase-cred.json
+        echo "${{ secrets.FIREBASE_CRED_JSON }}" > backend/chat_service/firebase-cred.json
 
     # Build services using docker-compose
     - name: Build and Test with Docker Compose

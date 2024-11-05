@@ -28,6 +28,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r backend/question_service/requirements.txt
+        pip install -r backend/matching_service/requirements.txt
 
     - name: Set up environment variables for backend services (question-service, user-service)
       run: |
@@ -44,14 +45,7 @@ jobs:
     - name: Run tests with pytest
       run: |
         pytest backend/question_service/tests/ -v --cov=app --cov-report=xml:backend/question_service/coverage.xml
-
-    #- name: Upload coverage reports to Codecov
-    #  uses: codecov/codecov-action@v3
-    #  with:
-    #    file: ./backend/question_service/coverage.xml
-    #    flags: pytests
-    #    name: codecov-umbrella
-    #    fail_ci_if_error: true
+        pytest backend/matching_service -v --cov=app --cov-report=xml:backend/matching_service/coverage.xml
 
     - name: Upload test results
       if: always()  # Upload test results even if tests fail
@@ -61,3 +55,5 @@ jobs:
         path: |
           ./backend/question_service/coverage.xml
           ./backend/question_service/.coverage
+          ./backend/matching_service/coverage.xml
+          ./backend/mathcing_service/.coverage
