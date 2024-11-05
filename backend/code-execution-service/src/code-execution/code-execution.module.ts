@@ -4,11 +4,13 @@ import { CodeExecutionController } from './code-execution.controller';
 import { CodeExecutionService } from './code-execution.service';
 import { CodeExecutionProcessor } from './code-execution.processor';
 import * as dotenv from 'dotenv';
+import { HttpModule } from '@nestjs/axios';
 
 dotenv.config();
 
 @Module({
   imports: [
+    HttpModule,
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST,

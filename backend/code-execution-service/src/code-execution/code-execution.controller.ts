@@ -16,7 +16,7 @@ export class CodeExecutionController {
     }
   ) {
     const { sessionId, questionId, language, code } = body;
-    return await this.codeExecutionService.executeCode(
+    await this.codeExecutionService.executeCode(
       sessionId,
       questionId,
       language,

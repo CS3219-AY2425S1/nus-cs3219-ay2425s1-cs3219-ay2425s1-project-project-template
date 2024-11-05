@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
@@ -11,6 +12,8 @@ import DynamicTestCases from '../TestCaseCard';
 import { CodeExecutionResponse } from '@/app/api/code-execution/route';
 import { executeCode } from '@/lib/api-user';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
 
 interface CodeEditorProps {
   sessionId?: string;
@@ -61,7 +64,6 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         language,
       });
     }
-    setExecuting(true);
     try {
       if (!questionId) {
         throw new Error('Question ID is required');
@@ -72,19 +74,13 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         language: language,
         code: code
       });
-      setResult(result);
-      setTestResults(result.testResults);
-      if (result.testResults.some(test => test.error)) {
-        setError(result.testResults.find(test => test.error)?.error || 'Execution failed');
-      }
+      
     } catch (error) {
       setError((error as any).message);
     } finally {
-      setExecuting(false);
     }
   };
 
-  // Initialize socket connection
   useEffect(() => {
     if (!sessionId || !questionId || !userData || !userData.username) {
       return;
@@ -128,11 +124,69 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
       setLanguage(newLanguage);
     });
 
-    socketInstance.on('submissionMade', ({ timestamp }) => {
+    socketInstance.on('submissionMade', async ({ timestamp }) => {
       toast({
         title: "Code Submitted",
         description: `Submission recorded at ${new Date(timestamp).toLocaleTimeString()}`,
       });
+
+      setExecuting(true);
+      for (let i = 0; i < 10; i++) {
+          try {
+
+
+            const response = await axios.post(`/api/submissions/${sessionId}/${questionId}`);
+            const submission = await response.data as { status: string, executionResults: CodeExecutionResponse };
+
+            // const submission = await response.json();
+            console.log("submission: ", submission.status);
+      
+            if (submission.status !== 'pending') {
+              // Set test results regardless of status
+              if (submission.executionResults?.testResults) {
+                setTestResults(submission.executionResults.testResults);
+              }
+      
+              // Show appropriate toast based on status
+              if (submission.status === 'accepted') {
+                toast(
+                  {
+                    title: "Accepted",
+                    description: `All ${submission.executionResults.totalTests} tests passed successfully!`
+                  }
+                );
+                break;
+              } else if (submission.status === 'rejected') {
+                toast(
+                  {
+                    variant: "destructive",
+                    title: "Rejected",
+                    description:
+                  `${submission.executionResults.failedTests} of ${submission.executionResults.totalTests} tests failed`
+                  }
+                );
+                break;
+              }
+            }
+      
+            // If we reach the last iteration and status is still pending
+            if (i === 9 && submission.status === 'pending') {
+              toast({
+                variant: "destructive",
+                title: "Submission processing timeout",
+              });
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } catch (error) {
+            toast({
+              variant: "destructive",
+              title: "Submission failed",
+            });
+            break;
+          }
+      }
+      setExecuting(false);
     });
 
     socketInstance.on('sessionCompleted', () => {

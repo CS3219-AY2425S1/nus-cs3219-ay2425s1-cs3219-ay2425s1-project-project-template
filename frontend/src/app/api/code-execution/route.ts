@@ -31,25 +31,30 @@ export async function POST(request: Request) {
     const body = await request.json() as ExecuteCodeParams;
     const { sessionId, questionId, language, code, stdin } = body;
 
-    if (!questionId) {
+    if (!questionId || !language || !sessionId) {
       return NextResponse.json(
         { error: 'Question ID is required' },
         { status: 400 }
       );
     }
 
-    const response = await axios.post<CodeExecutionResponse>(
-      CODE_EXECUTION_SERVICE_URL,  
-      {
-        sessionId, 
+    console.log('Executing code:', { questionId, language, code, stdin, sessionId });
+
+    await fetch(CODE_EXECUTION_SERVICE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sessionId,
         questionId,
         language,
         code,
         stdin,
-      }
-    );
+      })
+    });
 
-    return NextResponse.json(response.data);
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Code execution failed:', error);
     return NextResponse.json(

@@ -1,11 +1,31 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
+import { firstValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
+
+interface TestResult {
+  testCaseNumber: number;
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  passed: boolean;
+  error?: string;
+  compilationError?: string | null;
+}
+
+interface ExecutionResults {
+  totalTests: number;
+  passedTests: number;
+  failedTests: number;
+  testResults: TestResult[];
+}
 
 @Injectable()
 export class CodeExecutionService {
   constructor(
-    @InjectQueue('code-execution') private codeExecutionQueue: Queue
+    @InjectQueue('code-execution') private codeExecutionQueue: Queue,
+    private readonly httpService: HttpService,
   ) {}
 
   async executeCode(sessionId: string, questionId: string, language: string, code: string) {
@@ -51,8 +71,34 @@ export class CodeExecutionService {
         jobId: `${sessionId}-${questionId}`,  
       });
 
-      const result = await job.finished();
-      
+      const result = await job.finished() as ExecutionResults;
+
+      // Determine submission status based on test results
+      const status = result.failedTests === 0 ? 'accepted' : 'rejected';
+
+      // Make PATCH request to update submission
+      try {
+        const response = await firstValueFrom(
+          this.httpService.patch<any>(
+            `http://host.docker.internal:3006/submissions/${sessionId}/${questionId}`,
+            {
+              status,
+              executionResults: result
+            }
+          )
+        );
+
+        if (!response.data) {
+          throw new Error('Failed to update submission status');
+        }
+      } catch (apiError) {
+        console.error('Failed to update submission:', apiError);
+        throw new HttpException(
+          'Failed to update submission status',
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+
       try {
         await job.remove();
       } catch (removeError) {
@@ -60,7 +106,7 @@ export class CodeExecutionService {
       }
 
       return result;
-      
+
     } catch (error) {
       console.error("Code execution error:", error);
       throw new HttpException(
@@ -68,5 +114,6 @@ export class CodeExecutionService {
         error instanceof HttpException ? error.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
+  }      
+      
 }

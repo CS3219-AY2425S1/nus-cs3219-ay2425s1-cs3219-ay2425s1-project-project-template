@@ -41,10 +41,10 @@ export class EditorService {
   }
 
   async getSession(sessionId: string): Promise<Session | null> {
-    const cachedSession = await this.redis.get(`session:${sessionId}`);
-    if (cachedSession) {
-      return JSON.parse(cachedSession);
-    }
+    // const cachedSession = await this.redis.get(`session:${sessionId}`);
+    // if (cachedSession) {
+    //   return JSON.parse(cachedSession);
+    // }
 
     const session = await this.sessionModel.findOne({ sessionId }).exec();
     if (session) {

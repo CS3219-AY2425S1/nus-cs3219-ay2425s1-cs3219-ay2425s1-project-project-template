@@ -130,7 +130,7 @@ export async function executeCode({
   language,
   code,
   stdin,
-}: ExecuteCodeParams): Promise<CodeExecutionResponse> {
+}: ExecuteCodeParams) {
   try {
     console.log('Executing code:', { questionId, language, code, stdin });
     const response = await fetch('/api/code-execution', {
@@ -139,6 +139,7 @@ export async function executeCode({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        sessionId,
         questionId,
         language,
         code,
