@@ -23,7 +23,7 @@ const MatchFound = ({ matchData, closePopup }) => {
         closePopup();
 
         try {
-          const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, cookies);
+          const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, roomId, cookies);
 
           if (question) {
             console.log(question.title);

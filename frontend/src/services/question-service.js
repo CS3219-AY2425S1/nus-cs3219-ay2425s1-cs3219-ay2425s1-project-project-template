@@ -78,13 +78,13 @@ const getQuestionById = async (id, cookies) => {
 };
 
 // Get question by topic and difficulty
-const getQuestionByTopicAndDifficulty = async (topic, difficulty, cookies) => {
+const getQuestionByTopicAndDifficulty = async (topic, difficulty, roomId, cookies) => {
     try {
         const response = await axios.get(`${BASE_URL}/search`, {
             headers: {
                 Authorization: `Bearer ${cookies.token}`
             },
-            params: { topic, difficulty },
+            params: { topic, difficulty, roomId },
             withCredentials: true
         });
         if (!response.data) {
