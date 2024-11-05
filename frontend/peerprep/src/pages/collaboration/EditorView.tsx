@@ -6,7 +6,7 @@ import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
-import Chat from "./Chat";
+import ChatBox from "./ChatBox";
 import { addQuestionToUser } from "./updateQuestionController";
 
 const EditorView: React.FC = () => {
@@ -15,13 +15,13 @@ const EditorView: React.FC = () => {
   const [socketId, setSocketId] = useState<string | undefined>("");
   const [currentCode, setCurrentCode] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const userContext = useUserContext();
+  const userContext = useContext(UserContext);
   const user = userContext?.user;
+
   const [searchParams] = useSearchParams();
   const [question, setQuestion] = useState<Question | null>(null);
   const authApi = useAuthApiContext();
-
-
+  
   const roomId = searchParams.get("room");
   const questionId = searchParams.get("questionId");
 
@@ -37,7 +37,7 @@ const EditorView: React.FC = () => {
       navigate("/dashboard");
       return;
     }
-
+    
     socketRef.current = io("http://localhost:3004/", {
       path: "/api",
       query: { roomId },
@@ -96,7 +96,7 @@ const EditorView: React.FC = () => {
   };
 
   console.log(socketRef.current);
-
+  
   return (
     <div style={styles.container}>
       {/* Inline CSS for dark scrollbars */}
@@ -127,23 +127,20 @@ const EditorView: React.FC = () => {
 
       {/* Question Section */}
       <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
-
+      
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
-        <div style={styles.disconnectButtonContainer}>
-          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
-            End Session
-          </button>
-        </div>
-        <Chat
-          socketRef={socketRef}
-          // socketId={socketId}
-          styles={styles}
-          chatBoxRef={chatBoxRef}
-        />
+        {/* Chat Section */}
+        <ChatBox roomId={roomId} user={user ?? null} />
+
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
-          {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
+          {socketRef.current && <EditorElement socket={socketRef.current} />}
+        </div>
+
+        {/* Disconnect Button */}
+        <div style={styles.disconnectButtonContainer}>
+        {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
         </div>
       </div>
     </div>
@@ -191,7 +188,7 @@ const styles = {
     height: "100vh",
     backgroundColor: "#1e1e2e",
   },
-
+  
   rightSection: {
     display: "flex",
     flexDirection: "column" as const,
@@ -286,7 +283,7 @@ const styles = {
     transition: "background-color 0.3s ease",
   },
   editorContainer: {
-    flex: "1 1 auto", // Allocating 50% height for the editor container
+    flex: "0 0 50%", // Allocating 50% height for the editor container
     backgroundColor: "#1e1e2e",
     padding: "10px",
     borderRadius: "8px",
@@ -296,5 +293,6 @@ const styles = {
     color: "#ffffff",
   },
 };
+
 
 export default EditorView;
