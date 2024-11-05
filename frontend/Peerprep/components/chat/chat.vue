@@ -5,8 +5,9 @@ import { io } from "socket.io-client";
 import axios from 'axios';
 
 const user = useCurrentUser();
+const runtimeConfig = useRuntimeConfig();
 // connect to Socket.IO server
-const socket = io('http://localhost:5002'); // server address
+const socket = io(runtimeConfig.public.chatService); // server address
 
 // define response status
 const messages = ref<string[]>([]);
@@ -19,7 +20,7 @@ const selectedConversation = ref<string | null>(null); // Track selected convers
 const sendMessage = () => {
   console.log(message.value)
   if (message.value.trim() && selectedConversation.value) {
-    socket.emit('chat message', { conversation: selectedConversation.value, message: message.value ,username:user?.value?.email});
+    socket.emit('chat message', { conversation: selectedConversation.value, message: message.value, username: user?.value?.email });
     message.value = ''; // clear input text box
   }
 };
@@ -48,7 +49,7 @@ const selectConversation = (conversation: string) => {
 
 const loadConversations = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5002/api/conversations/${user?.value?.uid}`);
+    const response = await axios.get(`${runtimeConfig.public.chatService}/api/conversations/${user?.value?.uid}`);
     conversations.value = response.data.conversations;
 
     // Automatically select the newest/active conversation (the one in green)
@@ -64,7 +65,7 @@ const loadConversations = async () => {
 
 // load history func
 const loadHistory = async (conversation: string) => {
-  const response = await axios.get(`http://127.0.0.1:5002/api/history/${conversation}`);
+  const response = await axios.get(`${runtimeConfig.public.chatService}/api/history/${conversation}`);
   messages.value = response.data.messages; // updates messsages
   selectedConversation.value = conversation; // set selected convo here
 };
@@ -99,31 +100,28 @@ defineExpose({
       <h1 style="font-weight: bold; font-size: 20px;">Select a Conversation</h1>
       <ul>
 
-        <li
-  v-for="(conversation, index) in conversations"
-  :key="index"
-  :class="{ 'active-conversation': conversation.sessionName === selectedConversation }"
-  @click="selectConversation(conversation.sessionName)"
->
-  <span :style="{ color: conversation.flag === 'active' ? 'green' : 'red' }">
-    ● <!-- char for status indicator (green/red) -->
-  </span>
-  {{ conversation.sessionName.slice(0, 15) }}
-  <!-- making convo sessionName shorter on screen-->
-</li>
+        <li v-for="(conversation, index) in conversations" :key="index"
+          :class="{ 'active-conversation': conversation.sessionName === selectedConversation }"
+          @click="selectConversation(conversation.sessionName)">
+          <span :style="{ color: conversation.flag === 'active' ? 'green' : 'red' }">
+            ● <!-- char for status indicator (green/red) -->
+          </span>
+          {{ conversation.sessionName.slice(0, 15) }}
+          <!-- making convo sessionName shorter on screen-->
+        </li>
 
 
 
 
-       
+
       </ul>
     </div>
     <div class="chat-window">
       <div id="messages" class="messages">
         <div v-for="msg in messages" :key="msg.id" class="message-item">
           <div class="avatar">
-          <!-- <img :src="msg.avatar" :alt="msg.username" /> -->
-          <img :src="msg.username"  />
+            <!-- <img :src="msg.avatar" :alt="msg.username" /> -->
+            <img :src="msg.username" />
           </div>
           <div class="message-content">
             <div class="username">{{ msg.username }}</div>
@@ -132,14 +130,9 @@ defineExpose({
           </div>
         </div>
       </div>
-      <input
-          v-model="message"
-          @keyup.enter="sendMessage"
-          placeholder="Message..."
-          class="input-message"
-        />
-        <button @click="sendMessage" class="send-button">Send</button>
-        <button @click="sendStopMessage" class="stop-button">Stop</button>
+      <input v-model="message" @keyup.enter="sendMessage" placeholder="Message..." class="input-message" />
+      <button @click="sendMessage" class="send-button">Send</button>
+      <button @click="sendStopMessage" class="stop-button">Stop</button>
     </div>
   </div>
   <Toaster />
@@ -149,6 +142,7 @@ defineExpose({
 .container {
   display: flex;
 }
+
 .conversation-list {
   width: 25%;
   border-right: 1px solid #ccc;
@@ -192,33 +186,48 @@ defineExpose({
 .input-group {
   display: flex;
   align-items: center;
-  margin-top: auto; /* push input group to bottom */
+  margin-top: auto;
+  /* push input group to bottom */
 }
 
 .input-message {
   width: 80%;
-  flex-grow: 1; /* msg box occupying left space */
-  padding: 10px; /* adding inner margin */
-  margin-right: 10px; /* innermargin with send btn */
-  border: 1px solid #ccc; /*  */
-  border-radius: 4px; /*  */
+  flex-grow: 1;
+  /* msg box occupying left space */
+  padding: 10px;
+  /* adding inner margin */
+  margin-right: 10px;
+  /* innermargin with send btn */
+  border: 1px solid #ccc;
+  /*  */
+  border-radius: 4px;
+  /*  */
 }
 
 .send-button {
-  padding: 10px 20px; /* inner padding */
-  background-color: #007bff; /* send btn color */
-  color: white; /* txt color */
-  border: none; /*  */
-  border-radius: 4px; /*  */
-  cursor: pointer; /*  */
-  transition: background-color 0.3s; /*  */
+  padding: 10px 20px;
+  /* inner padding */
+  background-color: #007bff;
+  /* send btn color */
+  color: white;
+  /* txt color */
+  border: none;
+  /*  */
+  border-radius: 4px;
+  /*  */
+  cursor: pointer;
+  /*  */
+  transition: background-color 0.3s;
+  /*  */
 }
+
 .stop-button {
   display: none;
 }
 
 .send-button:hover {
-  background-color: #0056b3; /*  */
+  background-color: #0056b3;
+  /*  */
 }
 
 .conversation-list ul li {
@@ -240,5 +249,4 @@ defineExpose({
   font-weight: bold;
   color: #333;
 }
-
 </style>

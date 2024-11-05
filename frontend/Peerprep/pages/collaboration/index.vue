@@ -18,8 +18,8 @@ const fetchQuestion = async (id) => {
   try {
     isLoading.value = true;
     error.value = null;
-    const { data, error: fetchError } = await useFetch(`http://localhost:5000/questions/${id}`);
-    
+    const { data, error: fetchError } = await useFetch(`/api/questions/${id}`);
+
     if (fetchError.value) {
       throw new Error(fetchError.value.message);
     }
@@ -46,30 +46,30 @@ onMounted(() => {
 });
 
 const terminateCollaboration = () => {
-    try {
-        collaborationStore.clearCollaborationInfo();
-        chatRef.value?.sendStopMessage(); // Trigger the stop message in Chat component
-        navigateTo('/');
-    } catch (error) {
-        console.error('Error in terminateCollaboration:', error);
-    }
+  try {
+    collaborationStore.clearCollaborationInfo();
+    chatRef.value?.sendStopMessage(); // Trigger the stop message in Chat component
+    navigateTo('/');
+  } catch (error) {
+    console.error('Error in terminateCollaboration:', error);
+  }
 };
 </script>
 
 <template>
   <div class="page-container">
-      <div class="question-box">
-          <h3 class="question-title">{{ question.title }}</h3>
-          <p>{{ question.description }}</p>
-      </div>
-      <CodeEditor/>
-      <div style="margin-top: 8px; text-align: right;">
-          <button class="red-button" @click="terminateCollaboration">
-              Terminate Collaboration
-          </button>
-      </div>
-      <!-- Attach ref to the Chat component -->
-      <Chat ref="chatRef" />
+    <div class="question-box">
+      <h3 class="question-title">{{ question.title }}</h3>
+      <p>{{ question.description }}</p>
+    </div>
+    <CodeEditor />
+    <div style="margin-top: 8px; text-align: right;">
+      <button class="red-button" @click="terminateCollaboration">
+        Terminate Collaboration
+      </button>
+    </div>
+    <!-- Attach ref to the Chat component -->
+    <Chat ref="chatRef" />
   </div>
 </template>
 
@@ -96,7 +96,7 @@ const terminateCollaboration = () => {
   border: 2px solid black;
   padding: 10px 20px;
   cursor: pointer;
-  font-size: 16px;      
+  font-size: 16px;
   border-radius: 5px;
 }
 
