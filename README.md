@@ -36,7 +36,7 @@ How to deploy website to public:
   docker push gcr.io/peerprep-g02/collab_service
 
   cd ../matching_service
-  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app --build-arg QUESTION_SERVICE_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app --build-arg REDIS_URL=redis://{DEPLOY_REDIS_INSTANCE_ON_GOOGLE_MEMORYSTORE_AND_OBTAIN_IP_ADDR_AND_THEN_PLUG_IT_HERE}:6379 --build-arg RABBITMQ_URL=amqps://taorzqvx:{CONTACT_WEI_RUI_TO_GET_PASSWORD_AND_THEN_PLUG_IT_HERE}@armadillo.rmq.cloudamqp.com/taorzqvx --build-arg COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL=https://collab-service-1079323726684.asia-southeast1.run.app -t matching_service .
+  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app --build-arg QUESTION_SERVICE_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app --build-arg REDIS_URL=redis://{DEPLOY_REDIS_INSTANCE_ON_GOOGLE_MEMORYSTORE_AND_OBTAIN_IP_ADDR_AND_THEN_PLUG_IT_HERE}:6379 --build-arg RABBITMQ_URL=amqps://taorzqvx:{CONTACT_WEI_RUI_TO_GET_PASSWORD_AND_THEN_PLUG_IT_HERE}@armadillo.rmq.cloudamqp.com/taorzqvx --build-arg COLLAB_SERVICE_BACKEND_URL=https://collab-service-1079323726684.asia-southeast1.run.app -t matching_service .
   docker tag matching_service gcr.io/peerprep-g02/matching_service
   docker push gcr.io/peerprep-g02/matching_service
 

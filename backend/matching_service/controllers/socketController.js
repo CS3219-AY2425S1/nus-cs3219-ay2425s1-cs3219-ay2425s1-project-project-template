@@ -70,7 +70,7 @@ class SocketController {
 
     const prevUserSocketId = prevUserSessionData.socketId;
 
-    const createsession = (process.env.COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL || "http://localhost:5004") + "/create-session";
+    const createsession = (process.env.COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004") + "/create-session";
 
     try {
       const questions = await this.getAllQuestionsOfTopicAndDifficulty(
