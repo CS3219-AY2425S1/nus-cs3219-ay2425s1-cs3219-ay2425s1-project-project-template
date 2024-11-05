@@ -5,6 +5,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
 import Chat from "./Chat";
+import GeminiChat from "./GeminiChat"; 
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
@@ -102,6 +103,8 @@ const EditorView: React.FC = () => {
           styles={styles}
           chatBoxRef={chatBoxRef}
         />
+        {/* GeminiChat Section */}
+         <GeminiChat socketRef={socketRef} />
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
           {socketRef.current && <EditorElement socket={socketRef.current} />}
@@ -252,7 +255,8 @@ const styles = {
     transition: "background-color 0.3s ease",
   },
   editorContainer: {
-    flex: "1 1 auto", // Allocating 50% height for the editor container
+    flex: "0 1 auto", // Allocating 50% height for the editor container
+    //maxHeight: "220px",
     backgroundColor: "#1e1e2e",
     padding: "10px",
     borderRadius: "8px",
