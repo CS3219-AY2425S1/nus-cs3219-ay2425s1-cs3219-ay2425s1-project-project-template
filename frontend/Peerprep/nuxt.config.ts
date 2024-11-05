@@ -15,10 +15,11 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
   ],
   runtimeConfig: {
+    matchingService: `http://matching_service:8000`,
+    questionService: `http://question_service:5000`,
+    userService: `http://user_service:5001`,
     public: {
-      matchingRequestUrl: "http://localhost:8000",
-      webSocketUrl: "ws://localhost:8010",
-      cancelRequestUrl: "http://localhost:8010",
+      webSocketUrl: `ws://${process.env.HOST_ADDRESS}:8001`,
       apiKey: process.env.LB_API_KEY,
     },
   },

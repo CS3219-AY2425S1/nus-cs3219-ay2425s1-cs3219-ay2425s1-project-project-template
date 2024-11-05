@@ -87,7 +87,7 @@ def process_message(message, producer):
     logger.info(
         f"Received matching request: user_id={user_id}, category={category}, difficulty={difficulty}"
     )
-
+    pipe = None
     retry_attempts = RETRY_ATTEMPTS
 
     while retry_attempts > 0:
@@ -146,7 +146,8 @@ def process_message(message, producer):
             logger.warning(
                 "Transaction failed due to concurrent modification, retrying..."
             )
-            pipe.reset()
+            if pipe is not None:
+                pipe.reset()
             retry_attempts -= 1
 
     logger.error("Exceeded maximum retries. Exiting without processing the match.")
