@@ -33,8 +33,12 @@ services:
       - PORT=$MATCHING_SVC_PORT
       - REDIS_HOST=redis
       - REDIS_PORT=$REDIS_PORT
+      - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
+      - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
     depends_on:
       - redis
+      - question-service
+      - collab-service
 
   api-gateway:
     image: nginx:1.26
@@ -49,11 +53,13 @@ services:
       - USER_SVC_PORT=$USER_SVC_PORT
       - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
       - MATCHING_SVC_PORT=$MATCHING_SVC_PORT
+      - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
     depends_on:
       - frontend
       - user-service
       - question-service
       - matching-service
+      - collab-service
 
   redis:
     image: redis:7.4-alpine
@@ -70,3 +76,11 @@ services:
       - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
     depends_on:
       - redis
+    
+  collab-service:
+    build:
+      context: ./collab-service
+    environment:
+      - PORT=$COLLAB_SVC_PORT
+      - DB_URI=$COLLAB_SVC_DB_URI
+      - OPENAI_API_KEY=$OPENAI_API_KEY

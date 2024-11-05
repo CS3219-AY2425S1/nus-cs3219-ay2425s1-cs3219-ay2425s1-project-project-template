@@ -1,6 +1,7 @@
 from bson import ObjectId
 from bson.errors import InvalidId
 from dotenv import load_dotenv
+from random import randint
 import motor.motor_asyncio
 import os
 from typing import List
@@ -10,6 +11,7 @@ from exceptions.questions_exceptions import (
     QuestionNotFoundError,
     BatchUploadFailedError,
     InvalidQuestionIdError,
+    RandomQuestionNotFoundError
 )
 from models.questions import (
     CategoryEnum,
@@ -99,6 +101,24 @@ async def batch_create_questions(
     return MessageModel.parse_obj({
         "message": f"{len(result.inserted_ids)} questions added successfully."
     })
+
+async def fetch_random_question(
+    category: CategoryEnum | None,
+    complexity: ComplexityEnum | None,
+) -> QuestionModel:
+    query = {}
+    if category:
+        query["categories"] = category
+    if complexity:
+        query["complexity"] = complexity
+
+    count = await question_collection.count_documents(query)
+    if count == 0:
+        raise RandomQuestionNotFoundError(category, complexity)
+
+    random_index = randint(0, count - 1)
+    random_question = await question_collection.find(query).skip(random_index).limit(1).to_list(1)
+    return QuestionModel.parse_obj(random_question[0])
 
 def get_question_categories() -> List[CategoryEnum]:
     return [category for category in CategoryEnum]

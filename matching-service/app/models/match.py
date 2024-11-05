@@ -5,6 +5,8 @@ class MatchModel(BaseModel):
     user2: str
     topic: str
     difficulty: str
+    question_id: str
+    room_id: str
 
 class MessageModel(BaseModel):
     message: str

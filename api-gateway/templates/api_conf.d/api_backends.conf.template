@@ -10,6 +10,10 @@ upstream matching-service {
     server matching-service:$MATCHING_SVC_PORT;
 }
 
+upstream collab-service {
+    server collab-service:$COLLAB_SVC_PORT;
+}
+
 upstream frontend {
     server frontend:$FRONTEND_PORT;
 }
