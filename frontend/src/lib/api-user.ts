@@ -132,7 +132,7 @@ export async function executeCode({
   stdin,
 }: ExecuteCodeParams) {
   try {
-    console.log('Executing code:', { questionId, language, code, stdin });
+    console.log('Executing code:', { questionId, language, code, stdin, sessionId });
     const response = await fetch('/api/code-execution', {
       method: 'POST',
       headers: {

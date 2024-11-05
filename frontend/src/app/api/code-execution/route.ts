@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     if (!questionId || !language || !sessionId) {
       return NextResponse.json(
-        { error: 'Question ID is required' },
+        { error: 'Question ID or Language or sessionId is required' },
         { status: 400 }
       );
     }
