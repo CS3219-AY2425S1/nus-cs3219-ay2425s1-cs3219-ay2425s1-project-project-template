@@ -29,7 +29,7 @@ const getInitials = () => {
                 <div class="flex items-center space-x-6">
                     <NavLink to="/" exact>Home</NavLink>
                     <NavLink to="/questions">Questions</NavLink>
-                    <NavLink to="/collaboration">Collab</NavLink>
+                    
                 </div>
             </div>
 

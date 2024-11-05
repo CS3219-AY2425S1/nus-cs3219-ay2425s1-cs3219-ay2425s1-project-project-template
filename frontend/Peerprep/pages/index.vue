@@ -109,13 +109,13 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
         }
 
         // Optionally navigate to collaboration page
-        // if (collaborationStore.isCollaborating) {
-        //   await navigateTo(`/collaboration`);
-        //   toast({
-        //     description: `Match found! Redirecting to the collaboration room...`,
-        //   });
-        //   matchFound.value = true;
-        // }
+         if (collaborationStore.isCollaborating) {
+           await navigateTo(`/collaboration`);
+           toast({
+             description: `Match found! Redirecting to the collaboration room...`,
+           });
+           matchFound.value = true;
+         }
       }
     } catch (error) {
       console.error("Failed to process received message:", error);
