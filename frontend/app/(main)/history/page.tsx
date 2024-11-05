@@ -1,14 +1,41 @@
-// app/(main)/history/page.tsx
+"use client";
 
-import React from 'react';
+import { useState } from "react";
 
-const HistoryPage: React.FC = () => {
+import { useHistory } from "@/hooks/api/history";
+import HistoryTable from "@/components/history/HistoryTable";
+import { useUser } from "@/hooks/users";
+
+export default function Page() {
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const { user } = useUser();
+  const {
+    data: historyList,
+    isLoading,
+    isError,
+  } = useHistory(user?.username || "", pageNumber);
+  const handleOnPageClick = (page: number) => {
+    setPageNumber(page);
+  };
+
   return (
-    <div>
-      <h1>History Page</h1>
-      <p>This is a placeholder for the history page content.</p>
-    </div>
+    <>
+      {isLoading ? (
+        <p>Fetching History...</p>
+      ) : isError ? (
+        <p>Had Trouble Fetching History!</p>
+      ) : (
+        <div className="flex justify-center">
+          <HistoryTable
+            handlePageOnClick={handleOnPageClick}
+            pageNumber={pageNumber}
+            sessions={historyList?.sessions || []}
+            totalPages={parseInt(historyList?.totalPages || "1")}
+            totalSessions={parseInt(historyList?.totalSessions || "")}
+            username={user?.username || ""}
+          />
+        </div>
+      )}
+    </>
   );
-};
-
-export default HistoryPage;
+}

@@ -23,10 +23,11 @@ export interface Match {
   complexity: string[];
   categories: string[];
   question: Question; // Single Question object
+  createdAt: Date
 }
 
 // Mongoose schema for the Question model
-const questionSchema = new Schema<Question>({
+export const questionSchema = new Schema<Question>({
   questionId: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: false },
@@ -48,6 +49,7 @@ const matchSchema = new Schema<Match>({
   categories: { type: [String], required: true },
   programming_language: {type: [String], required: true},
   question: { type: questionSchema, required: true }, // Embedded single Question document
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Create models from schemas

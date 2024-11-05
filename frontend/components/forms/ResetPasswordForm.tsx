@@ -30,7 +30,10 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
     }
 
     // Validate confirm password and check if it matches new password
-    if (!formData.confirmPassword || formData.newPassword !== formData.confirmPassword) {
+    if (
+      !formData.confirmPassword ||
+      formData.newPassword !== formData.confirmPassword
+    ) {
       newErrors.confirmPassword = true;
     }
 
@@ -47,10 +50,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8">
-
+    <form className="mt-8" onSubmit={handleSubmit}>
       <div className="mb-4">
-        <label htmlFor="newPassword" className="block text-gray-400">
+        <label className="block text-gray-400" htmlFor="newPassword">
           New Password
         </label>
         <Input
@@ -67,7 +69,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
       </div>
 
       <div className="mb-4">
-        <label htmlFor="confirmPassword" className="block text-gray-400">
+        <label className="block text-gray-400" htmlFor="confirmPassword">
           Confirm Password
         </label>
         <Input

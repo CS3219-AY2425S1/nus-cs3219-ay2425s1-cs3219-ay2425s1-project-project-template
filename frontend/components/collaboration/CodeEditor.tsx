@@ -11,16 +11,14 @@ import axios from "@/utils/axios";
 var randomColor = require("randomcolor"); // import the script
 
 interface CodeEditorProps {
-  roomId: string;
   setOutput: React.Dispatch<React.SetStateAction<string>>;
+  roomId: string;
   language: string;
+  onCodeChange: (code: string) => void;
   userName: string;
   userId: string;
   userEmail: string;
 }
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_SOCKET_IO_URL;
 
 const LANGUAGE_MAP: Record<string, number> = {
   javascript: 63,
@@ -50,6 +48,7 @@ export default function CodeEditor({
   userName,
   userEmail,
   userId,
+  onCodeChange,
 }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
@@ -59,6 +58,8 @@ export default function CodeEditor({
   const executeCode = async () => {
     if (!codeEditorRef.current) return;
     const code = codeEditorRef.current.getValue();
+
+    // Get the language from the Monaco editor
     const currentLanguage = codeEditorRef.current.getModel()?.getLanguageId();
     const languageId =
       currentLanguage && LANGUAGE_MAP[currentLanguage]
@@ -214,7 +215,10 @@ export default function CodeEditor({
         }}
         theme={theme === "dark" ? "vs-dark" : "hc-light"}
         width="100%"
-        onChange={(value) => setUserInput(value || "")} // Update userInput in real-time
+        onChange={(value) => {
+          setUserInput(value || "");
+          onCodeChange(value || "");
+        }} // Update userInput in real-time
         onMount={(editor) => {
           codeEditorRef.current = editor;
         }}

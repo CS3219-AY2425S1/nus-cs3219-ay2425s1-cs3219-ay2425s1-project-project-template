@@ -31,8 +31,8 @@ export function startRabbitMQ(io: Server) {
 
           // Build match info based on received message
           const matchInfo = {
-            userOne: matchResult.UserOne,
-            userTwo: matchResult.UserTwo,
+            userOne: matchResult.UsernameOne,
+            userTwo: matchResult.UsernameTwo,
             room_id: matchResult.RoomID,
             complexity: matchResult.Complexity,
             categories: matchResult.Categories,

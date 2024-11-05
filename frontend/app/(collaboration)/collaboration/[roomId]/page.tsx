@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
   Modal,
@@ -23,10 +23,14 @@ import VoiceChat from "@/components/collaboration/VoiceChat";
 import {
   useGetMatchedQuestion,
   useGetIsAuthorisedUser,
+  useSaveCode,
 } from "@/hooks/api/collaboration";
+import { SaveCodeVariables } from "@/utils/collaboration";
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
+  const code = useRef("");
+  const [language, setLanguage] = useState("JavaScript");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId || "";
@@ -45,6 +49,29 @@ export default function Page() {
     constraints: "",
   });
 
+  const { mutate: saveCode } = useSaveCode();
+
+  const handleCodeChange = (newCode: string) => {
+    code.current = newCode;
+  };
+
+  const saveCodeAndEndSession = (savedCode: SaveCodeVariables) => {
+    saveCode(
+      { ...savedCode },
+      {
+        onSuccess: () => {
+          toast.success("Code saved successfully");
+          router.push("/match");
+        },
+        onError: (error) => {
+          console.error("Error saving code:", error);
+          toast.error("Error saving code");
+          router.push("/match");
+        }
+      },
+    );
+  };
+
   const { data: roomInfo, isPending: isQuestionPending } =
     useGetMatchedQuestion(roomId as string);
 
@@ -59,25 +86,6 @@ export default function Page() {
       // router.push("/403");
     }
   }, [isAuthorisationPending, isAuthorisedUser, router]);
-
-  const socketListeners = () => {
-    socket?.on("user-disconnect", () => {
-      setUserDisconnect(true);
-      setOtherUser("");
-    });
-
-    socket?.on("waiting-for-other-user-end", () => {
-      toast.info(`Waiting for both users to click exit.`, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-      });
-    });
-
-    socket?.on("both-users-agreed-end", () => {
-      router.push("/match");
-    });
-  };
 
   const handleEndSession = (): void => {
     socket?.emit("user-agreed-end", roomId, user?.id);
@@ -102,7 +110,7 @@ export default function Page() {
     if (socket && roomId && user) {
       socket.emit("join-room", roomId, user?.username);
 
-      socket.on("user-join", (otherUser: string) => {
+      socket.on("user-join", (otherUser) => {
         if (otherUser !== user?.username) {
           toast.info(`User ${otherUser} has joined the room`, {
             position: "top-right",
@@ -110,12 +118,42 @@ export default function Page() {
             hideProgressBar: false,
           });
           setOtherUser(otherUser);
-          console.log(otherUser);
         }
       });
-    }
 
-    socketListeners();
+      // Setup socket listeners
+      const handleUserDisconnect = () => {
+        setUserDisconnect(true);
+        setOtherUser("");
+      };
+
+      const handleWaitingForOtherUserEnd = () => {
+        toast.info("Waiting for both users to click exit.", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+        });
+      };
+
+      const handleBothUsersAgreedEnd = () => {
+        saveCodeAndEndSession({
+          roomId: roomId as string,
+          code: code.current,
+          language: language,
+        }); // Call function to save code and redirect
+      };
+
+      socket.on("user-disconnect", handleUserDisconnect);
+      socket.on("waiting-for-other-user-end", handleWaitingForOtherUserEnd);
+      socket.on("both-users-agreed-end", handleBothUsersAgreedEnd);
+
+      // Cleanup function to remove listeners on unmount or when dependencies change
+      return () => {
+        socket.off("user-disconnect", handleUserDisconnect);
+        socket.off("waiting-for-other-user-end", handleWaitingForOtherUserEnd);
+        socket.off("both-users-agreed-end", handleBothUsersAgreedEnd);
+      };
+    }
   }, [socket, roomId, user]);
 
   const isAvatarActive = (otherUser: string) => {
@@ -145,6 +183,7 @@ export default function Page() {
                 userEmail={user?.email || "unknown user"}
                 userId={user?.id || "unknown user"}
                 userName={user?.username || "unknown user"}
+                onCodeChange={handleCodeChange}
               />
             </div>
 

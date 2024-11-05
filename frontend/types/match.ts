@@ -1,5 +1,6 @@
 export interface UserMatchRequest {
   user_id: string;
+  username:string;
   socket_id: string;
   difficulty_levels: string[];
   categories: string[];

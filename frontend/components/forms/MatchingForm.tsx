@@ -85,6 +85,7 @@ export default function MatchingForm({
     }
     const userMatchRequest: UserMatchRequest = {
       user_id: user.id,
+      username: user.username,
       socket_id: socketId,
       difficulty_levels: questionDifficultyRef.current,
       categories: topicsRef.current,
