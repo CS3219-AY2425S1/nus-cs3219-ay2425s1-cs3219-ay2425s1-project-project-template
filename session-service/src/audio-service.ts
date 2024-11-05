@@ -15,10 +15,11 @@ app.use(cors({
   methods: ['GET', 'POST'],
   credentials: true,
 }));
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // Adjust this to your needs
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["*"]
@@ -42,14 +43,9 @@ io.on("connection", (socket: Socket) => {
     console.error("Socket error:", error);
   });
 
-  // Handle incoming audio data and broadcast to other clients
-  socket.on("audio-data", (data: AudioData) => {
-    socket.broadcast.emit("audio-data", data);
-  });
-
   // Handle signaling data for WebRTC connections
   socket.on("signal", (signalData) => {
-    // Broadcast the signaling data to other clients
+    console.log('Received signal data, broadcasting to others');
     socket.broadcast.emit("signal", signalData);
   });
 

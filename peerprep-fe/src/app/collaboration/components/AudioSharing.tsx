@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import SimplePeer, { Instance } from 'simple-peer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,98 +14,165 @@ const AudioSharing = () => {
   const socketRef = useRef<Socket | null>(null);
   const peerRef = useRef<Instance | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
-  const initializedRef = useRef(false);
+  const initializedRef = useRef(false); // To track initialization
 
   const SERVER_URL =
     process.env.NEXT_PUBLIC_AUDIO_SERVER_URL || 'http://localhost:5555';
 
-  useEffect(() => {
-    if (initializedRef.current) return;
+  const cleanupAudio = () => {
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+      audioStreamRef.current = null;
+    }
+    if (peerRef.current) {
+      peerRef.current.destroy();
+      peerRef.current = null;
+    }
+    setIsAudioEnabled(false);
+  };
+
+  const createPeer = (stream: MediaStream, initiator: boolean) => {
+    console.log('Creating peer as initiator:', initiator);
+
+    const peer = new SimplePeer({
+      initiator,
+      stream,
+      trickle: false,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+        ],
+      },
+    });
+
+    peer.on('signal', (data) => {
+      console.log('Sending signal data:', data);
+      socketRef.current?.emit('signal', data);
+    });
+
+    peer.on('stream', (remoteStream: MediaStream) => {
+      console.log('Received remote stream');
+      const audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio
+        .play()
+        .catch((error) => console.error('Error playing audio:', error));
+    });
+
+    peer.on('error', (err) => {
+      console.error('Peer connection error:', err);
+      cleanupAudio();
+    });
+
+    peer.on('close', () => {
+      console.log('Peer connection closed');
+      cleanupAudio();
+    });
+
+    return peer;
+  };
+
+  const initializeSocketAndPeer = () => {
+    if (initializedRef.current) return; // Prevent re-initialization
     initializedRef.current = true;
 
-    const timeoutId = setTimeout(() => {
-      socketRef.current = io(SERVER_URL, {
-        transports: ['websocket'],
-        path: '/socket.io/',
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      });
+    socketRef.current = io(SERVER_URL, {
+      transports: ['websocket'],
+      path: '/socket.io/',
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
 
-      socketRef.current.on('connect', () => {
-        console.log('Socket connected');
-      });
+    socketRef.current.on('connect', () => {
+      console.log('Socket connected');
+    });
 
-      socketRef.current.on('connect_error', (error) => {
-        console.error('Connection error:', error);
-      });
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+      cleanupAudio();
+    });
 
-      socketRef.current.on('disconnect', (reason) => {
-        console.log('Socket disconnected:', reason);
-      });
+    socketRef.current.on('signal', async (data) => {
+      console.log('Received signal data:', data);
 
-      socketRef.current.on('error', (error) => {
-        console.error('Socket error:', error);
-      });
-
-      socketRef.current.on('signal', (data) => {
-        if (peerRef.current) {
-          peerRef.current.signal(data);
+      if (data.type === 'offer' && !peerRef.current) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+          // Initially muted
+          stream.getTracks().forEach((track) => {
+            track.enabled = false;
+          });
+          audioStreamRef.current = stream;
+          peerRef.current = createPeer(stream, false);
+        } catch (error) {
+          console.error('Error accessing audio devices:', error);
+          cleanupAudio();
         }
-      });
-    }, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
       }
-      if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach((track) => track.stop());
-        audioStreamRef.current = null;
-      }
-    };
-  }, [SERVER_URL]);
 
-  const enableAudio = async () => {
+      if (peerRef.current) {
+        try {
+          peerRef.current.signal(data);
+        } catch (error) {
+          console.error('Error signaling peer:', error);
+          cleanupAudio();
+        }
+      }
+    });
+  };
+
+  const toggleAudio = async () => {
+    initializeSocketAndPeer(); // Ensure initialization happens once
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioStreamRef.current = stream;
-
-      peerRef.current = new SimplePeer({
-        initiator: true,
-        trickle: false,
-        stream: stream,
-        config: {
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-        },
-      });
-
-      peerRef.current.on('signal', (data: SimplePeer.SignalData) => {
-        console.log('Sending signal data:', data);
-        socketRef.current?.emit('signal', data);
-      });
-
-      peerRef.current.on('stream', (remoteStream: MediaStream) => {
-        const audioElement = document.createElement('audio');
-        audioElement.srcObject = remoteStream;
-        audioElement.play();
-      });
-
-      setIsAudioEnabled(true);
+      if (!audioStreamRef.current) {
+        // First time enabling audio - need to set up the stream and peer
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+        audioStreamRef.current = stream;
+        if (!peerRef.current) {
+          peerRef.current = createPeer(stream, true);
+        }
+        stream.getTracks().forEach((track) => {
+          track.enabled = true;
+        });
+        setIsAudioEnabled(true);
+      } else {
+        // Just toggle the existing stream
+        const newEnabledState = !isAudioEnabled;
+        audioStreamRef.current.getTracks().forEach((track) => {
+          track.enabled = newEnabledState;
+        });
+        setIsAudioEnabled(newEnabledState);
+      }
     } catch (error) {
-      console.error('Error accessing audio devices:', error);
+      console.error('Error toggling audio:', error);
+      cleanupAudio();
     }
   };
 
   return (
     <div>
-      <button onClick={enableAudio} disabled={isAudioEnabled}>
+      <button onClick={toggleAudio}>
         <FontAwesomeIcon
           icon={isAudioEnabled ? faMicrophone : faMicrophoneSlash}
         />
-        {isAudioEnabled ? ' Audio Enabled' : ' Enable Audio'}
+        {isAudioEnabled ? ' Mute' : ' Unmute'}
       </button>
     </div>
   );
