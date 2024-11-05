@@ -97,7 +97,7 @@ const DashboardView = () => {
         <Flex className="bg-white bg-opacity-10" align="center" justify="space-between" px={20} py={10} borderRadius="xl">
           <Flex direction="column" mr={10}>
             <Text fontSize="5xl" fontWeight="bold" textAlign="center">
-              {user.questions.length}/20
+              {user.questions.length}
             </Text>
             <Text fontSize="3xl" fontWeight="bold" textAlign="center">
               questions
