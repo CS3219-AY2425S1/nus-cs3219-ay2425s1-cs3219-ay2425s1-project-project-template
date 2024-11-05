@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { type editor } from "monaco-editor";
-import axios from "@/utils/axios";
 import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
 import { useTheme } from "next-themes";
+
+import axios from "@/utils/axios";
 
 var randomColor = require("randomcolor"); // import the script
 
@@ -69,7 +70,7 @@ export default function CodeEditor({
             `/collaboration-service/code-execute/${token}`,
             {
               params: { base64_encoded: "false", fields: "*" },
-            }
+            },
           );
 
           if (data.status.id === 3) {
@@ -83,7 +84,7 @@ export default function CodeEditor({
           clearInterval(intervalId);
           console.error("Error fetching code execution result:", error);
           setOutput(
-            "Something went wrong while fetching the code execution result."
+            "Something went wrong while fetching the code execution result.",
           );
         }
       }, 1000);
@@ -126,7 +127,7 @@ export default function CodeEditor({
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           changes.added.forEach((clientId) => {
-             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const state = awarenessStates.get(clientId)?.user;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
             const color = state?.color;
@@ -169,7 +170,6 @@ export default function CodeEditor({
     };
   }, [monaco]);
 
-
   return (
     <div className="flex flex-col space-y-3">
       <div className="flex justify-between px-[1.5] pt-1">
@@ -178,6 +178,7 @@ export default function CodeEditor({
         </p>
         <button
           className="px-1 py-2 rounded-md"
+          disabled={!userInput}
           style={{
             alignSelf: "end",
             backgroundColor: userInput ? "#007bff" : "#cccccc",
@@ -187,7 +188,6 @@ export default function CodeEditor({
             opacity: userInput ? 1 : 0.6,
           }}
           onClick={executeCode}
-          disabled={!userInput}
         >
           Run Code
         </button>
@@ -205,14 +205,13 @@ export default function CodeEditor({
         }}
         theme={theme === "dark" ? "vs-dark" : "hc-light"}
         width="100%"
+        onChange={(value) => {
+          setUserInput(value || "");
+          onCodeChange(value || "");
+        }} // Update userInput in real-time
         onMount={(editor) => {
           codeEditorRef.current = editor;
         }}
-        onChange={(value) => {
-          console.log(value);
-          setUserInput(value || "");
-          onCodeChange(value || "")
-        }} 
       />
     </div>
   );

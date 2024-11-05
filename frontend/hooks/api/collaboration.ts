@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
 
 import axios from "@/utils/axios";
+import { SaveCodeVariables } from "@/utils/collaboration";
 
 export const useGetMatchedQuestion = (roomId: string) => {
   return useQuery({
@@ -27,5 +29,13 @@ export const useGetIsAuthorisedUser = (roomId: string, userId: string) => {
       return response.data;
     },
     enabled: !!roomId && !!userId,
+  });
+};
+
+export const useSaveCode = () => {
+  return useMutation<AxiosResponse, AxiosError, SaveCodeVariables>({
+    mutationFn: async (savedCode: SaveCodeVariables) => {
+      return axios.post(`/collaboration-service/save-code`, savedCode);
+    },
   });
 };
