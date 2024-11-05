@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
+import AIChatbot from '../components/AIChatbot';
 
 const socket = io('http://localhost:5002');
 const roomName = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
+
 
 export const Collaboration = () => {
     const [chatMessages, setChatMessages] = useState([]);
@@ -47,6 +49,7 @@ export const Collaboration = () => {
     };
     */
 
+
     const handleLeaveButtonClick = () => {
        setShowModal(true);
     }
@@ -77,6 +80,9 @@ export const Collaboration = () => {
             </div>
             <div className="whiteboard">
                 <SharedSpace />
+            </div>
+            <div className="ai-chatbot-container">
+                <AIChatbot />
             </div>
           </div>
           <div className="chat-box-and-button">
