@@ -1,5 +1,4 @@
 const { db, auth } = require("../config/firebaseConfig.js");
-const admin = require('firebase-admin');
 const { isValidUsername } = require("../lib/regex.js")
 
 // Function to create a new user and add them to the Firestore collection
@@ -24,6 +23,30 @@ const addToUserCollection = async (req, res) => {
     }
 };
 
+const removeFromUserCollection = async (req, res) => {
+    const { uid } = req.body;
+    if (!uid) {
+        return res.status(400).json({ message: "User ID (uid) is required." });
+    }
+
+    try {
+        // Attempt to delete the document with the provided UID in the "users" collection
+        const userRef = db.collection("users").doc(uid);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        await userRef.delete();
+
+        return res.status(200).json({ message: "User successfully removed from the collection." });
+    } catch (error) {
+        console.error("Error removing user:", error);
+        return res.status(500).json({ message: "Failed to remove user from the collection." });
+    }
+};
+
 const checkAdminStatus = async (req, res) => {
     const token = req.headers.authorization?.split('Bearer ')[1];
     try {
@@ -33,7 +56,7 @@ const checkAdminStatus = async (req, res) => {
         // Fetch user data from Firestore
         const userDoc = await db.collection('users').doc(uid).get();
         if (!userDoc.exists) {
-            return res.status(404).json('User not found');
+            return res.status(404).json({ message: 'User not found'});
         }
 
         const userData = userDoc.data();
@@ -89,4 +112,4 @@ const getUsernameByUid = async (req, res) => {
 
 }
 
-module.exports = { addToUserCollection, checkAdminStatus, checkUsernameExists, getUsernameByUid };
+module.exports = { addToUserCollection, checkAdminStatus, checkUsernameExists, getUsernameByUid, removeFromUserCollection };

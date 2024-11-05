@@ -8,6 +8,9 @@ export const HTTP_SERVICE_QUESTION =
   import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
 export const HTTP_SERVICE_COLLAB =
   import.meta.env.VITE_COLLAB_SERVICE_BACKEND_URL || "http://localhost:5004";
+export const HTTP_SERVICE_HISTORY =
+  import.meta.env.VITE_HISTORY_SERVICE_BACKEND_URL || "http://localhost:5005";
+
 export const WS_SERVICE_COLLAB =
   import.meta.env.VITE_COLLAB_SERVICE_WS_URL || "ws://localhost:5004";
 
@@ -51,7 +54,6 @@ export async function callFunction(
 ): Promise<SuccessObject> {
   const url = `${serviceName}/${functionName}`;
   const token = sessionStorage.getItem("authToken");
-
   const response = await fetch(url, {
     method,
     headers: {
@@ -65,7 +67,6 @@ export async function callFunction(
 
   // Check for empty response
   const data = await response.json().catch(() => ({ success: true }));
-
   if (!response.ok) {
     return { success: false, error: data.message };
   }

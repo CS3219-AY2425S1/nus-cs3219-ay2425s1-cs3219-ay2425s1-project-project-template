@@ -15,7 +15,13 @@ export function DataTableColumnHeader<TData, TValue>({
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
-    return <div className={cn(className)}>{title}</div>;
+    return (
+      <div
+        className={cn("flex font-bold text-black justify-center", className)}
+      >
+        {title}
+      </div>
+    );
   }
 
   return (
