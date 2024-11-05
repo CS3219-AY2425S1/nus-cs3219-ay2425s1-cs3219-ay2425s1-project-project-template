@@ -40,8 +40,13 @@ How to deploy website to public:
   docker tag matching_service gcr.io/peerprep-g02/matching_service
   docker push gcr.io/peerprep-g02/matching_service
 
+  cd ../history_service
+  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app/verify-token -t history_service .
+  docker tag history_service gcr.io/peerprep-g02/history_service
+  docker push gcr.io/peerprep-g02/history_service
+
   cd ../../frontend
-  docker build --build-arg VITE_QUESTION_SERVICE_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app --build-arg VITE_MATCHING_SERVICE_WS_BACKEND_URL=wss://matching-service-1079323726684.asia-southeast1.run.app/matching --build-arg VITE_COLLAB_SERVICE_WS_BACKEND_URL=wss://collab-service-1079323726684.asia-southeast1.run.app --build-arg VITE_COLLAB_SERVICE_BACKEND_URL=https://collab-service-1079323726684.asia-southeast1.run.app --build-arg VITE_USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app -t frontend .
+  docker build --build-arg VITE_QUESTION_SERVICE_BACKEND_URL=https://question-service-1079323726684.asia-southeast1.run.app --build-arg VITE_MATCHING_SERVICE_WS_BACKEND_URL=wss://matching-service-1079323726684.asia-southeast1.run.app/matching --build-arg VITE_COLLAB_SERVICE_WS_BACKEND_URL=wss://collab-service-1079323726684.asia-southeast1.run.app --build-arg VITE_COLLAB_SERVICE_BACKEND_URL=https://collab-service-1079323726684.asia-southeast1.run.app --build-arg VITE_USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app --build-arg VITE_HISTORY_SERVICE_BACKEND_URL={DEPLOY_AND_COPYPASTE} -t frontend .
   docker tag frontend gcr.io/peerprep-g02/frontend
   docker push gcr.io/peerprep-g02/frontend
   ```
