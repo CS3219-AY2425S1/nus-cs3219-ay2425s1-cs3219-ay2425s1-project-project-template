@@ -8,8 +8,10 @@ import { useAuth } from "@/app/auth/auth-context";
 import { joinMatchQueue } from "@/lib/api/matching-service/join-match-queue";
 import { leaveMatchQueue } from "@/lib/api/matching-service/leave-match-queue";
 import { subscribeMatch } from "@/lib/api/matching-service/subscribe-match";
+import { useRouter } from "next/navigation";
 
 export default function FindMatch() {
+  const router = useRouter();
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -62,6 +64,8 @@ export default function FindMatch() {
       return;
     }
 
+    let isMatched = false;
+
     const response = await joinMatchQueue(
       auth.token,
       auth?.user?.id,
@@ -70,12 +74,41 @@ export default function FindMatch() {
     );
     switch (response.status) {
       case 201:
-        toast({
-          title: "Matched",
-          description: "Successfully matched",
-          variant: "success",
-        });
-        return;
+        const initialResponseData = await response.json();
+        let responseData;
+        if (typeof initialResponseData === "string") {
+          try {
+            responseData = JSON.parse(initialResponseData);
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Unexpected error occured, please try again",
+              variant: "destructive",
+            });
+            return;
+          }
+        } else {
+          responseData = initialResponseData;
+        }
+
+        if (responseData) {
+          isMatched = true;
+          const room_id = responseData.room_id;
+          toast({
+            title: "Matched",
+            description: "Successfully matched",
+            variant: "success",
+          });
+          router.push(`/app/collab/${room_id}`);
+        } else {
+          toast({
+            title: "Error",
+            description: "Room ID not found",
+            variant: "destructive",
+          });
+        }
+        break;
+
       case 202:
       case 304:
         setIsSearching(true);
@@ -87,25 +120,56 @@ export default function FindMatch() {
         const queueTimeout = setTimeout(() => {
           handleCancel(true);
         }, waitTimeout);
-        ws.onmessage = () => {
-          setIsSearching(false);
-          clearTimeout(queueTimeout);
-          toast({
-            title: "Matched",
-            description: "Successfully matched",
-            variant: "success",
-          });
-          ws.onclose = () => null;
+
+        ws.onmessage = async (event) => {
+          try {
+            let responseData = JSON.parse(event.data);
+            if (typeof responseData === "string") {
+              responseData = JSON.parse(responseData);
+            }
+
+            const user1_id = responseData.user1;
+            const user2_id = responseData.user2;
+            const room_id = responseData.room_id;
+            if (user1_id && user2_id) {
+              isMatched = true;
+              setIsSearching(false);
+              clearTimeout(queueTimeout);
+              toast({
+                title: "Matched",
+                description: "Successfully matched",
+                variant: "success",
+              });
+              router.push(`/app/collab/${room_id}`);
+            }
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Unexpected error occurred, please try again",
+              variant: "destructive",
+            });
+          }
         };
+
         ws.onclose = () => {
           setIsSearching(false);
           clearTimeout(queueTimeout);
-          toast({
-            title: "Matching Stopped",
-            description: "Matching has been stopped",
-            variant: "destructive",
-          });
+          if (!isMatched) {
+            toast({
+              title: "Matching Stopped",
+              description: "Matching has been stopped",
+              variant: "destructive",
+            });
+          }
         };
+        return;
+      case 404:
+        toast({
+          title: "Error",
+          description:
+            "No question with specified difficulty level and complexity exists!",
+          variant: "destructive",
+        });
         return;
       default:
         toast({
