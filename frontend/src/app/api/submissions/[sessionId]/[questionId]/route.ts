@@ -30,7 +30,6 @@ export async function POST(
     }
 
     const data = await response.json();
-    console.log('Submission data:', data);
 
     // Return successful response
     return NextResponse.json(data);
