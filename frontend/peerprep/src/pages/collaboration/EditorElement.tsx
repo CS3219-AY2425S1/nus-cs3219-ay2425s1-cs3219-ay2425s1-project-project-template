@@ -5,6 +5,8 @@ import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
 import { indentUnit } from "@codemirror/language";
 import { type Socket } from "socket.io-client";
 import { getDocument, peerExtension } from "./collabController";
+import { Button } from "@chakra-ui/react";
+import axios from "axios";
 
 type Props = {
   socket: Socket;
@@ -20,15 +22,32 @@ const languageOptions = [
   { label: "Java", value: "java" },
 ] as const; // Use 'as const' for type inference
 
+const languageMap: { [key: string]: number } = {
+  javascript: 63,
+  python: 71,
+  c: 50,
+  java: 62,
+};
+
 // Define a type for the selected language based on the keys of langs
 type LanguageKey = keyof typeof langs;
 
-const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
+const EditorElement: React.FC<Props> = ({
+  socket,
+  className,
+  onCodeChange,
+}) => {
   const [connected, setConnected] = useState(false);
   const [version, setVersion] = useState<number | null>(null);
   const [doc, setDoc] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageKey>("javascript"); // Default language
-  
+  const [compiledResult, setCompiledResult] = useState<{
+    [key: string]: string;
+  }>({
+    status: "loading",
+    result: "",
+  });
+
   useEffect(() => {
     const fetchDocument = async () => {
       try {
@@ -66,8 +85,49 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
   };
 
   // Handler for language selection
-  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLanguageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setLanguage(event.target.value as LanguageKey); // Update the selected language
+  };
+
+  const submitCode = async () => {
+    try {
+      const options = {
+        method: "POST",
+        url: "https://judge0-ce.p.rapidapi.com/submissions",
+        params: { base64_encoded: "false", wait: "true" },
+        headers: {
+          "x-rapidapi-key":
+            "6d265e20b0msh1474962ac51153cp18c2f2jsnceac66730339",
+          "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+          "Content-Type": "application/json",
+        },
+        data: {
+          language_id: languageMap[language.toString()],
+          source_code: doc?.toString(),
+        },
+      };
+      try {
+        const response = await axios.request(options);
+        console.log(response.data);
+        if (response.data.exitcode == 0 && response.data.stdout) {
+          setCompiledResult({
+            status: "success",
+            result: response.data.stdout,
+          });
+        } else {
+          setCompiledResult({
+            status: "error",
+            result: response.data.stderr,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return version !== null && doc !== null ? (
@@ -107,49 +167,77 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
       </style>
 
       {/* Language Selection Dropdown */}
-      <div style={{ marginBottom: "10px" }}>
-        <label htmlFor="language-select" style={{ marginRight: "10px", color: "#fff" }}>
-          Select Language:
-        </label>
-        <select
-          id="language-select"
-          value={language}
-          onChange={handleLanguageChange}
-          style={{
-            padding: "5px",
-            backgroundColor: "#2e2e3e",
-            color: "#fff",
-            border: "1px solid #555",
-            borderRadius: "4px",
-          }}
-        >
-          {languageOptions.map((lang) => (
-            <option key={lang.value} value={lang.value}>
-              {lang.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <div>
+        <div style={{ marginBottom: "10px" }}>
+          <label
+            htmlFor="language-select"
+            style={{ marginRight: "10px", color: "#fff" }}
+          >
+            Select Language:
+          </label>
+          <select
+            id="language-select"
+            value={language}
+            onChange={handleLanguageChange}
+            style={{
+              padding: "5px",
+              backgroundColor: "#2e2e3e",
+              color: "#fff",
+              border: "1px solid #555",
+              borderRadius: "4px",
+            }}
+          >
+            {languageOptions.map((lang) => (
+              <option key={lang.value} value={lang.value}>
+                {lang.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <CodeMirror
-        className={`flex-1 text-left ${className} text-white`}
-        height="100%"
-        basicSetup={false}
-        id="codeEditor" // Ensure this ID is set for styling
-        theme="dark" // Dark mode set permanently
-        extensions={[
-          indentUnit.of("\t"),
-          basicSetup(),
-          langs[language](),
-          plugin,
-          // peerExtension(socket, version),
-        ]}
-        value={doc}
-        onChange={handleCodeChange} // Capture changes to the code
-        style={{
-          height: "100%", // Fill available space within parent
-        }}
-      />
+        <CodeMirror
+          className={`flex-1 text-left ${className} text-white`}
+          height="100%"
+          basicSetup={false}
+          id="codeEditor" // Ensure this ID is set for styling
+          theme="dark" // Dark mode set permanently
+          extensions={[
+            indentUnit.of("\t"),
+            basicSetup(),
+            langs[language](),
+            plugin,
+            // peerExtension(socket, version),
+          ]}
+          value={doc}
+          onChange={handleCodeChange} // Capture changes to the code
+          style={{
+            height: "100%", // Fill available space within parent
+          }}
+        />
+      </div>
+      <div className="space-y-2 pt-4">
+        <div className="flex justify-center">
+          <Button colorScheme={"green"} onClick={() => submitCode()}>
+            Submit code
+          </Button>
+        </div>
+        {compiledResult.status !== "loading" &&
+          (compiledResult.status === "success" ? (
+            <div className="flex flex-col space-y-2">
+              <div className="font-bold">Compiled Result:</div>
+              <pre className="bg-gray-700 rounded-md p-2">
+                {compiledResult.result}
+              </pre>
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-2">
+              <div className="font-bold">Compilation Error:</div>
+              <pre className="bg-gray-700 rounded-md p-2">
+                {compiledResult.result}
+              </pre>
+            </div>
+          ))}
+      </div>
     </div>
   ) : (
     <span>Loading...</span>
