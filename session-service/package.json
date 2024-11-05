@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"nodemon --exec ts-node src/audio-service.ts\" \"nodemon --exec ts-node src/server.ts\"",
-    "start": "tsc && node dist/server.js && node dist/audio-service.js",
+    "start": "concurrently \"node dist/server.js\" \"node dist/audio-service.js\"",
     "build": "tsc && echo \"Build completed successfully.\"",
     "format": "prettier --write \"src/**/*.ts\"",
     "pre-commit": "pnpm format && git add -u",
