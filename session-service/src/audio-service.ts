@@ -7,6 +7,7 @@ import cors from "cors";
 interface AudioData {
   buffer: Float32Array; // Assuming audio data is sent as a Float32Array
   // Add more fields if necessary, e.g., sampleRate, channels, etc.
+
 }
 
 const app = express();
