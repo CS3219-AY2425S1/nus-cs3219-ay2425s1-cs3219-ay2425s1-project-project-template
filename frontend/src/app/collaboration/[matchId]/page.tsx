@@ -441,7 +441,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             <TabsTrigger value="feedback">Chat</TabsTrigger>
           </TabsList>
           <TabsContent value="question" className="flex-1 h-full overflow-hidden pb-1">
-            <Card className="flex flex-col mt-1 mb-4 h-3/4 overflow-hidden">
+            <Card className="flex flex-col mt-1 mb-4 h-full overflow-hidden">
               <div className="space-y-4 p-2 overflow-auto">
                 <CardHeader className="p-4">
                   <CardTitle className="text-2xl font-bold mb-2">{question?.title}</CardTitle>
@@ -453,7 +453,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             </Card>
           </TabsContent>
           <TabsContent value="feedback" className="flex-1 pb-1 h-full overflow-hidden">
-            <Card className="p-2 mt-1 h-3/4 overflow-hidden">
+            <Card className="p-2 mt-1 h-full overflow-hidden">
               <div className="space-y-4 p-4 flex flex-col h-full overflow-hidden">
                 <div className="flex-1 overflow-y-auto">
                   {messages.map((msg, index) => (
@@ -494,8 +494,8 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
               </div>
             </Card>
           </TabsContent>
-          <TabsContent value="attempts">
-            <AttemptsTab></AttemptsTab>
+          <TabsContent value="attempts" className="flex-1 pb-1 h-full overflow-hidden">
+            <AttemptsTab />
           </TabsContent>
         </Tabs>
         <div className="flex flex-col gap-0 h-full overflow-hidden">
