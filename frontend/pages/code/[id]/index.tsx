@@ -1,6 +1,5 @@
-import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
-import { ITestcase, LanguageMode, getCodeMirrorLanguage } from '@/types'
-import { mockTestCaseData } from '@/mock-data'
+import { EndIcon, PlayIcon } from '@/assets/icons'
+import { LanguageMode, getCodeMirrorLanguage } from '@/types'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -22,8 +21,9 @@ import Chat from './chat'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
-
-const testCasesData: ITestcase[] = mockTestCaseData
+import { ISubmission, IResponse } from '@repo/submission-types'
+import { mapLanguageToJudge0 } from '@/util/language-mapper'
+import TestResult from '../test-result'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -33,12 +33,16 @@ export default function Code() {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
     const { id } = router.query
+    const editorRef = useRef<{ getText: () => string } | null>(null)
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
     const socketRef = useRef<Socket | null>(null)
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
+    const [isCodeRunning, setIsCodeRunning] = useState(false)
+    const [activeTest, setActiveTest] = useState(0)
+    const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -69,13 +73,22 @@ export default function Code() {
         socketRef.current.on('connect', () => {
             if (socketRef.current) {
                 socketRef.current.emit('joinRoom', { roomId: id })
-                console.log('Connected and joined room:', id)
             }
         })
 
         socketRef.current.on('update-language', (language: string) => {
             setEditorLanguage(language as LanguageMode)
             toast.success('Language mode updated')
+        })
+
+        socketRef.current.on('executing-code', () => {
+            setIsCodeRunning(true)
+        })
+
+        socketRef.current.on('code-executed', (res: IResponse, expected_output: string) => {
+            setTestResult({ data: res, expectedOutput: expected_output })
+            setIsCodeRunning(false)
+            setActiveTestTab(1)
         })
 
         socketRef.current.on('user-connected', (username: string) => {
@@ -106,13 +119,20 @@ export default function Code() {
     }
 
     const handleRunTests = () => {
-        // const currCode = editorRef.current?.editor?.getValue()
-        // console.log(currCode)
-    }
-
-    const handleActiveTestTabChange = (tab: number) => {
-        setActiveTestTab(tab)
-        console.log(activeTestTab)
+        if (!isCodeRunning) {
+            const code = editorRef.current?.getText() ?? ''
+            if (code.length === 0) {
+                toast.error('Please write some code before running the tests')
+                return
+            }
+            const data: ISubmission = {
+                language_id: mapLanguageToJudge0(editorLanguage),
+                source_code: code,
+                expected_output: matchData?.question.testOutputs[activeTest] ?? '',
+                stdin: '',
+            }
+            socketRef.current?.emit('run-code', data)
+        }
     }
 
     const handleEndSession = () => {
@@ -155,7 +175,7 @@ export default function Code() {
                             bgColor="bg-theme-100"
                         />
                     </div>
-                    <div className="mt-6">{matchData?.question.description}</div>
+                    <div className="mt-6 whitespace-pre-wrap">{matchData?.question.description}</div>
                 </div>
 
                 <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-twoFifthScreen flex flex-col">
@@ -176,13 +196,16 @@ export default function Code() {
             <section className="w-2/3 flex flex-col h-fullscreen">
                 <div id="control-panel" className="flex justify-between">
                     <div className="flex gap-3">
-                        <Button variant={'primary'} onClick={handleRunTests}>
-                            <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
-                            Run tests
-                        </Button>
-                        <Button className="bg-green hover:bg-green-dark">
-                            <SubmitIcon fill="white" className="mr-2" />
-                            Submit
+                        <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
+                            {isCodeRunning ? (
+                                'Executing...'
+                            ) : (
+                                <>
+                                    {' '}
+                                    <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
+                                    Run test
+                                </>
+                            )}
                         </Button>
                     </div>
                     <div className="flex flex-row">
@@ -209,12 +232,16 @@ export default function Code() {
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <CodeMirrorEditor roomId={id as string} language={getCodeMirrorLanguage(editorLanguage)} />
+                    <CodeMirrorEditor
+                        ref={editorRef}
+                        roomId={id as string}
+                        language={getCodeMirrorLanguage(editorLanguage)}
+                    />
                 </div>
                 <CustomTabs
                     tabs={testTabs}
-                    handleActiveTabChange={handleActiveTestTabChange}
-                    isBottomBorder={true}
+                    activeTab={activeTestTab}
+                    setActiveTab={setActiveTestTab}
                     className="mt-4 border-2 rounded-t-lg border-slate-100"
                 />
                 <div
@@ -223,9 +250,14 @@ export default function Code() {
                 >
                     <div className="m-4 flex overflow-x-auto">
                         {activeTestTab === 0 ? (
-                            <TestcasesTab testcases={testCasesData} />
+                            <TestcasesTab
+                                activeTestcaseIdx={activeTest}
+                                setActiveTestcaseIdx={setActiveTest}
+                                testInputs={matchData?.question.testInputs ?? []}
+                                testOutputs={matchData?.question.testOutputs ?? []}
+                            />
                         ) : (
-                            <div className="text-sm text-slate-400">No test results yet</div>
+                            <TestResult result={testResult?.data} expectedOutput={testResult?.expectedOutput ?? ''} />
                         )}
                     </div>
                 </div>

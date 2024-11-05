@@ -3,7 +3,10 @@ import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
 import { updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode } from '../types/LanguageMode'
+import { IResponse, ISubmission } from '@repo/submission-types'
+import { SubmissionResponseDto } from '../types/SubmissionResponseDto'
 import { ChatModel } from '../types'
+import { submitCode } from '../controllers/collab.controller'
 
 export class WebSocketConnection {
     private io: IOServer
@@ -36,6 +39,18 @@ export class WebSocketConnection {
                 this.io.to(roomId).emit('update-language', language)
                 this.languages.set(roomId, language)
                 await updateLanguage(roomId, language as LanguageMode)
+            })
+
+            socket.on('run-code', async (data: ISubmission) => {
+                this.io.to(roomId).emit('executing-code')
+                try {
+                    const dto: SubmissionResponseDto = await submitCode(data)
+                    const { stdout, status, time, stderr, compile_output } = dto
+                    const response: IResponse = { stdout, status, time, stderr, compile_output }
+                    this.io.to(roomId).emit('code-executed', response, data.expected_output)
+                } catch (err) {
+                    this.io.to(roomId).emit('code-executed', { error: err })
+                }
             })
 
             socket.on('disconnect', async () => {
