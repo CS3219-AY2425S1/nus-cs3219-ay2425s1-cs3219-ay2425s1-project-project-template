@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, defineExpose } from 'vue';
 import Toaster from '@/components/ui/toast/Toaster.vue';
 import { io } from "socket.io-client";
 import axios from 'axios';
+
 const user = useCurrentUser();
 // connect to Socket.IO server
 const socket = io('http://localhost:5002'); // server address
@@ -21,12 +22,11 @@ const sendMessage = () => {
     message.value = ''; // clear input text box
   }
 };
+
+
 const sendStopMessage = () => {
-
-
-  socket.emit('chat message', { conversation: selectedConversation.value, message: "stop" ,username:user?.value?.email});
+  socket.emit('chat message', { conversation: selectedConversation.value, message: "stop", username: user?.value?.email });
   loadConversations(); // load convo list
- 
 };
 
 // monitor recv'd msg
@@ -36,18 +36,16 @@ const receiveMessage = (msg: { conversation: string; message: string }) => {
   }
 };
 
-
-
 // 
 // const loadConversations = async () => {
 //   const response = await axios.get('http://127.0.0.1:5002/api/conversations'); 
 //   conversations.value = response.data.conversations;
 // };
+
 const loadConversations = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:5002/api/conversations/${user?.value?.uid}`);
     console.log(response);
-
     console.log(response.data.conversations)
     conversations.value = response.data.conversations;
   } catch (error) {
@@ -58,12 +56,9 @@ const loadConversations = async () => {
 // load history func
 const loadHistory = async (conversation: string) => {
   const response = await axios.get(`http://127.0.0.1:5002/api/history/${conversation}`);
-  messages.value = response.data.messages;
-  selectedConversation.value = conversation;
+  messages.value = response.data.messages; // updates messsages
+  selectedConversation.value = conversation; // set selected convo here
 };
-
-
-
 
 // when mount socket, set Socket.IO event
 onMounted(() => {
@@ -74,6 +69,12 @@ onMounted(() => {
 // when unmount socket, clear Socket.IO event
 onUnmounted(() => {
   socket.off('chat message', receiveMessage);
+});
+
+
+
+defineExpose({
+  sendStopMessage
 });
 
 </script>

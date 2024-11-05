@@ -8,6 +8,8 @@ import Chat from '~/components/chat/chat.vue';
 const collaborationStore = useCollaborationStore();
 const router = useRouter();
 
+const chatRef = ref(null); // Reference to the Chat component
+
 const question = ref(null); // Store the fetched question
 const isLoading = ref(false);
 const error = ref(null);
@@ -46,8 +48,8 @@ onMounted(() => {
 const terminateCollaboration = () => {
     try {
         collaborationStore.clearCollaborationInfo();
+        chatRef.value?.sendStopMessage(); // Trigger the stop message in Chat component
         navigateTo('/');
-        // router.replace('/');
     } catch (error) {
         console.error('Error in terminateCollaboration:', error);
     }
@@ -55,20 +57,20 @@ const terminateCollaboration = () => {
 </script>
 
 <template>
-    <div class="page-container">
-        <div class="question-box">
-            <h3 class="question-title">{{ question.title }}</h3>
-            <p>{{ question.description }}</p>
-        </div>
-        <CodeEditor/>
-        <div style="margin-top: 8px; text-align: right;">
-            <button class="red-button" @click="terminateCollaboration">
-                Terminate Collaboration
-            </button>
-        </div>
-    </div>
-
-    <Chat />
+  <div class="page-container">
+      <div class="question-box">
+          <h3 class="question-title">{{ question.title }}</h3>
+          <p>{{ question.description }}</p>
+      </div>
+      <CodeEditor/>
+      <div style="margin-top: 8px; text-align: right;">
+          <button class="red-button" @click="terminateCollaboration">
+              Terminate Collaboration
+          </button>
+      </div>
+      <!-- Attach ref to the Chat component -->
+      <Chat ref="chatRef" />
+  </div>
 </template>
 
 <style scoped>

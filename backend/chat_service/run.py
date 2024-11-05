@@ -28,6 +28,8 @@ conversations_data = [
 chat_cache = {}
 
 @app.route('/api/sessions', methods=['POST'])
+# adds a new session to the esssionlist collection
+# returns session data
 def create_session():
     data = request.json
     session_name = data.get('sessionname')
@@ -45,6 +47,7 @@ def create_session():
 
 
 @app.route('/api/conversations/<username>', methods=['GET'])
+# return convonersations associated with different usernames
 def get_conversations(username):
     print(username)
     # query Firestore get this username's conversations
@@ -56,9 +59,9 @@ def get_conversations(username):
     return jsonify({'conversations': conversations}),200
 
 
-# DB ver
-# query chats records
+
 @app.route('/api/history/<conversation>', methods=['GET'])
+# query specific chats records from firebase
 def get_history(conversation):
     print(f"Requested conversation: {conversation}")
 
@@ -84,6 +87,8 @@ def get_history(conversation):
 
 # DB ver
 @socketio.on('chat message')
+# handle incoming msg from client, add to firestore
+# broadcast to all clients
 def handle_message(data):
     conversation = data['conversation']
     message = data['message']
