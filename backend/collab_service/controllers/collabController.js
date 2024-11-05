@@ -39,9 +39,9 @@ class CollabController {
     });
 
     socket.on('sendMessage', (data) => {
-      const { sessionId, message, uid } = data;
+      const { sessionId, message, username } = data;
       io.to(sessionId).emit('messageReceived', {
-        username: uid,
+        username: username,
         message,
       });
     });

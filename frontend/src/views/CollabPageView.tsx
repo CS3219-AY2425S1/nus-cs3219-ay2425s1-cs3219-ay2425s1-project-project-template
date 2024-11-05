@@ -20,6 +20,7 @@ import {
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
 import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
 import { Loader2 } from "lucide-react";
+import { getUsernameByUid } from "@/services/UserFunctions";
 import {
   HTTP_SERVICE_COLLAB,
   WS_SERVICE_COLLAB,
@@ -47,6 +48,7 @@ const customQuestion: Question = {
 };
 
 const CollabPageView: React.FC = () => {
+  const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const [message, setMessage] = useState(""); // For new message input
@@ -54,7 +56,7 @@ const CollabPageView: React.FC = () => {
     { username: string; message: string }[]
   >([]);
   const [userId, setUserId] = useState<string>("");
-  const navigate = useNavigate();
+  const [username, setUsername] = useState<string>("");
   const [questionData, setQuestionData] = useState<Question>(customQuestion);
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
   const socketInitialized = useRef(false);
@@ -126,6 +128,7 @@ const CollabPageView: React.FC = () => {
         sessionIdObj = sessionIdObj;
         // Set state with the received data
         setUserId(uid);
+        setUsername(await getUsernameByUid());
         setQuestionData(questionData);
 
         const attemptDate = moment().tz("Asia/Singapore").format();
@@ -226,6 +229,7 @@ const CollabPageView: React.FC = () => {
         sessionId: sessionIdObj,
         message: message.trim(),
         uid: userId,
+        username: username,
       });
       setMessage(""); // Clear the input field
     }
