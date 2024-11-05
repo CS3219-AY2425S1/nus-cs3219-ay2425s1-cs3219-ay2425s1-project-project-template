@@ -22,13 +22,15 @@ const imageFileFilter = (req, file, cb) => {
 };
 const imageUpload = multer({
   storage: multer.memoryStorage(),
-  fileFilter: imageFileFilter });
+  fileFilter: imageFileFilter }
+);
 
 const router = express.Router();
 
 // Get all users
 router.get("/", verifyAccessToken, verifyIsAdmin, getAllUsers);
 
+// Update a user privilege
 router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivilege);
 
 // Create a new user

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { validateEmail, validatePassword, validateUsername } from "../services/user-service";
 import AuthLayout from "../components/auth/AuthLayout";
 import '../styles/AuthForm.css';
 
@@ -26,6 +27,7 @@ const SignUp = () => {
   const handleError = (err) =>
     toast.error(err, {
       position: "bottom-left",
+      autoClose: 6000
     });
   const handleSuccess = (msg) =>
     toast.success(msg, {
@@ -34,10 +36,18 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      handleError("Passwords do not match");
+
+    const validationChecks = [ // wrap all validation checks here
+      () => validateUsername(username),
+      () => validateEmail(email),
+      () => validatePassword(password, confirmPassword),
+    ];
+    const res = validationChecks.reduce((prev, check) => prev || check() , "");
+    if (res) {
+      handleError(res);
       return;
     }
+
     try {
       const response = await axios.post(
         "http://localhost:3001/users/signup/get-otp",
@@ -46,11 +56,15 @@ const SignUp = () => {
         },
         { withCredentials: true }
       );
-      if (response.status === 200) {
-        handleSuccess("OTP has been sent to your email.");
+
+      if (response.status === 201) {
+        handleSuccess(`
+          ${response.data.message}
+          Check your email for account verification link.
+        `);
         setTimeout(() => {
-          navigate("/signup/otp", { state: { email } });
-        }, 1000);
+          navigate("/login");
+        }, 3000);
       } else {
         handleError(response.data.message);
       }
