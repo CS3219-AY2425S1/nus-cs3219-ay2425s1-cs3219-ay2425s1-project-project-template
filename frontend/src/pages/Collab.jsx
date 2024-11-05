@@ -1,12 +1,13 @@
 import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import Editor from "@monaco-editor/react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
 import io from 'socket.io-client';
 
+import CodeEditor from "../components/collaboration/CodeEditor";
 import CollabNavBar from "../components/navbar/CollabNavbar";
+import Output from "../components/collaboration/Output";
 import QuestionContainer from "../components/collaboration/QuestionContainer";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
@@ -179,22 +180,14 @@ const Collab = () => {
                 handleSubmit={handleSubmit}
                 handleQuit={handleQuit}
             />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "calc(100vh - 75px)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "calc(100vh - 75px)", padding: "10px" }}>
                 <QuestionContainer question={question} />
-                <div style={{ flex: 1, overflow: "hidden" }}>
-                    <Editor
-                        theme="vs-dark"
-                        defaultLanguage="python"
-                        language={language}
-                        onMount={handleEditorDidMount}
-                        options={{
-                            fontSize: 16,
-                            scrollBeyondLastLine: false,
-                            minimap: { enabled: false }
-                        }}
-                    />
+                <div style={{ display: "grid", gridTemplateRows: "1fr 1fr" }}>
+                    <CodeEditor language={language} onMount={handleEditorDidMount} />
+                    <Output />
                 </div>
             </div>
+
             {/* Conditionally render popups */}
             {showQuitPopup && (
                 <QuitConfirmationPopup 

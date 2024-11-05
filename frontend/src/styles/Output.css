@@ -1,0 +1,36 @@
+.output-container {
+    background-color: #FCFCFC;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    max-width: 50rch;
+    margin: 0 auto;
+    text-align: left;
+  }
+  
+  .output-header {
+    padding: 15px;
+    background-color: #1C1678;
+    border-radius: 10px 10px 0px 0px;
+  }
+
+  .output-header h2 {
+    margin: 0;
+    color: #FFF;
+    font-size: 32;
+    word-wrap: break-word;
+    text-align: left;
+  }
+
+  .output-subheader {
+    padding: 0px 15px;
+  }
+
+  .output-subheader h3 {
+    font-size: 24;
+    word-wrap: break-word;
+    text-align: left;
+  }
+
+  .output-content {
+    padding: 0px 15px 15px;
+  }
