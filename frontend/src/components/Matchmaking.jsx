@@ -113,7 +113,7 @@ const MatchComponent = () => {
         try {
             setIsWaiting(true);
             setMatchedUserId(null);
-            const token = localStorage.getItem("authorization");
+            const token = sessionStorage.getItem("authorization");
 
             const config = {
                 headers: { Authorization: `Bearer ${token}` },
@@ -135,7 +135,7 @@ const MatchComponent = () => {
     const cancelMatch = async () => {
         try {
             setIsCanceling(true);
-            const token = localStorage.getItem("authorization");
+            const token = sessionStorage.getItem("authorization");
 
             const config = {
                 headers: { Authorization: `Bearer ${token}` },

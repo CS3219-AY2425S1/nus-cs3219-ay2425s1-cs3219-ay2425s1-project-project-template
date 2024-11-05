@@ -14,7 +14,8 @@ const Login = () => {
     const handleLogin = async () => {
         try {
             const response = await userAPI.post("/auth/login", { email, password });
-            localStorage.setItem('authorization', response.data.data.accessToken)
+            sessionStorage.setItem('authorization', response.data.data.accessToken)
+            sessionStorage.setItem('username', response.data.data.username)
             navigate('/users-match')
             
             console.log(response);

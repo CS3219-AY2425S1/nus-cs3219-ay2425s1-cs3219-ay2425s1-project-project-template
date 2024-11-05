@@ -4,6 +4,7 @@ import { Box, TextField, Button, List, ListItem, ListItemText, Typography } from
 export default function Chat({ provider }) {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const username = sessionStorage.getItem("username");
 
     // Use a Yjs array for chat messages
     const chatArray = provider.doc.getArray("chatMessages");
@@ -11,7 +12,7 @@ export default function Chat({ provider }) {
     useEffect(() => {
         // Load existing messages and listen for new ones
         setMessages(chatArray.toArray());
-
+        
         const updateMessages = () => setMessages(chatArray.toArray());
         chatArray.observe(updateMessages);
 
@@ -20,7 +21,7 @@ export default function Chat({ provider }) {
 
     const handleSendMessage = () => {
         if (newMessage.trim() !== "") {
-            chatArray.push([{ userId: "User1", text: newMessage, timestamp: Date.now() }]);
+            chatArray.push([{ userId: username, text: newMessage, timestamp: Date.now() }]);
             setNewMessage("");
         }
     };

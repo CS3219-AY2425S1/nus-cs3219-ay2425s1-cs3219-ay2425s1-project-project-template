@@ -1,5 +1,6 @@
 import * as React from "react";
 import CodeEditor from "../components/CodeEditor";
+import Chat from "../components/Chat"
 import { Snackbar, Alert, Box, Button } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -39,14 +40,14 @@ const CollabSpace = () => {
             console.warn("Provider already destroyed or not initialized.");
             return;
         }
-    
+
         setIsLeaving(true);
-    
+
         if (providerRef.current) {
             providerRef.current.awareness.setLocalStateField("roomClosed", true);
             // providerRef.current.destroy(); // Thorough cleanup
             // providerRef.current = null; // Set to null to avoid repeated calls
-    
+
             // Delay navigation slightly to ensure state is shared before navigation
             setTimeout(() => {
                 navigate("/users-match");
@@ -114,6 +115,12 @@ const CollabSpace = () => {
 
             <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                 <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
+                    <Chat provider={providerRef.current}>
+
+                    </Chat>
+                </Box>
+
+                <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
                     <Button variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
                         {isLeaving ? "Leaving..." : "Leave Room"}
                     </Button>
@@ -134,7 +141,6 @@ const CollabSpace = () => {
 };
 
 export default CollabSpace;
-
 
 // import * as React from "react";
 // import CodeEditor from "../components/CodeEditor";
