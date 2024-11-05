@@ -7,13 +7,15 @@ const TimeUpPopup = ({ continueSession, quitSession, continueAlone, isSoloSessio
     const [countdown, setCountdown] = useState(10); // 10-second countdown
     const [waitingForPartner, setWaitingForPartner] = useState(false);
     const [sessionExpired, setSessionExpired] = useState(false);
+    const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
 
     useEffect(() => {
         let interval;
         if (!waitingForPartner && countdown > 0) {
             interval = setInterval(() => setCountdown((prev) => prev - 1), 1000);
         } else if (countdown === 0 && !waitingForPartner) {
-            quitSession();
+            setShowTimeoutMessage(true); // Show the message
+            setTimeout(() => quitSession(), 3000); // Delay before navigating
         }
         return () => clearInterval(interval);
     }, [waitingForPartner, countdown, quitSession]);
@@ -48,7 +50,9 @@ const TimeUpPopup = ({ continueSession, quitSession, continueAlone, isSoloSessio
             <dialog open className="dialog-popup">
                 <div className="popup-content">
                     <h3>Time's Up!</h3>
-                    {isSoloSession ? (
+                    {showTimeoutMessage ? (
+                        <p>You did not make a decision in time. Redirecting to home...</p>
+                    ) : isSoloSession ? (
                         <>
                             <p>The collaboration session has ended. Would you like to extend the session?</p>
                             <button className="confirm-button" onClick={continueAlone}>Continue Session</button>
