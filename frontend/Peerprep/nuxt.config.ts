@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     userService: `http://user_service:5001`,
     public: {
       webSocketUrl: `ws://${process.env.HOST_ADDRESS}:8001`,
+      chatService: `http://${process.env.HOST_ADDRESS}:5002`,
       apiKey: process.env.LB_API_KEY,
     },
   },

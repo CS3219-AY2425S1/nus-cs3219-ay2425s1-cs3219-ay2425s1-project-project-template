@@ -15,8 +15,9 @@ interface Message {
 }
 
 const user = useCurrentUser();
+const runtimeConfig = useRuntimeConfig();
 // Connect to Socket.IO server
-const socket = io('http://localhost:5002'); // Server address
+const socket = io(runtimeConfig.public.chatService); // Server address
 
 // Define response status
 const messages = ref<Message[]>([]);
@@ -117,7 +118,7 @@ const selectConversation = (conversation: string) => {
 // Function to load conversations
 const loadConversations = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5002/api/conversations/${user?.value?.uid}`);
+    const response = await axios.get(`${runtimeConfig.public.chatService}/api/conversations/${user?.value?.uid}`);
     conversations.value = response.data.conversations;
 
     // Automatically select the newest/active conversation (the one in green)
@@ -134,7 +135,7 @@ const loadConversations = async () => {
 // Function to load chat history
 const loadHistory = async (conversation: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5002/api/history/${conversation}`);
+    const response = await axios.get(`${runtimeConfig.public.chatService}/api/history/${conversation}`);
     // Assuming response.data.messages is an array of Message objects
     messages.value = response.data.messages;
     selectedConversation.value = conversation; // Set selected convo here
@@ -212,6 +213,7 @@ defineExpose({
 .container {
   display: flex;
 }
+
 .conversation-list {
   width: 25%;
   border-right: 1px solid #ccc;
@@ -276,6 +278,7 @@ defineExpose({
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
 .stop-button {
   display: none;
 }

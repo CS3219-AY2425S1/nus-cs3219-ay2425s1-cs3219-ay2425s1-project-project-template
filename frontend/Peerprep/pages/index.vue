@@ -109,13 +109,13 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
         }
 
         // Optionally navigate to collaboration page
-         if (collaborationStore.isCollaborating) {
-           await navigateTo(`/collaboration`);
-           toast({
-             description: `Match found! Redirecting to the collaboration room...`,
-           });
-           matchFound.value = true;
-         }
+        if (collaborationStore.isCollaborating) {
+          await navigateTo(`/collaboration`);
+          toast({
+            description: `Match found! Redirecting to the collaboration room...`,
+          });
+          matchFound.value = true;
+        }
       }
     } catch (error) {
       console.error("Failed to process received message:", error);
@@ -133,32 +133,32 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
 
 
 function createSession(sessionId: string, username: string) {
-  fetch('http://localhost:5002/api/sessions', {
+  fetch(`${runtimeConfig.public.chatService}/api/sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ sessionname: sessionId, username }) // Pass sessionId as sessionname
   })
-  .then(response => {
-    if (response.ok) {
-      return response.json();
-    }
-    throw new Error('Failed to create session');
-  })
-  .then(data => {
-    console.log('Session created:', data);
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Failed to create session');
+    })
+    .then(data => {
+      console.log('Session created:', data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
 async function updateCollaborationInfo(message: any, status: string) {
   const collaborationInfo: TCollaborationInfo = {
     user1_id: message.user1_id,
     user2_id: message.user2_id,
-    uid: message.uid, 
+    uid: message.uid,
     question_id: message.question_id,
   };
   collaborationStore.setCollaborationInfo(collaborationInfo);
