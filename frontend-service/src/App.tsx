@@ -119,7 +119,9 @@ function App() {
             <>
               <Route
                 path="/login"
-                element={<Login updateAuthStatus={updateAuthStatus} />}
+                element={<Login
+                  onLogin={handleLoginSuccess}
+                  updateAuthStatus={updateAuthStatus} />}
               />
               <Route path="/signup" element={<Signup />} />
             </>

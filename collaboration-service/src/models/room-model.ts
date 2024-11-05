@@ -7,7 +7,7 @@ export interface Room {
     csharp: "// Start writing your C# code here...";
   };
   users: { [key: string]: boolean };
-  createdAt: number;
+  createdAt: string;
   selectedQuestionId: number;
   status: "active" | "inactive";
   currentLanguage: "javascript" | "python" | "csharp" | "java";

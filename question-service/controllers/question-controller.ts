@@ -1,9 +1,6 @@
 import express, { Request, Response } from "express";
 import Question from "../models/question-model";
 
-// @desc Fetch all questions
-// @route GET /api/questions
-// @access Public
 export const fetchAllQuestions = async (
   req: Request,
   res: Response
@@ -20,22 +17,19 @@ export const fetchAllQuestions = async (
   }
 };
 
-// @desc Create a new question
-// @route POST /api/questions
-// @access Public
 export const addQuestion = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { title, description, category, difficulty } = req.body;
+    const { questionId, title, description, category, difficulty } = req.body;
 
-    // Get the latest questionId
-    const lastQuestion = await Question.findOne().sort({ questionId: -1 });
-    const newQuestionId = lastQuestion ? lastQuestion.questionId + 1 : 1;
+    const newQuestionId = questionId
+      ? (parseInt(questionId, 10) + 1).toString()
+      : '1';
 
     const newQuestion = new Question({
-      questionId: newQuestionId,
+      questionId,
       title,
       description,
       category,
@@ -45,14 +39,18 @@ export const addQuestion = async (
     const addedQuestion = await newQuestion.save();
 
     res.status(201).json(addedQuestion);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to create question", error });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const dup = Object.keys(error.keyValue)[0];
+      res.status(409).json({
+        message: `Duplicate value for field: ${dup}.`
+      });
+    } else {
+      res.status(500).json({ message: "Failed to create question", error });
+    }
   }
 };
 
-// @desc Update a question by ID
-// @route PUT /api/questions/:id
-// @access Public
 export const updateQuestionById = async (
   req: Request,
   res: Response
@@ -80,14 +78,18 @@ export const updateQuestionById = async (
     } else {
       res.status(404).json({ message: "Question not found" });
     }
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update question", error });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      const dup = Object.keys(error.keyValue)[0];
+      res.status(409).json({
+        message: `Duplicate value for field: ${dup}.`
+      });
+    } else {
+      res.status(500).json({ message: "Failed to update question", error });
+    }
   }
 };
 
-// @desc Delete a question by ID
-// @route DELETE /api/questions/:id
-// @access Public
 export const deleteQuestionById = async (
   req: Request,
   res: Response
@@ -106,9 +108,6 @@ export const deleteQuestionById = async (
   }
 };
 
-// @desc Find a question by ID
-// @route GET /api/questions/:id
-// @access Public
 export const getQuestionById = async (
   req: Request,
   res: Response
@@ -127,9 +126,6 @@ export const getQuestionById = async (
   }
 };
 
-// @desc Get questions by difficulty level
-// @route GET /api/questions?difficulty=<level>
-// @access Public
 export const getQuestionsByDifficulty = async (
   req: Request,
   res: Response
@@ -138,6 +134,25 @@ export const getQuestionsByDifficulty = async (
   console.log("Difficulty level:", level);
   try {
     const questions = await Question.find({ difficulty: level });
+
+    if (questions.length > 0) {
+      res.status(200).json(questions);
+    } else {
+      res.status(404).json({ message: "No questions found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get questions", error });
+  }
+};
+
+export const getQuestionsByCategory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const cat = req.query.category;
+  console.log("Category:", cat);
+  try {
+    const questions = await Question.find({ category: {$in: [cat] } });
 
     if (questions.length > 0) {
       res.status(200).json(questions);

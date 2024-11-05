@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cors());
 
 // helper function to create room from collaboration service
-const createRoom = async (userA: string, userB: string): Promise<void> => {
+const createRoom = async (userA: string, userB: string, topic: string): Promise<void> => {
   try {
     const response = await fetch(
       "http://collaboration-service:5001/room/createRoom",
@@ -23,6 +23,7 @@ const createRoom = async (userA: string, userB: string): Promise<void> => {
         body: JSON.stringify({
           userId1: userA,
           userId2: userB,
+          topic: topic,
         }),
       }
     );
@@ -57,14 +58,14 @@ const createRoom = async (userA: string, userB: string): Promise<void> => {
       if (message.value) {
         try {
           const matchFoundEvent = JSON.parse(message.value.toString());
-          const { userA, userB } = matchFoundEvent;
+          const { userA, userB, topic } = matchFoundEvent;
 
           console.log(
             `Received match-found-event between User A: ${userA} and User B: ${userB}`
           );
 
           // calling the helper function
-          await createRoom(userA, userB);
+          await createRoom(userA, userB, topic);
         } catch (error: any) {
           console.error("Error processing match-found-event:", error.message);
         }
