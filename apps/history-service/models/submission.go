@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+const (
+	ACCEPTED  = "Accepted"
+	ATTEMPTED = "Attempted"
+)
+
 type SubmissionHistory struct {
 	// Submission related details
 	Code     string `json:"code" firestore:"code"`
@@ -17,6 +22,7 @@ type SubmissionHistory struct {
 	QuestionDocRefID   string   `json:"questionDocRefId" firestore:"questionDocRefId"`
 	QuestionDifficulty string   `json:"questionDifficulty" firestore:"questionDifficulty"`
 	QuestionTopics     []string `json:"questionTopics" firestore:"questionTopics"`
+	Status             string   `json:"status" firestore:"status"`
 
 	// Special DB fields
 	CreatedAt       time.Time `json:"createdAt" firestore:"createdAt"`

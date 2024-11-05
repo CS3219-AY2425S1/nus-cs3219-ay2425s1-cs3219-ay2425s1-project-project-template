@@ -164,3 +164,24 @@
 .info-modal-icon {
   color: red;
 }
+
+.test-result-container {
+  margin-top: 10px;
+}
+
+.hidden-test-icon {
+  margin-right: 5px;
+}
+
+.error-message {
+  overflow-x: auto;
+  overflow-y: auto; // Allows vertical scroll if content exceeds max-height
+  white-space: nowrap;
+  max-width: 100%;
+  padding: 4px;
+  min-height: 50px; // Adjust height as needed
+  max-height: 150px; // Adjust max height for scrollable area
+  border: 1px solid #ddd; // Optional: add a border for visibility
+  border-radius: 4px; // Optional: round the corners slightly
+  background-color: #f9f9f9; // Optional: light background color
+}

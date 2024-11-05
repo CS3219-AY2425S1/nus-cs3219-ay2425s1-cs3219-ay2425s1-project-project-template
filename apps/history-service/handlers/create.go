@@ -15,8 +15,8 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Parse request
-	var collaborationHistory models.SubmissionHistory
-	if err := utils.DecodeJSONBody(w, r, &collaborationHistory); err != nil {
+	var submissionHistory models.SubmissionHistory
+	if err := utils.DecodeJSONBody(w, r, &submissionHistory); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -25,15 +25,16 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	collection := s.Client.Collection("collaboration-history")
 
 	docRef, _, err := collection.Add(ctx, map[string]interface{}{
-		"title":              collaborationHistory.Title,
-		"code":               collaborationHistory.Code,
-		"language":           collaborationHistory.Language,
-		"user":               collaborationHistory.User,
-		"matchedUser":        collaborationHistory.MatchedUser,
-		"matchedTopics":      collaborationHistory.MatchedTopics,
-		"questionDocRefId":   collaborationHistory.QuestionDocRefID,
-		"questionDifficulty": collaborationHistory.QuestionDifficulty,
-		"questionTopics":     collaborationHistory.QuestionTopics,
+		"title":              submissionHistory.Title,
+		"code":               submissionHistory.Code,
+		"language":           submissionHistory.Language,
+		"user":               submissionHistory.User,
+		"matchedUser":        submissionHistory.MatchedUser,
+		"matchedTopics":      submissionHistory.MatchedTopics,
+		"questionDocRefId":   submissionHistory.QuestionDocRefID,
+		"questionDifficulty": submissionHistory.QuestionDifficulty,
+		"questionTopics":     submissionHistory.QuestionTopics,
+		"status":             submissionHistory.Status,
 		"createdAt":          firestore.ServerTimestamp,
 		"updatedAt":          firestore.ServerTimestamp,
 	})
@@ -54,15 +55,15 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	if err := doc.DataTo(&collaborationHistory); err != nil {
+	if err := doc.DataTo(&submissionHistory); err != nil {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.HistoryDocRefID = doc.Ref.ID
+	submissionHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(collaborationHistory)
+	json.NewEncoder(w).Encode(submissionHistory)
 }
 
 //curl -X POST http://localhost:8082/histories \

@@ -1,8 +1,9 @@
-package utils
+package tests
 
 import (
 	"net/http"
 	"net/http/httptest"
+	"question-service/utils"
 	"strings"
 	"testing"
 )
@@ -12,11 +13,11 @@ type CustomObj struct {
 	NumType int64  `json:"num"`
 }
 
-func TestXd(t *testing.T) {
+func TestDecode(t *testing.T) {
 	t.Run("parses string correctly", func(t *testing.T) {
 		var obj CustomObj
 		req := httptest.NewRequest(http.MethodGet, "/", strings.NewReader(`{"str": "asd", "num":64}`))
-		err := DecodeJSONBody(nil, req, &obj)
+		err := utils.DecodeJSONBody(nil, req, &obj)
 
 		if err != nil {
 			t.Errorf("err should be nil but got %q instead", err)
@@ -29,7 +30,7 @@ func TestXd(t *testing.T) {
 	t.Run("fails with incorrect object", func(t *testing.T) {
 		var obj CustomObj
 		req := httptest.NewRequest(http.MethodGet, "/", strings.NewReader(`{"str": "asd", "num":64 `))
-		err := DecodeJSONBody(nil, req, &obj)
+		err := utils.DecodeJSONBody(nil, req, &obj)
 		const expected = "Invalid request payload: unexpected EOF"
 
 		if err == nil {

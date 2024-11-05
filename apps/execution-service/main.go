@@ -2,16 +2,11 @@ package main
 
 import (
 	"context"
-	"flag"
+	"execution-service/handlers"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"question-service/handlers"
-	mymiddleware "question-service/middleware"
-	pb "question-service/proto"
-	"question-service/utils"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -21,7 +16,6 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"google.golang.org/api/option"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -40,16 +34,6 @@ func main() {
 	defer client.Close()
 
 	service := &handlers.Service{Client: client}
-
-	// Check flags if should populate instead.
-	shouldPopulate := flag.Bool("populate", false, "Populate database")
-	flag.Parse()
-	if *shouldPopulate {
-		utils.Populate(client, true)
-		return
-	}
-
-	go initGrpcServer(service)
 
 	r := initChiRouter(service)
 	initRestServer(r)
@@ -75,7 +59,6 @@ func initChiRouter(service *handlers.Service) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(mymiddleware.VerifyJWT)
 
 	r.Use(cors.Handler(cors.Options{
 		// AllowedOrigins: []string{"http://localhost:3000"}, // Use this to allow specific origin hosts
@@ -94,14 +77,22 @@ func initChiRouter(service *handlers.Service) *chi.Mux {
 }
 
 func registerRoutes(r *chi.Mux, service *handlers.Service) {
-	r.Route("/questions", func(r chi.Router) {
-		r.Get("/", service.ListQuestions)
-		r.Post("/", service.CreateQuestion)
+	r.Route("/tests", func(r chi.Router) {
+		// Re: CreateTest
+		// Current: Unused, since testcases are populated via script
+		// Future extension: can be created by admin
+		//r.Post("/", service.CreateTest)
+		r.Post("/populate", service.PopulateTests)
 
-		r.Route("/{docRefID}", func(r chi.Router) {
-			r.Get("/", service.ReadQuestion)
-			r.Put("/", service.UpdateQuestion)
-			r.Delete("/", service.DeleteQuestion)
+		r.Route("/{questionDocRefId}", func(r chi.Router) {
+			// Re: UpdateTest, DeleteTest
+			// Current: Unused, since testcases are executed within service and not exposed
+			// Future extension: can be read by admin to view testcases
+			//r.Put("/", service.UpdateTest)
+			//r.Delete("/", service.DeleteTest)
+			r.Get("/", service.ReadVisibleTests)
+			r.Post("/execute", service.ExecuteVisibleAndCustomTests)
+			r.Post("/submit", service.ExecuteVisibleAndHiddenTestsAndSubmit)
 		})
 	})
 }
@@ -110,7 +101,7 @@ func initRestServer(r *chi.Mux) {
 	// Serve on port 8080
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8083"
 	}
 
 	// Start the server
@@ -118,21 +109,5 @@ func initRestServer(r *chi.Mux) {
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
-	}
-}
-
-func initGrpcServer(service *handlers.Service) {
-	lis, err := net.Listen("tcp", ":50051")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
-	pb.RegisterQuestionMatchingServiceServer(s, &handlers.GrpcServer{
-		Client: service.Client,
-	})
-
-	log.Printf("gRPC Server is listening on port 50051...")
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
 	}
 }

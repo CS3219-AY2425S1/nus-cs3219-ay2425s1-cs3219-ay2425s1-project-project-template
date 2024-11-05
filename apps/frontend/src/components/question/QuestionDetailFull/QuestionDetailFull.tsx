@@ -11,6 +11,9 @@ interface QuestionDetailFullProps {
   description?: string;
   testcaseItems?: TabsProps["items"];
   shouldShowSubmitButton?: boolean;
+  handleRunTestCases?: () => void;
+  isLoadingTestCase?: boolean;
+  buttonIsDisabled?: boolean;
 }
 
 export const QuestionDetailFull = (props: QuestionDetailFullProps) => {
@@ -28,6 +31,9 @@ export const QuestionDetailFull = (props: QuestionDetailFullProps) => {
         <TestcaseDetail
           testcaseItems={props.testcaseItems}
           shouldShowSubmitButton={props.shouldShowSubmitButton}
+          handleRunTestCases={props.handleRunTestCases}
+          isLoadingTestCase={props.isLoadingTestCase}
+          buttonIsDisabled={props.buttonIsDisabled}
         />
       </Row>
     </>

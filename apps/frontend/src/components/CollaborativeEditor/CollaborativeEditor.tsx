@@ -15,6 +15,8 @@ import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
 import { EditorView, basicSetup } from "codemirror";
+import { keymap } from "@codemirror/view"
+import { indentWithTab } from "@codemirror/commands"
 import { EditorState, Compartment } from "@codemirror/state";
 import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 import { python, pythonLanguage } from "@codemirror/lang-python";
@@ -25,6 +27,7 @@ import "./styles.scss";
 import { message, Select } from "antd";
 import { language } from "@codemirror/language";
 import { ProgrammingLanguageOptions } from "@/utils/SelectOptions";
+import { ExecutionResults, SubmissionResults } from "@/app/services/execute";
 
 interface CollaborativeEditorProps {
   user: string;
@@ -35,6 +38,10 @@ interface CollaborativeEditorProps {
   providerRef: MutableRefObject<WebrtcProvider | null>;
   matchedUser: string;
   onCodeChange: (code: string) => void;
+  updateSubmissionResults: (results: SubmissionResults) => void;
+  updateExecutionResults: (results: ExecutionResults) => void;
+  updateExecuting: (executing: boolean) => void;
+  updateSubmitting: (submitting: boolean) => void;
 }
 
 export interface CollaborativeEditorHandle {
@@ -54,7 +61,22 @@ interface Awareness {
     color: string;
     colorLight: string;
   };
-  codeSavedStatus: boolean;
+  submissionResultsState: {
+    submissionResults: SubmissionResults;
+    id: number;
+  };
+  executionResultsState: {
+    executionResults: ExecutionResults;
+    id: number;
+  }
+  executingState: {
+    executing: boolean;
+    id: number;
+  }
+  submittingState: {
+    submitting: boolean;
+    id: number;
+  }
 }
 
 export const usercolors = [
@@ -84,6 +106,13 @@ const CollaborativeEditor = forwardRef(
 
     const languageConf = new Compartment();
 
+    const codeChangeListener = EditorView.updateListener.of((update) => {
+      if (update.docChanged) {
+        props.onCodeChange(update.state.doc.toString());
+      }
+    });
+    
+    
     // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
     // const autoLanguage = EditorState.transactionExtender.of((tr) => {
     //   if (!tr.docChanged) return null;
@@ -166,6 +195,11 @@ const CollaborativeEditor = forwardRef(
         content: message,
       });
     };
+
+    let latestExecutionId: number = (new Date(0)).getTime();
+    let latestSubmissionId: number = (new Date(0)).getTime();
+    let latestExecutingId: number = (new Date(0)).getTime();
+    let latestSubmittingId: number = (new Date(0)).getTime();
 
     useImperativeHandle(ref, () => ({
       endSession: () => {
@@ -266,7 +300,7 @@ const CollaborativeEditor = forwardRef(
         }
       });
 
-      // Listener for awareness updates to receive status changes from peers
+      // Listener for awareness updates to receive submission results from peer
       provider.awareness.on("update", ({ added, updated }: AwarenessUpdate) => {
         added
           .concat(updated)
@@ -275,14 +309,69 @@ const CollaborativeEditor = forwardRef(
             const state = provider.awareness
               .getStates()
               .get(clientID) as Awareness;
-            if (state && state.codeSavedStatus && !state.sessionEnded) {
-              // Display the received status message
+
+            if (
+              state && 
+              state.submissionResultsState &&
+              state.submissionResultsState.id !== latestSubmissionId
+            ) {
+              latestSubmissionId = state.submissionResultsState.id;
+              props.updateSubmissionResults(state.submissionResultsState.submissionResults);
               messageApi.open({
                 type: "success",
                 content: `${
                   props.matchedUser ?? "Peer"
                 } saved code successfully!`,
               });
+            }
+
+            if (
+              state && 
+              state.executionResultsState && 
+              state.executionResultsState.id !== latestExecutionId
+            ) {
+              latestExecutionId = state.executionResultsState.id;
+              props.updateExecutionResults(state.executionResultsState.executionResults);
+              messageApi.open({
+                type: "success",
+                content: `${
+                  props.matchedUser ?? "Peer"
+                } ran test cases. Review the results below.`,
+              });
+            }
+
+            if (
+              state && 
+              state.executingState && 
+              state.executingState.id !== latestExecutingId
+            ) {
+              latestExecutingId = state.executingState.id;
+              props.updateExecuting(state.executingState.executing);
+              if (state.executingState.executing) {
+                messageApi.open({
+                  type: "info",
+                  content: `${
+                    props.matchedUser ?? "Peer"
+                  } is running test cases...`,
+                });
+              }
+            }
+
+            if (
+              state && 
+              state.submittingState && 
+              state.submittingState.id !== latestSubmittingId
+            ) {
+              latestSubmittingId = state.submittingState.id;
+              props.updateSubmitting(state.submittingState.submitting);
+              if (state.submittingState.submitting) {
+                messageApi.open({
+                  type: "info",
+                  content: `${
+                    props.matchedUser ?? "Peer"
+                  } is saving code...`,
+                });
+              }
             }
           });
       });
@@ -295,6 +384,8 @@ const CollaborativeEditor = forwardRef(
           // languageConf.of(javascript()),
           // autoLanguage,
           yCollab(ytext, provider.awareness, { undoManager }),
+          keymap.of([indentWithTab]),
+          codeChangeListener,
         ],
       });
 

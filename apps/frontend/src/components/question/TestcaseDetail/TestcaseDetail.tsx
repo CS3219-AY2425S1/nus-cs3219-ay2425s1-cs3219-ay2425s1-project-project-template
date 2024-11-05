@@ -1,10 +1,13 @@
 import { FileDoneOutlined, PlayCircleOutlined } from "@ant-design/icons";
-import { Button, Input, Tabs, TabsProps } from "antd";
+import { Button, Input, Spin, Tabs, TabsProps } from "antd";
 import "./styles.scss";
 
 interface TestcaseDetailProps {
   testcaseItems?: TabsProps["items"];
   shouldShowSubmitButton?: boolean;
+  isLoadingTestCase?: boolean;
+  handleRunTestCases?: () => void;
+  buttonIsDisabled?: boolean;
 }
 
 export const TestcaseDetail = (props: TestcaseDetailProps) => {
@@ -43,13 +46,20 @@ export const TestcaseDetail = (props: TestcaseDetailProps) => {
         </div>
         {/* TODO: Link to execution service for running code against test-cases */}
         {props.shouldShowSubmitButton && (
-          <Button
-            icon={<PlayCircleOutlined />}
-            iconPosition="end"
-            className="test-case-button"
-          >
-            Run Test Cases
-          </Button>
+          <div className="test-button-container">
+            <div className="spinner-container">
+              {props.isLoadingTestCase && <Spin tip="Running test cases..." />}
+            </div>
+            <Button
+              icon={<PlayCircleOutlined />}
+              iconPosition="end"
+              className="test-case-button"
+              onClick={props.handleRunTestCases}
+              disabled={props.buttonIsDisabled}
+            >
+              Run Test Cases
+            </Button>
+          </div>
         )}
       </div>
       <div className="test-cases-container">

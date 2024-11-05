@@ -30,16 +30,16 @@ func (s *Service) ReadHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map data
-	var collaborationHistory models.SubmissionHistory
-	if err := doc.DataTo(&collaborationHistory); err != nil {
+	var submissionHistory models.SubmissionHistory
+	if err := doc.DataTo(&submissionHistory); err != nil {
 		http.Error(w, "Failed to map history data", http.StatusInternalServerError)
 		return
 	}
-	collaborationHistory.HistoryDocRefID = doc.Ref.ID
+	submissionHistory.HistoryDocRefID = doc.Ref.ID
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(collaborationHistory)
+	json.NewEncoder(w).Encode(submissionHistory)
 }
 
 //curl -X GET http://localhost:8082/histories/largSKbROswF5pveMkEL \

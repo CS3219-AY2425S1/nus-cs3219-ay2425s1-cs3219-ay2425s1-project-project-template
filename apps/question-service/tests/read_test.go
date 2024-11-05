@@ -20,7 +20,7 @@ var ctx = context.Background()
 
 func TestMain(m *testing.M) {
 	// Set FIRESTORE_EMULATOR_HOST environment variable.
-	err := os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
+	err := os.Setenv("FIRESTORE_EMULATOR_HOST", "127.0.0.1:8080")
 	if err != nil {
 		log.Fatalf("could not set env %v", err)
 	}
@@ -42,7 +42,7 @@ func TestMain(m *testing.M) {
 // Returns the docref of one of the questions if a test need it
 func setupDb(t *testing.T) string {
 	// Repopulate document
-	utils.Populate(service.Client)
+	utils.Populate(service.Client, false)
 
 	coll := service.Client.Collection("questions")
 	if coll == nil {
