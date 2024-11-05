@@ -71,6 +71,15 @@ services:
       - ./collaboration-service.env
     networks:
       - peerprep-network
+
+  aichatbot-service:
+    build: ./backend/aichatbot-service
+    ports:
+      - '5003:5003'
+    env_file:
+      - ./aichatbot-service.env
+    networks:
+      - peerprep-network
 networks:
   peerprep-network:
     driver: bridge
