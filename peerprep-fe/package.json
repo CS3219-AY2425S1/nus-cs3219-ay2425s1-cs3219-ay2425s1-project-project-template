@@ -11,6 +11,8 @@
     "pre-commit": "pnpm format && git add -u"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -25,6 +27,7 @@
     "@radix-ui/react-toast": "^1.2.2",
     "@stomp/stompjs": "^7.0.0",
     "@types/js-cookie": "^3.0.6",
+    "@types/simple-peer": "^9.11.8",
     "amqplib": "^0.10.4",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
@@ -38,6 +41,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-nice-avatar": "^1.5.0",
+    "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",

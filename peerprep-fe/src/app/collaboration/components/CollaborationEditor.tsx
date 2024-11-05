@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { stringToColor } from '@/lib/utils';
+import AudioSharing from './AudioSharing';
 
 interface CollaborationEditorProps {
   language: string;
@@ -251,6 +252,7 @@ const CollaborationEditor = ({
         </div>
       </div>
       <CodeEditor onMount={handleEditorMount} language={language} />
+      <AudioSharing />
     </>
   );
 };
