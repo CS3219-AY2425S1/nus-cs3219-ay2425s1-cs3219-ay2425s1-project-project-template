@@ -73,12 +73,7 @@ export function validatePassword(password) {
   return re.test(password);
 }
 
-export async function sendVerificationEmail(user) {
-  const token = generateVerificationToken(user.id, user.tempEmail || user.email);
-
-  const verification_path = `/verify-email?token=${token}`;
-  const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
-
+async function sendEmail(toEmail, subject, body) {
   const sender = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -89,17 +84,29 @@ export async function sendVerificationEmail(user) {
 
   const options = {
     from: process.env.PEERPREP_EMAIL,
-    to: user.tempEmail || user.email,
-    subject: '[PeerPrep] Email verification',
-    html: `
-      <p>
-        Click on this <a href=${verification_link}>link</a> to verify your email address.
-        The link will expire in 24 hours.
-      </p>
-    `
+    to: toEmail,
+    subject,
+    html: body,
   };
 
   await sender.sendMail(options);
+}
+
+export async function sendVerificationEmail(user) {
+  const token = generateVerificationToken(user.id, user.tempEmail || user.email);
+
+  const verification_path = `/verify-email?token=${token}`;
+  const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
+
+  const subject = '[PeerPrep] Email verification';
+  const body = `
+    <p>
+      Click on this <a href=${verification_link}>link</a> to verify your email address.
+      The link will expire in 24 hours.
+    </p>
+  `;
+
+  await sendEmail(user.tempEmail || user.email, subject, body);
 }
 
 function generateVerificationToken(userId, userEmail) {
@@ -115,13 +122,20 @@ function generateVerificationToken(userId, userEmail) {
   );
 }
 
-function generateSecureOTP(length) {
-  let otp = '';
+export function generateSecureOTP(length) {
   const array = new Uint32Array(length);
   crypto.getRandomValues(array); // Generates cryptographically secure random numbers
 
+  let otp = '';
+  const expiresAt = Date.now() + (15 * 60000) // TTL: 15 minutes
   for (let i = 0; i < length; i++)
     otp += array[i] % 10; // Modulo 10 to get a single digit (0-9)
   
-  return otp;
+  return { otp, expiresAt };
+}
+
+export async function sendOtpEmail(email, otp) {
+  const subject = 'PeerPrep Password Change OTP'
+  const body = `<p>Your OTP is ${otp}. It will expire in 15 minutes.</p>`;
+  await sendEmail(email, subject, body);
 }

@@ -40,6 +40,14 @@ const UserModelSchema = new Schema({
   tempEmail: {
     type: String,
     required: false,
+  },
+  tempPassword: {
+    type: String,
+    required: false,
+  },
+  otp: {
+    type: String,
+    required: false,
   }
 });
 

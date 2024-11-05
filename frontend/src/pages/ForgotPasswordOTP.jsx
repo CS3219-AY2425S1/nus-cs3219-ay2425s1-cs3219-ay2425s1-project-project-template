@@ -22,7 +22,7 @@ const ForgotPasswordOTP = () => {
           otp,
         }
       );
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast.success("Password reset successful!");
         setTimeout(() => {
           navigate("/login");  // Redirect to login after successful confirmation

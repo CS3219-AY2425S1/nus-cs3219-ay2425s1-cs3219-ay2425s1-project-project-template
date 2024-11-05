@@ -71,6 +71,10 @@ export async function updateUserEmailById(userId, email) {
   return await updateUserById(userId, { email });
 }
 
+export async function updateUserPasswordById(userId, password) {
+  return await updateUserById(userId, { password });
+}
+
 export async function updateUserImageById(userId, profileImage) {
   return await updateUserById(userId, { profileImage });
 }
@@ -83,10 +87,26 @@ export async function updateUserVerifyStatusById(userId, isVerified) {
   return await updateUserById(userId, { isVerified });
 }
 
+export async function updateUsertempPasswordById(userId, tempPassword) {
+  return await updateUserById(userId, { tempPassword });
+}
+
+export async function updateUserOtpById(userId, otp) {
+  return await updateUserById(userId, { otp });
+}
+
 export async function deleteTempEmailById(userId) {
   return UserModel.findByIdAndUpdate(
     userId,
     { $unset: {tempEmail: ''} },
+    { new: true },  // return the updated user
+  ); 
+}
+
+export async function deleteOtpAndTempPasswordById(userId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $unset: {otp: '', tempPassword: ''} },
     { new: true },  // return the updated user
   ); 
 }
