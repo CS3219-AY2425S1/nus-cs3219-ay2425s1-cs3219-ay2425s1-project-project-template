@@ -7,6 +7,10 @@ services:
         - API_GATEWAY_PORT=$API_GATEWAY_PORT
     environment:
       - PORT=$FRONTEND_PORT
+    ports:
+      - $FRONTEND_PORT:$FRONTEND_PORT
+    networks:
+      - hidden
 
   question-service:
     build:
@@ -15,6 +19,10 @@ services:
       - PORT=$QUESTION_SVC_PORT
       - DB_URI=$QUESTION_SVC_DB_URI
       - FRONTEND_PORT=$FRONTEND_PORT
+    ports:
+      - $QUESTION_SVC_PORT:$QUESTION_SVC_PORT
+    networks:
+      - hidden
   
   user-service:
     build:
@@ -25,6 +33,10 @@ services:
       - JWT_SECRET=$JWT_SECRET
       - EMAIL_ADDRESS=$EMAIL_ADDRESS
       - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    ports:
+      - $USER_SVC_PORT:$USER_SVC_PORT
+    networks:
+      - hidden
 
   matching-service:
     build:
@@ -35,10 +47,14 @@ services:
       - REDIS_PORT=$REDIS_PORT
       - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
       - COLLAB_SVC_PORT=$COLLAB_SVC_PORT
+    ports:
+      - $MATCHING_SVC_PORT:$MATCHING_SVC_PORT
     depends_on:
       - redis
       - question-service
       - collab-service
+    networks:
+      - hidden
 
   api-gateway:
     image: nginx:1.26
@@ -60,22 +76,17 @@ services:
       - question-service
       - matching-service
       - collab-service
+    networks:
+      - gateway
+      - hidden
 
   redis:
     image: redis:7.4-alpine
     restart: always
     ports:
       - $REDIS_PORT:$REDIS_PORT
-
-  # access RedisInsight at http://localhost:5540
-  # connect to redis on redis insight at redis:6379
-  redisinsight:
-    image: redis/redisinsight:latest
-    restart: always
-    ports:
-      - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
-    depends_on:
-      - redis
+    networks:
+      - hidden
     
   collab-service:
     build:
@@ -84,3 +95,13 @@ services:
       - PORT=$COLLAB_SVC_PORT
       - DB_URI=$COLLAB_SVC_DB_URI
       - OPENAI_API_KEY=$OPENAI_API_KEY
+    ports:
+      - $COLLAB_SVC_PORT:$COLLAB_SVC_PORT
+    networks:
+      - hidden
+
+networks:
+  gateway:
+  
+  hidden:
+    internal: true
