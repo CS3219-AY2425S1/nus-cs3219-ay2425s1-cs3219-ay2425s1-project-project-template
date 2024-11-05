@@ -148,11 +148,20 @@ const loadHistory = async (conversation: string) => {
 onMounted(() => {
   socket.on('chat message', receiveMessage);
   socket.on('new_conversation', () => {
-    loadConversations(); // Reload conversations when a new one is created
+    loadConversations(); // Reload conversations if a new one is created
   });
 
-  loadConversations(); // Initial load
+  // Initial load of conversations
+  loadConversations();
+
+  // Delayed secondary check to capture new conversations if missed
+  setTimeout(async () => {
+    if (!selectedConversation.value) { // Check if no conversation was selected
+      await loadConversations();
+    }
+  }, 500); // Adjust delay time if necessary
 });
+
 
 // When component is unmounted, remove Socket.IO events
 onUnmounted(() => {
