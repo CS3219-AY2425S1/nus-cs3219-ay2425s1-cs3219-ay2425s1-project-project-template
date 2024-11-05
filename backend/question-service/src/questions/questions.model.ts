@@ -61,7 +61,12 @@ export class QuestionDB {
 
     const query = this.questionModel.find(filterQuery);
 
-    return await query.select('_id title categories complexity').exec();
+    const output = await query.select('_id title categories complexity testCases').exec();
+
+    return output;
+  
+    // return await query.select('_id title categories complexity testCases').exec();
+
   }
 
   async findOneQuestionInDB(questionId: string): Promise<Question> {

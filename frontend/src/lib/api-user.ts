@@ -1,3 +1,4 @@
+import { CodeExecutionResponse, ExecuteCodeParams } from "@/app/api/code-execution/route";
 import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_USER_API_URL;
@@ -122,3 +123,38 @@ export const updatePassword = async (userId: string, token: string, password: st
     }
   }
 };
+
+export async function executeCode({
+  sessionId,
+  questionId,
+  language,
+  code,
+  stdin,
+}: ExecuteCodeParams) {
+  try {
+    console.log('Executing code:', { questionId, language, code, stdin, sessionId });
+    const response = await fetch('/api/code-execution', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId,
+        questionId,
+        language,
+        code,
+        stdin,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || 'Failed to execute code');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Code execution failed:', error);
+    throw error instanceof Error ? error : new Error('Failed to execute code');
+  }
+}

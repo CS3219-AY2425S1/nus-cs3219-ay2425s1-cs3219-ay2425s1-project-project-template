@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
@@ -7,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlayIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast"
+import DynamicTestCases from '../TestCaseCard';
+import { CodeExecutionResponse } from '@/app/api/code-execution/route';
+import { executeCode } from '@/lib/api-user';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
 
 interface CodeEditorProps {
   sessionId?: string;
@@ -24,7 +30,57 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
   const { toast } = useToast();
   const router = useRouter();
 
-  // Initialize socket connection
+  const [executing, setExecuting] = useState<boolean>(false);
+  const [result, setResult] = useState<CodeExecutionResponse | null>(null);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  interface TestResult {
+    testCaseNumber: number;
+    input: string;
+    expectedOutput: string;
+    actualOutput: string;
+    passed: boolean;
+    error?: string;
+    compilationError?: string | null;
+  }
+
+  
+  const handleExecuteCode = async (questionId?: string) => {
+    if (!isConnected) {
+      toast({
+        variant: "destructive",
+        title: "Cannot Submit",
+        description: "Please wait until you're connected to the server",
+      });
+      return;
+    }
+
+    if (socket.current?.connected) {
+      socket.current.emit('submitCode', {
+        sessionId,
+        questionId,
+        code,
+        language,
+      });
+    }
+    try {
+      if (!questionId) {
+        throw new Error('Question ID is required');
+      }
+      const result: CodeExecutionResponse = await executeCode({
+        sessionId,
+        questionId,
+        language: language,
+        code: code
+      });
+      
+    } catch (error) {
+      setError((error as any).message);
+    } finally {
+    }
+  };
+
   useEffect(() => {
     if (!sessionId || !questionId || !userData || !userData.username) {
       return;
@@ -68,11 +124,69 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
       setLanguage(newLanguage);
     });
 
-    socketInstance.on('submissionMade', ({ timestamp }) => {
+    socketInstance.on('submissionMade', async ({ timestamp }) => {
       toast({
         title: "Code Submitted",
         description: `Submission recorded at ${new Date(timestamp).toLocaleTimeString()}`,
       });
+
+      setExecuting(true);
+      for (let i = 0; i < 10; i++) {
+          try {
+
+
+            const response = await axios.post(`/api/submissions/${sessionId}/${questionId}`);
+            const submission = await response.data as { status: string, executionResults: CodeExecutionResponse };
+
+            // const submission = await response.json();
+            console.log("submission: ", submission.status);
+      
+            if (submission.status !== 'pending') {
+              // Set test results regardless of status
+              if (submission.executionResults?.testResults) {
+                setTestResults(submission.executionResults.testResults);
+              }
+      
+              // Show appropriate toast based on status
+              if (submission.status === 'accepted') {
+                toast(
+                  {
+                    title: "Accepted",
+                    description: `All ${submission.executionResults.totalTests} tests passed successfully!`
+                  }
+                );
+                break;
+              } else if (submission.status === 'rejected') {
+                toast(
+                  {
+                    variant: "destructive",
+                    title: "Rejected",
+                    description:
+                  `${submission.executionResults.failedTests} of ${submission.executionResults.totalTests} tests failed`
+                  }
+                );
+                break;
+              }
+            }
+      
+            // If we reach the last iteration and status is still pending
+            if (i === 9 && submission.status === 'pending') {
+              toast({
+                variant: "destructive",
+                title: "Submission processing timeout",
+              });
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } catch (error) {
+            toast({
+              variant: "destructive",
+              title: "Submission failed",
+            });
+            break;
+          }
+      }
+      setExecuting(false);
     });
 
     // socketInstance.on('sessionCompleted', () => {
@@ -156,11 +270,12 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
           variant="outline" 
           size="default" 
           className="bg-black text-white"
-          onClick={handleSubmit}
-          disabled={!isConnected}
+          // onClick={handleSubmit}
+          onClick={() => handleExecuteCode(questionId)} 
+          disabled={!isConnected || executing}
         >
           <PlayIcon className="h-4 w-4 mr-2" />
-          Run Code
+          {executing ? 'Running...' : 'Run Code'}
         </Button>
       </div>
 
@@ -181,6 +296,10 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
           }}
         />
       </Card>
+      <DynamicTestCases
+            questionId={questionId} 
+            testResults={testResults}
+          />
     </>
   );
 };
