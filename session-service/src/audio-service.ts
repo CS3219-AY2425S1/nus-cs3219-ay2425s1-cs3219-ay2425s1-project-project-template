@@ -10,11 +10,13 @@ interface AudioData {
 }
 
 const app = express();
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST'],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -22,7 +24,7 @@ const io = new Server(httpServer, {
     origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
-    allowedHeaders: ["*"]
+    allowedHeaders: ["*"],
   },
   path: "/socket.io/",
   transports: ["websocket"],
@@ -33,7 +35,7 @@ const io = new Server(httpServer, {
 
 // Add connection error handling
 io.engine.on("connection_error", (err) => {
-  console.log('Connection error:', err);
+  console.log("Connection error:", err);
 });
 
 io.on("connection", (socket: Socket) => {
@@ -45,7 +47,7 @@ io.on("connection", (socket: Socket) => {
 
   // Handle signaling data for WebRTC connections
   socket.on("signal", (signalData) => {
-    console.log('Received signal data, broadcasting to others');
+    console.log("Received signal data, broadcasting to others");
     socket.broadcast.emit("signal", signalData);
   });
 
@@ -54,8 +56,8 @@ io.on("connection", (socket: Socket) => {
   });
 });
 
-app.get('/health', (req, res) => {
-  res.send('Server is running');
+app.get("/health", (req, res) => {
+  res.send("Server is running");
 });
 
 const PORT = process.env.AUDIO_PORT || 5555;
