@@ -70,6 +70,8 @@ io.on("connection", (socket: Socket) => {
 
   socket.join(roomId);
 
+  console.log("room size", io.sockets.adapter.rooms.get(roomId)?.size);
+
   if (!roomUpdates[roomId]) {
     roomUpdates[roomId] = [];
   }
@@ -128,6 +130,14 @@ io.on("connection", (socket: Socket) => {
       roomUpdates[roomId].length,
       roomDocs[roomId].toString()
     );
+  });
+
+  socket.on("disconnect", () => {
+    if (io.sockets.adapter.rooms.get(roomId)?.size === undefined) {
+      delete roomUpdates[roomId];
+      delete roomDocs[roomId];
+      delete pending[roomId];
+    }
   });
 });
 
