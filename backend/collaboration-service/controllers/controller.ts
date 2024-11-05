@@ -112,14 +112,8 @@ export const getHistoryHandler = async (req: Request, res: Response): Promise<vo
 // Save Code Handler
 export const saveCodeHandler = async (req: Request, res: Response): Promise<void> => {
   res.setHeader("Content-Type", "application/json");
-
-  const { roomId, code, programming_language } = req.body;
-
-  if (!roomId || !code) {
-    res.status(400).json({ error: "Missing roomId or code" });
-    return;
-  }
-
+  const { roomId, code, language } = req.body;
+  console.log(roomId + code + language);
   try {
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
     if (existingSession) {
@@ -139,7 +133,7 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
       userTwo: match.userTwo,
       room_id: roomId,
       code: code,
-      programming_language: programming_language,
+      programming_language: language,
       question: match.question,
       createdAt: new Date(),
     });

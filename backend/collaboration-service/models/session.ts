@@ -5,7 +5,7 @@ const SessionSchema = new Schema({
   userOne: { type: String, required: true },
   userTwo: { type: String, required: true },
   room_id: { type: String, required: true, unique: true },
-  code: { type: String, required: true },
+  code: { type: String },
   programming_language: { type: String, required: true },
   question: { type: Types.ObjectId, ref: "Question", required: true }, 
   createdAt: { type: Date, default: Date.now }

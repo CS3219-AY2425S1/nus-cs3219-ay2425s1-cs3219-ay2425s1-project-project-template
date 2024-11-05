@@ -13,7 +13,7 @@ interface CodeEditorProps {
   setOutput: React.Dispatch<React.SetStateAction<string>>;
   roomId: string;
   language: string;
-  onCodeChange?: (code: string) => void; 
+  onCodeChange: (code: string) => void;
   userName: string;
   userId: string;
   userEmail: string;
@@ -38,7 +38,7 @@ export default function CodeEditor({
   userName,
   userEmail,
   userId,
-  onCodeChange
+  onCodeChange,
 }: CodeEditorProps) {
   const codeEditorRef = useRef<editor.IStandaloneCodeEditor>();
   const monaco = useMonaco();
@@ -48,8 +48,6 @@ export default function CodeEditor({
   const executeCode = async () => {
     if (!codeEditorRef.current) return;
     const code = codeEditorRef.current.getValue();
-
-  onCodeChange?.(code);
 
     // Get the language from the Monaco editor
     const currentLanguage = codeEditorRef.current.getModel()?.getLanguageId();
@@ -168,14 +166,6 @@ export default function CodeEditor({
         return;
       }
       monaco.editor.getModels().forEach((editor) => editor.dispose());
-
-      // Listen to changes and notify parent
-      codeEditorRef.current?.onDidChangeModelContent(() => {
-        const code = codeEditorRef.current?.getValue();
-        if (code !== undefined) {
-          onCodeChange?.(code);
-        }
-      });
     };
   }, [monaco]);
 
@@ -218,7 +208,11 @@ export default function CodeEditor({
         onMount={(editor) => {
           codeEditorRef.current = editor;
         }}
-        onChange={(value) => setUserInput(value || "")} // Update userInput in real-time
+        onChange={(value) => {
+          console.log(value);
+          setUserInput(value || "");
+          onCodeChange(value || "")
+        }} 
       />
     </div>
   );

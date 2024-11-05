@@ -49,29 +49,20 @@ export default function Page() {
     constraints: "",
   });
 
-  const handleCodeChange = (newCode: string) => {
-    setCode(newCode);
-  };
-
   const saveCodeAndEndSession = async () => {
     console.log(code);
     try {
-      if (code){
         const response = await axios.post(`/collaboration-service/save-code`, {
-          roomId,
-          code,
-          language,
+          roomId:roomId,
+          code:code,
+          language:language,
         });
         if (response.status !== 200) throw new Error("Failed to save code");
     
         toast.success("Code saved successfully");
         //router.push("/match"); 
       }
-      else {
-       // router.push("/match"); 
-       console.log("code is empty")
-      }
-    } catch (error) {
+    catch (error) {
       console.error("Error saving code:", error);
       toast.error("Error saving code");
       //router.push("/match");
@@ -175,7 +166,7 @@ export default function Page() {
                 userEmail={user?.email || "unknown user"}
                 userId={user?.id || "unknown user"}
                 userName={user?.username || "unknown user"}
-                onCodeChange={handleCodeChange}
+                onCodeChange={setCode}
               />
             </div>
 
