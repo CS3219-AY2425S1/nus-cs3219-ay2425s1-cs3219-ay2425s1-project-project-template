@@ -1,4 +1,5 @@
 import axios from 'axios';
+import QuestionNotFoundError from '../errors/QuestionNotFoundError';
 
 const BASE_URL = 'http://localhost:4000/api/questions';
 
@@ -76,6 +77,28 @@ const getQuestionById = async (id, cookies) => {
     }
 };
 
+// Get question by topic and difficulty
+const getQuestionByTopicAndDifficulty = async (topic, difficulty, roomId, cookies) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/search`, {
+            headers: {
+                Authorization: `Bearer ${cookies.token}`
+            },
+            params: { topic, difficulty, roomId },
+            withCredentials: true
+        });
+        if (!response.data) {
+            throw new QuestionNotFoundError();
+        }
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            throw new QuestionNotFoundError();
+        }
+        throw reformatError('Error getting question by topic and difficulty:', error);
+    }
+};
+
 // Filter questions by specific category (topic / difficulty)
 const filterQuestions = async (category, filter) => {
     try {
@@ -83,7 +106,7 @@ const filterQuestions = async (category, filter) => {
         return response.data;
     } catch (error) {
         console.error('Error filtering questions:', error);
-        throw reformatError('Error filteirng questions:', error);
+        throw reformatError('Error filtering questions:', error);
     }
 };
 
@@ -102,4 +125,6 @@ const getAllQuestions = async (cookies) => {
     }
 };
 
-export default { createQuestion, updateQuestion, deleteQuestion, getQuestionById, filterQuestions, getAllQuestions };
+const questionService = { createQuestion, updateQuestion, deleteQuestion, getQuestionById, getQuestionByTopicAndDifficulty, filterQuestions, getAllQuestions };
+
+export default questionService;
