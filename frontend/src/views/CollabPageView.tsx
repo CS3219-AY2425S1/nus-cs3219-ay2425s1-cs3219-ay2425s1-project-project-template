@@ -23,6 +23,8 @@ import { Loader2 } from "lucide-react";
 import {
   HTTP_SERVICE_COLLAB,
   WS_SERVICE_COLLAB,
+  HTTP_SERVICE_HISTORY,
+  SuccessObject,
   callFunction,
 } from "@/lib/utils";
 
@@ -128,13 +130,7 @@ const CollabPageView: React.FC = () => {
         const attemptDate = moment().tz("Asia/Singapore").format();
         setDateAttempted(attemptDate);
         console.log("Attempt date:", attemptDate);
-
-        const createQuestionAttempted =
-        import.meta.env.VITE_HISTORY_SERVICE_CREATE_QUESTION_BACKEND_URL ||
-        "http://localhost:5005/create-question-attempted";
-
-        console.log("Request URL:", createQuestionAttempted);
-
+        
         const requestBody = {
           userUid: uid, 
           questionUid: questionData.id, 
@@ -144,28 +140,21 @@ const CollabPageView: React.FC = () => {
         console.log("Request Body:", requestBody);
 
         try{
-          const response = await fetch(createQuestionAttempted, {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${token}`, // If using JWT or similar
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          });
+          const response: SuccessObject = await callFunction(
+            HTTP_SERVICE_HISTORY,
+            "create-question-attempted",
+            "POST",
+            requestBody
+          );
 
-          console.log("Response Status:", response.status);
-
-          if (response.ok) {
-            const result = await response.json();
-            console.log(result.message);
+          if (response.success) {
+            console.log("Success:", response.data.message);
           } else {
-              const error = await response.json();
-              console.error('Error creating question:', error.message);
+            console.error("Error creating question:", response.error);
           }
         } catch (error) {
-          console.error('Network error:', error);
+          console.error("Network error:", error);
         }
-
       });
 
       console.log("Current user ID:", userId);
@@ -321,38 +310,17 @@ const CollabPageView: React.FC = () => {
 
       console.log("Request Body for storing executed code:", requestBody);
 
-      const token = sessionStorage.getItem("authToken");
-      if (!token) {
-        console.error("No token found!");
-        return;
-      }
+      const result: SuccessObject = await callFunction(
+        HTTP_SERVICE_HISTORY,
+        "store-user-executed-code",
+        "POST",
+        requestBody
+      );
 
-      console.log(import.meta.env.VITE_HISTORY_SERVICE_CREATE_QUESTION_BACKEND_URL);
-
-      const storeUserExecutedCode =
-      import.meta.env.VITE_HISTORY_SERVICE_STORE_USER_CODE_BACKEND_URL ||
-      "http://localhost:5005/store-user-executed-code";
-
-      console.log("Request URL for storing executed code:", storeUserExecutedCode);
-
-      const result = await fetch(storeUserExecutedCode, {
-        method: "POST",
-        headers: {
-            'Authorization': `Bearer ${token}`, // If using JWT or similar
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log("Response Status from storing executed code:", result.status);
-
-
-      if (result.ok) {
-        const output = await result.json();
-        console.log("Successfully stored executed code:", output.message);
+      if (result.success) {
+        console.log("Success:", result.data.message);
       } else {
-          const error = await result.json();
-          console.error('Error storing executed code:', error.message);
+        console.error("Error storing executed code:", result.error);
       }
       
     } catch (error) {
