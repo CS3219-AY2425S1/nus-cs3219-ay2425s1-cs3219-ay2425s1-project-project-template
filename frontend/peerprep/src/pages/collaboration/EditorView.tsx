@@ -6,6 +6,9 @@ import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
+import Chat from "./Chat";
+import GeminiChat from "./GeminiChat"; 
+import { Box } from "@chakra-ui/react";
 import ChatBox from "./ChatBox";
 import { addQuestionToUser } from "./updateQuestionController";
 
@@ -121,10 +124,15 @@ const EditorView: React.FC = () => {
           }
         `}
       </style>
+      <Box style={styles.leftSection}>
+        {/* Question Section */}
+        
+        {/* Question Section */}
+        <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
+        {/* GeminiChat Section */}
+        <GeminiChat socketRef={socketRef} />
+      </Box>
 
-      {/* Question Section */}
-      <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
-      
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
         {/* Chat Section */}
@@ -140,9 +148,13 @@ const EditorView: React.FC = () => {
 };
 
 const styles = {
-  questionSection: {
+  leftSection: {
+    display: "flex",
+    flexDirection: "column" as const,
     width: "30%",
     padding: "20px",
+  },
+  questionSection: {
     color: "#ffffff",
     overflowY: "auto",
     backgroundColor: "#2e2e3e",
@@ -275,7 +287,6 @@ const styles = {
     transition: "background-color 0.3s ease",
   },
   editorContainer: {
-    flex: "0 0 50%", // Allocating 50% height for the editor container
     backgroundColor: "#1e1e2e",
     padding: "10px",
     borderRadius: "8px",
