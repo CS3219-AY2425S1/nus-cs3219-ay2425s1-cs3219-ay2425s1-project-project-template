@@ -67,7 +67,7 @@ const EditorView: React.FC = () => {
     setQuestion(question);
   }
 
-  const handleQuestionUpdate = async () => {
+  const handleQuestionUpdate = async (question : Question | null, currentCode: string) => {
     if (question && currentCode && user) {
       const userQuestion = {
         questionId: question.ID,
@@ -81,18 +81,15 @@ const EditorView: React.FC = () => {
       console.log("Added Question:", userQuestion);
       await addQuestionToUser(user.id, userQuestion, authApi);
     }
-    await userContext.refetch();
+    await userContext?.refetch();
   };
 
-  const disconnectAndGoBack = async () => {
-    const confirmDisconnect = window.confirm("Are you sure you want to disconnect?");
-    if (confirmDisconnect) {
-      socketRef.current?.disconnect();
-      sessionStorage.setItem("disconnected", "true");
-      sessionStorage.removeItem("reconnectUrl");
-      await handleQuestionUpdate();
-      navigate("/dashboard");
-    }
+  const disconnectAndGoBack = async (question : Question | null, currentCode: string) => {
+    await handleQuestionUpdate(question, currentCode);
+    socketRef.current?.disconnect();
+    sessionStorage.setItem("disconnected", "true");
+    sessionStorage.removeItem("reconnectUrl");
+    navigate("/dashboard");
   };
 
   console.log(socketRef.current);
@@ -131,16 +128,11 @@ const EditorView: React.FC = () => {
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
         {/* Chat Section */}
-        <ChatBox roomId={roomId} user={user ?? null} />
+        <ChatBox roomId={roomId} user={user ?? null} styles={styles} onEndSession={disconnectAndGoBack} question={question} currentCode={currentCode}/>
 
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
-          {socketRef.current && <EditorElement socket={socketRef.current} />}
-        </div>
-
-        {/* Disconnect Button */}
-        <div style={styles.disconnectButtonContainer}>
-        {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
+          {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
         </div>
       </div>
     </div>

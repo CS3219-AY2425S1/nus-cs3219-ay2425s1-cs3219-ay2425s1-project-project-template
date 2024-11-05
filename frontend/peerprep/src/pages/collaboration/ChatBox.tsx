@@ -1,19 +1,31 @@
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
+import { Question } from "../question/questionModel";
 
 const socketUrl = "http://localhost:8081"; // Chat service port
 
 interface ChatBoxProps {
   roomId: string | null;
   user: { username: string } | null;
+  onEndSession: (question : Question | null, currentCode : string) => Promise<void>;
+  question: Question | null; 
+  currentCode: string;
 }
-
-const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user }) => {
+  
+const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, styles, onEndSession, question, currentCode }) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const [socketId, setSocketId] = useState<string | undefined>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null); // Ref to store the socket instance
+  const questionRef = useRef<Question | null>(question);
+  const currentCodeRef = useRef<string>(currentCode);
+
+  useEffect(() => {
+    questionRef.current = question;
+    currentCodeRef.current = currentCode;
+  }, [question, currentCode]);
 
   useEffect(() => {
     // Initialize the socket connection once
@@ -21,6 +33,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user }) => {
 
     socketRef.current.on("connect", () => {
       setSocketId(socketRef.current?.id);
+
+      if (roomId) {
+        socketRef.current?.emit("joinRoom", roomId);
+        console.log("Joined room:", roomId);
+      }
     });
 
     // Listen for messages from the server
@@ -34,11 +51,17 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user }) => {
       }
     });
 
+  
+    socketRef.current.on("leaveSession", () => {
+      console.log("Session Ended");
+      onEndSession(questionRef.current, currentCodeRef.current); 
+    });
+
     // Clean up the socket connection when the component unmounts
     return () => {
       socketRef.current?.disconnect();
     };
-  }, []);
+  }, [onEndSession]);
 
   const sendMessage = () => {
     if (message.trim() && socketRef.current) {
@@ -53,10 +76,21 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user }) => {
     }
   };
 
+  
+  const handleEndSession = () => {
+    const confirmDisconnect = window.confirm("Are you sure you want to disconnect?");
+    if (confirmDisconnect) {
+      socketRef.current?.emit("endSession", roomId);
+    }
+  }
+
   return (
     <div>
+      <button onClick={handleEndSession}>
+          End Session
+      </button>
       {/* Chat UI */}
-      <div ref={chatBoxRef} style={{ maxHeight: "300px", overflowY: "auto" }}>
+      <div ref={chatBoxRef} style={styles.chatContainer}>
         {messages.map((msg, index) => (
           <div key={index}>{msg}</div>
         ))}

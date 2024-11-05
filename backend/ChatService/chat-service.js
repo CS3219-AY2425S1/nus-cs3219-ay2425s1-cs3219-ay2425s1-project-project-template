@@ -21,6 +21,19 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`Chat user connected: ${socket.id}`);
 
+  socket.on("joinRoom", (roomId) => {
+    if (roomId === "") {
+      // If no room specified, broadcast the message to all connected clients
+      socket.broadcast.emit("receiveMessage", {
+        username: messageData.username,
+        message: messageData.message,
+      });
+    } else {
+      socket.join(roomId);
+      console.log(`User ${socket.id} joined room: ${roomId}`);
+    }
+  });
+
   // Listen for sendMessage events from clients
   socket.on("sendMessage", (messageData) => {
     const { room, message, username } = messageData;
@@ -32,10 +45,6 @@ io.on("connection", (socket) => {
         message: messageData.message,
       });
     } else {
-      // If a room is specified, join the room and broadcast the message to that room
-      socket.join(room);
-      console.log(`Chat user ${socket.id} joined room ${room}`);
-      
       //const questionId = roomQuestionMapping[room];
       // Emit the message to all clients in the same room
       io.to(room).emit("receiveMessage", {
@@ -50,6 +59,13 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Chat user disconnected: ${socket.id}`);
   });
+
+  // Handle end session event
+  socket.on("endSession", (roomId) => {
+    console.log(roomId, "session has ended")
+    io.to(roomId).emit("leaveSession");
+  });
+
 });
 
 // Start the server
