@@ -1,7 +1,10 @@
 FROM nginx:alpine
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY ../nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 80
+# Install envsubst for environment variable substitution
+RUN apk add --no-cache gettext
+
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
