@@ -15,6 +15,7 @@ import { basicSetup, EditorView } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { GetHistory, GetUserQuestionHistories } from "@/app/services/history";
 import { ValidateUser, VerifyTokenResponseType } from "@/app/services/user";
+import { GetVisibleTests, Test } from "@/app/services/execute";
 
 interface Submission {
   submittedAt: string;
@@ -72,6 +73,7 @@ export default function QuestionPage() {
     currentPage: 1,
     limit: 3,
   });
+  const [visibleTestCases, setVisibleTestCases] = useState<Test[]>([]);
 
   const state = EditorState.create({
     doc: "",
@@ -128,6 +130,10 @@ export default function QuestionPage() {
       .finally(() => {
         setIsLoading(false);
       });
+
+    GetVisibleTests(questionDocRefId).then((data: Test[]) => {
+      setVisibleTestCases(data);
+    });
   }, [questionDocRefId]);
 
   useEffect(() => {
@@ -211,7 +217,7 @@ export default function QuestionPage() {
                 complexity={complexity}
                 categories={categories}
                 description={description}
-                testcaseItems={undefined}
+                visibleTestcases={visibleTestCases}
               />
             </Col>
             <Col span={12} className="second-col">
