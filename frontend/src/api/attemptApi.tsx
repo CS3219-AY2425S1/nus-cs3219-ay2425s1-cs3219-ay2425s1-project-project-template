@@ -8,7 +8,7 @@ export const createAttempt = async (attemptData: any, token: string) => {
   console.log("Token:", token);
 
   try {
-    const response = await axios.post(`${API_URL}/api/attempts`, attemptData, {
+    const response = await axios.post(`${API_URL}/attempts`, attemptData, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -27,7 +27,7 @@ export const fetchUserAttempts = async (token: string, signal?: AbortSignal) => 
   console.log("fetchUserAttempts called with token:", token);
 
   try {
-    const response = await axios.get(`${API_URL}/api/attempts`, {
+    const response = await axios.get(`${API_URL}/attempts`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -43,7 +43,7 @@ export const fetchUserAttempts = async (token: string, signal?: AbortSignal) => 
 
 export const fetchAttemptById = async (attemptId: string, token: string) => {
   try {
-    const response = await axios.get(`${API_URL}/api/attempts/${attemptId}`, {
+    const response = await axios.get(`${API_URL}/attempts/${attemptId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
