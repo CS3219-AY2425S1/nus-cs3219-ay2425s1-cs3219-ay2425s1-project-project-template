@@ -29,24 +29,32 @@ export async function updateMatchCompletion(matchId: string): Promise<boolean> {
     return !!match
 }
 
-export async function findPaginatedMatches(start: number, limit: number): Promise<IMatch[]> {
-    return matchModel.find().limit(limit).skip(start)
+export async function findPaginatedMatches(start: number, limit: number, userId: string): Promise<IMatch[]> {
+    return matchModel
+        .find({
+            $or: [{ user1Id: userId }, { user2Id: userId }],
+        })
+        .limit(limit)
+        .skip(start)
 }
 
 export async function findPaginatedMatchesWithSort(
     start: number,
     limit: number,
-    sortBy: string[][]
+    sortBy: string[][],
+    userId: string
 ): Promise<IMatch[]> {
     return matchModel
-        .find()
+        .find({
+            $or: [{ user1Id: userId }, { user2Id: userId }],
+        })
         .sort(sortBy.map(([key, order]): [string, SortOrder] => [key, order as SortOrder]))
         .limit(limit)
         .skip(start)
 }
 
 export function getSortKeysAndOrders(): { keys: string[]; orders: string[] } {
-    return { keys: ['complexity'], orders: ['asc', 'desc'] }
+    return { keys: ['complexity', 'createdAt'], orders: ['asc', 'desc'] }
 }
 
 export function isValidSort(key: string, order: string): boolean {
