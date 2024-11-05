@@ -53,12 +53,10 @@ const createQuestion = async (req, res) => {
     } = questionData;
 
     if (!title || !description || !difficulty || !topics) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "All of title, description, difficulty and topics are required",
-        });
+      return res.status(400).json({
+        message:
+          "All of title, description, difficulty and topics are required",
+      });
     }
 
     // Check for duplicates (we define duplicates as either having same title or same description)
@@ -74,7 +72,11 @@ const createQuestion = async (req, res) => {
     }
 
     // Query to check for the same description
-    const descriptionQuery = questionsRef.where("description", "==", description);
+    const descriptionQuery = questionsRef.where(
+      "description",
+      "==",
+      description
+    );
     const descriptionSnapshot = await descriptionQuery.get();
     if (!descriptionSnapshot.empty) {
       return res
@@ -109,21 +111,16 @@ const editQuestion = async (req, res) => {
     const { id, title, description, topics, difficulty } = req.body;
 
     if (!id) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Question id not passed to backend properly"
-        });
+      return res.status(400).json({
+        message: "Question id not passed to backend properly",
+      });
     }
 
     if (!title || !description || !difficulty || !topics) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "All of title, description, difficulty and topics are required",
-        });
+      return res.status(400).json({
+        message:
+          "All of title, description, difficulty and topics are required",
+      });
     }
 
     // Check for duplicates (we define duplicates as either having same title or same description)
@@ -132,7 +129,7 @@ const editQuestion = async (req, res) => {
     // Query to check for the same title, but exclude check for the question being edited
     const titleQuery = questionsRef.where("title", "==", title);
     const titleSnapshot = await titleQuery.get();
-    const titleDocuments = titleSnapshot.docs.filter(doc => doc.id !== id);
+    const titleDocuments = titleSnapshot.docs.filter((doc) => doc.id !== id);
     if (titleDocuments.length > 0) {
       return res
         .status(400)
@@ -140,24 +137,28 @@ const editQuestion = async (req, res) => {
     }
 
     // Query to check for the same description, but exclude check for the question being edited
-    const descriptionQuery = questionsRef.where("description", "==", description);
+    const descriptionQuery = questionsRef.where(
+      "description",
+      "==",
+      description
+    );
     const descriptionSnapshot = await descriptionQuery.get();
-    const descriptionDocuments = descriptionSnapshot.docs.filter(doc => doc.id !== id);
+    const descriptionDocuments = descriptionSnapshot.docs.filter(
+      (doc) => doc.id !== id
+    );
     if (descriptionDocuments.length > 0) {
       return res
         .status(400)
         .json({ message: "A question with this description already exists" });
     }
 
-    const questionRef = db
-      .collection("questions")
-      .doc(id);
+    const questionRef = db.collection("questions").doc(id);
 
-    await questionRef.update({ 
-      title: title, 
-      description: description, 
-      topics: topics, 
-      difficulty: difficulty 
+    await questionRef.update({
+      title: title,
+      description: description,
+      topics: topics,
+      difficulty: difficulty,
     });
     res.status(200).send();
   } catch (error) {
@@ -181,10 +182,50 @@ const deleteQuestion = async (req, res) => {
   }
 };
 
+// get questions from an array of question ids
+const getQuestionsByIds = async (req, res) => {
+  try {
+    const questionIds = req.body.questionIds;
+
+    if (!questionIds) {
+      return res.status(400).json({
+        message: "Question IDs is (are) required",
+      });
+    }
+
+    const questionDataArray = []; // push each qn data into here
+
+    for (const questionId of questionIds) {
+      const questionDoc = await db
+        .collection("questions")
+        .doc(questionId)
+        .get();
+
+      if (!questionDoc.exists) {
+        console.log(`Question ID "${questionId}" doesn't exist!`);
+        continue;
+      }
+
+      const tempQuestion = {
+        id: questionId,
+        ...questionDoc.data(),
+      };
+      
+      questionDataArray.push(tempQuestion);
+    }
+
+    res.status(200).json(questionDataArray);
+    return questionDataArray;
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllQuestions,
   getQuestionsOfTopicAndDifficulty,
   createQuestion,
   editQuestion,
   deleteQuestion,
+  getQuestionsByIds,
 };
