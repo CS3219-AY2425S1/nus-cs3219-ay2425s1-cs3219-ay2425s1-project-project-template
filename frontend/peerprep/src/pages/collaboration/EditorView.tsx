@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { UserContext, UserQuestion, useUserContext } from "../../context/UserContext";
+import {
+  UserContext,
+  UserQuestion,
+  useUserContext,
+} from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
@@ -39,7 +43,7 @@ const EditorView: React.FC = () => {
       navigate("/dashboard");
       return;
     }
-    
+
     socketRef.current = io("http://localhost:3004/", {
       path: "/api",
       query: { roomId },
@@ -65,11 +69,14 @@ const EditorView: React.FC = () => {
     console.log("Code saved:", code);
   };
 
-  const saveQuestion = (question : Question) => {
+  const saveQuestion = (question: Question) => {
     setQuestion(question);
-  }
+  };
 
-  const handleQuestionUpdate = async (question : Question | null, currentCode: string) => {
+  const handleQuestionUpdate = async (
+    question: Question | null,
+    currentCode: string
+  ) => {
     if (question && currentCode && user) {
       const userQuestion = {
         questionId: question.ID,
@@ -86,7 +93,10 @@ const EditorView: React.FC = () => {
     await userContext?.refetch();
   };
 
-  const disconnectAndGoBack = async (question : Question | null, currentCode: string) => {
+  const disconnectAndGoBack = async (
+    question: Question | null,
+    currentCode: string
+  ) => {
     await handleQuestionUpdate(question, currentCode);
     socketRef.current?.disconnect();
     sessionStorage.setItem("disconnected", "true");
@@ -94,8 +104,6 @@ const EditorView: React.FC = () => {
     navigate("/dashboard");
   };
 
-  console.log(socketRef.current);
-  
   return (
     <div style={styles.container}>
       {/* Inline CSS for dark scrollbars */}
@@ -125,7 +133,12 @@ const EditorView: React.FC = () => {
       </style>
       {/* Question Section */}
       <Box style={styles.leftSection}>
-        <QuestionDisplay className="editor-scrollbar" questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
+        <QuestionDisplay
+          className="editor-scrollbar"
+          questionId={questionId}
+          styles={styles}
+          onFetchQuestion={saveQuestion}
+        />
       </Box>
 
       {/* Editor and Chat Section */}
@@ -142,7 +155,9 @@ const EditorView: React.FC = () => {
           />
         </Box>
         <Box style={styles.editorContainer} className="editor-scrollbar">
-          {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
+          {socketRef.current && (
+            <EditorElement socket={socketRef.current} onCodeChange={saveCode} />
+          )}
         </Box>
       </Box>
     </div>
