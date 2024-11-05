@@ -1,20 +1,26 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { UserContext } from "../../context/UserContext";
+import { UserContext, UserQuestion, useUserContext } from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
+import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
 import Chat from "./Chat";
+import { addQuestionToUser } from "./updateQuestionController";
 
 const EditorView: React.FC = () => {
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
   const [socketId, setSocketId] = useState<string | undefined>("");
+  const [currentCode, setCurrentCode] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const userContext = useContext(UserContext);
+  const userContext = useUserContext();
   const user = userContext?.user;
-
   const [searchParams] = useSearchParams();
+  const [question, setQuestion] = useState<Question | null>(null);
+  const authApi = useAuthApiContext();
+
 
   const roomId = searchParams.get("room");
   const questionId = searchParams.get("questionId");
@@ -52,13 +58,41 @@ const EditorView: React.FC = () => {
     };
   }, []);
 
-  const disconnectAndGoBack = () => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
+  const saveCode = (code: string) => {
+    setCurrentCode(code);
+    console.log("Code saved:", code);
+  };
+
+  const saveQuestion = (question : Question) => {
+    setQuestion(question);
+  }
+
+  const handleQuestionUpdate = async () => {
+    if (question && currentCode && user) {
+      const userQuestion = {
+        questionId: question.ID,
+        title: question.Title,
+        description: question.Description,
+        complexity: question.Complexity,
+        categories: question.Categories,
+        link: question.Link,
+        attempt: currentCode,
+      };
+      console.log("Added Question:", userQuestion);
+      await addQuestionToUser(user.id, userQuestion, authApi);
     }
-    sessionStorage.setItem("disconnected", "true");
-    sessionStorage.removeItem("reconnectUrl");
-    navigate("/dashboard");
+    await userContext.refetch();
+  };
+
+  const disconnectAndGoBack = async () => {
+    const confirmDisconnect = window.confirm("Are you sure you want to disconnect?");
+    if (confirmDisconnect) {
+      socketRef.current?.disconnect();
+      sessionStorage.setItem("disconnected", "true");
+      sessionStorage.removeItem("reconnectUrl");
+      await handleQuestionUpdate();
+      navigate("/dashboard");
+    }
   };
 
   console.log(socketRef.current);
@@ -92,10 +126,15 @@ const EditorView: React.FC = () => {
       </style>
 
       {/* Question Section */}
-      <QuestionDisplay questionId={questionId} styles={styles} />
+      <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
 
       {/* Editor and Chat Section */}
       <div style={styles.rightSection}>
+        <div style={styles.disconnectButtonContainer}>
+          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
+            End Session
+          </button>
+        </div>
         <Chat
           socketRef={socketRef}
           // socketId={socketId}
@@ -104,12 +143,7 @@ const EditorView: React.FC = () => {
         />
         {/* Editor Section */}
         <div style={styles.editorContainer} className="editor-scrollbar">
-          {socketRef.current && <EditorElement socket={socketRef.current} />}
-        </div>
-        <div style={styles.disconnectButtonContainer}>
-          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
-            Disconnect
-          </button>
+          {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
         </div>
       </div>
     </div>
@@ -235,16 +269,16 @@ const styles = {
     cursor: "pointer",
   },
   disconnectButtonContainer: {
-    marginTop: "10px",
+    marginBottom: "10px",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "end",
   },
   disconnectButton: {
-    padding: "10px 15px",
+    padding: "8px 12px",
     backgroundColor: "#f44336",
     color: "white",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "4px",
     cursor: "pointer",
     fontSize: "16px",
     fontWeight: "bold",
