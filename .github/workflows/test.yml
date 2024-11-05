@@ -27,10 +27,9 @@ jobs:
           EXECUTION_SERVICE_URL: ${{ vars.EXECUTION_SERVICE_URL }}
         run: |
           cd ./apps/question-service
-          
           echo "FIREBASE_CREDENTIAL_PATH=$QUESTION_FIREBASE_CREDENTIAL_PATH" >> .env
           echo "JWT_SECRET=$JWT_SECRET" >> .env
-          echo "EXECUTION_SERVICE_URL=$EXECUTION_SERVICE_URL" >> .env
+          echo "EXECUTION_SERVICE_URL=http://localhost:8083/" >> .env
       
       - name: Set up credentials
         env:
