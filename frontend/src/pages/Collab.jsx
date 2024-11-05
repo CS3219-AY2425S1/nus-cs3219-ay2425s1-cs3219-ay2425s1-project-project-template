@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Editor from "@monaco-editor/react";
-import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
@@ -190,7 +189,7 @@ const Collab = () => {
                         cancelQuit={handleQuitCancel} 
                     />
                 )}
-                {!isSoloSession && showPartnerQuitPopup && (
+                {!isSoloSession && showPartnerQuitPopup && countdown > 0 && (
                     <PartnerQuitPopup 
                         confirmQuit={handleQuitConfirm} 
                         cancelQuit={() => setShowPartnerQuitPopup(false)} 
@@ -212,9 +211,6 @@ const Collab = () => {
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 className="custom-snackbar"
             />
-            <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%', backgroundColor: 'white', color: 'black' }}>
-                Session Started
-            </Alert>
         </>
     );
 };
