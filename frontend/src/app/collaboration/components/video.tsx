@@ -6,6 +6,7 @@ import {
   CiVideoOn,
   CiVideoOff,
 } from "react-icons/ci";
+import { Button } from "@/components/ui/button";
 type VideoCallProps = {
   provider: WebrtcProvider;
 };
@@ -251,7 +252,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
   };
 
   return (
-    <div className="absolute bottom-0 right-0 mb-2 mr-8">
+    <div className="absolute bottom-0 right-0 mb-2 mr-8 flex">
       <div className="flex flex-row gap-2">
         <div>
           <video
@@ -312,7 +313,11 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           )}
         </div>
       </div>
-      {!videoStart && <button onClick={startCall}>Start Call</button>}
+      {!videoStart && (
+        <Button onClick={startCall} className="self-end ml-4">
+          Start Video Call
+        </Button>
+      )}
     </div>
   );
 };
