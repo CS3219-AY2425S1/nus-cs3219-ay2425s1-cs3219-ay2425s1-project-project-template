@@ -22,9 +22,8 @@ export default function TestcasesTab({
                 activeTab={activeTestcaseIdx}
                 setActiveTab={setActiveTestcaseIdx}
             />
-                <span className="mt-2">Expected output = </span>
-                <span className="px-2 py-1 rounded-lg bg-slate-100 w-full">{testOutputs[activeTestcaseIdx]}</span>
-            </div>
+            <span className="mt-2">Expected output = </span>
+            <span className="px-2 py-1 rounded-lg bg-slate-100 w-full">{testOutputs[activeTestcaseIdx]}</span>
         </div>
     )
 }
