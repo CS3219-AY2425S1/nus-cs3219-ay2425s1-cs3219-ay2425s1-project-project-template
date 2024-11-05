@@ -76,6 +76,29 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    
+  code-execution-service:
+    build: ./code-execution-service
+    container_name: code-execution-service-dev
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./code-execution-service:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PISTON_API_URL=https://emkc.org/api/v2/piston
+      - QUESTION_SERVICE_URL=http://question-service:8000/Questions
+    command: npm run start:dev
+    depends_on:
+      redis:
+        condition: service_healthy
+      question-service:
+        condition: service_started
+    networks:
+      - app-network
 
   collaborative-code-editor-service:
     build: ./collaborative-code-editor-service

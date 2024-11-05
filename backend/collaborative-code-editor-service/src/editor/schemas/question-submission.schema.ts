@@ -5,7 +5,7 @@ interface TestResult {
   testCaseNumber: number;
   input: string;
   expectedOutput: string;
-  actualOutput: string;
+  actualOutput?: string;
   passed: boolean;
   error?: string;
   compilationError?: string | null;
@@ -39,9 +39,9 @@ export class QuestionSubmission {
       failedTests: { type: Number, required: true },
       testResults: [{
         testCaseNumber: { type: Number, required: true },
-        input: { type: String, required: true },
+        input: { type: String },
         expectedOutput: { type: String, required: true },
-        actualOutput: { type: String, required: true },
+        actualOutput: { type: String },
         passed: { type: Boolean, required: true },
         error: { type: String },
         compilationError: { type: String }
