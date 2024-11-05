@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { langs } from "@uiw/codemirror-extensions-langs";
+import { dracula } from '@uiw/codemirror-theme-dracula'
 import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
 import { indentUnit } from "@codemirror/language";
 import { type Socket } from "socket.io-client";
@@ -134,9 +135,34 @@ const EditorElement: React.FC<Props> = ({ socket, className, onCodeChange}) => {
       <CodeMirror
         className={`flex-1 text-left ${className} text-white`}
         height="100%"
-        basicSetup={false}
+        basicSetup={{
+          lineNumbers: true,
+          highlightActiveLineGutter: true,
+          highlightSpecialChars: true,
+          history: true,
+          foldGutter: true,
+          drawSelection: true,
+          dropCursor: true,
+          allowMultipleSelections: true,
+          indentOnInput: true,
+          syntaxHighlighting: true,
+          bracketMatching: true,
+          closeBrackets: true,
+          autocompletion: true,
+          rectangularSelection: true,
+          crosshairCursor: true,
+          highlightActiveLine: true,
+          highlightSelectionMatches: true,
+          closeBracketsKeymap: true,
+          defaultKeymap: true,
+          searchKeymap: true,
+          historyKeymap: true,
+          foldKeymap: true,
+          completionKeymap: true,
+          lintKeymap: true,
+      }}
         id="codeEditor" // Ensure this ID is set for styling
-        theme="dark" // Dark mode set permanently
+        theme={"dark"} // Dark mode set permanently
         extensions={[
           indentUnit.of("\t"),
           basicSetup(),
