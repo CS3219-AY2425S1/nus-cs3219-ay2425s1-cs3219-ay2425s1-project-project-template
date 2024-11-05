@@ -8,6 +8,7 @@ import MatchingPage from './views/matching-page/MatchingPage';
 
 import styles from './App.module.css';
 import CollaborationPage from './views/collaboration-page/CollaborationPage';
+import ProfilePage from './views/profile-page/ProfilePage';
 
 function App() {
   return (
@@ -17,9 +18,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<MainPage />}>
               {/* <Route index element={<QuestionTable />} />  */}
-              <Route path='/' element={<MatchingPage /> } />
-              <Route path="/collab/:roomId" element={<CollaborationPage/>} />
-              </Route>
+              <Route path='/' element={<MatchingPage />} />
+              <Route path="/collab/:roomId" element={<CollaborationPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
           </Route>
 
           <Route path="/login" element={<LoginPage />} />

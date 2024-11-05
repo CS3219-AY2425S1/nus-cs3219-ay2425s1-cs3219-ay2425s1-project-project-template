@@ -2,9 +2,10 @@ import useLogout from '../../hooks/useLogout';
 import styles from './Navbar.module.css'
 import { useCookies } from 'react-cookie';
 import { useLocation } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+    const navigate = useNavigate();
     const { handleLogout } = useLogout();
     const [cookies] = useCookies(['username']); 
     const location = useLocation(); 
@@ -18,10 +19,26 @@ const Navbar = () => {
         }
     };
 
+    const handleProfileClick = () => {
+        if (isInCollabRoom) {
+            alert("You cannot view profile while in a collaboration room. Leave the room first!"); // Alert if in collaboration room
+        } else {
+            navigate("/profile", { replace: true} );
+        }
+    };
+
+    const handleMatchClick = () => {
+        if (isInCollabRoom) {
+            alert("You cannot view matching page while in a collaboration room. Leave the room first!"); // Alert if in collaboration room
+        } else {
+            navigate("/", { replace: true} );
+        }
+    };
+
     return (
         <div className={styles.nav}>
             <nav className={styles.navContent}>
-                <div className={styles.navBrand}>
+                <div className={styles.navBrand} onClick={() => handleMatchClick()}>
                     PeerPrep
                 </div>
                 <div className={styles.navContainer}>
@@ -30,6 +47,12 @@ const Navbar = () => {
                             Hello, {cookies.username}
                         </div>
                     )}
+                    <button className={styles.navButton} onClick={() => { handleMatchClick() }}>
+                        Get Match
+                    </button>
+                    <button className={styles.navButton} onClick={() => { handleProfileClick() }}>
+                        Profile
+                    </button>
                     <button className={styles.navButton} onClick={() => { handleLogoutClick() }}>
                         Log out
                     </button>
