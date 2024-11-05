@@ -1,8 +1,9 @@
 "use client" 
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import {
     Form,
     FormControl,
@@ -35,6 +36,12 @@ const formSchema = z.object({
   difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
   categories: z.array(z.string()).optional(),
   description: z.string().optional(),
+  testCases: z.array(
+    z.object({
+      input: z.string().min(1, { message: "Input is required." }),
+      expected: z.string().min(1, { message: "Output is required." }),
+    })
+  ).min(1, { message: "At least one test case is required." })
 });
 
 interface EditQuestionFormProps {
@@ -53,7 +60,8 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
           title: "",
           difficulty: undefined,
           categories: [],
-          description: ""
+          description: "",
+          testCases: []
         },
       })
 
@@ -71,6 +79,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
               difficulty: data[0].difficulty,
               categories: data[0].categories,
               description: data[0].description,
+              testCases: data[0].testCases,
             })
           }
 
@@ -103,6 +112,13 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         form.setValue('categories', newCategories, { shouldDirty: true });
       };
 
+      const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "testCases",
+      });
+
+      
+
       // 2. Define a submit handler.
       async function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
@@ -110,6 +126,13 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         console.log("val", values)
 
         var hasError = false;
+        const parsedValues = {
+          ...values,
+          testCases: values.testCases.map((testCase) => ({
+            input: JSON.parse(testCase.input),
+            expected: JSON.parse(testCase.expected),
+          })),
+        }
 
         try {
             if (!isDirty) {
@@ -122,20 +145,20 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
             const updatedFields: any = {}
 
             if (dirtyFields.title) {
-              updatedFields.title = values.title;
+              updatedFields.title = parsedValues.title;
             }
 
             if (dirtyFields.description) {
-              updatedFields.description = values.description;
+              updatedFields.description = parsedValues.description;
             }
 
             if (dirtyFields.categories) {
-              values.categories.sort();
-              updatedFields.categories = values.categories;
+              parsedValues.categories!.sort();
+              updatedFields.categories = parsedValues.categories;
             }
 
             if (dirtyFields.difficulty) {
-              updatedFields.difficulty = values.difficulty;
+              updatedFields.difficulty = parsedValues.difficulty;
             }
 
             console.log('updatedFields', updatedFields);
@@ -171,7 +194,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
 
 
     return (
-        <div className="flex justify-center">
+        <div className="flex justify-center max-h-[80vh] overflow-y-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-1/2">
             {error && (
@@ -267,6 +290,52 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
                 </FormItem>
               )}
             />
+            <div className="space-y-4">
+              <Label className="text-lg font-semibold">Test Cases</Label>
+              {fields.map((field, index) => (
+                <div key={field.id} className="space-y-2 border p-4 rounded-md mb-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-md font-medium">Test Case {index + 1}</Label>
+                    <Button variant="destructive" size="sm" onClick={() => remove(index)}>
+                      -
+                    </Button>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name={`testCases.${index}.input`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Input" {...field} className="mt-1" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`testCases.${index}.expected`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea placeholder="Expected Output" {...field} className="mt-2" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
+              {/* Render validation message for empty test cases */}
+              {form.formState.errors.testCases && (
+                <p className="text-red-500 text-sm">
+                  {form.formState.errors.testCases.message}
+                </p>
+              )}
+              <Button type="button" onClick={() => append({ input: '', expected: '' })}>
+                + Add Test Case
+              </Button>
+            </div>
             <div className="flex justify-end w-full space-x-2">
                 <Button className="bg-gray-300 text-black hover:bg-gray-400" type="button" onClick={onClose}>Cancel</Button>
                 <Button className="primary-color hover:bg-violet-900" type="submit">Submit</Button>
