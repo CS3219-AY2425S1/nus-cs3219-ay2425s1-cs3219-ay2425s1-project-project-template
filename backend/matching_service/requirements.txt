@@ -19,4 +19,5 @@ redis
 websockets
 waitress
 pytest
+pytest-cov
 pytest-mock
