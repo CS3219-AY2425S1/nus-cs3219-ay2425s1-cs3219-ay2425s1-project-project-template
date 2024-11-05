@@ -2,15 +2,18 @@
     background-color: #FCFCFC;
     border-radius: 10px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    max-width: 50rch;
-    margin: 0 auto;
+    flex: 1;
     text-align: left;
+    overflow: auto;
   }
   
   .output-header {
     padding: 15px;
     background-color: #1C1678;
     border-radius: 10px 10px 0px 0px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   .output-header h2 {
@@ -21,15 +24,23 @@
     text-align: left;
   }
 
-  .output-subheader {
-    padding: 0px 15px;
+  .run-button {
+    font-family: Poppins;
+    font-size: 1.1rem;
+    background-color: #7bc9ff;
+    color: black;
+    font-weight: bold;
+    padding: 2px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .run-button:hover {
+    background-color: #357ae8;
+    color: white;
   }
 
-  .output-subheader h3 {
-    font-size: 24;
-    word-wrap: break-word;
-    text-align: left;
-  }
 
   .output-content {
     padding: 0px 15px 15px;

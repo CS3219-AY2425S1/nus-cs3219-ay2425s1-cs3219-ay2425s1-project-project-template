@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../styles/CollabQuestion.css';
+import '../../styles/collab-question.css';
 
 const QuestionContainer = ({ question }) => {
     return (

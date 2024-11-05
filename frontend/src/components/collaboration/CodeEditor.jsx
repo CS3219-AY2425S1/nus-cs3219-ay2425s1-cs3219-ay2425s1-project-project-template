@@ -1,13 +1,14 @@
 import { useState } from "react"
 import { Editor } from "@monaco-editor/react"
+import "../../styles/code-editor.css"
 
 const CodeEditor = ({ language, onMount }) => {
     const [value, setValue] = useState("");
 
     return (
-        <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div className="editor-container">
             <Editor
-                theme="vs-dark"
+                theme="vs-light"
                 defaultLanguage="python"
                 language={language}
                 onMount={onMount}

@@ -182,9 +182,9 @@ const Collab = () => {
             />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "calc(100vh - 75px)", padding: "10px" }}>
                 <QuestionContainer question={question} />
-                <div style={{ display: "grid", gridTemplateRows: "1fr 1fr" }}>
+                <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", marginLeft: "10px", rowGap: "10px", overflow: "auto" }}>
                     <CodeEditor language={language} onMount={handleEditorDidMount} />
-                    <Output />
+                    <Output editorRef={editorRef} language={language} />
                 </div>
             </div>
 
