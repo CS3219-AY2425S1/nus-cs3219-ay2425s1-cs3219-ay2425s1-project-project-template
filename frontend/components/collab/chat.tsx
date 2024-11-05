@@ -13,7 +13,11 @@ import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
 import { getChatHistory } from "@/lib/api/collab-service/get-chat-history";
-import { AuthType, collabServiceWebSockUri } from "@/lib/api/api-uri";
+import {
+  AuthType,
+  baseApiGatewayUri,
+  constructUriSuffix,
+} from "@/lib/api/api-uri";
 
 interface Message {
   id: string;
@@ -89,15 +93,10 @@ export default function Chat({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (!auth?.user?.id) return;
 
-    console.log(`${collabServiceWebSockUri(window.location.hostname, AuthType.Public)}/chat`);
-
-    const socketInstance = io(
-      `${window.location.hostname}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}`,
-      {
-        path: "/public/collab-service/chat",
-        auth: { userId: own_user_id },
-      }
-    );
+    const socketInstance = io(baseApiGatewayUri(window.location.hostname), {
+      path: `${constructUriSuffix(AuthType.Public, "collab-service")}/chat`,
+      auth: { userId: own_user_id },
+    });
 
     socketInstance.on("connect", () => {
       console.log("Connected to Socket.IO");

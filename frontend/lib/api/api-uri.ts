@@ -5,12 +5,21 @@ export enum AuthType {
   Admin = "admin",
 }
 
-const constructUri = (
+export const baseApiGatewayUri: (baseUri: string) => string = (baseUri) =>
+  `http://${process.env.NEXT_PUBLIC_BASE_URI || baseUri}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}`;
+
+export const constructUriSuffix: (
+  authType: AuthType,
+  serviceName: string
+) => string = (authType: AuthType, serviceName: string) =>
+  `/${authType}/${serviceName}`;
+
+const constructUri: (
   baseUri: string,
   authType: AuthType,
   serviceName: string
-) =>
-  `http://${process.env.NEXT_PUBLIC_BASE_URI || baseUri}:${process.env.NEXT_PUBLIC_API_GATEWAY_PORT}/${authType}/${serviceName}`;
+) => string = (baseUri: string, authType: AuthType, serviceName: string) =>
+  `${baseApiGatewayUri(baseUri)}/${constructUriSuffix(authType, serviceName)}`;
 
 export const userServiceUri: (baseUri: string, authType: AuthType) => string = (
   baseUri: string,
