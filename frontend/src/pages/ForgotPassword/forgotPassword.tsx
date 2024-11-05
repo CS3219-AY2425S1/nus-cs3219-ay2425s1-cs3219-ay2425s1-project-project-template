@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
             <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />
             {success ?
                 <>
-                    <h1>Reset email address has been sent if the email is associated with an account</h1>
+                    <h1>Instruction for password reset has been sent if the email is associated with an account</h1>
                     <h1>Please check your email inbox and junk inbox.</h1>
                     <Link className="text-buttonColour hover:underline" to="/">Return to homepage</Link>
                 </> :

@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine as builder
+FROM node:18-alpine as dev
 
 WORKDIR /app
 
@@ -15,8 +15,10 @@ COPY . .
 # Build TypeScript code
 RUN npm run build
 
+CMD ["npm", "run", "dev"]
+
 # Production stage
-FROM node:18-alpine
+FROM node:18-alpine AS production
 
 WORKDIR /app
 
@@ -27,7 +29,7 @@ COPY package*.json ./
 RUN npm install --production
 
 # Copy built files from builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=dev /app/dist ./dist
 
 # Expose port
 EXPOSE 3000

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function ResetPasswordPage() {
-    const [success, setSuccess] = useState(true);
+    const [success, setSuccess] = useState(false);
 
     const urlToken = window.location.search.split("=")[1];
 

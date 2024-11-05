@@ -8,12 +8,21 @@ import Output from './console';
 import { useSocket } from '../../contexts/SocketContext';
 import { useNavigate, useParams } from 'react-router-dom';
 
+const MONACOLANGUAGES: Record<string, string> = {
+    "C++": "cpp",
+    "Java": "java",
+    "Python 3": "python",
+    "Javascript": "javascript",
+    "C#": "csharp",
+    "SQL": "sql"
+};
+
 const CodeEditor = ({ qid }: { qid: Number }) => {
     const { roomId } = useParams();
     const { collabSocket } = useSocket();
     const editorRef = useRef();
     const [value, setValue] = useState("");
-    const [language, setLanguage] = useState("python");
+    const [language, setLanguage] = useState("Python 3");
     const navigate = useNavigate();
 
     const onMount = (editor: any) => {
@@ -67,9 +76,9 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
                     height="100vh"
                     width="100%"
                     theme="vs-dark"
-                    defaultLanguage={language}
+                    defaultLanguage={MONACOLANGUAGES[language]}
                     defaultValue={CODE_SNIPPETS[language]}
-                    language={language.toLowerCase()}
+                    language={MONACOLANGUAGES[language]}
                     onMount={onMount}
                     value={value}
                     onChange={(value) => {
