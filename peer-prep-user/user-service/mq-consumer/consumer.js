@@ -31,7 +31,6 @@ const startConsume = async (onMessage) => {
   }
 }
 
-// To implement generation of session URL @LYNETTE @YUANTING -
 async function onMessage(message) {
   updateUsers(message.users.username1, message.users.username2, message.question)
 }
