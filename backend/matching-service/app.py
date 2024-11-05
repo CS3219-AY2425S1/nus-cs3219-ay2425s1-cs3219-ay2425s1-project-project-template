@@ -72,6 +72,7 @@ def match_user(request):
             sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty} and topic: {topic}"))
             pending_requests.remove(pending)
             print("Sent match found event", file=sys.stderr)
+            print("New pending requests list: " + str(pending_requests), file=sys.stderr)
             return
         elif pending['topic'] == topic:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)

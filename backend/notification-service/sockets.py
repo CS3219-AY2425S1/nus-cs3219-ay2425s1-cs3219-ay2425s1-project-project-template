@@ -1,6 +1,7 @@
 from app import app
 from flask_socketio import emit, SocketIO
 from flask import request
+import sys
 
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 connected_users = {}  # {user_id: socket_id}
@@ -30,16 +31,16 @@ def handle_match_found(data):
     # Notify user 1 if connected
     if user1_socket_id:
         emit("notification", {"match": user2_name, "match_message": match_message}, room=user1_socket_id)
-        print(f"Notification sent to user {user1_name} about user {user2_name}")
+        print(f"Notification sent to user {user1_name} about user {user2_name}", file=sys.stderr)
     else:
-        print(f"User {user1_name} is not connected")
+        print(f"User {user1_name} is not connected", file=sys.stderr)
 
     # Notify user 2 if connected
     if user2_socket_id:
         emit("notification", {"match": user1_name, "match_message": match_message}, room=user2_socket_id)
-        print(f"Notification sent to user {user2_name} about user {user1_name}")
+        print(f"Notification sent to user {user2_name} about user {user1_name}", file=sys.stderr)
     else:
-        print(f"User {user2_name} is not connected")
+        print(f"User {user2_name} is not connected", file=sys.stderr)
 
 
 @socketio.on("disconnect")

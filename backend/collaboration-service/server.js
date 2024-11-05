@@ -1,29 +1,41 @@
 require("dotenv").config();
+const cors = require('cors');
 const express = require('express');
 const http = require('http');
-const WebSocket = require('ws');
+const { Server } = require('socket.io');
 
 // Set up Express
 const app = express();
 const server = http.createServer(app);
+app.use(cors())
 
-// Set up WebSocket server
-const wss = new WebSocket.Server({ server });
+const io = new Server(server, {
+  cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"]
+  }
+});
 
-// Handle WebSocket connections
-wss.on('connection', (ws) => {
+
+io.on('connection', (socket) => {
   console.log('New client connected');
 
   // Broadcast incoming messages to all connected clients
-  ws.on('message', (message) => {
+  /**
+  socket.on('message', (message) => {
     wss.clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
     });
   });
+  */
 
-  ws.on('close', () => {
+  socket.on('message', (message) => {
+    socket.broadcast.emit('message', message);
+  });
+
+  socket.on('close', () => {
     console.log('Client disconnected');
   });
 });

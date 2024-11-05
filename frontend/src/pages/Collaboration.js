@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
 
-const socket = io('http://localhost:3002'); // replace with your server URL
+const socket = io('http://localhost:5002');
 
 export const Collaboration = () => {
     const [chatMessages, setChatMessages] = useState([]);
@@ -17,7 +17,18 @@ export const Collaboration = () => {
         socket.on('chatMessage', (message) => {
             setChatMessages((prevMessages) => [...prevMessages, {text: message, isSent: false}]);
         });
-        return () => socket.off('chatMessage');
+
+        socket.on('leave', (message) => {
+            console.log(message);
+            alert(message);
+            cancelLeave();
+            navigate('/home');
+        })
+
+        return () => {
+            socket.off('chatMessage');
+            socket.off('leave');
+        }
     }, []);
 
     const handleSendMessage = () => {
@@ -35,6 +46,8 @@ export const Collaboration = () => {
 
     const confirmLeave = () => {
         setShowModal(false);
+        socket.emit('leave', `${localStorage.getItem('username')} has left!`);
+        cancelLeave();
         navigate('/home');
     }
 
