@@ -12,7 +12,7 @@ export const HTTP_SERVICE_HISTORY =
   import.meta.env.VITE_HISTORY_SERVICE_BACKEND_URL || "http://localhost:5005";
 
 export const WS_SERVICE_COLLAB =
-  import.meta.env.VITE_COLLAB_SERVICE_WS_URL || "ws://localhost:5004";
+  import.meta.env.VITE_COLLAB_SERVICE_WS_BACKEND_URL || "ws://localhost:5004";
 
 
 
