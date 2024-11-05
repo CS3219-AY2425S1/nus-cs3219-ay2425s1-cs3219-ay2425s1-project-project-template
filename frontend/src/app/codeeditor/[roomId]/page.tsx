@@ -48,6 +48,7 @@ const CollabRoomPage = ({ params }: {
 
     return (
         <div>
+            <div>Happy Coding, {roomId}!</div>
             <CollaborativeCodingPage
                 initialCode='import math'
                 language="javascript"
