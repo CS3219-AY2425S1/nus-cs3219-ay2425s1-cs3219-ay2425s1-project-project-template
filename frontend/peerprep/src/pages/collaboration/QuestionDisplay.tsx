@@ -2,7 +2,20 @@ import { useEffect, useState } from "react";
 import { useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 
-const QuestionDisplay = ({ questionId, styles, onFetchQuestion }) => {
+interface QuestionDisplayProps {
+  questionId: string | null; // The ID of the question to fetch and display
+  styles: {
+    questionSection: React.CSSProperties;
+    questionTitle: React.CSSProperties;
+    questionDetail: React.CSSProperties;
+    questionSubheading: React.CSSProperties;
+    leetCodeLink: React.CSSProperties;
+  };
+  onFetchQuestion: (question: Question) => void;
+}
+
+
+const QuestionDisplay : React.FC<QuestionDisplayProps> = ({ questionId, styles, onFetchQuestion }) => {
   const api = useQuesApiContext();
   const [question, setQuestion] = useState<Question | null>(null);
 
@@ -27,7 +40,7 @@ const QuestionDisplay = ({ questionId, styles, onFetchQuestion }) => {
 
       <div style={styles.questionDetail}>
         <p>
-          <strong>Complexity:</strong> {question.Complexity}
+          <strong style={styles.questionSubheading}>Complexity:</strong> {question.Complexity}
         </p>
       </div>
 

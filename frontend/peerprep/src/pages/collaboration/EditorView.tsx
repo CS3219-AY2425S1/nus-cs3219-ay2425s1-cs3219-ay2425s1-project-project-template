@@ -1,12 +1,18 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
-import { UserContext, UserQuestion, useUserContext } from "../../context/UserContext";
+import {
+  UserContext,
+  UserQuestion,
+  useUserContext,
+} from "../../context/UserContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
-import Chat from "./Chat";
+import GeminiChat from "./GeminiChat";
+import { border, Box, Button } from "@chakra-ui/react";
+import ChatBox from "./ChatBox";
 import { addQuestionToUser } from "./updateQuestionController";
 
 const EditorView: React.FC = () => {
@@ -15,12 +21,12 @@ const EditorView: React.FC = () => {
   const [socketId, setSocketId] = useState<string | undefined>("");
   const [currentCode, setCurrentCode] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const userContext = useUserContext();
+  const userContext = useContext(UserContext);
   const user = userContext?.user;
+
   const [searchParams] = useSearchParams();
   const [question, setQuestion] = useState<Question | null>(null);
   const authApi = useAuthApiContext();
-
 
   const roomId = searchParams.get("room");
   const questionId = searchParams.get("questionId");
@@ -63,11 +69,14 @@ const EditorView: React.FC = () => {
     console.log("Code saved:", code);
   };
 
-  const saveQuestion = (question : Question) => {
+  const saveQuestion = (question: Question) => {
     setQuestion(question);
-  }
+  };
 
-  const handleQuestionUpdate = async () => {
+  const handleQuestionUpdate = async (
+    question: Question | null,
+    currentCode: string
+  ) => {
     if (question && currentCode && user) {
       const userQuestion = {
         questionId: question.ID,
@@ -81,21 +90,19 @@ const EditorView: React.FC = () => {
       console.log("Added Question:", userQuestion);
       await addQuestionToUser(user.id, userQuestion, authApi);
     }
-    await userContext.refetch();
+    await userContext?.refetch();
   };
 
-  const disconnectAndGoBack = async () => {
-    const confirmDisconnect = window.confirm("Are you sure you want to disconnect?");
-    if (confirmDisconnect) {
-      socketRef.current?.disconnect();
-      sessionStorage.setItem("disconnected", "true");
-      sessionStorage.removeItem("reconnectUrl");
-      await handleQuestionUpdate();
-      navigate("/dashboard");
-    }
+  const disconnectAndGoBack = async (
+    question: Question | null,
+    currentCode: string
+  ) => {
+    await handleQuestionUpdate(question, currentCode);
+    socketRef.current?.disconnect();
+    sessionStorage.setItem("disconnected", "true");
+    sessionStorage.removeItem("reconnectUrl");
+    navigate("/dashboard");
   };
-
-  console.log(socketRef.current);
 
   return (
     <div style={styles.container}>
@@ -124,41 +131,59 @@ const EditorView: React.FC = () => {
           }
         `}
       </style>
-
       {/* Question Section */}
-      <QuestionDisplay questionId={questionId} styles={styles} onFetchQuestion={saveQuestion}/>
+      <Box style={styles.leftSection}>
+        <QuestionDisplay
+          className="editor-scrollbar"
+          questionId={questionId}
+          styles={styles}
+          onFetchQuestion={saveQuestion}
+        />
+      </Box>
 
       {/* Editor and Chat Section */}
-      <div style={styles.rightSection}>
-        <div style={styles.disconnectButtonContainer}>
-          <button onClick={disconnectAndGoBack} style={styles.disconnectButton}>
-            End Session
-          </button>
-        </div>
-        <Chat
-          socketRef={socketRef}
-          // socketId={socketId}
-          styles={styles}
-          chatBoxRef={chatBoxRef}
-        />
-        {/* Editor Section */}
-        <div style={styles.editorContainer} className="editor-scrollbar">
-          {socketRef.current && <EditorElement socket={socketRef.current} onCodeChange={saveCode}/>}
-        </div>
-      </div>
+      <Box style={styles.rightSection}>
+        <Box style={styles.topSection}>
+          <GeminiChat socketRef={socketRef} />
+          <ChatBox
+            roomId={roomId}
+            user={user ?? null}
+            style={styles.chatContainer}
+            onEndSession={disconnectAndGoBack}
+            question={question}
+            currentCode={currentCode}
+          />
+        </Box>
+        <Box style={styles.editorContainer} className="editor-scrollbar">
+          {socketRef.current && (
+            <EditorElement socket={socketRef.current} onCodeChange={saveCode} />
+          )}
+        </Box>
+      </Box>
     </div>
   );
 };
 
 const styles = {
-  questionSection: {
+  container: {
+    display: "flex",
+    backgroundColor: "#1e1e2e",
+    padding: "10px",
+    borderRadius: "8px",
+  },
+  leftSection: {
+    display: "flex",
+    flexDirection: "column" as const,
     width: "30%",
     padding: "20px",
+  },
+  questionSection: {
     color: "#ffffff",
-    overflowY: "auto",
     backgroundColor: "#2e2e3e",
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    overflowY: "auto",
+    padding: "5px",
   },
   questionTitle: {
     fontSize: "1.5rem",
@@ -185,115 +210,33 @@ const styles = {
     marginTop: "10px",
     display: "inline-block",
   },
-
-  container: {
-    display: "flex",
-    height: "100vh",
-    backgroundColor: "#1e1e2e",
-  },
-
   rightSection: {
     display: "flex",
     flexDirection: "column" as const,
     width: "70%",
     padding: "10px",
-    overflow: "auto", // Prevent right section overflow
   },
-  topRight: {
+  topSection: {
     display: "flex",
-    flex: "0 0 50%", // Allocating 50% height to video and chat
-    marginBottom: "10px",
-  },
-  videoContainer: {
-    flex: 1,
-    marginRight: "10px",
-    border: "1px solid #333",
-    borderRadius: "8px",
-    backgroundColor: "#2e2e3e",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  videoPlaceholder: {
-    color: "#ffffff",
-    fontSize: "18px",
-    textAlign: "center",
+    marginBottom: "15px",
   },
   chatContainer: {
     flex: 1,
     display: "flex",
     flexDirection: "column" as const,
-    padding: "10px",
-    border: "1px solid #333",
-    borderRadius: "8px",
+    padding: "15px",
     backgroundColor: "#2e2e3e",
+    borderRadius: "8px",
     color: "#ffffff",
-    overflowY: "auto", // Enable scroll for chat container
-  },
-  chatBox: {
-    flex: 1,
     overflowY: "auto",
-    backgroundColor: "#1e1e2e",
-    border: "1px solid #444",
-    borderRadius: "8px",
-    padding: "10px",
-    color: "#ffffff",
-  },
-  socketIdDisplay: {
-    padding: "5px",
-    backgroundColor: "#333",
-    textAlign: "center",
-    color: "#70a4a7",
-    borderRadius: "8px",
-    marginBottom: "10px",
-  },
-  messageInputContainer: {
-    display: "flex",
-    alignItems: "center",
-  },
-  input: {
-    flex: 1,
-    padding: "10px",
-    borderRadius: "5px",
-    backgroundColor: "#333",
-    border: "1px solid #444",
-    color: "#ffffff",
-    marginRight: "5px",
-  },
-  sendButton: {
-    padding: "8px 12px",
-    backgroundColor: "#4CAF50",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  disconnectButtonContainer: {
-    marginBottom: "10px",
-    display: "flex",
-    justifyContent: "end",
-  },
-  disconnectButton: {
-    padding: "8px 12px",
-    backgroundColor: "#f44336",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "bold",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-    transition: "background-color 0.3s ease",
   },
   editorContainer: {
-    flex: "1 1 auto", // Allocating 50% height for the editor container
     backgroundColor: "#1e1e2e",
-    padding: "10px",
+    padding: "15px",
     borderRadius: "8px",
-    overflowY: "auto", // Enable scroll for editor container
-  },
-  message: {
-    color: "#ffffff",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    overflowY: "auto",
+    outerWidth: "auto",
   },
 };
 
