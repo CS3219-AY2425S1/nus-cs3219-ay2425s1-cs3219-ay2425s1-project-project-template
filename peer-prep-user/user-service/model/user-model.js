@@ -25,6 +25,10 @@ const UserModelSchema = new Schema({
     type: Boolean,
     required: true,
     default: false
+  },
+  matches: {
+    type: Array,
+    default: []
   }
 })
 
