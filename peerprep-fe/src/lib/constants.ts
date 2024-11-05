@@ -22,9 +22,19 @@ export const INITIAL_PROBLEM_DATA: Problem = {
   title_slug: '',
 };
 
-export const SUPPORTED_PROGRAMMING_LANGUAGES = ['Python', 'Javascript'];
+export const SUPPORTED_PROGRAMMING_LANGUAGES = ['Python', 'Java', 'C++'];
 
-export const DEFAULT_CODE = '';
+export const LANGUAGE_VERSIONS: { [key: string]: string } = {
+  python: '3.10.0',
+  java: '15.0.2',
+  'c++': '9.3.0',
+};
+
+export const LANGUAGE_EXTENSION: { [key: string]: string } = {
+  python: 'py',
+  java: 'java',
+  'c++': 'cpp',
+};
 
 export const PASSWORD_RULES = {
   minLength: 8,

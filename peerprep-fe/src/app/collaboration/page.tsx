@@ -3,7 +3,6 @@
 import ProblemDescriptionPanel from '@/components/problems/ProblemDescriptionPanel';
 import ProblemTable from '@/components/problems/ProblemTable';
 import { useFilteredProblems } from '@/hooks/useFilteredProblems';
-import { SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import { Problem } from '@/types/types';
 import React, {
   Suspense,
@@ -13,18 +12,9 @@ import React, {
   useState,
 } from 'react';
 import { useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import EditorSkeleton from './components/EditorSkeleton';
 import LoadingSpinner from '@/components/loading/LoadingSpinner';
 import { useCollaborationStore } from '@/state/useCollaborationStore';
-
-const CollaborationEditor = dynamic(
-  () => import('./components/CollaborationEditor'),
-  {
-    ssr: false,
-    loading: () => <EditorSkeleton />,
-  },
-);
+import CollaborationEditor from './components/CollaborationEditor';
 
 function CollaborationPageContent() {
   const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
@@ -32,7 +22,6 @@ function CollaborationPageContent() {
   );
   const searchParams = useSearchParams();
   const matchId = searchParams.get('matchId');
-  const [language, setLanguage] = useState(SUPPORTED_PROGRAMMING_LANGUAGES[0]);
   const { problems, isLoading } = useFilteredProblems();
   const { setLastMatchId } = useCollaborationStore();
 
@@ -118,12 +107,7 @@ function CollaborationPageContent() {
         className="flex h-full flex-col overflow-y-auto bg-gray-800 p-6"
         style={{ width: `${100 - leftWidth}%` }}
       >
-        <CollaborationEditor
-          language={language}
-          matchId={matchId}
-          onLanguageChange={setLanguage}
-          supportedLanguages={SUPPORTED_PROGRAMMING_LANGUAGES}
-        />
+        <CollaborationEditor matchId={matchId} />
       </div>
     </div>
   );
