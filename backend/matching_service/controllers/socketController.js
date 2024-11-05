@@ -70,9 +70,7 @@ class SocketController {
 
     const prevUserSocketId = prevUserSessionData.socketId;
 
-    const createsession =
-    process.env.COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL ||
-    "http://localhost:5004/create-session";
+    const createsession = (process.env.COLLAB_SERVICE_CREATE_SESSION_BACKEND_URL || "http://localhost:5004") + "/create-session";
 
     try {
       const questions = await this.getAllQuestionsOfTopicAndDifficulty(
@@ -216,9 +214,7 @@ class SocketController {
   }
 
   async getAllQuestionsOfTopicAndDifficulty(token, topic, difficulty) {
-    const questionServiceTopicAndDifficultyBackendUrl =
-      process.env.QUESTION_SERVICE_TOPIC_AND_DIFFICULTY_BACKEND_URL ||
-      "http://localhost:5002/get-questions-of-topic-and-difficulty";
+    const questionServiceTopicAndDifficultyBackendUrl = (process.env.QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002") + "/get-questions-of-topic-and-difficulty";
 
     const response = await fetch(questionServiceTopicAndDifficultyBackendUrl, {
       method: "POST",
