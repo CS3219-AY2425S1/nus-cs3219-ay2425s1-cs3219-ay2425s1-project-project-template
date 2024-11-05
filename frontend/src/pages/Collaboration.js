@@ -5,6 +5,7 @@ import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
 
 const socket = io('http://localhost:5002');
+const roomName = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
 
 export const Collaboration = () => {
     const [chatMessages, setChatMessages] = useState([]);
@@ -14,23 +15,28 @@ export const Collaboration = () => {
 
     // Sync chat
     useEffect(() => {
+        /**
         socket.on('chatMessage', (message) => {
             setChatMessages((prevMessages) => [...prevMessages, {text: message, isSent: false}]);
         });
+        */
+        
+        // Join the room with partner
+        socket.emit("joinRoom", roomName)
 
         socket.on('leave', (message) => {
             console.log(message);
-            alert(message);
-            cancelLeave();
             navigate('/home');
+            alert(message);
         })
 
         return () => {
-            socket.off('chatMessage');
+            //socket.off('chatMessage');
             socket.off('leave');
         }
     }, []);
 
+    /**
     const handleSendMessage = () => {
         if (currentMessage.trim()) {
             const newMessage = { text: currentMessage, isSent: true };
@@ -39,27 +45,28 @@ export const Collaboration = () => {
             setCurrentMessage('');
         }
     };
+    */
 
     const handleLeaveButtonClick = () => {
        setShowModal(true);
     }
 
     const confirmLeave = () => {
-        setShowModal(false);
-        socket.emit('leave', `${localStorage.getItem('username')} has left!`);
-        cancelLeave();
+        socket.emit('leave', roomName);
         navigate('/home');
     }
 
     const cancelLeave = () => {
         setShowModal(false);
     }
- 
+    
+    /**
     const handleKeyDown = (e) => {
       if (e.key === 'Enter') {
         handleSendMessage();
       }
     };
+    */
 
     return (
         <div className="collaboration-container">
@@ -73,7 +80,7 @@ export const Collaboration = () => {
             </div>
           </div>
           <div className="chat-box-and-button">
-            <h2>Topic:</h2>
+            <h2>Topic: {sessionStorage.getItem("partner")}</h2>
             <h2>Difficulty:</h2>
             <div className="chat-box">
                 <h3>Chat</h3>
@@ -88,10 +95,9 @@ export const Collaboration = () => {
                     type="text"
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
                     placeholder="Type a message..."
                 />
-                <button className="send-button" onClick={handleSendMessage}>Send</button>
+                <button className="send-button">Send</button>
             </div>
             
             <div className="leave-container">

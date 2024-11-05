@@ -11,6 +11,7 @@ import {
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
+import jwt from "jsonwebtoken";
 
 export async function createUser(req, res) {
   try {

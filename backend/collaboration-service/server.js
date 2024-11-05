@@ -1,44 +1,65 @@
 require("dotenv").config();
-const cors = require('cors');
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
+const WebSocket = require('ws');
+const cors = require('cors');
+const SocketIO = require('socket.io');
 
 // Set up Express
 const app = express();
 const server = http.createServer(app);
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow requests from this origin
+  methods: ['GET', 'POST'],         // Allow specific HTTP methods
+  credentials: true                  // Allow credentials (if needed)
+}));
 
-const io = new Server(server, {
-  cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"]
-  }
-});
+// Set up WebSocket server
+const wss = new WebSocket.Server({ server });
 
-
-io.on('connection', (socket) => {
+// Handle WebSocket connections
+wss.on('connection', (ws) => {
   console.log('New client connected');
 
   // Broadcast incoming messages to all connected clients
-  /**
-  socket.on('message', (message) => {
+  ws.on('message', (message) => {
     wss.clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
     });
   });
-  */
 
-  socket.on('message', (message) => {
-    socket.broadcast.emit('message', message);
-  });
-
-  socket.on('close', () => {
+  ws.on('close', () => {
     console.log('Client disconnected');
   });
 });
+
+// This listens for leave messages
+const io = SocketIO(server, {
+  cors: {
+      origin: 'http://localhost:3000', // Allow requests from this origin
+      methods: ['GET', 'POST'],         // Allow specific HTTP methods
+      credentials: true                  // Allow credentials (if needed)
+  }
+});
+io.on('connection', (socket) => {
+  console.log("SocketIO for Collab Page Leave functionality connected");
+
+  socket.on('joinRoom', (roomName) => {
+    console.log(`Room name: ${roomName}`);
+    socket.join(roomName);
+  })
+
+  socket.on('leave', (roomName) => {
+    console.log(`Room name: ${roomName}`);
+    socket.to(roomName).emit("leave", "Your partner has left!");
+  })
+  socket.on('disconnect', () => {
+    console.log("SocketIO for Collab Page Leave functionality Disconnected");
+  })
+})
+
 
 // Start the server
 const PORT = process.env.PORT || 5002;
