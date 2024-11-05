@@ -1,4 +1,3 @@
-// chat-service.js
 import express from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
@@ -21,16 +20,12 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`Chat user connected: ${socket.id}`);
 
-  socket.on("joinRoom", (roomId) => {
-    if (roomId === "") {
-      // If no room specified, broadcast the message to all connected clients
-      socket.broadcast.emit("receiveMessage", {
-        username: messageData.username,
-        message: messageData.message,
-      });
-    } else {
+  // Listen for joinRoom events
+  socket.on("joinRoom", ({ roomId, username }) => {
+    if (roomId) {
       socket.join(roomId);
-      console.log(`User ${socket.id} joined room: ${roomId}`);
+      socket.to(roomId).emit("userJoined", { username }); // Emit the username to others in the room
+      console.log(`User ${username} joined room: ${roomId}`);
     }
   });
 
@@ -38,19 +33,17 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", (messageData) => {
     const { room, message, username } = messageData;
 
-    if (room === "") {
-      // If no room specified, broadcast the message to all connected clients
-      socket.broadcast.emit("receiveMessage", {
-        username: messageData.username,
-        message: messageData.message,
-      });
-    } else {
-      //const questionId = roomQuestionMapping[room];
+    if (room) {
       // Emit the message to all clients in the same room
       io.to(room).emit("receiveMessage", {
         username,
         message,
-        //questionId,
+      });
+    } else {
+      // If no room specified, broadcast the message to all connected clients
+      socket.broadcast.emit("receiveMessage", {
+        username,
+        message,
       });
     }
   });
@@ -65,7 +58,6 @@ io.on("connection", (socket) => {
     console.log(roomId, "session has ended")
     io.to(roomId).emit("leaveSession");
   });
-
 });
 
 // Start the server
