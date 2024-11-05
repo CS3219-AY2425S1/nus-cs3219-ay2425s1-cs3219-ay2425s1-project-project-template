@@ -46,14 +46,19 @@ const receiveMessage = (msg: { conversation: string; message: string }) => {
 const loadConversations = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:5002/api/conversations/${user?.value?.uid}`);
-    console.log(response);
-
-    console.log(response.data.conversations)
     conversations.value = response.data.conversations;
+
+    // Automatically select the newest/active conversation (the one in green)
+    const activeConversation = conversations.value.find((conv) => conv.flag === 'active');
+    if (activeConversation) {
+      selectedConversation.value = activeConversation.sessionName;
+      loadHistory(activeConversation.sessionName); // Load history for the active conversation
+    }
   } catch (error) {
     console.error('Error loading conversations:', error);
   }
 };
+
 
 // load history func
 const loadHistory = async (conversation: string) => {
