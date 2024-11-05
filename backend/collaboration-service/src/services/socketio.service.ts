@@ -1,8 +1,12 @@
 import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
-import { updateLanguage } from '../models/collab.repository'
+import { updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode } from '../types/LanguageMode'
+import { IResponse, ISubmission } from '@repo/submission-types'
+import { SubmissionResponseDto } from '../types/SubmissionResponseDto'
+import { ChatModel } from '../types'
+import { submitCode } from '../controllers/collab.controller'
 
 export class WebSocketConnection {
     private io: IOServer
@@ -26,17 +30,40 @@ export class WebSocketConnection {
                 }
             })
 
+            socket.on('send_message', (data: ChatModel) => {
+                this.io.to(data.roomId).emit('receive_message', data)
+                updateChatHistory(data.roomId, data)
+            })
+
             socket.on('change-language', async (language: string) => {
                 this.io.to(roomId).emit('update-language', language)
                 this.languages.set(roomId, language)
                 await updateLanguage(roomId, language as LanguageMode)
             })
 
+            socket.on('run-code', async (data: ISubmission) => {
+                this.io.to(roomId).emit('executing-code')
+                try {
+                    const dto: SubmissionResponseDto = await submitCode(data)
+                    const { stdout, status, time, stderr, compile_output } = dto
+                    const response: IResponse = { stdout, status, time, stderr, compile_output }
+                    this.io.to(roomId).emit('code-executed', response, data.expected_output)
+                } catch (err) {
+                    this.io.to(roomId).emit('code-executed', { error: err })
+                }
+            })
+
             socket.on('disconnect', async () => {
                 const room = this.io.sockets.adapter.rooms.get(roomId)
                 socket.leave(roomId)
                 if (!this.isUserInRoom(roomId, name)) {
-                    this.io.to(roomId).emit('user-disconnected', name)
+                    const m: ChatModel = {
+                        senderId: '',
+                        message: name,
+                        createdAt: new Date(),
+                        roomId: roomId,
+                    }
+                    this.io.to(roomId).emit('user-disconnected', m)
                     loggerUtil.info(`User ${name} disconnected from room ${roomId}`)
                 }
                 if (!room) {

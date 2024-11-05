@@ -12,3 +12,11 @@ export const createCollabSession = async (data: ICollabSession): Promise<number 
         console.error(error)
     }
 }
+
+export const getChatHistory = async (matchId: string): Promise<any | undefined> => {
+    try {
+        return axiosInstance.get(`/collab/chat/${matchId}`)
+    } catch (error) {
+        console.error(error)
+    }
+}

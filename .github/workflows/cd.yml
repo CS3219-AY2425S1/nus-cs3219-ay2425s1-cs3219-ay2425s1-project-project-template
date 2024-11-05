@@ -18,6 +18,8 @@ jobs:
                       dockerfile: ./backend/question-service/Dockerfile
                     - image: glemenneo/cs3219-ay2425s1-project-g31-matching-service
                       dockerfile: ./backend/matching-service/Dockerfile
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-collaboration-service
+                      dockerfile: ./backend/collaboration-service/Dockerfile
         steps:
             - name: Check out code
               uses: actions/checkout@v4

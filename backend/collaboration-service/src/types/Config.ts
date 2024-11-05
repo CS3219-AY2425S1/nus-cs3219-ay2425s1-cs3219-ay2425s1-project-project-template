@@ -27,10 +27,6 @@ export class Config {
     @IsUrl({ require_tld: false })
     JUDGE_ZERO_URL: string
 
-    @IsString()
-    @IsNotEmpty()
-    JUDGE_ZERO_SUBMIT_CONFIG: string
-
     constructor(
         NODE_ENV: string,
         PORT: string,
@@ -39,8 +35,7 @@ export class Config {
         USER_SERVICE_URL: string,
         QUESTION_SERVICE_URL: string,
         MATCHING_SERVICE_URL: string,
-        JUDGE_ZERO_URL: string,
-        JUDGE_ZERO_SUBMIT_CONFIG: string
+        JUDGE_ZERO_URL: string
     ) {
         this.NODE_ENV = NODE_ENV ?? 'development'
         this.PORT = PORT ?? '3006'
@@ -50,7 +45,6 @@ export class Config {
         this.QUESTION_SERVICE_URL = QUESTION_SERVICE_URL
         this.MATCHING_SERVICE_URL = MATCHING_SERVICE_URL
         this.JUDGE_ZERO_URL = JUDGE_ZERO_URL
-        this.JUDGE_ZERO_SUBMIT_CONFIG = JUDGE_ZERO_SUBMIT_CONFIG
     }
 
     static fromEnv(env: { [key: string]: string | undefined }): Config {
@@ -62,8 +56,7 @@ export class Config {
             env.USER_SERVICE_URL!,
             env.QUESTION_SERVICE_URL!,
             env.MATCHING_SERVICE_URL!,
-            env.JUDGE_ZERO_URL!,
-            env.JUDGE_ZERO_SUBMIT_CONFIG!
+            env.JUDGE_ZERO_URL!
         )
     }
 
