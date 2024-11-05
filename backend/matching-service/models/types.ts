@@ -33,13 +33,14 @@ export interface MatchSession {
         questionId: number;
         title: string;
         difficulty: string;
-        language: string;
         categories: string[];
     };
+    language: string;
 }
 
 export interface CreateMatchRequest extends Request {
     body: {
+        matchId: string;
         collaborators: Types.ObjectId[];
         questionId: number;
     }

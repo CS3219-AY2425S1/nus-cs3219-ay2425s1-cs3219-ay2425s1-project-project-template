@@ -152,7 +152,7 @@ const MatchingFilters = () => {
     }
 
     const handleAccept = (matchId: string) => {
-        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id, language: selectedLanguage });
+        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id });
         setMatchStatus('waiting');
     };
 

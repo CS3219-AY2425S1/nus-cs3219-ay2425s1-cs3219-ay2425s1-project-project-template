@@ -4,15 +4,16 @@ import { CreateMatchRequest } from '../models/types'
 import logger from '../utils/logger'
 
 const addMatch = async (req: CreateMatchRequest, res: Response) => {
-    const { collaborators, questionId } = req.body
+    const { matchId, collaborators, questionId } = req.body
 
-    if (!collaborators || collaborators.length == 0 || !questionId) {
+    if (!matchId || !collaborators || collaborators.length == 0 || !questionId) {
         return res
             .status(400)
             .json({ message: 'Collaborators and question ID are required' })
     }
 
     const match = new SuccessfulMatch({
+        matchId,
         collaborators,
         questionId
     })

@@ -23,9 +23,9 @@ interface SuccessMatchInfoProps {
             questionId: number;
             title: string;
             difficulty: string;
-            language: string;
             categories: string[];
         };
+        language: string;
     };
     onOpenChange: (isOpen: boolean) => void;
     handleAccept: (matchId: string) => void;
@@ -115,7 +115,7 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
                     <div>
                         <h5 className="text-sm mb-2">Language:</h5>
                         <div>
-                            <h4 className="text-lg font-semibold">{match.question.language}</h4>
+                            <h4 className="text-lg font-semibold">{match.language}</h4>
                         </div>
                     </div>
                     {/* Categories */}

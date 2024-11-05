@@ -2,6 +2,6 @@ import { Router } from 'express'
 import { updateMatch } from './updateMatchController'
 
 const router = Router()
-router.patch('/add-match', updateMatch)
+router.patch('/update-match', updateMatch)
 
 export { router }

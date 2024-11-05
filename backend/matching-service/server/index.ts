@@ -1,12 +1,14 @@
 import axios from 'axios'
 import dotenv from 'dotenv'
 import { Server } from 'socket.io'
+import { connectToDatabase } from './db'
 import { sendMatchingRequest } from '../producer/producer'
 import { activeMatches, startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
 
 dotenv.config({ path: './.env' })
 
+connectToDatabase()
 const connectedClients = new Map<string, string>()
 
 const io = new Server({
@@ -57,8 +59,8 @@ const io = new Server({
 
         socket.on(
             'acceptMatch',
-            async (data: { matchId: string; userId: string, language: string }) => {
-                const { matchId, userId, language } = data
+            async (data: { matchId: string; userId: string }) => {
+                const { matchId, userId } = data
                 const matchSession = activeMatches.get(matchId)
 
                 logger.info(`User ${userId} has accepted match ${matchId}`)
@@ -81,7 +83,7 @@ const io = new Server({
                             {
                                 userId1: userId,
                                 userId2: otherUserId,
-                                language: language,
+                                language: matchSession.language,
                             },
                         )
 
