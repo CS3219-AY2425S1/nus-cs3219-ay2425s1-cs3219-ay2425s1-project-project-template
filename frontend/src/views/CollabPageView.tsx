@@ -137,8 +137,6 @@ const CollabPageView: React.FC = () => {
           dateAttempted: attemptDate,
         };
 
-        console.log("Request Body:", requestBody);
-
         try{
           const response: SuccessObject = await callFunction(
             HTTP_SERVICE_HISTORY,
@@ -307,8 +305,6 @@ const CollabPageView: React.FC = () => {
         dateAttempted: dateAttempted,
         codeWritten: sourceCode,
       };
-
-      console.log("Request Body for storing executed code:", requestBody);
 
       const result: SuccessObject = await callFunction(
         HTTP_SERVICE_HISTORY,
