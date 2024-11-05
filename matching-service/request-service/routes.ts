@@ -27,6 +27,12 @@ const matchTopicsMap = new Map();  // New map to store topic based on userID
                 matchesMap.set(matchFoundData.userB, matchFoundData);
                 statusMap.set(matchFoundData.userA, 'isMatched');
                 statusMap.set(matchFoundData.userB, 'isMatched');
+
+                matchTimestamps.delete(matchFoundData.userA);
+                matchTopicsMap.delete(matchFoundData.userB);
+                matchTimestamps.delete(matchFoundData.userA);
+                matchTopicsMap.delete(matchFoundData.userB);
+                console.log("Cleared match request for users: ", matchFoundData.userA, matchFoundData.userB);
             }
         },
     });

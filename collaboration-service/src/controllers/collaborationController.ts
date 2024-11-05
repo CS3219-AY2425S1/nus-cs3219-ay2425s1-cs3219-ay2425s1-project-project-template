@@ -96,7 +96,7 @@ export const createRoom = async (req: Request, res: Response) => {
     }
 
     // "random" algorithm to get a random question from the list of questions
-    const randQuestion = questions[Math.round(Math.random() * questions.length)];
+    const randQuestion = questions[Math.floor(Math.random() * questions.length)];
     const selectedId = randQuestion.questionId;
 
     const roomId = uuidv4();
