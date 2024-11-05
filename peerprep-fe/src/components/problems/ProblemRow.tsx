@@ -10,6 +10,7 @@ import InformationDialog from '../dialogs/InformationDialog';
 import ActionDialog from '../dialogs/ActionDialog';
 import { useRouter } from 'next/navigation';
 import { axiosClient } from '@/network/axiosClient';
+import ProblemDescriptionPanel from './ProblemDescriptionPanel';
 
 function ProblemStatus({ status }: { status: string }) {
   if (status === 'solved') {
@@ -156,7 +157,14 @@ export default function ProblemRow({
         description={problem.description}
         callback={handleMatch}
         callbackTitle="Match"
-      />
+      >
+        <ProblemDescriptionPanel
+          problem={problem}
+          resetQuestion={() => {}}
+          hasHeader={false}
+        />
+      </ActionDialog>
+
       {/* Dialog for deleting question */}
       <ActionDialog
         isOpen={isDeleteDialogOpen}

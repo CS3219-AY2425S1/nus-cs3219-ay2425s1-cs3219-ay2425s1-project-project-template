@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -15,11 +15,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 interface TopicsPopoverProps {
   selectedTopics: string[];
   onChange: (value: string[]) => void;
+  isAdmin?: boolean;
 }
 
 export function TopicsPopover({
   selectedTopics,
   onChange,
+  isAdmin,
 }: TopicsPopoverProps) {
   const [open, setOpen] = useState(false);
   const [topics, setTopics] = useState<string[]>([]);
@@ -58,7 +60,7 @@ export function TopicsPopover({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
-        <div className="p-2">
+        <div className="flex gap-1 p-2">
           <Input
             placeholder="Search topics..."
             value={searchTerm}
@@ -68,8 +70,23 @@ export function TopicsPopover({
             }}
             className="mb-2"
           />
+          {isAdmin && (
+            <Button
+              onClick={async () => {
+                if (!searchTerm.trim()) {
+                  return;
+                }
+                setTopics((prev) => [...prev, searchTerm]);
+                setSearchTerm('');
+              }}
+              className="p-2"
+              variant="outline"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
-        <ScrollArea className="h-[300px]">
+        <ScrollArea className="h-[300px] overflow-y-auto">
           {filteredTopics.length === 0 ? (
             <p className="p-2 text-sm text-muted-foreground">No topic found.</p>
           ) : (

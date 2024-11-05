@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,7 @@ type Props = {
   description: string;
   callback?: () => void;
   callbackTitle?: string;
+  children?: ReactElement;
 };
 
 const ActionDialog = ({
@@ -26,18 +27,23 @@ const ActionDialog = ({
   description,
   callback,
   callbackTitle,
+  children,
 }: Props) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black">
+      <DialogContent className="max-h-[80%] overflow-auto bg-black">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{subtitle}</DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
-          <h3 className="mb-2 text-lg font-semibold">Description:</h3>
-          <p>{description}</p>
-        </div>
+        {children ? (
+          children
+        ) : (
+          <div className="mt-4">
+            <h3 className="mb-2 text-lg font-semibold">Description:</h3>
+            <p>{description}</p>
+          </div>
+        )}
         <div className="mt-6 flex justify-end">
           <Button variant="secondary" onClick={callback}>
             {callbackTitle}
