@@ -17,7 +17,7 @@ const isAdminCheck = async (req, res, next) => {
         });
 
         if (!response.ok) {
-            return res.status(403).json({ message: "Access denied. You are not an admin." });
+            return res.status(403).json({ message: "A problem occurred fetching admin status." });
         }
 
         const data = await response.json();
