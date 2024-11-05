@@ -47,6 +47,7 @@ const EditorElement: React.FC<Props> = ({
     status: "loading",
     result: "",
   });
+  const [isCompiling, setIsCompiling] = useState(false);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -92,6 +93,7 @@ const EditorElement: React.FC<Props> = ({
   };
 
   const submitCode = async () => {
+    setIsCompiling(true);
     try {
       const options = {
         method: "POST",
@@ -111,7 +113,7 @@ const EditorElement: React.FC<Props> = ({
       try {
         const response = await axios.request(options);
         console.log(response.data);
-        if (response.data.exitcode == 0 && response.data.stdout) {
+        if (response.data.stdout) {
           setCompiledResult({
             status: "success",
             result: response.data.stdout,
@@ -127,6 +129,8 @@ const EditorElement: React.FC<Props> = ({
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      setIsCompiling(false);
     }
   };
 
@@ -217,7 +221,11 @@ const EditorElement: React.FC<Props> = ({
       </div>
       <div className="space-y-2 pt-4">
         <div className="flex justify-center">
-          <Button colorScheme={"green"} onClick={() => submitCode()}>
+          <Button
+            isLoading={isCompiling}
+            colorScheme={"green"}
+            onClick={() => submitCode()}
+          >
             Submit code
           </Button>
         </div>
