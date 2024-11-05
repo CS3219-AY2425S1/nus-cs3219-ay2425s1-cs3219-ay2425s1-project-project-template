@@ -26,7 +26,7 @@ How to deploy website to public:
   docker push gcr.io/peerprep-g02/user_service
 
   cd ../question_service 
-  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app/ -t question_service .
+  docker build --build-arg USER_SERVICE_BACKEND_URL=https://user-service-1079323726684.asia-southeast1.run.app -t question_service .
   docker tag question_service gcr.io/peerprep-g02/question_service
   docker push gcr.io/peerprep-g02/question_service
 
