@@ -12,7 +12,8 @@ const socket = io('http://localhost:5002'); // server address
 const messages = ref<string[]>([]);
 const message = ref('');
 const conversations = ref<string[]>([]);
-const selectedConversation = ref('');
+// const selectedConversation = ref('');
+const selectedConversation = ref<string | null>(null); // Track selected conversation
 
 // func for sending msg
 const sendMessage = () => {
@@ -37,10 +38,13 @@ const receiveMessage = (msg: { conversation: string; message: string }) => {
 };
 
 // 
-// const loadConversations = async () => {
-//   const response = await axios.get('http://127.0.0.1:5002/api/conversations'); 
-//   conversations.value = response.data.conversations;
-// };
+
+
+const selectConversation = (conversation: string) => {
+  selectedConversation.value = conversation; // Set the selected conversation
+  loadHistory(conversation); // Load history for the selected conversation
+};
+
 
 const loadConversations = async () => {
   try {
@@ -82,15 +86,26 @@ defineExpose({
 <template>
   <div class="container py-10 mx-auto flex">
     <div class="conversation-list">
-      <h1 style="font-weight: bold; font-size: 20px;">Conversations</h1>
+      <h1 style="font-weight: bold; font-size: 20px;">Select a Conversation</h1>
       <ul>
-        <li v-for="(conversation, index) in conversations" :key="index" @click="loadHistory(conversation.sessionName)">
-          <span :style="{ color: conversation.flag === 'active' ? 'green' : 'red' }">
-        ● <!-- char for status indicator (green/red) -->
-      </span>
-      {{ conversation.sessionName.slice(0, 15) }} 
-      <!-- making convo sessionName shorter on screen-->
-        </li>
+
+        <li
+  v-for="(conversation, index) in conversations"
+  :key="index"
+  :class="{ 'active-conversation': conversation.sessionName === selectedConversation }"
+  @click="selectConversation(conversation.sessionName)"
+>
+  <span :style="{ color: conversation.flag === 'active' ? 'green' : 'red' }">
+    ● <!-- char for status indicator (green/red) -->
+  </span>
+  {{ conversation.sessionName.slice(0, 15) }}
+  <!-- making convo sessionName shorter on screen-->
+</li>
+
+
+
+
+       
       </ul>
     </div>
     <div class="chat-window">
@@ -191,16 +206,31 @@ defineExpose({
   transition: background-color 0.3s; /*  */
 }
 .stop-button {
-  padding: 10px 20px; /*  */
-  background-color: hsl(346, 100%, 50%); /*  */
-  color: white; /*  */
-  border: none; /*  */
-  border-radius: 4px; /*  */
-  cursor: pointer; /*  */
-  transition: background-color 0.3s; /*  */
+  display: none;
 }
 
 .send-button:hover {
   background-color: #0056b3; /*  */
 }
+
+.conversation-list ul li {
+  padding: 10px;
+  margin: 5px 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.conversation-list ul li:hover {
+  background-color: #f0f0f0;
+}
+
+.active-conversation {
+  background-color: #e0e0e0;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+  transform: translateY(2px);
+  font-weight: bold;
+  color: #333;
+}
+
 </style>
