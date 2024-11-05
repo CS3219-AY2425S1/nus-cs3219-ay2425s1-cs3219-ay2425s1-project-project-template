@@ -52,7 +52,6 @@ wss.on('connection', (ws, req) => {
   // Set up Yjs room for collaborative editing
   setupWSConnection(ws, req, { docName: roomId });
 
-  // Custom logic, like tracking connected users for analytics
   if (!rooms.has(roomId)) {
     rooms.set(roomId, new Set());
   }
@@ -66,11 +65,6 @@ wss.on('connection', (ws, req) => {
     room.delete(ws);
     
     console.log("someone left. room size: ", room.size)
-    room.forEach(client => {
-      console.log("client : ", client)
-      client.send(JSON.stringify({ type: 'roomClosed', roomId }));
-    });
-
     if (room.size === 0) {
       rooms.delete(roomId); // Clean up empty rooms
     }
