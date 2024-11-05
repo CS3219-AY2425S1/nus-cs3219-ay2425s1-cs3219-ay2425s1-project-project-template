@@ -1,0 +1,35 @@
+{
+  "name": "session-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"nodemon --exec ts-node src/audio-service.ts\" \"nodemon --exec ts-node src/server.ts\"",
+    "start": "concurrently \"node dist/server.js\" \"node dist/audio-service.js\"",
+    "build": "tsc && echo \"Build completed successfully.\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "pre-commit": "pnpm format && git add -u",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "concurrently": "^9.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "nodemon": "^3.1.7",
+    "simple-peer": "^9.11.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "ts-node": "^10.9.2",
+    "ws": "^8.18.0",
+    "y-websocket": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.12",
+    "typescript": "^5.6.3"
+  }
+}

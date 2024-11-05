@@ -1,0 +1,107 @@
+services:
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    networks:
+      - peerprep-network
+
+  frontend:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/peerprep-fe:latest
+    platform: linux/amd64
+    build:
+      context: ./peerprep-fe
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./peerprep-fe/.env.production
+
+  question-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/question-svc:latest
+    platform: linux/amd64
+    build:
+      context: ./question-service
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - /app/node_modules
+    ports:
+      - "4001:4001"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./question-service/.env.dev
+
+  user-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/user-svc:latest
+    platform: linux/amd64
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - /usr/src/app/node_modules
+    ports:
+      - "3001:3001"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./user-service/.env
+
+  matching-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/matching-svc:latest
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - /app/node_modules
+    ports:
+      - "5001:5001"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./matching-service/.env.production
+
+  api-gateway:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/api-gateway:latest
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    ports:
+      - "8001:8001"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./api-gateway/.env.production
+
+  session-service:
+    image: asia-southeast1-docker.pkg.dev/cs3219-g11-peerprep/cs3219-g11-repo/session-svc:latest
+    build:
+      context: ./session-service
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - /app/node_modules
+    ports:
+      - "4444:4444"
+      - "5555:5555"
+    networks:
+      - peerprep-network
+    env_file:
+      - ./session-service/.env.dev
+
+networks:
+  peerprep-network:
+    driver: bridge
