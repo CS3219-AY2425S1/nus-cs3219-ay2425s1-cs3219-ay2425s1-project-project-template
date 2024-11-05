@@ -19,7 +19,7 @@ const constructUri: (
   authType: AuthType,
   serviceName: string
 ) => string = (baseUri: string, authType: AuthType, serviceName: string) =>
-  `${baseApiGatewayUri(baseUri)}/${constructUriSuffix(authType, serviceName)}`;
+  `${baseApiGatewayUri(baseUri)}${constructUriSuffix(authType, serviceName)}`;
 
 export const userServiceUri: (baseUri: string, authType: AuthType) => string = (
   baseUri: string,

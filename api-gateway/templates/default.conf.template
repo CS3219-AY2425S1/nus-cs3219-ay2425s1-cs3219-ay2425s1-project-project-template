@@ -1,8 +1,8 @@
 include conf.d/api_conf.d/api_backends.conf;
 
 server {
-    listen $PORT;
-    listen [::]:$PORT;
+    listen $API_GATEWAY_SERVICE_PORT;
+    listen [::]:$API_GATEWAY_SERVICE_PORT;
 
     location /public/ {
         include conf.d/api_conf.d/public_conf.d/*.conf;

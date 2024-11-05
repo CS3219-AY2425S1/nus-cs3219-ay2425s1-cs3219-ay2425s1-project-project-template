@@ -1,19 +1,19 @@
 upstream user-service {
-    server user-service:$USER_SVC_PORT;
+    server $USER_SERVICE_SERVICE_HOST:$USER_SERVICE_SERVICE_PORT;
 }
 
 upstream question-service {
-    server question-service:$QUESTION_SVC_PORT;
+    server $QUESTION_SERVICE_SERVICE_HOST:$QUESTION_SERVICE_SERVICE_PORT;
 }
 
 upstream matching-service {
-    server matching-service:$MATCHING_SVC_PORT;
+    server $MATCHING_SERVICE_SERVICE_HOST:$MATCHING_SERVICE_SERVICE_PORT;
 }
 
 upstream collab-service {
-    server collab-service:$COLLAB_SVC_PORT;
+    server $COLLAB_SERVICE_SERVICE_HOST:$COLLAB_SERVICE_SERVICE_PORT;
 }
 
 upstream frontend {
-    server frontend:$FRONTEND_PORT;
+    server $FRONTEND_SERVICE_HOST:$FRONTEND_SERVICE_PORT;
 }

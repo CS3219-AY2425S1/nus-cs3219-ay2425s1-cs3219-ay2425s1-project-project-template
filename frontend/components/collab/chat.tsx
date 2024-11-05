@@ -13,6 +13,7 @@ import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
 import { getChatHistory } from "@/lib/api/collab-service/get-chat-history";
+import { v4 as uuidv4 } from "uuid";
 import {
   AuthType,
   baseApiGatewayUri,
@@ -118,7 +119,7 @@ export default function Chat({ roomId }: { roomId: string }) {
 
         const newMessage = {
           ...message,
-          id: message.messageIndex?.toString() || crypto.randomUUID(),
+          id: message.messageIndex?.toString() || uuidv4(),
           timestamp: new Date(message.timestamp),
         };
 
@@ -152,6 +153,15 @@ export default function Chat({ roomId }: { roomId: string }) {
   const sendMessage = async () => {
     if (!newMessage.trim() || !socket || !isConnected || !own_user_id) return;
 
+    if (!auth || !auth.token) {
+      toast({
+        title: "Access denied",
+        description: "No authentication token found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (chatTarget === "partner") {
       socket.emit("sendMessage", {
         roomId,
@@ -160,16 +170,16 @@ export default function Chat({ roomId }: { roomId: string }) {
       });
     } else {
       const message: Message = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: own_user_id,
         text: newMessage,
         timestamp: new Date(),
       };
       setAiMessages((prev) => [...prev, message]);
-      const response = await sendAiMessage(newMessage);
+      const response = await sendAiMessage(auth?.token, newMessage);
       const data = await response.json();
       const aiMessage = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: "ai",
         text:
           data.data.choices && data.data.choices[0]?.message?.content
