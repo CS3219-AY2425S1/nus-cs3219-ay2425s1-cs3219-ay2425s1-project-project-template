@@ -24,11 +24,13 @@ jobs:
         env:
           QUESTION_FIREBASE_CREDENTIAL_PATH: ${{ vars.QUESTION_SERVICE_FIREBASE_CREDENTIAL_PATH }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EXECUTION_SERVICE_URL: ${{ vars.EXECUTION_SERVICE_URL }}
         run: |
           cd ./apps/question-service
           
           echo "FIREBASE_CREDENTIAL_PATH=$QUESTION_FIREBASE_CREDENTIAL_PATH" >> .env
           echo "JWT_SECRET=$JWT_SECRET" >> .env
+          echo "EXECUTION_SERVICE_URL=$EXECUTION_SERVICE_URL" >> .env
       
       - name: Set up credentials
         env:
@@ -129,6 +131,7 @@ jobs:
           cd ../question-service
           echo "FIREBASE_CREDENTIAL_PATH=$QUESTION_FIREBASE_CREDENTIAL_PATH" >> .env
           echo "JWT_SECRET=$JWT_SECRET" >> .env
+          echo "EXECUTION_SERVICE_URL=$EXECUTION_SERVICE_URL" >> .env
 
           cd ../user-service
           echo "DB_CLOUD_URI=$DB_CLOUD_URI" >> .env
