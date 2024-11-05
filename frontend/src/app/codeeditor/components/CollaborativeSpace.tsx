@@ -50,8 +50,8 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   }
 
   return (
-    <div className="collaborative-coding-page" style={{ display: 'flex', height: '100vh' }}>
-      <div style={{ flex: 2 }}>
+    <div className="flex h-screen w-4/5 gap-4 p-1 mx-auto overflow-hidden">
+      <div className='w-2/3'>
         <CodeEditor
           ydoc={ydoc}
           provider={provider}
@@ -60,7 +60,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
           theme={theme}
         />
       </div>
-      <div style={{ flex: 1, marginLeft: '10px' }}>
+      <div className='w-1/3'>
         <Chat ydoc={ydoc} provider={provider} userName={userName} />
       </div>
     </div>

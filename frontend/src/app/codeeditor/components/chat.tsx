@@ -53,16 +53,16 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
   }, [messages]);
 
   return (
-    <div className="chat-container" style={{ height: '80%', display: 'flex', flexDirection: 'column' }}>
+    <div className="flex h-4/5 flex-col w-full">
       <div className='text-2xl text-center font-bold'>Chat</div>
-      <div className="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '10px', border: '1px solid #ccc' }}>
+      <div className="flex-1 overflow-y-auto p-2.5 border">
         {messages.map((msg, index) => (
-          <div key={index} style={{ marginBottom: '10px' }}>
+          <div key={index} className='mb-2.5'>
             <strong>{msg.user}:</strong> {msg.message}
           </div>
         ))}
       </div>
-      <div className="chat-input" style={{ display: 'flex', marginTop: '10px' }}>
+      <div className="flex p-2.5">
         <input
           type="text"
           value={newMessage}
@@ -71,9 +71,9 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
             if (e.key === 'Enter') handleSendMessage();
           }}
           placeholder="Type a message..."
-          style={{ flex: 1, padding: '5px' }}
+          className='flex-1 p-1'
         />
-        <button onClick={handleSendMessage} style={{ padding: '5px 10px' }}>
+        <button onClick={handleSendMessage} className="pl-1 pt-2.5">
           Send
         </button>
       </div>

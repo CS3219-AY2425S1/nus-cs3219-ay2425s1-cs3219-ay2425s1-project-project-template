@@ -95,7 +95,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
       const { isDirty, dirtyFields } = form.formState;
 
       // to update if we want to include more categories
-      const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser"]
+      const categories = ["Strings", "Algorithms", "Data Structures", "Bit Manipulation", "Recursion", "Databases", "Arrays", "Brainteaser", "Dynamic Programming"]
 
       const handleCategoryToggle = (category: string) => {
         const currentCategories = form.getValues('categories');
