@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import Editor from "@monaco-editor/react";
+import moment from 'moment-timezone';
 import {
   Select,
   SelectContent,
@@ -22,6 +23,8 @@ import { Loader2 } from "lucide-react";
 import {
   HTTP_SERVICE_COLLAB,
   WS_SERVICE_COLLAB,
+  HTTP_SERVICE_HISTORY,
+  SuccessObject,
   callFunction,
 } from "@/lib/utils";
 
@@ -54,6 +57,7 @@ const CollabPageView: React.FC = () => {
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
   const socketInitialized = useRef(false);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [dateAttempted, setDateAttempted] = useState("");
 
   useEffect(() => {
     const verifySession = async () => {
@@ -117,11 +121,40 @@ const CollabPageView: React.FC = () => {
         newSocket.emit("sessionJoined", sessionIdObj, uid);
       });
 
-      newSocket.on("sessionData", ({ sessionIdObj, uid, questionData }) => {
+      newSocket.on("sessionData", async ({ sessionIdObj, uid, questionData }) => {
         sessionIdObj = sessionIdObj;
         // Set state with the received data
         setUserId(uid);
         setQuestionData(questionData);
+
+        const attemptDate = moment().tz("Asia/Singapore").format();
+        setDateAttempted(attemptDate);
+        console.log("Attempt date:", attemptDate);
+        
+        const requestBody = {
+          userUid: uid, 
+          questionUid: questionData.id, 
+          dateAttempted: attemptDate,
+        };
+
+        console.log("Request Body:", requestBody);
+
+        try{
+          const response: SuccessObject = await callFunction(
+            HTTP_SERVICE_HISTORY,
+            "create-question-attempted",
+            "POST",
+            requestBody
+          );
+
+          if (response.success) {
+            console.log("Success:", response.data.message);
+          } else {
+            console.error("Error creating question:", response.error);
+          }
+        } catch (error) {
+          console.error("Network error:", error);
+        }
       });
 
       console.log("Current user ID:", userId);
@@ -267,6 +300,29 @@ const CollabPageView: React.FC = () => {
       jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
         ? setIsError(true)
         : setIsError(false);
+
+      const requestBody = {
+        userUid: userId, 
+        questionUid: questionData.id, 
+        dateAttempted: dateAttempted,
+        codeWritten: sourceCode,
+      };
+
+      console.log("Request Body for storing executed code:", requestBody);
+
+      const result: SuccessObject = await callFunction(
+        HTTP_SERVICE_HISTORY,
+        "store-user-executed-code",
+        "POST",
+        requestBody
+      );
+
+      if (result.success) {
+        console.log("Success:", result.data.message);
+      } else {
+        console.error("Error storing executed code:", result.error);
+      }
+      
     } catch (error) {
       alert(error);
     } finally {
