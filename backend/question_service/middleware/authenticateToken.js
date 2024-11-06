@@ -7,8 +7,8 @@ const authenticateToken = async (req, res, next) => {
   try {
     console.log("Authenticating token");
     // Verify the token with the user service
-    const userServiceBackendUrl = process.env.USER_SERVICE_BACKEND_URL || "http://localhost:5001";
-    const response = await fetch(`${userServiceBackendUrl}/verify-token`, { 
+    const userServiceBackendUrl = (process.env.USER_SERVICE_BACKEND_URL || "http://localhost:5001") + "/verify-token";
+    const response = await fetch(userServiceBackendUrl, { 
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

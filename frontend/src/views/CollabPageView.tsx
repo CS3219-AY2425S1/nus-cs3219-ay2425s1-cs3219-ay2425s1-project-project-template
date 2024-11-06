@@ -20,12 +20,15 @@ import {
 import { LANGUAGE_VERSIONS, CODE_SNIPPETS } from "../lib/CodeEditorUtil";
 import * as monaco from "monaco-editor"; // for mount type (monaco.editor.IStandaloneCodeEditor)
 import { Loader2 } from "lucide-react";
+import { getUsernameByUid } from "@/services/UserFunctions";
 import {
   HTTP_SERVICE_COLLAB,
   WS_SERVICE_COLLAB,
   HTTP_SERVICE_HISTORY,
   SuccessObject,
   callFunction,
+  getToken,
+  getUid,
 } from "@/lib/utils";
 
 const customQuestion: Question = {
@@ -45,6 +48,7 @@ const customQuestion: Question = {
 };
 
 const CollabPageView: React.FC = () => {
+  const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const [message, setMessage] = useState(""); // For new message input
@@ -52,7 +56,7 @@ const CollabPageView: React.FC = () => {
     { username: string; message: string }[]
   >([]);
   const [userId, setUserId] = useState<string>("");
-  const navigate = useNavigate();
+  const [username, setUsername] = useState<string>("");
   const [questionData, setQuestionData] = useState<Question>(customQuestion);
   const { sessionId: sessionIdObj } = useParams<{ sessionId: string }>();
   const socketInitialized = useRef(false);
@@ -101,8 +105,8 @@ const CollabPageView: React.FC = () => {
         return;
       }
 
-      const token = sessionStorage.getItem("authToken");
-      const uid = sessionStorage.getItem("uid");
+      const token = await getToken();
+      const uid = getUid();
 
       // Initialize the WebSocket connection when the component mounts
       const newSocket = io(WS_SERVICE_COLLAB, {
@@ -117,7 +121,6 @@ const CollabPageView: React.FC = () => {
       newSocket.on("connect", () => {
         console.log("WebSocket connected");
         console.log("Emitting sessionJoined with sessionId:", sessionIdObj);
-        const uid = sessionStorage.getItem("uid");
         newSocket.emit("sessionJoined", sessionIdObj, uid);
       });
 
@@ -125,6 +128,7 @@ const CollabPageView: React.FC = () => {
         sessionIdObj = sessionIdObj;
         // Set state with the received data
         setUserId(uid);
+        setUsername(await getUsernameByUid());
         setQuestionData(questionData);
 
         const attemptDate = moment().tz("Asia/Singapore").format();
@@ -136,8 +140,6 @@ const CollabPageView: React.FC = () => {
           questionUid: questionData.id, 
           dateAttempted: attemptDate,
         };
-
-        console.log("Request Body:", requestBody);
 
         try{
           const response: SuccessObject = await callFunction(
@@ -227,6 +229,7 @@ const CollabPageView: React.FC = () => {
         sessionId: sessionIdObj,
         message: message.trim(),
         uid: userId,
+        username: username,
       });
       setMessage(""); // Clear the input field
     }
@@ -307,8 +310,6 @@ const CollabPageView: React.FC = () => {
         dateAttempted: dateAttempted,
         codeWritten: sourceCode,
       };
-
-      console.log("Request Body for storing executed code:", requestBody);
 
       const result: SuccessObject = await callFunction(
         HTTP_SERVICE_HISTORY,

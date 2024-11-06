@@ -2,6 +2,7 @@ import {
   HTTP_SERVICE_HISTORY,
   SuccessObject,
   callFunction,
+  getUid,
 } from "@/lib/utils";
 
 export async function getQuestionHistory(): Promise<SuccessObject> {
@@ -9,7 +10,7 @@ export async function getQuestionHistory(): Promise<SuccessObject> {
     HTTP_SERVICE_HISTORY,
     "get-all-attempted-questions",
     "POST",
-    { uid: sessionStorage.getItem("uid") }
+    { uid: getUid() }
   );
 
   return res;

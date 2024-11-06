@@ -1,5 +1,5 @@
 import { UserCredential } from "firebase/auth"; // Import UserCredential type
-import { SuccessObject, callFunction, HTTP_SERVICE_USER } from "@/lib/utils";
+import { SuccessObject, callFunction, HTTP_SERVICE_USER, getUid } from "@/lib/utils";
 
 export async function addToUserCollection(userCredential: UserCredential, username: string): Promise<SuccessObject> {
     const { uid, email } = userCredential.user;
@@ -16,7 +16,7 @@ export async function addToUserCollection(userCredential: UserCredential, userna
 }
 
 export async function removeUserFromCollection(): Promise<SuccessObject> {
-    const uid = sessionStorage.getItem("uid");
+    const uid = getUid();
     const userData = {
         uid: uid
     }
@@ -30,7 +30,7 @@ export const fetchAdminStatus = async () => {
 }
 
 export async function getUsernameByUid() {
-    const uid = sessionStorage.getItem("uid");
+    const uid = getUid();
     try {
         const result = await callFunction(HTTP_SERVICE_USER, `user/username/${uid}`)
         if (result.success) {
