@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { io } from 'socket.io-client';
 import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
 import AIChatbot from '../components/AIChatbot';
+import axios from "axios";
 import { QUESTIONS_SERVICE } from "../Services";
 
 const socket = io('http://localhost:5002');
-const roomName = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
 
 
 export const Collaboration = () => {
@@ -17,6 +17,7 @@ export const Collaboration = () => {
     const [title, setTitle] = useState('-')
     const [question, setQuestion] = useState('No questions found');
     const [showModal, setShowModal] = useState(false);
+    const [roomName, setRoomName] = useState("");
     const navigate = useNavigate();
     const topic = sessionStorage.getItem("match_topic") ?? 'Bit Manipulation';
     const difficulty = sessionStorage.getItem("match_difficulty") ?? 'Medium';
@@ -43,6 +44,8 @@ export const Collaboration = () => {
         getQuestionData();
     })
 
+    const sharedSpaceRef = useRef();
+
     // Sync chat
     useEffect(() => {
         /**
@@ -52,13 +55,16 @@ export const Collaboration = () => {
         */
         
         // Join the room with partner
-        socket.emit("joinRoom", roomName)
+        const newRoom = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
+        setRoomName(newRoom);
+        socket.emit("joinRoom", newRoom);
+        console.log(`Joined room: ${newRoom}`);
 
         socket.on('leave', (message) => {
-            console.log(message);
+            saveData();
             navigate('/home');
             alert(message);
-        })
+        });
 
         return () => {
             //socket.off('chatMessage');
@@ -77,6 +83,20 @@ export const Collaboration = () => {
     };
     */
 
+    const saveData = async () => {
+        try {
+            const sharedSpaceState = sharedSpaceRef.current.getSharedSpaceState();
+            const response = await axios.post("http://localhost:5002/saveAttempt", {
+                username: localStorage.getItem("username"),
+                attempts: [{question_id: 1, code: sharedSpaceState.code, text: sharedSpaceState.text1,
+                    language: sharedSpaceState.language, partner_username: sessionStorage.getItem("partner")
+                }]
+            });
+            console.log(response);
+        } catch (error) {
+            console.log(`Error: ${error}`);
+        }
+    }
 
     const handleLeaveButtonClick = () => {
        setShowModal(true);
@@ -84,6 +104,7 @@ export const Collaboration = () => {
 
     const confirmLeave = () => {
         socket.emit('leave', roomName);
+        saveData();
         navigate('/home');
     }
 
@@ -108,7 +129,7 @@ export const Collaboration = () => {
               <h3 className='questionText'>{question}</h3>
             </div>
             <div className="whiteboard">
-                <SharedSpace />
+                <SharedSpace ref={sharedSpaceRef} />
             </div>
             <div className="ai-chatbot-container">
                 <AIChatbot />

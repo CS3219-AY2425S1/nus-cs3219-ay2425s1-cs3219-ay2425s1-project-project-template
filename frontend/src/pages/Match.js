@@ -119,11 +119,10 @@ export const Match = () => {
       });
 
       socket.on("notification", (data) => {
+        sessionStorage.setItem("partner", data.match);
         alert(
           `You have been matched with ${data.match}!\n${data.match_message}`
         );
-        //Record user's match partner
-        sessionStorage.setItem("partner", data.match);
         sessionStorage.setItem("match_topic", data.match_topic);
         sessionStorage.setItem("match_difficulty", data.match_difficulty);
         completeMatching();
