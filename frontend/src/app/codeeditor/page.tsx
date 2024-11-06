@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import CollaborativeCodingPage from './components/CollaborativeSpace';
+import CollaborativeCodingPage from './mock_components/CollaborativeSpace';
 
 const CodingPage: React.FC = () => {
   const initialCode = `function helloWorld() {
