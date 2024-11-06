@@ -73,7 +73,7 @@ const ChatBox = ({ socket, roomId, username }) => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    style={{ flex: 1, padding: "10px", fontSize: "14px" }}
+                    style={{ flex: 1, padding: "10px", fontSize: "14px", borderRadius: "10px", border: "1px solid #ddd" }}
                 />
                 <button onClick={sendMessage} style={{ marginLeft: "10px", marginTop: "0px", alignItems: "center", padding: "10px" }}>Send</button>
             </div>
