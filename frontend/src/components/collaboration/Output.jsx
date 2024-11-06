@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@mui/material';
 
 import codeExecutionService from '../../services/code-execution-service';
-import '../../styles/output.css';
+import '../../styles/Output.css';
 
 const Output = ({editorRef, language}) => {
     const [output, setOutput] = useState(null);
