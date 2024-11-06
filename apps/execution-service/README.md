@@ -74,10 +74,10 @@ The following json format will be returned:
 
 ```json
 [
-   {
-      "input":"hello",
-      "expected":"olleh"
-   }
+  {
+    "input": "hello",
+    "expected": "olleh"
+  }
 ]
 ```
 
@@ -98,16 +98,16 @@ The following json format will be returned:
 
 ```json
 {
-  "visibleTestResults":[
+  "visibleTestResults": [
     {
-      "input":"hello",
-      "expected":"olleh",
-      "actual":"olleh",
-      "passed":true,
-      "error":""
+      "input": "hello",
+      "expected": "olleh",
+      "actual": "olleh",
+      "passed": true,
+      "error": ""
     }
   ],
-  "customTestResults":null
+  "customTestResults": null
 }
 ```
 
@@ -127,29 +127,29 @@ The following json format will be returned:
 
 ```json
 {
-  "visibleTestResults":[
+  "visibleTestResults": [
     {
-      "input":"hello",
-      "expected":"olleh",
-      "actual":"olleh",
-      "passed":true,
-      "error":""
+      "input": "hello",
+      "expected": "olleh",
+      "actual": "olleh",
+      "passed": true,
+      "error": ""
     }
   ],
-  "customTestResults":[
+  "customTestResults": [
     {
-      "input":"Hannah",
-      "expected":"hannaH",
-      "actual":"hannaH",
-      "passed":true,
-      "error":""
+      "input": "Hannah",
+      "expected": "hannaH",
+      "actual": "hannaH",
+      "passed": true,
+      "error": ""
     },
     {
-      "input":"abcdefg",
-      "expected":"gfedcba",
-      "actual":"gfedcba",
-      "passed":true,
-      "error":""
+      "input": "abcdefg",
+      "expected": "gfedcba",
+      "actual": "gfedcba",
+      "passed": true,
+      "error": ""
     }
   ]
 }
@@ -178,20 +178,20 @@ The following json format will be returned:
 
 ```json
 {
-  "visibleTestResults":[
+  "visibleTestResults": [
     {
-      "input":"hello",
-      "expected":"olleh",
-      "actual":"olleh",
-      "passed":true,
-      "error":""
+      "input": "hello",
+      "expected": "olleh",
+      "actual": "olleh",
+      "passed": true,
+      "error": ""
     }
   ],
-  "hiddenTestResults":{
-    "passed":2,
-    "total":2
+  "hiddenTestResults": {
+    "passed": 2,
+    "total": 2
   },
-  "status":"Accepted"
+  "status": "Accepted"
 }
 ```
 
@@ -199,19 +199,44 @@ If compilation error exists or any of the tests (visible and hidden) fails, stat
 
 ```json
 {
-  "visibleTestResults":[
+  "visibleTestResults": [
     {
-      "input":"hello",
-      "expected":"olleh",
-      "actual":"",
-      "passed":false,
-      "error":"Command execution failed: Traceback (most recent call last):\n  File \"/tmp/4149249165.py\", line 2, in \u003cmodule\u003e\n    prit(name[::-1])\n    ^^^^\nNameError: name 'prit' is not defined. Did you mean: 'print'?\n: %!w(*exec.ExitError=\u0026{0x4000364678 []})"
+      "input": "hello",
+      "expected": "olleh",
+      "actual": "",
+      "passed": false,
+      "error": "Command execution failed: Traceback (most recent call last):\n  File \"/tmp/4149249165.py\", line 2, in \u003cmodule\u003e\n    prit(name[::-1])\n    ^^^^\nNameError: name 'prit' is not defined. Did you mean: 'print'?\n: %!w(*exec.ExitError=\u0026{0x4000364678 []})"
     }
   ],
-  "hiddenTestResults":{
-    "passed":0,
-    "total":2
+  "hiddenTestResults": {
+    "passed": 0,
+    "total": 2
   },
-  "status":"Attempted"
+  "status": "Attempted"
 }
 ```
+
+## Setting up message queue with history-service
+
+A message queue is used to pass submission results asynchronously from the execution-service to the history-service.
+
+1. In order to do so, we can run the following command to set up a docker container for rabbitmq:
+
+```bash
+docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+```
+
+2. Then we can run the execution-service:
+
+```bash
+go run main.go
+```
+
+3. We can run the history-service by changing our directory and running the same command:
+
+```bash
+cd ../history-service
+go run main.go
+```
+
+To view more details on the RabbitMQ queue, we can go to `localhost:15672`.
