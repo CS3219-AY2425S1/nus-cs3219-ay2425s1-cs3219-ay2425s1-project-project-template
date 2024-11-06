@@ -23,14 +23,13 @@ function CodeEditor({
   setCode,
   extensions,
   viewUpdateRef,
-  readOnly=false,
+  readOnly = false,
 }: CodeEditorProps) {
-
   const updateViewUpdateRef = (viewUpdate: ViewUpdate) => {
     if (viewUpdateRef) {
       viewUpdateRef.current = viewUpdate;
     }
-  }
+  };
 
   return (
     <CodeMirror
