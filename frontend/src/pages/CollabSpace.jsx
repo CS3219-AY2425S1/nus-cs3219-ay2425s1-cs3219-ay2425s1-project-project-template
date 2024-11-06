@@ -12,7 +12,7 @@ const serverWsUrl = import.meta.env.VITE_WS_COLLAB_URL;
 const CollabSpace = () => {
     const { roomId } = useParams();
     const location = useLocation();
-    const { question } = location.state 
+    const { question } = location.state;
     const [showRedirectMessage, setShowRedirectMessage] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false); // Loading state
@@ -24,7 +24,7 @@ const CollabSpace = () => {
     const handleRoomClosed = () => {
         if (hasClosedRef.current) return; // Prevent multiple triggers
         hasClosedRef.current = true;
-
+        setIsLeaving(true);
         setShowRedirectMessage(true);
         setTimeout(() => {
             setShowRedirectMessage(false);
@@ -54,7 +54,7 @@ const CollabSpace = () => {
         console.log("mounting");
 
         if (question) {
-            console.log(question)
+            console.log(question);
         }
 
         if (!docRef.current) {
@@ -118,24 +118,39 @@ const CollabSpace = () => {
                 </Alert>
             </Snackbar>
 
-            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
-                        <QuestionCard question={question}/>
+            <Box sx={{ display: "flex", flexDirection: "row", height: "100vh" }}>
+                <Box
+                    sx={{
+                        width: "40%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        padding: 2,
+                    }}
+                >
+                    <Box sx={{ flexGrow: 4, marginBottom: 2, overflowY: "auto" }}>
+                        <QuestionCard question={question} />
                     </Box>
-                    <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
+
+                    <Box sx={{ flexGrow: 2, flexBasis: "50vh", marginBottom: 2, overflowY: "auto" }}>
                         {providerRef.current && <Chat provider={providerRef.current} />}
                     </Box>
-                </Box>
-                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
-                        <Button variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
+
+                    <Box sx={{ width:"100%", alignSelf: "flex-start" }}>
+                        <Button sx={{ width:"100%" }} variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
                             {isLeaving ? "Leaving..." : "Leave Room"}
                         </Button>
                     </Box>
+                </Box>
 
-                    {/* Code Editor Component */}
-                    <Box sx={{ width: "45%", display: "flex", flexDirection: "column" }}>
+                <Box
+                    sx={{
+                        width: "60%",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    <Box sx={{ flexGrow: 1, margin: 2, overflowY: "auto" }}>
                         <CodeEditor
                             roomId={roomId}
                             provider={providerRef.current}
@@ -151,14 +166,12 @@ const CollabSpace = () => {
 
 const QuestionCard = ({ question }) => {
     return (
-        <Card variant="outlined" sx={{ maxWidth: 600, margin: 'auto', marginTop: 4, padding: 2 }}>
-            <CardContent>
-                {/* Title */}
+        <Card variant="outlined" sx={{ maxWidth: 600, margin: "auto", marginTop: 4, padding: 2 }}>
+            <CardContent>                
                 <Typography variant="h5" component="div" gutterBottom>
                     {question.title}
                 </Typography>
 
-                {/* Category and Complexity */}
                 <Box display="flex" alignItems="center" gap={1} marginBottom={2}>
                     <Chip label={question.category} color="primary" variant="outlined" />
                     <Chip label={`Complexity: ${question.complexity}`} color="secondary" variant="outlined" />
@@ -166,7 +179,6 @@ const QuestionCard = ({ question }) => {
 
                 <Divider variant="middle" sx={{ marginBottom: 2 }} />
 
-                {/* Description */}
                 <Typography variant="body1" color="text.secondary">
                     {question.description}
                 </Typography>
