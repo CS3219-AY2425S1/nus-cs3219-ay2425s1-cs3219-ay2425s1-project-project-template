@@ -1,7 +1,7 @@
 import matchService from '../services/matchService.js';
 const { addMatchRequest, cancelMatchRequest, processMatchQueue } = matchService;
 
-const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost:3001';
+const VITE_USER_SERVICE_API = 'http://user-service:3001' || 'http://localhost:3001';
 
 /* Verify user's token */
 async function verifyUser(token) {

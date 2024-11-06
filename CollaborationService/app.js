@@ -3,7 +3,6 @@ import { Server } from 'socket.io';
 import http from 'http'; 
 import cors from 'cors'; 
 import queueService from './services/queueService.js';
-import roomService from './services/roomService.js';
 import collaborationController from './controllers/collaborationController.js';
 import socket from './config/socket.js'; 
 
