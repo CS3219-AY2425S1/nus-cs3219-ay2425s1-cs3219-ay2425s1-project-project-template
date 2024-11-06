@@ -13,13 +13,15 @@ helloWorld();`;
   const userName = 'Alice'; // Replace with the actual user name
 
   return (
-    <CollaborativeCodingPage
-      initialCode={initialCode}
-      language="javascript"
-      theme="vs-dark"
-      roomId={roomId}
-      userName={userName}
-    />
+    <div className='w-screen'>
+      <CollaborativeCodingPage
+        initialCode={initialCode}
+        language="javascript"
+        theme="vs-dark"
+        roomId={roomId}
+        userName={userName}
+      />
+    </div>
   );
 };
 

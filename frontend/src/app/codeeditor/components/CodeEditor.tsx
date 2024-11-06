@@ -75,6 +75,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   return (
     <Editor
       height="100%"
+      width="100%"
       defaultLanguage={localStorage.getItem('language')?.toLowerCase() || language}
       theme={theme}
       onMount={handleEditorDidMount}

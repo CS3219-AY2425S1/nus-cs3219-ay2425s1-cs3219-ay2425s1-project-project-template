@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ChatProps {
   ydoc: Y.Doc;
@@ -53,17 +55,17 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
   }, [messages]);
 
   return (
-    <div className="chat-container" style={{ height: '80%', display: 'flex', flexDirection: 'column' }}>
-      <div className='text-2xl text-center font-bold'>Chat</div>
-      <div className="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '10px', border: '1px solid #ccc' }}>
+    <div className="flex h-4/5 flex-col w-full">
+      <div className="text-2xl text-center font-bold">Chat</div>
+      <div className="h-full w-full overflow-y-auto border">
         {messages.map((msg, index) => (
-          <div key={index} style={{ marginBottom: '10px' }}>
+          <div key={index} className="mb-2.5">
             <strong>{msg.user}:</strong> {msg.message}
           </div>
         ))}
       </div>
-      <div className="chat-input" style={{ display: 'flex', marginTop: '10px' }}>
-        <input
+      <div className="flex w-full">
+        <Input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
@@ -71,11 +73,11 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
             if (e.key === 'Enter') handleSendMessage();
           }}
           placeholder="Type a message..."
-          style={{ flex: 1, padding: '5px' }}
+          className='flex-grow'
         />
-        <button onClick={handleSendMessage} style={{ padding: '5px 10px' }}>
+        <Button onClick={handleSendMessage} className="justify-end w-fit">
           Send
-        </button>
+        </Button>
       </div>
     </div>
   );

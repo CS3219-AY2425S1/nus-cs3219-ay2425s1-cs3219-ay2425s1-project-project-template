@@ -47,7 +47,7 @@ const CollabRoomPage = ({ params }: {
     }
 
     return (
-        <div>
+        <div className='w-screen'>
             <CollaborativeCodingPage
                 initialCode='import math'
                 language="javascript"
