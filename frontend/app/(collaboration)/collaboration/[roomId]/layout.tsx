@@ -2,11 +2,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import type { Metadata, Viewport } from "next";
 
-import clsx from "clsx";
-
-import Providers from "@/app/providers";
 import { SocketProvider } from "@/context/SockerIOContext";
-import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 import "@/styles/globals.css";
 import { Navbar } from "@/components/navbar";
@@ -38,26 +34,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
-      <head />
-      <body
-        className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
-            <Navbar />
-            <main className="container mx-auto max-w-9xl pt-4 px-4 flex-grow">
-              <SocketProvider>{children}</SocketProvider>
-            </main>
-            <footer className="w-full flex items-center justify-center py-3">
-              <p>PeerPrep built by Group 47</p>
-            </footer>
-          </div>
-        </Providers>
-      </body>
-    </html>
+    <div className="relative flex flex-col h-screen">
+      <Navbar />
+      <main className="container mx-auto max-w-9xl pt-4 px-4 flex-grow">
+        <SocketProvider>{children}</SocketProvider>
+      </main>
+      <footer className="w-full flex items-center justify-center py-3">
+        <p>PeerPrep built by Group 47</p>
+      </footer>
+    </div>
   );
 }

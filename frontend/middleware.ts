@@ -41,7 +41,7 @@ export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
 
   // Allow access to public routes without checking tokens
-  if (publicRoutes.some((route) => url.pathname === route)) {
+  if (publicRoutes.some((route) => url.pathname === route && !accessToken)) {
     return NextResponse.next();
   }
 
@@ -53,6 +53,13 @@ export async function middleware(req: NextRequest) {
       console.log("Invalid access token, redirecting to login");
 
       return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+
+    // Prevent logged in user from accessing public routes
+    if (
+      publicRoutes.some((route) => url.pathname === route && decodedAccessToken)
+    ) {
+      return NextResponse.redirect(new URL("/match", req.nextUrl));
     }
 
     // Extract user role from the decoded token (assuming the role is stored in the token)
