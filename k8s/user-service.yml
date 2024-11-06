@@ -40,7 +40,7 @@ kind: Service
 metadata:
   name: user-svc
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - port: 3001
       targetPort: 3001
