@@ -236,7 +236,7 @@ const Collab = () => {
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 className="custom-snackbar"
             />
-        </>
+        </div>
     );
 };
 
