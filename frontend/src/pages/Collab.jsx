@@ -206,7 +206,7 @@ const Collab = () => {
             <Snackbar
                 open={showSnackbar}
                 onClose={handleCloseSnackbar}
-                message="Session Started"
+                message="You're session starts now! Happy Coding!"
                 autoHideDuration={3000} // Auto-hide after 3 seconds
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 className="custom-snackbar"
