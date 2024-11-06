@@ -1,13 +1,11 @@
 import * as React from "react";
-import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Helmet } from 'react-helmet-async';
-import { Alert, Box, Button, Card, CardContent, Chip, Divider, CssBaseline, Snackbar, Typography } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
 import CodeEditor from "../components/CodeEditor";
 import Chat from "../components/Chat";
+import { Snackbar, Alert, Box, Button, Card, CardContent, Typography, Chip, Divider } from "@mui/material";
+import { useState, useRef, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import * as Y from "yjs";
+import { WebsocketProvider } from "y-websocket";
 
 const serverWsUrl = import.meta.env.VITE_WS_COLLAB_URL;
 
@@ -109,83 +107,58 @@ const CollabSpace = () => {
 
     return (
         <>
-            <Helmet>
-                <title>Collaboration Space</title>
-            </Helmet>
-            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
-                <CssBaseline />
+            <Snackbar
+                open={showRedirectMessage}
+                autoHideDuration={3000}
+                onClose={() => setShowRedirectMessage(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert severity="info" variant="filled" onClose={() => setShowRedirectMessage(false)}>
+                    You will be redirected soon as the room is closed.
+                </Alert>
+            </Snackbar>
 
-                {/* Fixed Header Section */}
+            <Box sx={{ display: "flex", flexDirection: "row", height: "100vh" }}>
                 <Box
                     sx={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: 'primary.light',
+                        width: "40%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
                         padding: 2,
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: '60px', // Set a fixed height for the header
-                        zIndex: 1
                     }}
                 >
-                    <Typography variant="h6" color="white">Collaboration Room{roomId}</Typography>
-                    <Button 
-                        variant="contained" 
-                        color="primary" 
-                        onClick={handleLeaveRoom} 
-                        disabled={isLeaving}
-                    >
-                        {isLeaving ? "Leaving..." : "Leave Room"}
-                    </Button>
+                    <Box sx={{ flexGrow: 4, marginBottom: 2, overflowY: "auto" }}>
+                        <QuestionCard question={question} />
+                    </Box>
+
+                    <Box sx={{ flexGrow: 2, flexBasis: "50vh", marginBottom: 2, overflowY: "auto" }}>
+                        {providerRef.current && <Chat provider={providerRef.current} />}
+                    </Box>
+
+                    <Box sx={{ width:"100%", alignSelf: "flex-start" }}>
+                        <Button sx={{ width:"100%" }} variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
+                            {isLeaving ? "Leaving..." : "Leave Room"}
+                        </Button>
+                    </Box>
                 </Box>
 
-                {/* Snackbar for Redirect Message */}
-                <Snackbar
-                    open={showRedirectMessage}
-                    autoHideDuration={3000}
-                    onClose={() => setShowRedirectMessage(false)}
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                >
-                    <Alert severity="info" variant="filled" onClose={() => setShowRedirectMessage(false)}>
-                        You will be redirected soon as the room is closed.
-                    </Alert>
-                </Snackbar>
-
-                {/* Main Content Section */}
-                <Grid 
-                    container 
-                    spacing={0} 
-                    sx={{ 
-                        flexGrow: 1, 
-                        paddingTop: '60px', // Add padding to account for the fixed header
-                        height: 'calc(100dvh - 60px)' // Subtract header height from total height to fit page
+                <Box
+                    sx={{
+                        width: "60%",
+                        display: "flex",
+                        flexDirection: "column",
                     }}
                 >
-                    {/* Chat Section */}
-                    <Grid item size={3.5} sx={{ height: '100%', overflow: 'hidden' }}>
-                        <Box sx={{ flexGrow: 4, marginBottom: 2, overflowY: "auto" }}>
-                            <QuestionCard question={question} />
-                        </Box>
-
-                        <Box sx={{ flexGrow: 2, flexBasis: "50vh", marginBottom: 2, overflowY: "auto" }}>
-                            {providerRef.current && <Chat provider={providerRef.current} />}
-                        </Box>
-                    </Grid>
-
-                    {/* Code Editor Section */}
-                    <Grid item size={8.5} sx={{ height: '100%', overflow: 'hidden' }}>
+                    <Box sx={{ flexGrow: 1, margin: 2, overflowY: "auto" }}>
                         <CodeEditor
                             roomId={roomId}
                             provider={providerRef.current}
                             doc={docRef.current}
                             onRoomClosed={handleRoomClosed}
                         />
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
             </Box>
         </>
     );
