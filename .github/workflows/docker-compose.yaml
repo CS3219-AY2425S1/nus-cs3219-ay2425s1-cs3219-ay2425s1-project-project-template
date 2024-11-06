@@ -19,7 +19,9 @@ jobs:
 
     # Pull in environment variables for backend and frontend services
     - name: Set up environment variables for frontend (Peerprep)
-      run: echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" > frontend/Peerprep/.env
+      run: |
+        echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" > frontend/Peerprep/.env
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > frontend/Peerprep/.env
 
     - name: Set up environment variables for backend services (question-service, user-service, chat-service)
       run: |
