@@ -13,7 +13,7 @@ const authServiceProxy = createProxyMiddleware({
     '^/(.*)': '/api/v1/auth/$1', // Maps /login -> /api/v1/auth/login
   },
   on: {
-    proxyReq: fixRequestBody, // need to fix the request body before forwarding
+    proxyReq: fixRequestBody, // need to fix the request body before forwarding.
   },
 });
 
