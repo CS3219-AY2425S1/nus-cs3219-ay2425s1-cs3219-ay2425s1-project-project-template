@@ -30,6 +30,7 @@ import { SaveCodeVariables } from "@/utils/collaboration";
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
   const code = useRef("");
+  const language = useRef("");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId || "";
@@ -37,6 +38,11 @@ export default function Page() {
   const socket = useContext(SocketContext);
   const { user } = useUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isUserDisconnect,
+    onOpen: onUserDisconnectOpen,
+    onOpenChange: onUserDisconnectOpenChange,
+  } = useDisclosure();
   const [otherUserDisconnect, setUserDisconnect] = useState<boolean>(false);
   const [otherUser, setOtherUser] = useState<string>("");
   const [question, setQuestion] = useState<Question>({
@@ -66,7 +72,7 @@ export default function Page() {
           console.error("Error saving code:", error);
           toast.error("Error saving code");
           router.push("/match");
-        }
+        },
       },
     );
   };
@@ -102,12 +108,14 @@ export default function Page() {
         examples: matchedQuestion?.examples || "",
         constraints: matchedQuestion?.constraints || "",
       });
-    }
 
-    if (roomInfo.userOne !== user?.username) {
-      setOtherUser(roomInfo.userOne);
-    } else {
-      setOtherUser(roomInfo.userTwo);
+      if (roomInfo.userOne !== user?.username) {
+        setOtherUser(roomInfo.userOne);
+      } else {
+        setOtherUser(roomInfo.userTwo);
+      }
+
+      language.current = roomInfo["programming_language"][0];
     }
   }, [isQuestionPending, setQuestion]);
 
@@ -123,6 +131,8 @@ export default function Page() {
             hideProgressBar: false,
           });
         }
+        setUserDisconnect(false);
+        setOtherUser(otherUser);
       });
 
       // Setup socket listeners
@@ -143,9 +153,9 @@ export default function Page() {
         saveCodeAndEndSession({
           roomId: roomId as string,
           code: code.current,
-          language: roomInfo["programming_language"][0],
+          language: language.current,
         }); // Call function to save code and redirect
-        router.push("/match")
+        router.push("/match");
       };
 
       socket.on("user-disconnect", handleUserDisconnect);
@@ -160,6 +170,12 @@ export default function Page() {
       };
     }
   }, [socket, roomId, user]);
+
+  useEffect(() => {
+    if (otherUserDisconnect) {
+      onUserDisconnectOpen();
+    }
+  }, [otherUserDisconnect, onUserDisconnectOpen]);
 
   const isAvatarActive = (otherUser: string) => {
     return otherUser ? "success" : "default";
@@ -232,7 +248,10 @@ export default function Page() {
                     Exit Session
                   </ModalHeader>
                   <ModalBody>
-                    <p>Did both users agree to exit the session?</p>
+                    <p>
+                      Are you sure you want to exit the session? This action
+                      cannot be undone and the room will be closed.
+                    </p>
                   </ModalBody>
                   <ModalFooter>
                     <Button color="danger" variant="light" onPress={onClose}>
@@ -254,29 +273,29 @@ export default function Page() {
           </Modal>
 
           <Modal
-            hideCloseButton={true}
-            isDismissable={false}
-            isOpen={otherUserDisconnect}
+            isOpen={isUserDisconnect}
+            onOpenChange={onUserDisconnectOpenChange}
           >
             <ModalContent>
-              {() => (
+              {(onClose) => (
                 <>
                   <ModalHeader className="flex flex-col gap-1">
                     Other user disconnected
                   </ModalHeader>
                   <ModalBody>
                     <p>
-                      The other user disconnected, the room will now be closed.
+                      The other user disconnected, you can wait or exit the
+                      session.
                     </p>
                   </ModalBody>
                   <ModalFooter>
                     <Button
                       color="primary"
                       onPress={() => {
-                        router.push("/match");
+                        onClose();
                       }}
                     >
-                      Back to match
+                      Okay
                     </Button>
                   </ModalFooter>
                 </>
