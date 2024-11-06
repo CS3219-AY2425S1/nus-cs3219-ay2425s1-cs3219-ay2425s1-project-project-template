@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useProfileStore } from '@/stores/useProfileStore';
+import { useManageUsersStore } from '@/stores/useManageUsersStore';
 
 interface DeleteModalProps {
   onDelete: () => void;
@@ -17,18 +17,18 @@ interface DeleteModalProps {
 }
 
 export default function DeleteModal({ onDelete, username }: DeleteModalProps) {
-  const isDeleteModalOpen = useProfileStore.use.isDeleteModalOpen();
-  const setDeleteModalOpen = useProfileStore.use.setDeleteModalOpen();
-  const confirmLoading = useProfileStore.use.confirmLoading();
+  const isDeleteModalOpen = useManageUsersStore.use.isDeleteModalOpen();
+  const setDeleteModalOpen = useManageUsersStore.use.setDeleteModalOpen();
+  const confirmLoading = useManageUsersStore.use.confirmLoading();
 
   return (
     <Dialog open={isDeleteModalOpen} onOpenChange={setDeleteModalOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Profile</DialogTitle>
+          <DialogTitle>Delete User</DialogTitle>
         </DialogHeader>
         <DialogDescription>
-          <div>Are you sure you want to delete your account {username}?</div>
+          <div>Confirm the deletion of user {username}?</div>
           <div>This action cannot be undone.</div>
         </DialogDescription>
         <DialogFooter>

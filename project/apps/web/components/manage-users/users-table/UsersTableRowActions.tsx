@@ -1,7 +1,7 @@
 'use client';
 
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
-import { QuestionDto } from '@repo/dtos/questions';
+import { UserDataDto } from '@repo/dtos/users';
 import { Row } from '@tanstack/react-table';
 import { Pencil, Trash2 } from 'lucide-react';
 
@@ -13,33 +13,34 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useQuestionsStore } from '@/stores/useQuestionStore';
+import { useManageUsersStore } from '@/stores/useManageUsersStore';
 
-interface QuestionTableRowActionsProps<TData> {
+interface UsersTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-export function QuestionTableRowActions<TData>({
+export function UsersTableRowActions<TData>({
   row,
-}: QuestionTableRowActionsProps<TData>) {
-  const user = useAuthStore.use.user();
-  const setEditModalOpen = useQuestionsStore.use.setEditModalOpen();
-  const setDeleteModalOpen = useQuestionsStore.use.setDeleteModalOpen();
-  const setSelectedQuestion = useQuestionsStore.use.setSelectedQuestion();
+}: UsersTableRowActionsProps<TData>) {
+  const adminUser = useAuthStore.use.user();
+  const setUpdateModalOpen = useManageUsersStore.use.setUpdateModalOpen();
+  const setDeleteModalOpen = useManageUsersStore.use.setDeleteModalOpen();
+  const setSelectedUser = useManageUsersStore.use.setSelectedUser();
 
-  const question = row.original as QuestionDto;
+  const user = row.original as UserDataDto;
   const handleOpenEdit = () => {
-    setSelectedQuestion(question);
-    setEditModalOpen(true);
+    setSelectedUser(user);
+    setUpdateModalOpen(true);
   };
 
   const handleOpenDelete = () => {
-    setSelectedQuestion(question);
+    setSelectedUser(user);
     setDeleteModalOpen(true);
   };
+
   return (
     <>
-      {user && user.role === 'Admin' && (
+      {adminUser && adminUser.id !== user.id && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -52,7 +53,7 @@ export function QuestionTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[160px]">
             <DropdownMenuItem className="gap-2" onSelect={handleOpenEdit}>
-              <Pencil className="w-4 h-4" /> Edit
+              <Pencil className="w-4 h-4" /> Update
             </DropdownMenuItem>
             <DropdownMenuItem className="gap-2" onSelect={handleOpenDelete}>
               <Trash2 className="w-4 h-4" /> Delete

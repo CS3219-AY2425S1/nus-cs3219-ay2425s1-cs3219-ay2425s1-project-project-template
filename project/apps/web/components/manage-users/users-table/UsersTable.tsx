@@ -1,11 +1,11 @@
 'use client';
 
-import { CollabCollectionDto, CollabFiltersDto } from '@repo/dtos/collab';
+import { ROLE } from '@repo/dtos/generated/enums/auth.enums';
 import {
-  CATEGORY,
-  COMPLEXITY,
-} from '@repo/dtos/generated/enums/questions.enums';
-import { SortQuestionsQueryDto } from '@repo/dtos/questions';
+  SortUsersQueryDto,
+  UserCollectionDto,
+  UserFiltersDto,
+} from '@repo/dtos/users';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   ColumnFiltersState,
@@ -21,17 +21,19 @@ import {
 } from '@/components/data-table/DataTable';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import useDebounce from '@/hooks/useDebounce';
-import { useMe } from '@/hooks/useMe';
-import { getCollabs } from '@/lib/api/collab';
-import { useQuestionsStore } from '@/stores/useQuestionStore';
+import { fetchUsers } from '@/lib/api/users';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useManageUsersStore } from '@/stores/useManageUsersStore';
 
 import { columns } from './columns';
-import { HistoryTableToolbar } from './HistoryTableToolbar';
+import { UsersTableToolbar } from './UsersTableToolbar';
 
-export function HistoryTable() {
-  const { userData } = useMe();
-  const confirmLoading = useQuestionsStore.use.confirmLoading();
-  const setConfirmLoading = useQuestionsStore.use.setConfirmLoading();
+export function UsersTable() {
+  const fetchUser = useAuthStore.use.fetchUser();
+  const user = useAuthStore.use.user();
+  if (!user) return;
+  const confirmLoading = useManageUsersStore.use.confirmLoading();
+  const setConfirmLoading = useManageUsersStore.use.setConfirmLoading();
   const [isDebouncing, setIsDebouncing] = useState(false);
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -48,8 +50,8 @@ export function HistoryTable() {
 
   const [sorting, setSorting] = useState<SortingState>([
     {
-      id: 'started_at',
-      desc: true,
+      id: 'username',
+      desc: false,
     },
   ]);
 
@@ -68,6 +70,7 @@ export function HistoryTable() {
   );
 
   useEffect(() => {
+    fetchUser();
     if (confirmLoading) {
       setConfirmLoading(true);
     } else {
@@ -75,22 +78,17 @@ export function HistoryTable() {
     }
   }, [pagination, sorting, debouncedColumnFilters, setConfirmLoading]);
 
-  const { data } = useSuspenseQuery<CollabCollectionDto>({
-    queryKey: [QUERY_KEYS.Collab, pagination, sorting, debouncedColumnFilters],
+  const { data } = useSuspenseQuery<UserCollectionDto>({
+    queryKey: [QUERY_KEYS.Users, pagination, sorting, debouncedColumnFilters],
     queryFn: async () => {
-      const user_id = userData!.id;
+      const username = debouncedColumnFilters.find((f) => f.id === 'username')
+        ?.value as string;
 
-      const q_title = debouncedColumnFilters.find(
-        (f) => f.id === 'question.q_title',
-      )?.value as string;
+      const email = debouncedColumnFilters.find((f) => f.id === 'email')
+        ?.value as string;
 
-      const q_category = debouncedColumnFilters.find(
-        (f) => f.id === 'question.q_category',
-      )?.value as CATEGORY[];
-
-      const q_complexity = debouncedColumnFilters.find(
-        (f) => f.id === 'question.q_complexity',
-      )?.value as COMPLEXITY[];
+      const roles = debouncedColumnFilters.find((f) => f.id === 'role')
+        ?.value as ROLE[];
 
       const offset = pagination.pageIndex * pagination.pageSize;
       const limit = pagination.pageSize;
@@ -100,21 +98,19 @@ export function HistoryTable() {
           ({
             field: s.id,
             order: s.desc ? 'desc' : 'asc',
-          }) as SortQuestionsQueryDto,
+          }) as SortUsersQueryDto,
       );
 
-      const queryParams: CollabFiltersDto = {
-        user_id,
-        has_ended: true,
-        q_title,
-        q_category,
-        q_complexity,
+      const queryParams: UserFiltersDto = {
+        username,
+        email,
+        roles,
         offset,
         limit,
         sort,
       };
 
-      return await getCollabs(queryParams);
+      return await fetchUsers(queryParams);
     },
   });
 
@@ -139,7 +135,7 @@ export function HistoryTable() {
   };
 
   const metadata = data.metadata;
-  const collaborations = data.collaborations;
+  const users = data.users;
 
   const controlledState: ControlledTableStateProps = {
     pagination,
@@ -152,12 +148,14 @@ export function HistoryTable() {
   };
 
   return (
-    <DataTable
-      data={collaborations}
-      columns={columns}
-      confirmLoading={confirmLoading || isDebouncing}
-      controlledState={controlledState}
-      TableToolbar={HistoryTableToolbar}
-    />
+    <>
+      <DataTable
+        data={users}
+        columns={columns}
+        confirmLoading={confirmLoading || isDebouncing}
+        controlledState={controlledState}
+        TableToolbar={UsersTableToolbar}
+      />
+    </>
   );
 }
