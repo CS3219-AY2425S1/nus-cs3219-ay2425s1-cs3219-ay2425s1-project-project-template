@@ -1,11 +1,13 @@
 import * as React from "react";
-import CodeEditor from "../components/CodeEditor";
-import Chat from "../components/Chat";
-import { Snackbar, Alert, Box, Button } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from 'react-helmet-async';
+import { Alert, Box, Button, CssBaseline, Snackbar, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
+import CodeEditor from "../components/CodeEditor";
+import Chat from "../components/Chat";
 
 const serverWsUrl = import.meta.env.VITE_WS_COLLAB_URL;
 
@@ -101,38 +103,77 @@ const CollabSpace = () => {
 
     return (
         <>
-            <h1>Room ID: {roomId}</h1>
-            <Snackbar
-                open={showRedirectMessage}
-                autoHideDuration={3000}
-                onClose={() => setShowRedirectMessage(false)}
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-                <Alert severity="info" variant="filled" onClose={() => setShowRedirectMessage(false)}>
-                    You will be redirected soon as the room is closed.
-                </Alert>
-            </Snackbar>
+            <Helmet>
+                <title>Collaboration Space</title>
+            </Helmet>
+            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
+                <CssBaseline />
 
-            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
-                    {providerRef.current && <Chat provider={providerRef.current} />}
-                </Box>
-
-                <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
-                    <Button variant="contained" color="secondary" onClick={handleLeaveRoom} disabled={isLeaving}>
+                {/* Fixed Header Section */}
+                <Box
+                    sx={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'primary.light',
+                        padding: 2,
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '60px', // Set a fixed height for the header
+                        zIndex: 1
+                    }}
+                >
+                    <Typography variant="h6" color="white">Collaboration Room{roomId}</Typography>
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        onClick={handleLeaveRoom} 
+                        disabled={isLeaving}
+                    >
                         {isLeaving ? "Leaving..." : "Leave Room"}
                     </Button>
                 </Box>
 
-                {/* Code Editor Component */}
-                <Box sx={{ width: "45%", display: "flex", flexDirection: "column" }}>
-                    <CodeEditor
-                        roomId={roomId}
-                        provider={providerRef.current}
-                        doc={docRef.current}
-                        onRoomClosed={handleRoomClosed}
-                    />
-                </Box>
+                {/* Snackbar for Redirect Message */}
+                <Snackbar
+                    open={showRedirectMessage}
+                    autoHideDuration={3000}
+                    onClose={() => setShowRedirectMessage(false)}
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                >
+                    <Alert severity="info" variant="filled" onClose={() => setShowRedirectMessage(false)}>
+                        You will be redirected soon as the room is closed.
+                    </Alert>
+                </Snackbar>
+
+                {/* Main Content Section */}
+                <Grid 
+                    container 
+                    spacing={0} 
+                    sx={{ 
+                        flexGrow: 1, 
+                        paddingTop: '60px', // Add padding to account for the fixed header
+                        height: 'calc(100dvh - 60px)' // Subtract header height from total height to fit page
+                    }}
+                >
+                    {/* Chat Section */}
+                    <Grid item size={3.5} sx={{ height: '100%', overflow: 'hidden' }}>
+                        {providerRef.current && <Chat provider={providerRef.current} />}
+                    </Grid>
+
+                    {/* Code Editor Section */}
+                    <Grid item size={8.5} sx={{ height: '100%', overflow: 'hidden' }}>
+                        <CodeEditor
+                            roomId={roomId}
+                            provider={providerRef.current}
+                            doc={docRef.current}
+                            onRoomClosed={handleRoomClosed}
+                        />
+                    </Grid>
+                </Grid>
             </Box>
         </>
     );
