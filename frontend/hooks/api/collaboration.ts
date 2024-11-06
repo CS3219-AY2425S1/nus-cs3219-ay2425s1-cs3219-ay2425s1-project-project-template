@@ -4,12 +4,12 @@ import { AxiosError, AxiosResponse } from "axios";
 import axios from "@/utils/axios";
 import { SaveCodeVariables } from "@/utils/collaboration";
 
-export const useGetMatchedQuestion = (roomId: string) => {
+export const useGetInfo = (roomId: string) => {
   return useQuery({
     queryKey: [roomId],
     queryFn: async () => {
       const response = await axios.get(
-        `/collaboration-service/get-question?roomId=${roomId}`,
+        `/collaboration-service/get-info?roomId=${roomId}`,
       );
 
       return response.data;

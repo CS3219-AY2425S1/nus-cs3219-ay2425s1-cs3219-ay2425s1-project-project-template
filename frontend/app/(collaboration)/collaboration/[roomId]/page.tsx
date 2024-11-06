@@ -21,7 +21,7 @@ import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
 import VoiceChat from "@/components/collaboration/VoiceChat";
 import {
-  useGetMatchedQuestion,
+  useGetInfo,
   useGetIsAuthorisedUser,
   useSaveCode,
 } from "@/hooks/api/collaboration";
@@ -72,7 +72,7 @@ export default function Page() {
   };
 
   const { data: roomInfo, isPending: isQuestionPending } =
-    useGetMatchedQuestion(roomId as string);
+    useGetInfo(roomId as string);
 
   const {
     data: isAuthorisedUser,
@@ -99,7 +99,7 @@ export default function Page() {
       } else {
         setOtherUser(roomInfo.userTwo);
       }
-      
+
       setQuestion({
         title: matchedQuestion?.title || "",
         complexity: matchedQuestion?.complexity || "",

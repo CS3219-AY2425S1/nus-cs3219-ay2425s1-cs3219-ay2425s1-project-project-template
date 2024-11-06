@@ -29,8 +29,8 @@ export const checkAuthorisedUser = async (req: Request, res: Response): Promise<
 };
 
 
-// GetQuestionHandler retrieves the question for a match based on the roomId
-export const getQuestionHandler = async (req: Request, res: Response): Promise<void> => {
+// GetInfoHandler retrieves the room info  for a match based on the roomId
+export const getInfoHandler = async (req: Request, res: Response): Promise<void> => {
   res.setHeader("Content-Type", "application/json");
 
   const roomId = req.query.roomId as string;
@@ -53,7 +53,13 @@ export const getQuestionHandler = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    // Send the question as a JSON response
+    // Set the roomId as a cookie in the user's browser
+    res.cookie('roomId', roomId, {
+      httpOnly: true, 
+      maxAge: 24 * 60 * 60 * 1000 
+    });
+
+    // Send the match information as a JSON response
     res.json(match);
   } catch (error) {
     console.error("Error finding match:", error);
@@ -167,4 +173,18 @@ export const getSessionHandler = async (req: Request, res: Response): Promise<vo
     console.error("Error finding session:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+// ClearRoomIdCookieHandler removes the roomId cookie from the client
+export const clearRoomIdCookieHandler = (req: Request, res: Response): void => {
+  res.setHeader("Content-Type", "application/json");
+
+  // Clear the roomId cookie
+  res.clearCookie("roomId", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
+  });
+
+  // Respond with a confirmation message
+  res.json({ message: "roomId cookie cleared successfully" });
 };
