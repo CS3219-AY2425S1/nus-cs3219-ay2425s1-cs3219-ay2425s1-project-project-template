@@ -30,7 +30,6 @@ import { SaveCodeVariables } from "@/utils/collaboration";
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
   const code = useRef("");
-  const [language, setLanguage] = useState("JavaScript");
   const router = useRouter();
   const params = useParams();
   const roomId = params?.roomId || "";
@@ -79,11 +78,11 @@ export default function Page() {
     data: isAuthorisedUser,
     isPending: isAuthorisationPending,
     isError,
-  } = useGetIsAuthorisedUser(roomId as string, user?.id as string);
+  } = useGetIsAuthorisedUser(roomId as string, user?.username as string);
 
   useEffect(() => {
     if (!isAuthorisationPending && !isAuthorisedUser?.authorised) {
-      // router.push("/403");
+      router.push("/403");
     }
   }, [isAuthorisationPending, isAuthorisedUser, router]);
 
@@ -104,6 +103,12 @@ export default function Page() {
         constraints: matchedQuestion?.constraints || "",
       });
     }
+
+    if (roomInfo.userOne !== user?.username) {
+      setOtherUser(roomInfo.userOne);
+    } else {
+      setOtherUser(roomInfo.userTwo);
+    }
   }, [isQuestionPending, setQuestion]);
 
   useEffect(() => {
@@ -117,7 +122,6 @@ export default function Page() {
             autoClose: 1000,
             hideProgressBar: false,
           });
-          setOtherUser(otherUser);
         }
       });
 
@@ -139,8 +143,9 @@ export default function Page() {
         saveCodeAndEndSession({
           roomId: roomId as string,
           code: code.current,
-          language: language,
+          language: roomInfo["programming_language"][0],
         }); // Call function to save code and redirect
+        router.push("/match")
       };
 
       socket.on("user-disconnect", handleUserDisconnect);
