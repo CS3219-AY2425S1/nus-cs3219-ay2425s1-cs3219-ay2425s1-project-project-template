@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { io } from 'socket.io-client';
 import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
