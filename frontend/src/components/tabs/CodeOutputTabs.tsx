@@ -2,6 +2,7 @@ import { Tabs } from '@mantine/core';
 
 import { CodeOutput } from '../../types/CodeExecutionType';
 import { TestCase } from '../../types/QuestionType';
+import OutputTab from './OutputTab';
 import TestCasesTab from './TestCasesTab';
 
 interface CodeOutputTabsProps {
@@ -9,7 +10,7 @@ interface CodeOutputTabsProps {
   codeOutput?: CodeOutput;
 }
 
-function CodeOutputTabs({ testCases }: CodeOutputTabsProps) {
+function CodeOutputTabs({ testCases, codeOutput }: CodeOutputTabsProps) {
   const showTestCases = testCases && testCases.length > 0;
 
   return (
@@ -40,7 +41,7 @@ function CodeOutputTabs({ testCases }: CodeOutputTabsProps) {
         </>
       )}
       <Tabs.Panel value="output" h="200px">
-        Output
+        <OutputTab codeOutput={codeOutput} />
       </Tabs.Panel>
     </Tabs>
   );
