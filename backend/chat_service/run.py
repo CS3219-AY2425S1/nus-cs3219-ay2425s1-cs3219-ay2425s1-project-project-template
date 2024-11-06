@@ -87,11 +87,6 @@ def get_history(conversation):
     return jsonify({"messages": messages})
 
 
-# load conversation lists
-# @app.route('/api/conversations', methods=['GET'])
-# def get_conversations():
-#     return jsonify({'conversations': conversations_data})
-
 
 # DB ver
 @socketio.on("chat message")
@@ -138,9 +133,4 @@ def handle_message(data):
 
 
 if __name__ == "__main__":
-    # import os
-    # if os.getenv('FLASK_ENV') == 'development':
     socketio.run(app, host="0.0.0.0", port=5002, allow_unsafe_werkzeug=True)
-    # else:
-    #     from waitress import serve
-    #     serve(app, host='0.0.0.0', port=5002)
