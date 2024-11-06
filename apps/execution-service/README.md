@@ -239,4 +239,4 @@ cd ../history-service
 go run main.go
 ```
 
-To view more details on the RabbitMQ queue, we can go to `localhost:15672`.
+To view more details on the RabbitMQ queue, we can go to `localhost:15672`, and login using `guest` as the username and password.
