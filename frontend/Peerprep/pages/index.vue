@@ -89,7 +89,7 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
 
         const sessionId = collaborationInfo.uid; // Use the uid as session ID
         console.log('Using session ID from collaborationStore:', sessionId);
-
+        const formattedStatus = message.status[0].toUpperCase() + status.slice(1);
         if (is_user1) {
           const ack = {
             status: "success",
@@ -98,22 +98,18 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
           send(JSON.stringify(ack));
           console.log('sending ack:', ack);
           toast({
-            description: `Match found! Matched with user ${message.user2_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
+            description: `${formattedStatus} found! Matched with user ${message.user2_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
           });
           createSession(sessionId, message.user1_id); // Use sessionId from store
         } else {
           createSession(sessionId, message.user2_id); // Use sessionId from store
           toast({
-            description: `Match found! Matched with user ${message.user1_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
+            description: `${formattedStatus} found! Matched with user ${message.user1_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
           });
         }
 
-        // Optionally navigate to collaboration page
         if (collaborationStore.isCollaborating) {
           await navigateTo(`/collaboration`);
-          toast({
-            description: `Match found! Redirecting to the collaboration room...`,
-          });
           matchFound.value = true;
         }
       }
