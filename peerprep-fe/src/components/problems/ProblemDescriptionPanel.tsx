@@ -5,21 +5,29 @@ import { Button } from '../ui/button';
 type Props = {
   problem: Problem;
   resetQuestion: () => void; // replace with something more generic
+  hasHeader?: boolean;
 };
 
-const ProblemDescriptionPanel = ({ problem, resetQuestion }: Props) => {
+const ProblemDescriptionPanel = ({
+  problem,
+  resetQuestion,
+  hasHeader = true,
+}: Props) => {
   return (
     <>
-      <div className="flex justify-between">
-        <h2 className="mb-4 text-2xl font-bold">{problem.title}</h2>
-        <Button
-          variant="outline"
-          className="border-gray-700 bg-gray-800"
-          onClick={() => resetQuestion()}
-        >
-          Reset
-        </Button>
-      </div>
+      {hasHeader && (
+        <div className="flex justify-between">
+          <h2 className="mb-4 text-2xl font-bold">{problem.title}</h2>
+          <Button
+            variant="outline"
+            className="border-gray-700 bg-gray-800"
+            onClick={() => resetQuestion()}
+          >
+            Reset
+          </Button>
+        </div>
+      )}
+
       <p className="mb-4">{problem.description}</p>
       {problem.examples.map((example, index) => (
         <React.Fragment key={index}>

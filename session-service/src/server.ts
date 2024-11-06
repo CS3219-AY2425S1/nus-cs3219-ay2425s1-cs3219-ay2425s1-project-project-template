@@ -1,7 +1,8 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import { createServer } from "http";
 import cors from "cors";
 import { WebSocketServer } from "ws";
+
 const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 
 /**
@@ -10,7 +11,7 @@ const setupWSConnection = require("y-websocket/bin/utils").setupWSConnection;
 export const allowedOrigins = ["*"];
 
 /**
- * Server INITIALIZATION and CONFIGURATION
+ * Server INITIALIZATION and CONFIGURATION.
  * CORS configuration
  * Request body parsing
  */

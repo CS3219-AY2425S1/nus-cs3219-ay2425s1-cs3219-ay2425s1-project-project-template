@@ -27,7 +27,7 @@ export const SUPPORTED_PROGRAMMING_LANGUAGES = ['Python', 'Java', 'C++'];
 export const LANGUAGE_VERSIONS: { [key: string]: string } = {
   python: '3.10.0',
   java: '15.0.2',
-  'c++': '9.3.0',
+  'c++': '10.2.0',
 };
 
 export const LANGUAGE_EXTENSION: { [key: string]: string } = {

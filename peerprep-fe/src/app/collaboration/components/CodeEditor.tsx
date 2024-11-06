@@ -112,8 +112,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       </div>
 
       {showOutput && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-          <ConsoleCard output={output} />
+        <div className="absolute inset-0 flex items-end justify-center bg-black/50">
+          <ConsoleCard output={output} ref={cardRef} />
         </div>
       )}
     </div>

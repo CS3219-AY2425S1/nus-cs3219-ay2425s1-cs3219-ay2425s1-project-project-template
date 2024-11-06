@@ -17,6 +17,7 @@ import { stringToColor } from '@/lib/utils';
 import LanguageSelector from './LanguageSelector';
 import LeaveSessionDialog from './AlertDialogues';
 import { SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
+import AudioSharing from './AudioSharing';
 
 interface CollaborationEditorProps {
   matchId: string | null;
@@ -196,8 +197,9 @@ const CollaborationEditor = ({ matchId }: CollaborationEditorProps) => {
       </div>
       <CodeEditor
         onMount={handleEditorMount}
-        language={language.toLowerCase()} //CodeEditor requires that it be lowercase
+        language={language.toLowerCase()}
       />
+      <AudioSharing />
     </>
   );
 };

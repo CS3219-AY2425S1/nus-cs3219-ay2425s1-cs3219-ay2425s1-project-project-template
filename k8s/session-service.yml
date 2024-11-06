@@ -20,6 +20,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 4444
+            - containerPort: 5555
           envFrom:
             - secretRef:
                 name: session-service-config
@@ -38,10 +39,14 @@ kind: Service
 metadata:
   name: session-svc
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
-    - port: 4444
+    - name: port-4444
+      port: 4444
       targetPort: 4444
+    - name: port-5555
+      port: 5555
+      targetPort: 5555
   selector:
     app: session-svc
 ---
