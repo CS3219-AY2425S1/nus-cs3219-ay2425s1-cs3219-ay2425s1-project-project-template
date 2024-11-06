@@ -1,9 +1,16 @@
 import roomService from '../services/roomService.js';
 import clientInstance from '../models/client-model.js';
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function handleMatchFound(matchData, io) {
     const { roomId, user1_Id, user2_id, topic, difficulty } = matchData;
     const room = await roomService.createRoom(roomId, user1_Id, user2_id, topic, difficulty);
+
+    // Wait for 10 milliseconds
+    await delay(100);
 
     const user1_socketId = clientInstance.getSocketId(user1_Id);
     const user2_sockerId = clientInstance.getSocketId(user2_id);
@@ -14,6 +21,7 @@ async function handleMatchFound(matchData, io) {
     });
 
     console.log("Collaboration Ready sent for room ", room.roomId);
+    console.log("sent to ", user1_socketId, user2_sockerId);
 };
 
 export default {

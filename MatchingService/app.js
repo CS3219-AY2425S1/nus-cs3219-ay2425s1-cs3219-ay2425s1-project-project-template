@@ -6,14 +6,15 @@ import matchController from './controllers/matchController.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
-const frontendURL = process.env.frontend_url || "http://localhost:8080";
+const frontendURL = process.env.FRONTEND_URL || "http://localhost:8080";
 const app = express();
 const port = 3000;
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*', 
-        methods: ['GET', 'POST']
+        origin: frontendURL,
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 

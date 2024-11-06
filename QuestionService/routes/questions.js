@@ -225,6 +225,27 @@ router.delete('/question/:questionId', async (req, res) => {
     }
 });
 
+// DELETE all questions without verifying the user token
+router.delete('/questions', async (req, res) => {
+    try {
+        const collection = await db.collection('questions');
+        const result = await collection.deleteMany({});
+
+        if (result.deletedCount > 0) {
+            console.log(`Successfully deleted ${result.deletedCount} documents.`);
+            res.status(200).json({ success: true, message: `Deleted ${result.deletedCount} questions.` });
+        } else {
+            console.log("No documents were found to delete.");
+            res.status(200).json({ success: true, message: "No questions found to delete." });
+        }
+    } catch (error) {
+        console.error("Error deleting all questions:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+
+
+
 router.patch('/question/:questionId', async (req, res) => {
     const token = req.cookies.accessToken;
     if (!await verifyUser(token)) {

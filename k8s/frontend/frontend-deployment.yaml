@@ -23,3 +23,7 @@ spec:
           value: "http://34.101.53.211:3001"
         - name: VITE_QUESTION_SERVICE_API
           value: "http://34.101.213.157:3000"
+        - name: VITE_MATCHING_SERVICE_API
+          value: "http://34.101.183.192:4000"
+        - name: VITE_COLLABORATION_SERVICE_API
+          value: "http://34.101.47.29:3002"

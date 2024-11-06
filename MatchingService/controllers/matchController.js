@@ -31,10 +31,11 @@ async function verifyUser(token) {
 }
 
 async function handleMatchRequest(req, res) {
+    console.log("Cookies:", req.cookies);
     const token = req.cookies.accessToken;
-    if (!await verifyUser(token)) {
-        return res.status(401).json({ message: "Authentication failed" });
-    }
+    // if (!await verifyUser(token)) {
+    //     return res.status(401).json({ message: "Authentication failed" });
+    // }
     const { userId, topic, difficulty, socketId } = req.body;
 
     try {
@@ -48,9 +49,9 @@ async function handleMatchRequest(req, res) {
 
 async function cancelRequest(req, res) {
     const token = req.cookies.accessToken;
-    if (!await verifyUser(token)) {
-        return res.status(401).json({ message: "Authentication failed" });
-    }
+    // if (!await verifyUser(token)) {
+    //     return res.status(401).json({ message: "Authentication failed" });
+    // }
     const { userId } = req.body;
 
     try {
