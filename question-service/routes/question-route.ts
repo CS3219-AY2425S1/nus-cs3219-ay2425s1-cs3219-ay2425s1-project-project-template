@@ -5,7 +5,8 @@ import {
   updateQuestionById,
   deleteQuestionById,
   getQuestionById,
-  getQuestionsByDifficulty
+  getQuestionsByDifficulty,
+  getQuestionsByCategory
 } from '../controllers/question-controller';
 import { fetchQuestionDifficulties, fetchQuestionTopics } from '../controllers/question-metadata-controller';
 
@@ -25,6 +26,7 @@ router.get('/topics', fetchQuestionTopics);
 router.get('/', fetchAllQuestions);
 router.post('/', addQuestion);
 router.get('/filter', getQuestionsByDifficulty);
+router.get('/category', getQuestionsByCategory)
 router.put('/:id', updateQuestionById);
 router.delete('/:id', deleteQuestionById);
 router.get('/:id', getQuestionById);

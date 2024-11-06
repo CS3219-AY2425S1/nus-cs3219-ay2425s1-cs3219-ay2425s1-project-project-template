@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDisclosure } from "@chakra-ui/react"; // Import useDisclosure for modal management
 import MatchMe from "../../components/matchmaking/MatchMe";
 import Countdown from "../../components/matchmaking/Countdown";
 import MatchUnsuccess from "../../components/matchmaking/MatchUnsuccess";
 import MatchSuccess from "../../components/matchmaking/MatchSuccess";
+import AuthModal from "../../components/matchmaking/AuthModal"; // Import the modal component
 
-// Define constants for match stages
 const STAGE = {
   MATCHME: "matchme",
   COUNTDOWN: "countdown",
@@ -19,9 +20,27 @@ const MatchingPage: React.FC = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const navigate = useNavigate();
 
-  // Helper function to handle authenticated fetch requests with error handling
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Manage modal open/close
+
+  // Handle modal actions
+  const handleSignIn = () => {
+    onClose(); // Close the modal
+    navigate("/login"); // Redirect to sign-in page
+  };
+
+  const handleCancelAuth = () => {
+    onClose(); // Close the modal
+    navigate("/questions"); // Redirect to questions page
+  };
+
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+      console.error("No authentication token found. Redirecting to login.");
+      navigate("/login")
+      return
+    }
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -30,6 +49,10 @@ const MatchingPage: React.FC = () => {
 
     try {
       const response = await fetch(url, { ...options, headers });
+      if (response.status === 401) {
+        onOpen(); // Trigger the modal if 401 Unauthorized
+        throw new Error(`Unauthorized (401): ${response.status}`);
+      }
       if (!response.ok) throw new Error(`Error: ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -38,16 +61,19 @@ const MatchingPage: React.FC = () => {
     }
   };
 
-  // Trigger handlers according to match status in server
   const checkMatchStatus = async () => {
     try {
       const result = await fetchWithAuth("http://localhost:3002/match-status");
+      console.log("Match Status:", result.matchStatus);
+
       const matchStatus = result.matchStatus;
       if (matchStatus == "isNotMatching") {
         setStage(STAGE.MATCHME);
       } else if (matchStatus == "isMatching") {
         setStage(STAGE.COUNTDOWN);
       } else if (matchStatus == "isMatched") {
+        // console.log("Matched! Room ID:", result.roomId); // TODO: result.roomId does not exist
+        // handleMatchFound(result.roomId);
         handleMatchFound();
       } else if (matchStatus == "unsuccessful") {
         handleMatchUnsuccess();
@@ -57,7 +83,6 @@ const MatchingPage: React.FC = () => {
     }
   };
 
-  // Send a find match request to be put in the queue
   const handleMatchMe = async () => {
     setStage(STAGE.COUNTDOWN);
     try {
@@ -70,15 +95,21 @@ const MatchingPage: React.FC = () => {
     }
   };
 
+  // const handleMatchFound = (roomId: string) => {
+  //   console.error("Room ID:", roomId);
+  //   setStage(STAGE.SUCCESS);
+  //   navigate(`/editor/${roomId}`);
+  // };
+
   const handleMatchFound = () => {
     setStage(STAGE.SUCCESS);
+    navigate("/room");
   };
 
   const handleMatchUnsuccess = () => {
     setStage(STAGE.UNSUCCESSFUL);
   };
 
-  // Reset match request status in matching-service
   const handleRetry = async () => {
     try {
       await fetchWithAuth("http://localhost:3002/reset-status", { method: "POST" });
@@ -88,7 +119,6 @@ const MatchingPage: React.FC = () => {
     setStage(STAGE.MATCHME);
   };
 
-  // Reset match request status in matching-service
   const handleCancel = async () => {
     try {
       await fetchWithAuth("http://localhost:3002/cancel-matching", { method: "POST" });
@@ -102,14 +132,12 @@ const MatchingPage: React.FC = () => {
     navigate("/dashboard");
   };
 
-  // Ensure that when the page is loaded/reloaded, the stage state is always
-  // correct with respect to the actual user's match state in backend.
   useEffect(() => {
     checkMatchStatus();
     const interval = setInterval(() => {
       checkMatchStatus();
     }, 2000);
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -140,6 +168,14 @@ const MatchingPage: React.FC = () => {
       )}
 
       {stage === STAGE.SUCCESS && <MatchSuccess />}
+
+      {/* Modal for handling unauthorized access */}
+      <AuthModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSignIn={handleSignIn}
+        onCancelAuth={handleCancelAuth}
+      />
     </div>
   );
 };

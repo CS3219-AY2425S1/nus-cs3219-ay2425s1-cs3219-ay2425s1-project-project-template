@@ -29,6 +29,24 @@ services:
     volumes:
       - ./user-service:/app
       - /app/node_modules
+  
+  collaboration-service:
+    build: ./collaboration-service
+    ports:
+      - 5001:5001
+    volumes:
+      - ./collaboration-service:/app
+      - /app/node_modules
+
+  history-service:
+    build: ./history-service
+    ports:
+      - 5002:5002
+    depends_on:
+      - collaboration-service
+    volumes:
+      - ./history-service:/app
+      - /app/node_modules
 
   user-db:
     image: mongo:latest
@@ -79,6 +97,17 @@ services:
     # - question-service # maybe to retrieve information on the questions difficulties/topics
     volumes:
       - ./matching-service/dequeue-service:/app
+      - /app/node_modules
+
+  room-service:
+    build: ./matching-service/room-service
+    ports:
+      - 3005:3005
+    depends_on:
+      - user-service
+      - collaboration-service # add after dockerising collaboration-service
+    volumes:
+      - ./matching-service/room-service:/app
       - /app/node_modules
 
   chat-service:
