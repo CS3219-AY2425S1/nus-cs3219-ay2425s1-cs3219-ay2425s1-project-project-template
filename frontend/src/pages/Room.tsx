@@ -178,8 +178,11 @@ function Room() {
     });
 
     collaborationSocketRef.current.on('language-updated', (newLanguage) => {
-      isRemoteUpdateRef.current = true;
       setLanguage(newLanguage);
+    });
+
+    collaborationSocketRef.current.on('codex-output', (newOutput) => {
+      setCodeOutput(newOutput);
     });
 
     collaborationSocketRef.current.on('user-joined', () => {
@@ -237,12 +240,13 @@ function Room() {
     setupPeerConnection();
   };
 
+  // To prevent remote updates from emitting 'edit-code', avoiding the loop
   useEffect(() => {
     if (!isRemoteUpdateRef.current) {
       collaborationSocketRef.current?.emit('edit-code', code);
     }
     isRemoteUpdateRef.current = false;
-  }, [code, language]);
+  }, [code]);
 
   const handleLanguageChange = (newLanguage: SupportedLanguage) => {
     setLanguage(newLanguage);
@@ -264,6 +268,7 @@ function Room() {
     executeCode(codeExecutionInput).then(
       (codeOutput: CodeOutput) => {
         setCodeOutput(codeOutput);
+        collaborationSocketRef.current?.emit('codex-output', codeOutput);
         setIsRunningCode(false);
       },
       (error: any) => {
