@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Button, Grid, Chip } from "@mui/material";
+import { Box, Typography, Button, Chip } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -49,7 +49,7 @@ const CollaborationDetails: React.FC = () => {
       case "javascript":
         return "JavaScript";
       default:
-        return "Unknown Language";
+        return "JavaScript";
     }
   };
 
@@ -75,30 +75,28 @@ const CollaborationDetails: React.FC = () => {
       </Typography>
 
       {/* Main Content Area */}
-      <Grid container spacing={4} sx={{ mt: 4 }}>
+      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4, mt: 4 }}>
         {/* Left Side: Question Details */}
-        <Grid item xs={12} md={6}>
-          <Box sx={{ backgroundColor: "#2a2a2a", p: 3, borderRadius: 3 }}>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", color: "#fff" }}>
-              {title || "Question Title"}
-            </Typography>
+        <Box sx={{ flex: 1, backgroundColor: "#2a2a2a", p: 3, borderRadius: 3 }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", color: "#fff" }}>
+            {title || "Question Title"}
+          </Typography>
 
-            {/* Tags for Difficulty and Category */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Chip label={complexity} color={difficultyColor} size="small" sx={{ fontWeight: "bold", color: "#fff" }} />
-              {category.map((topic: string, index: number) => (
-                <Chip key={index} label={topic} variant="outlined" size="small" sx={{ color: "#bbb", borderColor: "#444" }} />
-              ))}
-            </Box>
-
-            <Typography variant="body1" sx={{ color: "#ddd", whiteSpace: "pre-wrap" }}>
-              {description || "No description available."}
-            </Typography>
+          {/* Tags for Difficulty and Category */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <Chip label={complexity} color={difficultyColor} size="small" sx={{ fontWeight: "bold", color: "#fff" }} />
+            {category.map((topic: string, index: number) => (
+              <Chip key={index} label={topic} variant="outlined" size="small" sx={{ color: "#bbb", borderColor: "#444" }} />
+            ))}
           </Box>
-        </Grid>
+
+          <Typography variant="body1" sx={{ color: "#ddd", whiteSpace: "pre-wrap" }}>
+            {description || "No description available."}
+          </Typography>
+        </Box>
 
         {/* Right Side: Code and Test Cases */}
-        <Grid item xs={12} md={6}>
+        <Box sx={{ flex: 1 }}>
           <Box
             sx={{
               p: 3,
@@ -112,7 +110,7 @@ const CollaborationDetails: React.FC = () => {
             }}
           >
             <Typography variant="subtitle1" gutterBottom sx={{ color: "#ddd", mb: 2 }}>
-              Code Written in {formatLanguageName(language) || "JavaScript"}
+              Code Written in {formatLanguageName(language)}
             </Typography>
             <SyntaxHighlighter language={language || "javascript"} style={materialDark}>
               {codeContent || "// No code content available"}
@@ -138,8 +136,8 @@ const CollaborationDetails: React.FC = () => {
               This section will display all the test cases that have been run by the user.
             </Typography>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Back Button */}
       <Box display="flex" justifyContent="center" mt={4}>
