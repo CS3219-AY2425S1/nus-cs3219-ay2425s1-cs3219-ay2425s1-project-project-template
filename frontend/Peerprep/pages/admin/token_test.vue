@@ -47,7 +47,7 @@ const sendTokenToUserService = async () => {
         <Button v-if="token" @click="sendTokenToUserService">Test Token with User Service</Button>
         <p v-if="userServiceResponse">Response: {{ userServiceResponse }}</p>
         
-        <router-link :to="{ path: '/profile/attempt/sessionIdTest/questionIdTest' }">
+        <router-link :to="{ path: '/profile/attempt/0504c421-0559-406e-94cd-253599507f46' }">
             <Button>Navigate to Question Attempt Page</Button>
         </router-link>
     </div>
