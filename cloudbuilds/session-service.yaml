@@ -10,8 +10,6 @@ steps:
         "session-service/Dockerfile",
         "session-service",
       ]
-    env:
-      - "CLOUDSDK_EXPERIMENTAL_DISABLE_HTTP2=true"
 
   - name: "gcr.io/cloud-builders/docker"
     args:
