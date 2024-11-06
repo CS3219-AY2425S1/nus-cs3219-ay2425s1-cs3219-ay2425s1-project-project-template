@@ -58,6 +58,40 @@ export const joinRoom = async (req: Request, res: Response) => {
   }
 };
 
+export const joinOldRoom = async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const roomId = req.params.roomId;
+
+    if (!userId || typeof userId !== "string") {
+      return res.status(400).json({ message: "Invalid or missing userId." });
+    }
+
+    const roomRef = ref(database, `rooms/${roomId}`);
+    const roomSnapshot = await get(roomRef);
+
+    if (!roomSnapshot.exists()) {
+      return res.status(404).json({ message: "Room does not exist." });
+    }
+
+    const roomData = roomSnapshot.val() as Room;
+
+    const updatedUsers = {
+      ...roomData.users,
+      [userId]: true,
+    };
+
+    await update(roomRef, { users: updatedUsers });
+
+    return res
+      .status(200)
+      .json({ message: "Joined room successfully.", roomId });
+  } catch (error) {
+    console.error("Error joining room:", error);
+    return res.status(500).json({ message: "Failed to join room." });
+  }
+};
+
 function formatTime(unixTime: number): string {
   const date = new Date(unixTime);
 
@@ -189,6 +223,32 @@ export const getRoomData = async (req: Request, res: Response) => {
     const id = userRoomSnapshot.val() as string;
 
     const roomRef = ref(database, `rooms/${id}`);
+    const roomSnapshot = await get(roomRef);
+
+    if (!roomSnapshot.exists()) {
+      res.status(404).json({ message: "Room not found" });
+    }
+
+    const roomData = roomSnapshot.val();
+    const selectedQuestionId = roomData.selectedQuestionId;
+
+    return res.status(200).json({ roomData, selectedQuestionId });
+  } catch (error) {
+    console.error("Error fetching room data:", error);
+    res.status(500).json({ message: "Failed to fetch room data" });
+  }
+};
+
+export const getOldRoomData = async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const roomId = req.params.roomId;
+
+    if (!userId || typeof userId !== "string") {
+      res.status(400).json({ message: "Invalid userId." });
+    }
+
+    const roomRef = ref(database, `rooms/${roomId}`);
     const roomSnapshot = await get(roomRef);
 
     if (!roomSnapshot.exists()) {

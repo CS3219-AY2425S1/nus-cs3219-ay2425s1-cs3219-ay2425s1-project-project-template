@@ -11,7 +11,8 @@ import MatchingPage from "./pages/MatchingPage";
 import Chat from "../components/chat/ChatComponent";
 import { useEffect, useState } from "react";
 import CodeEditor from "../components/collab/CodeEditor";
-import RoomPage from "./pages/RoomPage";
+import RoomPage from "./pages/Room/RoomPage";
+import OldRoomPage from "./pages/Room/OldRoomPage";
 import AccountPage from "./pages/AccountPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -156,6 +157,7 @@ function App() {
               <Route path="/match-me" element={<MatchingPage />} />
               <Route path="/editor" element={<CodeEditor />} />
               <Route path="/room" element={<RoomPage userId={userData?.id} />} />
+              <Route path="/room/:roomId" element={<OldRoomPage userId={userData?.id} />} />
               <Route path="/account" element={<AccountPage
                 username={userData ? userData.username : ''}
                 id={userData ? userData.id : ''}
