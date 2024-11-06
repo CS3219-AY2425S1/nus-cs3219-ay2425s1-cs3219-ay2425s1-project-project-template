@@ -29,13 +29,8 @@ function useQuestionTable() {
 
     const handleDelete = async (questionId) => {
         try {
-<<<<<<< HEAD
             const response = await fetch(`${VITE_QUESTION_SERVICE_API}/question/${questionId}`, {
-                method: 'DELETE',
-=======
-            const response = await fetch(`http://localhost:4000/question/${questionId}`, {
                 method: 'DELETE', credentials: "include"
->>>>>>> main
             });
             if (!response.ok) {
                 const errorData = await response.json();
