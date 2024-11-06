@@ -1,10 +1,13 @@
-import { useTheme, Button, Box } from "@mui/material";
-import { useState, useRef } from "react";
+import { useTheme, Button, Box, Card, CardContent, Typography } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
 import { MonacoBinding } from "y-monaco";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-export default function CodeEditor({ roomId, provider, doc, onRoomClosed }) {
+export default function CodeEditor({ roomId, provider, doc, onRoomClosed}) {
+    const [isRunning, setIsRunning] = useState(false);
+    const [output, setOutput] = useState();
     const theme = useTheme();
     const navigate = useNavigate();
     const editorRef = useRef();
@@ -17,17 +20,54 @@ export default function CodeEditor({ roomId, provider, doc, onRoomClosed }) {
         new MonacoBinding(type, editor.getModel(), new Set([editor]), provider.awareness);
     }
 
+    const handleRunCode = async () => {
+        setIsRunning(true);
+
+        if (editorRef.current) {
+            const code = editorRef.current.getValue(); // Get the current code
+            const body = {code: code};
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_SANDBOX_URL}/sandbox/execute`, body);
+                console.log('Execution result:', response.data.output);
+                setOutput(response.data.output);
+            } catch (error) {
+                setOutput('Error executing code');
+                console.error('Error executing code:', error);
+            }
+        }
+
+        setIsRunning(false)
+    };
+
     return (
         <Box sx={{ width: "100%", flexGrow: 1 }}>
-            <Editor
-                height="100vh"
-                width="100%"
-                language="cpp"
-                defaultValue="// your code here"
-                theme={theme.palette.mode === "dark" ? "vs-dark" : "vs-light"}
-                onMount={handleEditorDidMount}
-            />
+            <Box sx={{ flexGrow: 4, marginBottom: 2, overflowY: "auto" }}>
+                <Editor
+                    height="100vh"
+                    width="100%"
+                    language="python"
+                    defaultValue="# your code here"
+                    theme={theme.palette.mode === "dark" ? "vs-dark" : "vs-light"}
+                    onMount={handleEditorDidMount}
+                />
+            </Box>
+            <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <Card variant="outlined" sx={{ width: "100%", margin: "auto", marginTop: 4, padding: 2 }}>
+                    <CardContent>  
+                        <Typography variant="body1" color="text.secondary">
+                            {"OUTPUT: "}
+                            {output}
+                        </Typography>
+                    </CardContent>
+                </Card>
+                <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleRunCode} disabled={isRunning}>
+                        {isRunning ? "Running..." : "Run Code"}
+                    </Button>
+                </Box>
+            </Box>
         </Box>
+
     );
 }
 
