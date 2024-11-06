@@ -15,15 +15,15 @@ export default function ChatBubbles({ isCollapsed }: ChatBubblesProps) {
   const { messages, userProfile } = useSessionContext();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  if (!userProfile) {
-    return <div>Loading user profile...</div>;
-  }
-
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  if (!userProfile) {
+    return <div>Loading user profile...</div>;
+  }
 
   return (
     <CardContent

@@ -1,7 +1,6 @@
 "use client";
 
 import { TextAreaInput } from "@/components/form/TextAreaInput";
-import { TextInput } from "@/components/form/TextInput";
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";

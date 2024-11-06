@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsProps } from "@radix-ui/react-tabs";
 import { LucideProps } from "lucide-react";
-import { ComponentType, HTMLAttributes, ReactNode, RefAttributes } from "react";
+import { ComponentType, ReactNode, RefAttributes } from "react";
 import { ButtonProps } from "react-day-picker";
 
 export interface Tab {

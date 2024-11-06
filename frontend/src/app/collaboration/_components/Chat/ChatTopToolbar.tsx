@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardHeader } from "@/components/ui/card";
 import UserAvatar from "@/components/UserAvatar";
@@ -40,9 +39,10 @@ export default function ChatTopToolbar({
           {isCollapsed ? <MessageSquareText /> : <ArrowRightIcon />}
         </Button>
         {!isCollapsed && <div className="mr-auto font-semibold">Text Chat</div>}
-        {sessionUserProfiles.map((profile) =>
+        {sessionUserProfiles.map((profile, i) =>
           profile.isActive ? (
             <UserAvatar
+              key={i}
               isViewProfileEnabled={false}
               isHoverEnabled={true}
               userProfile={profile}

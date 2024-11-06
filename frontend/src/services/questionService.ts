@@ -3,7 +3,6 @@
 import { getAccessToken } from "@/lib/auth";
 import { CategoriesResponse, CategoriesResponseSchema } from "@/types/Category";
 import {
-  Question,
   NewQuestion,
   QuestionResponse,
   QuestionsResponse,
@@ -11,6 +10,7 @@ import {
   QuestionsResponseSchema,
   NewQuestionSchema,
   TestCase,
+  EditQuestion,
 } from "@/types/Question";
 import { revalidatePath } from "next/cache";
 
@@ -155,7 +155,7 @@ export async function deleteQuestion(questionId: string): Promise<void> {
 }
 
 export async function editQuestion(
-  question: Question
+  question: EditQuestion
 ): Promise<QuestionResponse> {
   try {
     const access_token = await getAccessToken();

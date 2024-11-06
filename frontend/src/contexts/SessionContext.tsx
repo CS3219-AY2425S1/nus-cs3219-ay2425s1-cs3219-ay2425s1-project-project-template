@@ -265,19 +265,27 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       }
     });
 
-    socket.on("sessionLeft", ({ userId, sessionUserProfiles }) => {
-      try {
-        console.log("sessionLeft occured");
+    socket.on(
+      "sessionLeft",
+      ({
+        sessionUserProfiles,
+      }: {
+        userId: string;
+        sessionUserProfiles: string;
+      }) => {
+        try {
+          console.log("sessionLeft occured");
 
-        const currentSessionUserProfiles =
-          SessionUserProfilesSchema.parse(sessionUserProfiles);
-        setSessionUserProfiles([...currentSessionUserProfiles]);
+          const currentSessionUserProfiles =
+            SessionUserProfilesSchema.parse(sessionUserProfiles);
+          setSessionUserProfiles([...currentSessionUserProfiles]);
 
-        console.log(userProfile);
-      } catch (e) {
-        console.log(e);
+          console.log(userProfile);
+        } catch (e) {
+          console.log(e);
+        }
       }
-    });
+    );
 
     socket.on("chatReceiveMessage", (data) => {
       try {
