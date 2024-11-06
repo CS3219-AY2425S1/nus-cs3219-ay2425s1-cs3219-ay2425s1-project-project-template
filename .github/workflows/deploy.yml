@@ -23,16 +23,28 @@ jobs:
           filters: |
             fe:
               - 'peerprep-fe/**'
+              - 'k8s/peerprep*'
+              - 'cloudbuilds/fe'
             api:
               - 'api-gateway/**'
+              - 'k8s/api-gateway*'
+              - 'cloudbuilds/'
             question:
               - 'question-service/**'
+              - 'k8s/question-service*'
+              - 'cloudbuilds/question-service.yaml'
             user:
               - 'user-service/**'
+              - 'k8s/user-service*'
+              - 'cloudbuilds/user-service.yaml'
             matching:
               - 'matching-service/**'
+              - 'k8s/matching-service*'
+              - 'cloudbuilds/matching-service.yaml'
             session:
               - 'session-service/**'
+              - 'k8s/session-service*'
+              - 'cloudbuilds/session-service.yaml'
 
   deploy-fe:
     needs: check-changes
