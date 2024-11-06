@@ -7,11 +7,16 @@ import {
   removeQuestionById,
   fetchQuestionByTitle,
   fetchAllTopics,
-  fetchRandomQuestionByTopic
+  fetchRandomQuestionByTopic,
+  fetchQuestionByTopicAndDifficulty,
 } from '../controller/question-controller';  // Import your controller methods
 import { authenticateJWT, isAdmin } from '../middleware/auth-middleware';  // Import the middleware
 
 const router = Router();
+
+
+// Route for fetching filtered questions
+router.get('/questions/filter', fetchQuestionByTopicAndDifficulty);
 
 // Route to create a new question
 router.post('/questions', authenticateJWT, isAdmin, createQuestion);
@@ -35,6 +40,8 @@ router.put('/questions/:id', authenticateJWT, isAdmin, modifyQuestionById);
 router.delete('/questions/:id', authenticateJWT, isAdmin, removeQuestionById);
 
 router.get('/question', fetchRandomQuestionByTopic)
+
+
 
 
 export default router;

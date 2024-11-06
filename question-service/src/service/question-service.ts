@@ -112,3 +112,7 @@ export async function fetchRandomQuestionByTopic(topic: string, complexity: stri
 }
 
 
+export async function fetchFilteredQuestionsService(complexity: string, category: string) {
+    const questions = await getQuestionsByTopic(category, complexity);
+    return questions;
+}

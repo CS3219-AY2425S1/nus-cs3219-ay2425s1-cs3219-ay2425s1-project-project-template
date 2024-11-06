@@ -7,8 +7,11 @@ import {
   removeQuestionById as removeQuestionByIdService,
   fetchQuestionByTitle as fetchQuestionByTitleService,
   fetchAllTopics as fetchAllTopicsService,
-  fetchRandomQuestionByTopic as fetchRandomQuestionByTopicService
+  fetchRandomQuestionByTopic as fetchRandomQuestionByTopicService,
+  fetchFilteredQuestionsService,
 } from '../service/question-service';
+
+
 
 // Helper function to handle and format errors properly
 function handleError(error: unknown, res: Response) {
@@ -115,6 +118,23 @@ export async function fetchRandomQuestionByTopic(req: Request, res: Response) {
         } else {
             res.status(404).json({ message: 'Question not found' });
         }
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+export async function fetchQuestionByTopicAndDifficulty(req: Request, res: Response) {
+    try {
+        const { complexity, category } = req.query;
+        if (!complexity || !category) {
+            return res.status(400).json({ error: "Complexity and category are required" });
+        }
+
+        const questions = await fetchFilteredQuestionsService(complexity as string, category as string);
+        if (questions.length === 0) {
+            return res.status(404).json({ message: "No questions found for the given criteria" });
+        }
+
+        res.status(200).json(questions);
     } catch (error) {
         handleError(error, res);
     }
