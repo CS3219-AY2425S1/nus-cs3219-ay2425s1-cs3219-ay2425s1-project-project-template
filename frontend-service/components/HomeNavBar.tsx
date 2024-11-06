@@ -39,19 +39,14 @@ export default function HomeNavBar({
             justify={"flex-end"}
           >
             <Flex align={"center"}>
-              <Link to="/">
-                <Button variant="ghost" fontWeight="bold" mr={86}>
-                  Home
-                </Button>
-              </Link>
               <Link to="/questions">
                 <Button variant="ghost" fontWeight="bold" mr={86}>
                   Questions
                 </Button>
               </Link>
-              <Link to="/dashboard">
+              <Link to="/">
                 <Button variant="ghost" fontWeight="bold" mr={86}>
-                  Dashboard
+                  History
                 </Button>
               </Link>
 
