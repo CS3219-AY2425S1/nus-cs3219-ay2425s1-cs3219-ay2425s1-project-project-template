@@ -87,7 +87,7 @@ func ConsumeSubmissionMessages(client *firestore.Client, createSubmission func(
 	// Start a goroutine to handle incoming messages
 	go func() {
 		for d := range msgs {
-			log.Printf("RabbitMQ: Received a message: %v", d)
+			log.Printf("RabbitMQ: Received a message")
 
 			// Parse request
 			var submissionHistory models.SubmissionHistory
