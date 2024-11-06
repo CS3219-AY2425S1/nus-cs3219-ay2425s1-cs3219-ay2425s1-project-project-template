@@ -6,39 +6,9 @@ import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded
 import io from "socket.io-client";
 import axios from "axios";
 import Grid from "@mui/material/Grid2";
+import { COMPLEXITIES, CATEGORIES, SAMPLE_QUESTIONS } from "../constants";
 
 const socket = io(import.meta.env.VITE_USER_URL);
-
-const complexities = ["Easy", "Medium", "Hard"];
-
-const categories = [
-    "Strings",
-    "Algorithms",
-    "Data Structures",
-    "Bit Manipulation",
-    "Recursion",
-    "Databases",
-    "Brainteaser",
-    "Arrays",
-];
-
-const sampleQuestions = [
-    {
-        id: 1,
-        title: "Reverse a String",
-        description: `Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory.`,
-        categories: ["Strings", "Algorithms"],
-        complexity: "Easy",
-    },
-    {
-        id: 2,
-        title: "Linked List Cycle Detection",
-        description: "Implement a function to detect if a linked list contains a cycle.",
-        categories: ["Data Structures", "Algorithms"],
-        complexity: "Easy",
-    },
-    // add more ltr ba
-];
 
 const MatchComponent = () => {
     const [waitingTime, setWaitingTime] = useState(0);
@@ -50,6 +20,9 @@ const MatchComponent = () => {
     const [selectedCategory, setSelectedCategory] = useState("Strings");
     const [showMatchedMessage, setShowMatchedMessage] = useState(false);
 
+    const complexities = COMPLEXITIES;
+    const categories = CATEGORIES;
+    const sampleQuestions = SAMPLE_QUESTIONS;
 
     const navigate = useNavigate();
 
@@ -259,16 +232,17 @@ const MatchComponent = () => {
 
                 {/* Sample questions section */}
                 <Grid size={6}>
+                    
                     <Box sx={{ alignItems: "center", padding: "10px" }}>
                         <Avatar sx={{ m: 1, bgcolor: "primary.light" }}>
                             <QuestionAnswerRoundedIcon />
                         </Avatar>
                         <Typography variant="h5">Sample Questions</Typography>
                         {filteredQuestion ? (
-                            <div>
+                            <Box sx={{ bgcolor: '#f5f5f5' }}>
                                 <Typography variant="h6">{filteredQuestion.title}</Typography>
                                 <Typography>{filteredQuestion.description}</Typography>
-                            </div>
+                            </Box>
                         ) : (
                             <Typography>Select both complexity and category to see a sample question.</Typography>
                         )}

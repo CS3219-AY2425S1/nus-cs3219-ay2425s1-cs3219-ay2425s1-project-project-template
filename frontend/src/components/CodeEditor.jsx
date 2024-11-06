@@ -6,6 +6,7 @@ import io from "socket.io-client";
 import prettier from "prettier/standalone";
 import parserBabel from "prettier/parser-babel";
 import parserTypescript from "prettier/parser-typescript";
+import { CODE_SNIPPETS } from "../constants";
 
 const socket = io(import.meta.env.VITE_USER_URL);
 
@@ -61,15 +62,6 @@ export default function CodeEditor({ roomId, provider, doc, onRoomClosed }) {
             alert("There was an error formatting the code. Please check your setup.");
         }
     };*/}
-    const CODE_SNIPPETS = {
-        javascript: `\nfunction greet(name) {\n\tconsole.log("Hello, " + name + "!");\n}\n\ngreet("Alex");\n`,
-        typescript: `\ntype Params = {\n\tname: string;\n}\n\nfunction greet(data: Params) {\n\tconsole.log("Hello, " + data.name + "!");\n}\n\ngreet({ name: "Alex" });\n`,
-        python: `\ndef greet(name):\n\tprint("Hello, " + name + "!")\n\ngreet("Alex")\n`,
-        java: `\npublic class HelloWorld {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello World");\n\t}\n}\n`,
-        csharp:
-          'using System;\n\nnamespace HelloWorld\n{\n\tclass Hello { \n\t\tstatic void Main(string[] args) {\n\t\t\tConsole.WriteLine("Hello World in C#");\n\t\t}\n\t}\n}\n',
-        php: "<?php\n\n$name = 'Alex';\necho $name;\n",
-      };
 
     return (
         <Box sx={{ width: "100%", flexGrow: 1 }}>
