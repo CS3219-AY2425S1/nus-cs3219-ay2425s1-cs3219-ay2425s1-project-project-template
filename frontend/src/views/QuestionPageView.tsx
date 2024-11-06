@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { getUsernameByUid } from "@/services/UserFunctions";
 import "@/css/styles.css";
 import { fetchAdminStatus } from "@/services/UserFunctions";
+import { auth, signOut } from "../config/firebaseConfig";
 
 const QuestionPageView: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -37,6 +38,16 @@ const QuestionPageView: React.FC = () => {
       setUsername("");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out the user from Firebase Authentication
+
+      navigate("/"); // Navigate to the home page or login page after logout
+    } catch (error) {
+      console.error("Error signing out: ", error);
     }
   };
 
@@ -70,11 +81,7 @@ const QuestionPageView: React.FC = () => {
             <Button
               variant="ghost"
               className="w-full text-left"
-              onClick={() => {
-                sessionStorage.removeItem("authToken");
-                sessionStorage.removeItem("uid");
-                handleNavigation("/");
-              }}
+              onClick={handleLogout}
             >
               Logout
             </Button>

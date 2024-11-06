@@ -1,9 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-
+import { auth } from "../config/firebaseConfig";
 
 export const HTTP_SERVICE_USER =
-  import.meta.env.USER_SERVICE_BACKEND_URL || "http://localhost:5001";
+  import.meta.env.VITE_USER_SERVICE_BACKEND_URL || "http://localhost:5001";
 export const HTTP_SERVICE_QUESTION =
   import.meta.env.VITE_QUESTION_SERVICE_BACKEND_URL || "http://localhost:5002";
 export const HTTP_SERVICE_COLLAB =
@@ -12,9 +12,27 @@ export const HTTP_SERVICE_HISTORY =
   import.meta.env.VITE_HISTORY_SERVICE_BACKEND_URL || "http://localhost:5005";
 
 export const WS_SERVICE_COLLAB =
-  import.meta.env.VITE_COLLAB_SERVICE_WS_URL || "ws://localhost:5004";
+  import.meta.env.VITE_COLLAB_SERVICE_WS_BACKEND_URL || "ws://localhost:5004";
 
+// Function to get the current user's token
+export const getToken = async (): Promise<string | null> => {
+  const user = auth.currentUser;
+  if (user) {
+    const token = await user.getIdToken();
+    return token;
+  }
+  return null;
+};
 
+// Function to get the current user's UID
+export const getUid = (): string | null => {
+  const user = auth.currentUser;
+  if (user) {
+    const uid = user.uid;
+    return uid;
+  }
+  return null;
+};
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -53,7 +71,7 @@ export async function callFunction(
   body?: any
 ): Promise<SuccessObject> {
   const url = `${serviceName}/${functionName}`;
-  const token = sessionStorage.getItem("authToken");
+  const token = await getToken();
   const response = await fetch(url, {
     method,
     headers: {
