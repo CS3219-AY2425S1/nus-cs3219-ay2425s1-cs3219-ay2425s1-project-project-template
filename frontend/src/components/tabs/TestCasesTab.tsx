@@ -17,7 +17,7 @@ function TestCasesTab({ testCases }: TestCasesTabProps) {
       <Code block color="gray.9">
         {testCase.input}
       </Code>
-      <Title order={5}>Expected</Title>
+      <Title order={5}>Expected Output</Title>
       <Code block color="gray.9">
         {testCase.answer}
       </Code>
