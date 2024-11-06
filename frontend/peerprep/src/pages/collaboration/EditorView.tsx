@@ -154,9 +154,9 @@ const EditorView: React.FC = () => {
             />
           </Box>
         </Box>
-        <Box style={styles.editorContainer} className="editor-scrollbar">
+        <Box style={styles.editorContainer}>
           {socketRef.current && (
-            <EditorElement socket={socketRef.current} onCodeChange={saveCode} />
+            <EditorElement socket={socketRef.current} className="editor-scrollbar" onCodeChange={saveCode} />
           )}
         </Box>
       </Box>
@@ -252,12 +252,11 @@ const styles = {
     overflowY: "auto",
   },
   editorContainer: {
+    flex: 1,
     backgroundColor: "#1e1e2e",
     padding: "15px",
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-    overflowY: "auto",
-    outerWidth: "auto",
   },
 };
 

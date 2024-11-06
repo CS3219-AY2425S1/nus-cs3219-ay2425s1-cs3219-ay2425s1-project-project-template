@@ -22,11 +22,19 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
+  const questionRef = useRef<Question | null>(question);
+  const currentCodeRef = useRef<string>(currentCode);
+
+  useEffect(() => {
+    questionRef.current = question;
+    currentCodeRef.current = currentCode;
+  }, [question, currentCode]);
+
   useEffect(() => {
     socketRef.current = io(socketUrl);
     socketRef.current.on("connect", () => {
       if (roomId && user?.username) {
-        socketRef.current.emit("joinRoom", { roomId, username: user.username });
+        socketRef.current?.emit("joinRoom", { roomId, username: user.username });
         console.log("Joined room:", roomId);
       }
     });
@@ -36,6 +44,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
       if (data.username !== user?.username) { // Ensure it's not the current user's name
         setOtherUserName(data.username);
       }
+    });
+
+    socketRef.current.on("leaveSession", () => {
+      console.log("Session Ended");
+      onEndSession(questionRef.current, currentCodeRef.current); 
     });
   
     socketRef.current.on("receiveMessage", (data: { username: string; message: string }) => {
@@ -51,7 +64,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [roomId, user?.username]);
+  }, [roomId, user?.username, onEndSession]);
 
   const sendMessage = () => {
     if (message.trim() && socketRef.current) {
