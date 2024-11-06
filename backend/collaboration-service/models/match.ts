@@ -23,6 +23,7 @@ export interface Match {
   complexity: string[];
   categories: string[];
   question: Question; // Single Question object
+  status: string;
   createdAt: Date
 }
 
@@ -49,6 +50,7 @@ const matchSchema = new Schema<Match>({
   categories: { type: [String], required: true },
   programming_language: {type: [String], required: true},
   question: { type: questionSchema, required: true }, // Embedded single Question document
+  status: {type: String, required:true},
   createdAt: { type: Date, default: Date.now },
 });
 

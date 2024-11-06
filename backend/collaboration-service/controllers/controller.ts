@@ -120,6 +120,14 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
   res.setHeader("Content-Type", "application/json");
   const { roomId, code, language } = req.body;
   console.log(roomId + code + language);
+
+  // Clear the roomId cookie
+  res.clearCookie("roomId", {
+    httpOnly: true,
+  });
+
+  res.json({ message: "roomId cookie cleared successfully" });
+  
   try {
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
     if (existingSession) {
@@ -145,7 +153,12 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
     });
 
     await newSession.save();
-    res.status(201).json({ message: "Code saved successfully", session: newSession });
+
+    // Update the match status to 'closed'
+    match.status = "closed";
+    await match.save();
+
+    res.status(201).json({ message: "Code saved successfully, match closed", session: newSession });
   } catch (error) {
     console.error("Error saving code:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -173,18 +186,4 @@ export const getSessionHandler = async (req: Request, res: Response): Promise<vo
     console.error("Error finding session:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
-
-// ClearRoomIdCookieHandler removes the roomId cookie from the client
-export const clearRoomIdCookieHandler = (req: Request, res: Response): void => {
-  res.setHeader("Content-Type", "application/json");
-
-  // Clear the roomId cookie
-  res.clearCookie("roomId", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
-  });
-
-  // Respond with a confirmation message
-  res.json({ message: "roomId cookie cleared successfully" });
 };
