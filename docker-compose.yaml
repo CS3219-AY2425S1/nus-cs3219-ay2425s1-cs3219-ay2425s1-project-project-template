@@ -1,23 +1,23 @@
 version: '3.8'
 services:
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   env_file:
-  #     - ./frontend/.env # Load frontend environment variables
-  #   environment:
-  #     - NODE_ENV=production
-  #     - NEXT_PUBLIC_API_URL=http://nginx
-  #   depends_on:
-  #     - user-service
-  #     - question-service
-  #     - matching-service
-  #     - collaboration-service
-  #     - voice-service
-  #   networks:
-  #     - app-network
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env # Load frontend environment variables
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://nginx
+    depends_on:
+      - user-service
+      - question-service
+      - matching-service
+      - collaboration-service
+      - voice-service
+    networks:
+      - app-network
 
   user-service:
     build:
@@ -119,7 +119,6 @@ services:
       - question-service
       - matching-service
       - collaboration-service
-      # - voice-service
     networks:
       - app-network
 

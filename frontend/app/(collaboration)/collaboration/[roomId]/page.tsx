@@ -94,6 +94,12 @@ export default function Page() {
     if (!isQuestionPending) {
       const matchedQuestion = roomInfo.question;
 
+      if (roomInfo.userOne !== user?.username) {
+        setOtherUser(roomInfo.userOne);
+      } else {
+        setOtherUser(roomInfo.userTwo);
+      }
+      
       setQuestion({
         title: matchedQuestion?.title || "",
         complexity: matchedQuestion?.complexity || "",
@@ -102,12 +108,6 @@ export default function Page() {
         examples: matchedQuestion?.examples || "",
         constraints: matchedQuestion?.constraints || "",
       });
-    }
-
-    if (roomInfo.userOne !== user?.username) {
-      setOtherUser(roomInfo.userOne);
-    } else {
-      setOtherUser(roomInfo.userTwo);
     }
   }, [isQuestionPending, setQuestion]);
 
