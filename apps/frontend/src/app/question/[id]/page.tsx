@@ -227,7 +227,7 @@ export default function QuestionPage() {
                 visibleTestcases={visibleTestCases}
               />
             </Col>
-            <Col span={12} className="second-col">
+            <Col span={12} className="second-col" style={{ height: "100%" }}>
               <Row className="history-row">
                 <div className="history-container">
                   <div className="history-top-container">
@@ -280,6 +280,10 @@ export default function QuestionPage() {
                         visibility: `${
                           isSubmissionLoading ? "hidden" : "visible"
                         }`,
+
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
                       }}
                     >
                       <div className="code-top-container">
@@ -330,8 +334,8 @@ export default function QuestionPage() {
                       {/* Code Editor */}
                       <div
                         style={{
-                          margin: "10px",
-                          height: "35vh",
+                          marginTop: "10px",
+                          height: "100%",
                         }}
                       >
                         <div

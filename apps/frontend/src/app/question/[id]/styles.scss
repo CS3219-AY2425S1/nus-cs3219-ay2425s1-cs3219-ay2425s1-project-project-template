@@ -21,17 +21,12 @@
 }
 
 .history-row {
-  height: 45%;
   padding: 1rem 0.25rem 0.25rem;
 }
 
 .code-row {
-  height: 55%;
-  padding: 1rem 0.25rem 0.25rem;
-}
-
-.session-row {
-  height: 20%;
+  flex: 1;
+  height: 100%;
   padding: 1rem 0.25rem 0.25rem;
 }
 
@@ -48,6 +43,7 @@
   border: 2px solid #463f3a;
   border-radius: 10px;
   width: 100%;
+  height: 100%;
   padding: 1rem;
 }
 
@@ -59,18 +55,10 @@
   width: 120px;
 }
 
-.session-container {
-  border: 2px solid #463f3a;
-  border-radius: 10px;
-  width: 100%;
-  padding: 1rem;
-}
-
 .question-title,
 .test-title,
 .code-title,
-.history-title,
-.session-title {
+.history-title {
   font-size: 16px;
   font-weight: bold;
 }
@@ -80,62 +68,13 @@
   margin: 4px 0px;
 }
 
-.session-duration,
-.session-matched-user-label {
-  margin: 4px 0px;
-}
-
-.session-duration-timer {
-  font-weight: normal;
-  margin-left: 8px;
-}
-
-.session-matched-user-name {
-  color: #e0afa0;
-  margin-left: 8px;
-}
-
-.topic-label,
-.session-duration,
-.session-matched-user-label {
+.topic-label {
   font-size: 14px;
   font-weight: bold;
 }
 
 .title-icons {
   margin-right: 4px;
-}
-
-.session-end-button,
-.test-case-button {
-  width: fit-content;
-}
-
-.modal-description {
-  margin-bottom: 2rem;
-}
-
-.session-modal-question,
-.session-modal-difficulty,
-.session-modal-duration,
-.session-modal-matched-user {
-  font-weight: bold;
-}
-
-.session-modal-time,
-.session-modal-title {
-  font-weight: normal;
-}
-.session-modal-matched-user-name {
-  color: #e0afa0;
-}
-
-.info-modal-icon {
-  color: red;
-}
-
-.code-viewer {
-  resize: none;
 }
 
 .submission-header-detail {
