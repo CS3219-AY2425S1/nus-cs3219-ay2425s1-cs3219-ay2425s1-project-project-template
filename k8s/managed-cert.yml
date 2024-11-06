@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: peerprep-fe-cs3219-g11-nginx
+spec:
+  domains:
+    - peerprep-fe.duckdns.org
+    - peerprep-api.duckdns.org

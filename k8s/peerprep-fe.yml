@@ -40,9 +40,15 @@ kind: Service
 metadata:
   name: peerprep-fe
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
-    - port: 80
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000  
+    - name: https
+      protocol: TCP
+      port: 443
       targetPort: 3000
   selector:
     type: frontend
@@ -76,4 +82,4 @@ stringData:
   NEXT_PUBLIC_API_GATEWAY_URL: "${_NEXT_PUBLIC_API_GATEWAY_URL}"
   NEXT_PUBLIC_GITHUB_CLIENT_ID: "${_NEXT_PUBLIC_GITHUB_CLIENT_ID}"
   NEXT_PUBLIC_SOCK_SERVER_URL: "${_NEXT_PUBLIC_SOCK_SERVER_URL}"
-  NEXT_PUBLIC_AUDIO_SERVER_URL: "${_NEXT_PUBLIC_AUDIO_SERVER_URL}"
+  NEXT_PUBLIC_AUDIO_SERVER_URL: "${_NEXT_PUBLIC_AUDIO_SERVER_URL}"  
