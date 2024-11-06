@@ -46,6 +46,7 @@ const MatchComponent = () => {
     const [isCanceling, setIsCanceling] = useState(false);
     const [matchedUserId, setMatchedUserId] = useState(null);
     const [matchedRoomId, setMatchedRoomId] = useState(null); 
+    const [matchedQuestion, setMatchedQuestion] = useState(null); 
     const [selectedComplexity, setSelectedComplexity] = useState("Easy");
     const [selectedCategory, setSelectedCategory] = useState("Strings");
     const [showMatchedMessage, setShowMatchedMessage] = useState(false);
@@ -62,6 +63,7 @@ const MatchComponent = () => {
         socket.on("match_found", (data) => {
             setMatchedUserId(data.matchedUser.id);
             setMatchedRoomId(data.roomId)
+            setMatchedQuestion(data.question)
             setIsWaiting(false);
             console.log(data);
         });
@@ -86,10 +88,10 @@ const MatchComponent = () => {
             setWaitingTime(0);
         }
 
-        if (matchedUserId) {
+        if (matchedUserId && matchedQuestion) {
             setShowMatchedMessage(true);
             const timer = setTimeout(() => {
-                navigate(`/collab/${matchedRoomId}`); // Navigate to '/collab' after 3 seconds
+                navigate(`/collab/${matchedRoomId}`, {state: { question: matchedQuestion }}); // Navigate to '/collab' after 3 seconds
             }, 3000); // 3000ms = 3 seconds
 
             // Clean up the timer if the component unmounts

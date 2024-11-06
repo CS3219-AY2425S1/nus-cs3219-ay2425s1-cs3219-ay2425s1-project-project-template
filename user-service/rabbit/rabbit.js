@@ -83,8 +83,8 @@ export const receiveMatchResult = async (channel, io) => {
                 channel.ack(data)
                 // Emit socket.io event when a match is found
                 const matchData = JSON.parse(message);
-                console.log("matchdata: ", matchData)
-                console.log('User 1 Socket ID:', matchData.user1SocketId);
+
+                console.log('question: ', matchData.question)
 
                 const user1Socket = io.sockets.sockets.get(matchData.user1SocketId); // User 1's socket
                 const user2Socket = io.sockets.sockets.get(matchData.user2SocketId); // User 2's socket

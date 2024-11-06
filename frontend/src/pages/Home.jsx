@@ -21,10 +21,22 @@ import {
     IconButton,
     Snackbar,
     Alert,
+    MenuItem,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 
 const HomePage = () => {
+    const CATEGORIES = [
+        "Strings",
+        "Algorithms",
+        "Data Structures",
+        "Bit Manipulation",
+        "Recursion",
+        "Databases",
+        "Brainteaser",
+        "Arrays",
+    ];
+    const COMPLEXITIES = ['Easy', 'Medium', 'Hard'];
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -299,25 +311,37 @@ const HomePage = () => {
                         onChange={handleInputChange}
                     />
                     <TextField
+                        select
                         margin="dense"
                         name="category"
                         label="Category"
-                        type="text"
                         fullWidth
                         variant="outlined"
                         value={currentQuestion.category}
                         onChange={handleInputChange}
-                    />
+                    >
+                        {CATEGORIES.map((category) => (
+                            <MenuItem key={category} value={category}>
+                                {category}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     <TextField
+                        select
                         margin="dense"
                         name="complexity"
                         label="Complexity"
-                        type="text"
                         fullWidth
                         variant="outlined"
                         value={currentQuestion.complexity}
                         onChange={handleInputChange}
-                    />
+                    >
+                        {COMPLEXITIES.map((category) => (
+                            <MenuItem key={category} value={category}>
+                                {category}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} color="secondary">
