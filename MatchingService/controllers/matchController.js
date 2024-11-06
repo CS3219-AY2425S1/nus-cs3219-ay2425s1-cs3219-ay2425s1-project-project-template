@@ -1,12 +1,14 @@
 import matchService from '../services/matchService.js';
 const { addMatchRequest, cancelMatchRequest, processMatchQueue } = matchService;
 
+const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost:3001';
+
 /* Verify user's token */
 async function verifyUser(token) {
     try {
         console.log("Verifying user " + token);
 
-        const response = await fetch('http://user-service:3001/auth/verify-token', {
+        const response = await fetch(`${VITE_USER_SERVICE_API}/auth/verify-token`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}` // Include the token in the header if required
