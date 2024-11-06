@@ -140,6 +140,7 @@ onMounted(getInfo);
     <div v-if="isLoading" class="text-gray-500">Loading Attempt Details...</div>
     <div v-else>
       <h2 class="text-2xl font-semibold mb-4">{{ questionInfo?.title || 'Question' }}</h2>
+      <p><strong>Description:</strong> {{ questionInfo?.description }}</p>
       <p><strong>Category:</strong> {{ questionInfo?.category.toString() }}</p>
       <p><strong>Difficulty:</strong> {{ capitalizeFirstLetter(questionInfo?.difficulty) }}</p>
 
