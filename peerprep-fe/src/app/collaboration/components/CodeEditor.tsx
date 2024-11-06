@@ -85,14 +85,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         </Button>
       </div>
 
-      <div
-        className="flex-grow overflow-y-auto bg-gray-900 font-mono text-gray-100"
-        style={{
-          borderRadius: '0 0 12px 12px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
-        }}
-      >
+      <div className="relative flex-grow">
+        {' '}
+        {/* Added relative positioning */}
         <Editor
           height="100%"
           width="100%"
@@ -109,13 +104,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             automaticLayout: true,
           }}
         />
+        {showOutput && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+            <ConsoleCard output={output} ref={cardRef} />
+          </div>
+        )}
       </div>
-
-      {showOutput && (
-        <div className="absolute inset-0 flex items-end justify-center bg-black/50">
-          <ConsoleCard output={output} ref={cardRef} />
-        </div>
-      )}
     </div>
   );
 };

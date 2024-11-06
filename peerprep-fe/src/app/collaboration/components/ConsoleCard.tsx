@@ -8,8 +8,8 @@ interface ConsoleCardProp {
 const ConsoleCard = forwardRef<HTMLDivElement, ConsoleCardProp>(
   ({ output }, ref) => {
     return (
-      <div ref={ref} className="mx-4 w-full max-w-2xl">
-        <Card className="max-h-3/4 w-3/4 overflow-auto">
+      <div ref={ref} className="flex w-full items-center justify-center">
+        <Card className="max-h-3/4 w-3/4 overflow-auto rounded-xl shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Output</CardTitle>
           </CardHeader>
