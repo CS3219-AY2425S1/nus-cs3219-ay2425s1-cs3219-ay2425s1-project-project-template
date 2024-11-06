@@ -24,4 +24,6 @@ const ConsoleCard = forwardRef<HTMLDivElement, ConsoleCardProp>(
   },
 );
 
+ConsoleCard.displayName = 'ConsoleCard';
+
 export default ConsoleCard;
