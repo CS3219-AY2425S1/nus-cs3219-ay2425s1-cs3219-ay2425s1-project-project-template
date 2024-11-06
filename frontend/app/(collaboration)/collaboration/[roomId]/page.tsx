@@ -104,11 +104,11 @@ export default function Page() {
       });
     }
 
-    if (roomInfo.userOne !== user?.username) {
-      setOtherUser(roomInfo.userOne);
-    } else {
-      setOtherUser(roomInfo.userTwo);
-    }
+    // if (roomInfo.userOne !== user?.username) {
+    //   setOtherUser(roomInfo.userOne);
+    // } else {
+    //   setOtherUser(roomInfo.userTwo);
+    // }
   }, [isQuestionPending, setQuestion]);
 
   useEffect(() => {
