@@ -68,7 +68,7 @@ services:
       - apps_network
     volumes:
       - ./history-service:/history-service
-  
+
   signalling-service:
     build:
       context: ./signalling-service
@@ -104,6 +104,19 @@ services:
       - 6379:6379
     container_name: redis-container
 
+  rabbit-mq:
+    image: rabbitmq:3-management
+    networks:
+      - apps_network
+    ports:
+      - 5672:5672 # Port for RabbitMQ message broker
+      - 15672:15672 # Port for RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
   python-sandbox:
     build:
       context: ./execution-service/execution/python
@@ -114,3 +127,8 @@ services:
 
 networks:
   apps_network:
+
+volumes:
+  # Mounts a volume for RabbitMQ data persistence.
+  # This ensures that data is not lost when the container is restarted or removed.
+  rabbitmq_data:
