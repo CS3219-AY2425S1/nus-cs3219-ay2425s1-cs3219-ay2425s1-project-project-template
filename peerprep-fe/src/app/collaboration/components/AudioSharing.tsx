@@ -8,6 +8,7 @@ import {
   faMicrophone,
   faMicrophoneSlash,
 } from '@fortawesome/free-solid-svg-icons';
+import { SignalData } from '@/types/types';
 
 const AudioSharing = () => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
@@ -48,7 +49,7 @@ const AudioSharing = () => {
       },
     });
 
-    peer.on('signal', (data: any) => {
+    peer.on('signal', (data: SignalData) => {
       console.log('Sending signal data:', data);
       socketRef.current?.emit('signal', data);
     });
@@ -62,7 +63,7 @@ const AudioSharing = () => {
         .catch((error) => console.error('Error playing audio:', error));
     });
 
-    peer.on('error', (err: any) => {
+    peer.on('error', (err: Error) => {
       console.error('Peer connection error:', err);
       cleanupAudio();
     });
@@ -91,12 +92,12 @@ const AudioSharing = () => {
       console.log('Socket connected');
     });
 
-    socketRef.current.on('connect_error', (error: any) => {
+    socketRef.current.on('connect_error', (error: Error) => {
       console.error('Connection error:', error);
       cleanupAudio();
     });
 
-    socketRef.current.on('signal', async (data: any) => {
+    socketRef.current.on('signal', async (data: SignalData) => {
       console.log('Received signal data:', data);
 
       if (data.type === 'offer' && !peerRef.current) {
@@ -122,7 +123,7 @@ const AudioSharing = () => {
 
       if (peerRef.current) {
         try {
-          peerRef.current.signal(data);
+          peerRef.current.signal(data as SimplePeer.SignalData);
         } catch (error) {
           console.error('Error signaling peer:', error);
           cleanupAudio();

@@ -5,8 +5,9 @@ import Editor, { OnMount } from '@monaco-editor/react';
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
 import ConsoleCard from './ConsoleCard';
-import { toast, useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { executeCode } from '../api/codeRunner';
+import { editor } from 'monaco-editor';
 
 interface CodeEditorProps {
   onMount: OnMount;
@@ -22,7 +23,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [showOutput, setShowOutput] = useState(false);
   const [output, setOutput] = useState('');
   const cardRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -81,6 +81,12 @@ interface ConnectedClient {
   user: AwarenessUser;
 }
 
+// audio
+interface SignalData {
+  type?: string;
+  [key: string]: string | undefined;
+}
+
 export type {
   Problem,
   ProblemDialogData,
@@ -92,4 +98,5 @@ export type {
   UserMatchingRequest,
   AwarenessState,
   ConnectedClient,
+  SignalData,
 };

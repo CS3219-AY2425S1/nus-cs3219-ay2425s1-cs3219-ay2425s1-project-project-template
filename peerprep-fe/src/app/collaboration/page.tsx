@@ -14,7 +14,16 @@ import React, {
 import { useSearchParams } from 'next/navigation';
 import LoadingSpinner from '@/components/loading/LoadingSpinner';
 import { useCollaborationStore } from '@/state/useCollaborationStore';
-import CollaborationEditor from './components/CollaborationEditor';
+import dynamic from 'next/dynamic';
+import EditorSkeleton from './components/EditorSkeleton';
+
+const CollaborationEditor = dynamic(
+  () => import('./components/CollaborationEditor'),
+  {
+    ssr: false,
+    loading: () => <EditorSkeleton />,
+  },
+);
 
 function CollaborationPageContent() {
   const [selectionProblem, setSelectionProblem] = useState<Problem | null>(
