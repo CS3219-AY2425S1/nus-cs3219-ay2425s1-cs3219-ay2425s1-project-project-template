@@ -123,7 +123,8 @@ export const Match = () => {
         alert(
           `You have been matched with ${data.match}!\n${data.match_message}`
         );
-        //Record user's match partner
+        sessionStorage.setItem("match_topic", data.match_topic);
+        sessionStorage.setItem("match_difficulty", data.match_difficulty);
         completeMatching();
       });
 
