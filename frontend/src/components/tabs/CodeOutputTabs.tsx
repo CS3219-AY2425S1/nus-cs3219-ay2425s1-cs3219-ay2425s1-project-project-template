@@ -8,6 +8,8 @@ interface CodeOutputTabsProps {
 }
 
 function CodeOutputTabs({ testCases }: CodeOutputTabsProps) {
+  const showTestCases = testCases && testCases.length > 0;
+
   return (
     <Tabs
       bg="slate.9"
@@ -16,20 +18,24 @@ function CodeOutputTabs({ testCases }: CodeOutputTabsProps) {
       style={{ borderRadius: '4px' }}
     >
       <Tabs.List>
-        {testCases && <Tabs.Tab value="testCases">Test Cases</Tabs.Tab>}
-        {testCases && <Tabs.Tab value="testResults">Test Results</Tabs.Tab>}
+        {showTestCases && (
+          <>
+            <Tabs.Tab value="testCases">Test Cases</Tabs.Tab>
+            <Tabs.Tab value="testResults">Test Results</Tabs.Tab>
+          </>
+        )}
         <Tabs.Tab value="output">Output</Tabs.Tab>
       </Tabs.List>
 
-      {testCases && (
-        <Tabs.Panel value="testCases" h="200px">
-          <TestCasesTab testCases={testCases} />
-        </Tabs.Panel>
-      )}
-      {testCases && (
-        <Tabs.Panel value="testResults" h="200px">
-          Test Results
-        </Tabs.Panel>
+      {showTestCases && (
+        <>
+          <Tabs.Panel value="testCases" h="200px">
+            <TestCasesTab testCases={testCases} />
+          </Tabs.Panel>
+          <Tabs.Panel value="testResults" h="200px">
+            Test Results
+          </Tabs.Panel>
+        </>
       )}
       <Tabs.Panel value="output" h="200px">
         Output
