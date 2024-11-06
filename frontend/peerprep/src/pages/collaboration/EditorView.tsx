@@ -252,11 +252,12 @@ const styles = {
     overflowY: "auto",
   },
   editorContainer: {
-    flex: 1,
     backgroundColor: "#1e1e2e",
     padding: "15px",
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    overflowY: "auto",
+    outerWidth: "auto",
   },
 };
 
