@@ -154,13 +154,7 @@ const handleViewAttempt = async (attemptId: string) => {
 
     // Navigate to CollaborationDetails with specific attempt data
     navigate(`/collaboration-details`, {
-      state: {
-        peerUserName: attempt.peerUserName,
-        timestamp: attempt.timestamp,
-        timeTaken: attempt.timeTaken,
-        codeContent: attempt.codeContent,
-        language: attempt.language, 
-      },
+      state: { attempt },
     });
   } catch (error) {
     console.error("Error fetching specific attempt:", error);

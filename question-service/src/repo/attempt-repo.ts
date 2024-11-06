@@ -1,15 +1,22 @@
 import AttemptModel from "../model/attempt-model";
 
+// Create an attempts 
 export async function saveAttempt(attemptData: any) {
   console.log("Saving attempt:", attemptData);
   return await AttemptModel.create(attemptData);
 }
 
+// Fetch all attempts by UserId
 export async function getAttemptsByUserId(userId: string) {
   return await AttemptModel.find({ userId }).populate("questionId");
 }
 
-// New Repository Function to Remove an Attempt
+// Retrieve Attempts based on Attempt Id
+export async function getAttemptByIdFromRepo(attemptId: string) {
+  return await AttemptModel.findById(attemptId).populate("questionId");
+}
+
+// Remove an Attempt
 export async function removeLatestAttempt(userId: string, questionId: string, peerUserName: string) {
     console.log(`Attempt to delete for User ID: ${userId}, Question ID: ${questionId}, and Peer Username: ${peerUserName}`);
   
@@ -40,3 +47,4 @@ export async function deleteAttemptsForUserAndQuestion(userId: string, questionI
   
     return deletionResult;
   }
+
