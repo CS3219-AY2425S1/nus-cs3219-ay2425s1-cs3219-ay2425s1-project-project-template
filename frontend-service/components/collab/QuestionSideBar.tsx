@@ -1,44 +1,44 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, List, ListItem } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import axios from 'axios'
-import { useNavigate } from "react-router-dom";
 
 interface Question {
   questionId: string,
   title: string,
+  description: string,
+  category: string[],
   difficulty: string,
+  link: string,
 }
 
 interface QuestionSideBarProps {
-  onSelectQuestion: (questionId: string) => void;
+  assignedQuestionId: string;
 }
 
-const QuestionSideBar: React.FC<QuestionSideBarProps> = ({ onSelectQuestion }) => {
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [isOpen, setIsOpen] = useState(true)
+const QuestionSideBar: React.FC<QuestionSideBarProps> = ({ assignedQuestionId }) => {
+  const [assignedQuestion, setAssignedQuestion] = useState<Question | null>(null)
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/questions').then(response => {
-      setQuestions(response.data)
-    }).catch(error => console.error("Failed to fetch questions", error))
-  }, [])
+    if (assignedQuestionId) {
+      axios.get(`http://localhost:8080/api/questions/${assignedQuestionId}`).then(response => {
+        console.log("Fetched question details:", response.data)
+        setAssignedQuestion(response.data)
+      }).catch(error => console.error("Failed to fetch question details", error))
+    }
+  }, [assignedQuestionId])
+
 
   return (
-    <Box width={isOpen ? '300px' : 0} transition="width 0.3s" bg="gray 0.5" p={isOpen ? 4 : 0}>
-      <Button onClick={() => setIsOpen(!isOpen)} mb={4}>
-        {isOpen ? "Close" : "Open"} Questions
-      </Button>
-      {isOpen && (
-        <List spacing={3}>
-          {questions.map((question) => <ListItem key={question.questionId}>
-            <Button
-              variant="link"
-              onClick={() => onSelectQuestion(question.questionId)}
-              color={question.difficulty === 'Easy' ? 'green.500' : question.difficulty === 'Medium' ? 'orange.500' : 'red.500'}>
-              {question.title} - {question.difficulty}
-            </Button>
-          </ListItem>)}
-        </List>
+    <Box>
+      {!assignedQuestionId ? (
+        <Text color="red.500">Error: No question ID provided.</Text>
+      ) : (
+        <Box mb={4} p={4} bg="white" borderRadius="md">
+          <Text fontSize="xl" fontWeight="bold">{assignedQuestion?.title}</Text>
+          <Text color="gray.600">Category: {assignedQuestion?.category.join(', ')}</Text>
+          <Text color="gray.600">Difficulty: {assignedQuestion?.difficulty}</Text>
+          <Text color="gray.600">{assignedQuestion?.description}</Text>
+        </Box>
       )}
     </Box>
   )

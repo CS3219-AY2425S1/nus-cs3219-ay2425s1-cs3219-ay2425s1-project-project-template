@@ -30,6 +30,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null)
 
   const [question, setQuestion] = useState<Question | null>(null)
+  const [assignedQuestionId, setAssignedQuestionId] = useState<number | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`)
@@ -39,6 +40,42 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
   const navigate = useNavigate()
+
+  // create a use effect for fetching of question id assigned to users in the room
+  useEffect(() => {
+    const fetchRoomData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/room/data', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        const assignedQuestionId = response.data.selectedQuestionId;
+        console.log("Fetched room data:", response.data);
+        console.log("Selected Question ID from room data:", assignedQuestionId);
+
+        if (assignedQuestionId) {
+          setAssignedQuestionId(assignedQuestionId);
+          fetchAssignedQn(assignedQuestionId);
+        } else {
+          console.error("No selectedQuestionId found in room data");
+        }
+      } catch (error) {
+        console.error("Failed to fetch room data:", error);
+      }
+    };
+
+    const fetchAssignedQn = async (questionId: number) => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/questions/${questionId}`)
+        console.log("Fetched question details:", response.data)
+        setQuestion(response.data)
+      } catch (error) {
+        console.error("Failed to fetch question details:", error)
+      }
+    }
+
+    fetchRoomData();
+  }, [roomId]);
 
   useEffect(() => {
     const setupSyntaxHighlighting = async () => {
@@ -149,17 +186,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
     set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), defaultCode)
   }
 
-  // TODO:
-  const handleSelectQuestion = async (questionId: string) => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/questions/${questionId}`);
-      console.log("Fetched question details:", response.data)
-      setQuestion(response.data);
-    } catch (error) {
-      console.error("Failed to fetch question details:", error);
-    }
-  }
-
   const handleLanguageChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedLanguage = event.target.value
     await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), code)
@@ -194,7 +220,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   return (
     <Box display="flex" height="100vh">
       <Box width="500px" flexShrink={0} borderRight="1px solid #e2e8f0">
-        <QuestionSideBar onSelectQuestion={handleSelectQuestion}></QuestionSideBar>
+        {/* display question details of assigned question */}
+        {assignedQuestionId ? (
+          <QuestionSideBar assignedQuestionId={assignedQuestionId.toString()} />
+        ) : (
+          <Text color="red.500">Loading question...</Text>
+        )}
       </Box>
       <Box
         flex="1"
@@ -207,7 +238,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
         bg="gray.50"
       >
 
-        {/* Display Question Details */}
+        {/*
         {question && (
           <Box mb={4} p={4} bg="white" borderRadius="md" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold">{question.title}</Text>
@@ -216,6 +247,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
             <Text mt={2}>{question.description}</Text>
           </Box>
         )}
+          */}
 
         {/* Header with toolbar */}
         <Box

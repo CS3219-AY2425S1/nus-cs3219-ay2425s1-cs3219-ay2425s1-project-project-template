@@ -78,25 +78,25 @@ export const createRoom = async (req: Request, res: Response) => {
     const { userId1, userId2, topic } = req.body;
 
     const questionsByCategory = await fetch(
-      `http://question-service:8080/api/questions/category?category=${topic}`, 
+      `http://question-service:8080/api/questions/category?category=${topic}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-      });
+      }
+    );
     const questions = await questionsByCategory.json();
 
     if (questions.length === 0) {
-      res.status(404).json(
-        {
-          message: "Cannot find questions on the topic selected."
-        }
-      )
+      res.status(404).json({
+        message: "Cannot find questions on the topic selected.",
+      });
     }
 
     // "random" algorithm to get a random question from the list of questions
-    const randQuestion = questions[Math.floor(Math.random() * questions.length)];
+    const randQuestion =
+      questions[Math.floor(Math.random() * questions.length)];
     const selectedId = randQuestion.questionId;
 
     const roomId = uuidv4();
@@ -147,8 +147,8 @@ export const createRoom = async (req: Request, res: Response) => {
       roomId: roomId,
       selectedQuestionId: selectedId,
       questionTitle: randQuestion.title,
-      attemptDateTime: currTime, 
-    }
+      attemptDateTime: currTime,
+    };
 
     const historyRef1 = ref(database, `history/${userId1}/${roomId}`);
     await set(historyRef1, newHistory);
@@ -156,7 +156,12 @@ export const createRoom = async (req: Request, res: Response) => {
     const historyRef2 = ref(database, `history/${userId2}/${roomId}`);
     await set(historyRef2, newHistory);
 
-    res.status(201).json({ message: "Room created successfully", roomId });
+    // include randomized question id in create room function
+    res.status(201).json({
+      message: "Room created successfully",
+      roomId,
+      selectedQuestionId: selectedId,
+    });
     console.log(
       `Room ID ${roomId} created for users ${userId1} and ${userId2}`
     );
@@ -190,7 +195,10 @@ export const getRoomData = async (req: Request, res: Response) => {
       res.status(404).json({ message: "Room not found" });
     }
 
-    res.status(200).json(roomSnapshot.val());
+    const roomData = roomSnapshot.val();
+    const selectedQuestionId = roomData.selectedQuestionId;
+
+    return res.status(200).json({ roomData, selectedQuestionId });
   } catch (error) {
     console.error("Error fetching room data:", error);
     res.status(500).json({ message: "Failed to fetch room data" });
