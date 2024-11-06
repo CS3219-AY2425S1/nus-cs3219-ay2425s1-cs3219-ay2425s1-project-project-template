@@ -1,4 +1,5 @@
 import { Tabs } from '@mantine/core';
+import { useEffect, useState } from 'react';
 
 import { CodeOutput } from '../../types/CodeExecutionType';
 import { TestCase } from '../../types/QuestionType';
@@ -11,13 +12,23 @@ interface CodeOutputTabsProps {
 }
 
 function CodeOutputTabs({ testCases, codeOutput }: CodeOutputTabsProps) {
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+
   const showTestCases = testCases && testCases.length > 0;
+
+  useEffect(() => {
+    if (!activeTab && codeOutput) {
+      setActiveTab(showTestCases ? 'testCases' : 'output');
+    }
+  }, [codeOutput]);
 
   return (
     <Tabs
       bg="slate.9"
       p="10px"
       allowTabDeactivation
+      value={activeTab}
+      onChange={setActiveTab}
       style={{ borderRadius: '4px' }}
     >
       <Tabs.List>
