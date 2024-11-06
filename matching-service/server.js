@@ -2,10 +2,15 @@ const uuid = require('uuid');
 const amqp = require('amqplib');
 const express = require('express');
 const redis = require('redis');
+const https = require('https');
 
 const app = express();
 const PORT = 4000;
-const QUESTION_API_BASE_URL = 'http://nginx/api/questions';
+const QUESTION_API_BASE_URL = 'https://nginx/api/questions';
+
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 const redisClient = redis.createClient({
   socket: {
@@ -92,6 +97,8 @@ async function matchUsers(searchRequest) {
     console.log('Duplicate user:', userId);
     return;
   }
+  
+  const { default: fetch } = await import('node-fetch');
 
   const response = await fetch(`${QUESTION_API_BASE_URL}/filter-one`, {
     method: 'POST',
@@ -99,6 +106,7 @@ async function matchUsers(searchRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ difficulties: difficulty, topics: topics }),
+    agent: agent,
   });
 
   if (!response.ok) {

@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken');
-const { USER_JWT_SECRET } = require('../config');
+const { JWT_SECRET } = require('../config');
 
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.split(' ')[1];
-    const user = jwt.verify(token, USER_JWT_SECRET);
+    const user = jwt.verify(token, JWT_SECRET);
     req.user = user; // Attach user profile to request object
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
 
 const authMiddlewareSocket = async (token) => {
   try {
-    const user = jwt.verify(token.split(' ')[1], USER_JWT_SECRET);
+    const user = jwt.verify(token.split(' ')[1], JWT_SECRET);
     return user;
   } catch (error) {
     throw error;

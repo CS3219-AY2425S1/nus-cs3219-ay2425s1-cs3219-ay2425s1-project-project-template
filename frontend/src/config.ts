@@ -3,7 +3,7 @@ interface Config {
 }
 
 const config: Config = {
-  ROOT_BASE_API: import.meta.env.VITE_ROOT_BASE_API || 'http://localhost/', 
+  ROOT_BASE_API: import.meta.env.VITE_ROOT_BASE_API || 'https://localhost/',
 };
 
 export default config;
