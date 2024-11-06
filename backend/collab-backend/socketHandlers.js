@@ -26,6 +26,7 @@ function handleSocketEvents(io) {
             socket.roomId = roomId;
             socket.join(roomId);
             addUserToRoom(roomId, socket.username);
+            console.log(socket.username + ' joined room: ' + roomId);
 
             // Check if both users have joined
             if (getRoomUserCount(roomId) === 2) {
@@ -41,7 +42,16 @@ function handleSocketEvents(io) {
                 const timeoutId = setTimeout(() => {
                     console.log(`${socket.username} left room ${socket.roomId} permanently`);
                     socket.to(socket.roomId).emit('user-left'); // Emit only to the specific room
+
+                    // Remove user from room and check if room is empty
+                    const roomIsEmpty = removeUserFromRoom(socket.roomId, socket.username);
                     disconnectTimeouts.delete(socket.username);
+
+                    // If room is empty, clean up the room
+                    if (roomIsEmpty) {
+                        cleanupRoom(socket.roomId);
+                    }
+                    
                 }, 10000); // 10 seconds grace period
     
                 disconnectTimeouts.set(socket.username, timeoutId);
