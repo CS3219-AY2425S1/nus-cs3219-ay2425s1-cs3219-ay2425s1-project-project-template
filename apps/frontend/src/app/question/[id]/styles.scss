@@ -140,5 +140,7 @@
 
 .submission-header-detail {
   font-weight: normal;
+  display: flex;
+  flex-direction: row;
   padding: 0px 10px 0px 10px;
 }

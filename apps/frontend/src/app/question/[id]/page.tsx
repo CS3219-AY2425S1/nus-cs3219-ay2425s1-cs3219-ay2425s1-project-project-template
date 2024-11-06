@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/components/Header/header";
-import { Col, Layout, message, PaginationProps, Row, Table } from "antd";
+import { Col, Layout, message, PaginationProps, Row, Spin, Table } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { CodeOutlined, HistoryOutlined } from "@ant-design/icons";
 import "./styles.scss";
@@ -65,6 +65,7 @@ export default function QuestionPage() {
     useState<History[]>();
   const [submission, setSubmission] = useState<Submission>();
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
+  const [isSubmissionLoading, setIsSubmissionLoading] = useState<boolean>(true);
   const [currentSubmissionId, setCurrentSubmissionId] = useState<
     string | undefined
   >(historyDocRefId == "" ? undefined : historyDocRefId);
@@ -156,24 +157,28 @@ export default function QuestionPage() {
       parent: editorRef.current || undefined,
     });
 
-    GetHistory(currentSubmissionId).then((data: any) => {
-      const submittedAt = new Date(data.createdAt);
-      setSubmission({
-        submittedAt: submittedAt.toLocaleString("en-US"),
-        language: data.language,
-        matchedUser:
-          username == data.matchedUser ? data.user : data.matchedUser,
-        otherUser: data.user,
-        historyDocRefId: data.historyDocRefId,
-        code: data.code,
-      });
+    setIsSubmissionLoading(true);
+    GetHistory(currentSubmissionId)
+      .then((data: any) => {
+        const submittedAt = new Date(data.createdAt);
+        setSubmission({
+          submittedAt: submittedAt.toLocaleString("en-US"),
+          language: data.language,
+          matchedUser:
+            username == data.matchedUser ? data.user : data.matchedUser,
+          otherUser: data.user,
+          historyDocRefId: data.historyDocRefId,
+          code: data.code,
+        });
+        setIsSubmissionLoading(false);
 
-      view.dispatch(
-        state.update({
-          changes: { from: 0, to: state.doc.length, insert: data.code },
-        })
-      );
-    });
+        view.dispatch(
+          state.update({
+            changes: { from: 0, to: state.doc.length, insert: data.code },
+          })
+        );
+      })
+      .finally(() => {});
 
     return () => {
       // Cleanup on component unmount
@@ -258,7 +263,25 @@ export default function QuestionPage() {
               {currentSubmissionId && (
                 <Row className="code-row">
                   <div className="code-container">
-                    <>
+                    {isSubmissionLoading && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                        }}
+                      >
+                        <Spin />
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        visibility: `${
+                          isSubmissionLoading ? "hidden" : "visible"
+                        }`,
+                      }}
+                    >
                       <div className="code-top-container">
                         <div className="code-title">
                           <CodeOutlined className="title-icons" />
@@ -271,23 +294,34 @@ export default function QuestionPage() {
                         style={{
                           margin: "10px",
                           display: "flex",
+                          justifyContent: "space-between",
                           flexDirection: "row",
                         }}
                       >
                         <div className="submission-header-detail">
-                          Submitted at: {submission?.submittedAt || "-"}
+                          <div style={{ fontWeight: "bold" }}>
+                            Submitted at:&nbsp;
+                          </div>
+                          <div>{submission?.submittedAt || "-"}</div>
                         </div>
                         <div className="submission-header-detail">
-                          Language: {submission?.language || "-"}
+                          <div style={{ fontWeight: "bold" }}>
+                            Language:&nbsp;
+                          </div>
+                          <div>{submission?.language || "-"}</div>
                         </div>
                         <div className="submission-header-detail">
-                          Matched with:{" "}
-                          {submission?.matchedUser
-                            ? // Check to ensure that matched user is correct, otherwise swap with otherUser
-                              username == submission.matchedUser
-                              ? submission.otherUser
-                              : submission.matchedUser
-                            : "-"}
+                          <div style={{ fontWeight: "bold" }}>
+                            Matched with:&nbsp;
+                          </div>
+                          <div>
+                            {submission?.matchedUser
+                              ? // Check to ensure that matched user is correct, otherwise swap with otherUser
+                                username == submission.matchedUser
+                                ? submission.otherUser
+                                : submission.matchedUser
+                              : "-"}
+                          </div>
                         </div>
                       </div>
 
@@ -307,7 +341,7 @@ export default function QuestionPage() {
                           }}
                         ></div>
                       </div>
-                    </>
+                    </div>
                   </div>
                 </Row>
               )}
