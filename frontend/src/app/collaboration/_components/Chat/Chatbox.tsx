@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useSessionContext } from "@/contexts/SessionContext";
 import ChatBottomToolbar from "./ChatBottomToolbar";
 import ChatTopToolbar from "./ChatTopToolbar";
 import ChatBubbles from "./ChatBubbles";

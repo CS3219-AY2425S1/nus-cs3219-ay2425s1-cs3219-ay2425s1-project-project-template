@@ -19,7 +19,15 @@ const QuestionSchema = z.object({
   testCases: z.array(TestCaseSchema),
 });
 
-const NewQuestionSchema = QuestionSchema.omit({ _id: true, slug: true });
+const NewQuestionSchema = QuestionSchema.omit({
+  _id: true,
+  slug: true,
+  testCases: true,
+});
+
+const EditQuestionSchema = QuestionSchema.omit({
+  testCases: true,
+});
 
 const QuestionsSchema = z.array(QuestionSchema);
 
@@ -34,6 +42,7 @@ type Difficulty = z.infer<typeof DifficultyEnum>;
 type TestCase = z.infer<typeof TestCaseSchema>;
 type Question = z.infer<typeof QuestionSchema>;
 type NewQuestion = z.infer<typeof NewQuestionSchema>;
+type EditQuestion = z.infer<typeof EditQuestionSchema>;
 type Questions = z.infer<typeof QuestionsSchema>;
 type QuestionResponse = z.infer<typeof QuestionResponseSchema>;
 type QuestionsResponse = z.infer<typeof QuestionsResponseSchema>;
@@ -51,6 +60,7 @@ export {
   type TestCase,
   type Question,
   type NewQuestion,
+  type EditQuestion,
   type Questions,
   type QuestionResponse,
   type QuestionsResponse,
