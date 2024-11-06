@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@pinia/nuxt",
+    "nuxt-chatgpt",
   ],
   runtimeConfig: {
     matchingService: `http://matching_service:8000`,
@@ -61,5 +62,8 @@ export default defineNuxtConfig({
       messagingSenderId: "1075086955666",
       appId: "1:1075086955666:web:8929f9277a3a982847c24b",
     },
+  },
+  chatgpt: {
+    apiKey: process.env.OPENAI_API_KEY,
   },
 });
