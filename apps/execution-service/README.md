@@ -216,7 +216,7 @@ If compilation error exists or any of the tests (visible and hidden) fails, stat
 }
 ```
 
-## Setting up message queue with history-service
+## Setting up message queue with RabbitMQ
 
 A message queue is used to pass submission results asynchronously from the execution-service to the history-service.
 

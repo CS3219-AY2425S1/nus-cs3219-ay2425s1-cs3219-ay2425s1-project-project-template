@@ -74,7 +74,7 @@ The server will be available at http://localhost:8082.
 go run main.go
 ```
 
-## Setting up message queue with history-service
+## Setting up message queue with RabbitMQ
 
 A message queue is used to pass submission results asynchronously from the execution-service to the history-service.
 
