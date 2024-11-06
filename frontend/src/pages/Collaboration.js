@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import '../styles/Collaboration.css';
 import SharedSpace from '../components/SharedSpace';
 import AIChatbot from '../components/AIChatbot';
+import axios from "axios";
 
 const socket = io('http://localhost:5002');
-const roomName = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
 
 
 export const Collaboration = () => {
     const [chatMessages, setChatMessages] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [roomName, setRoomName] = useState("");
     const navigate = useNavigate();
+
+    const sharedSpaceRef = useRef();
 
     // Sync chat
     useEffect(() => {
@@ -24,13 +27,16 @@ export const Collaboration = () => {
         */
         
         // Join the room with partner
-        socket.emit("joinRoom", roomName)
+        const newRoom = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
+        setRoomName(newRoom);
+        socket.emit("joinRoom", newRoom);
+        console.log(`Joined room: ${newRoom}`);
 
         socket.on('leave', (message) => {
-            console.log(message);
+            saveData();
             navigate('/home');
             alert(message);
-        })
+        });
 
         return () => {
             //socket.off('chatMessage');
@@ -49,6 +55,20 @@ export const Collaboration = () => {
     };
     */
 
+    const saveData = async () => {
+        try {
+            const sharedSpaceState = sharedSpaceRef.current.getSharedSpaceState();
+            const response = await axios.post("http://localhost:5002/saveAttempt", {
+                username: localStorage.getItem("username"),
+                attempts: [{question_id: 1, code: sharedSpaceState.code, text: sharedSpaceState.text1,
+                    language: sharedSpaceState.language, partner_username: sessionStorage.getItem("partner")
+                }]
+            });
+            console.log(response);
+        } catch (error) {
+            console.log(`Error: ${error}`);
+        }
+    }
 
     const handleLeaveButtonClick = () => {
        setShowModal(true);
@@ -56,6 +76,7 @@ export const Collaboration = () => {
 
     const confirmLeave = () => {
         socket.emit('leave', roomName);
+        saveData();
         navigate('/home');
     }
 
@@ -79,7 +100,7 @@ export const Collaboration = () => {
               <h3>Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0. A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.For example, "ace" is a subsequence of "abcde". A common subsequence of two strings is a subsequence that is common to both strings. </h3>
             </div>
             <div className="whiteboard">
-                <SharedSpace />
+                <SharedSpace ref={sharedSpaceRef} />
             </div>
             <div className="ai-chatbot-container">
                 <AIChatbot />
@@ -87,7 +108,7 @@ export const Collaboration = () => {
           </div>
           <div className="chat-box-and-button">
             <h2>Topic: {sessionStorage.getItem("partner")}</h2>
-            <h2>Difficulty:</h2>
+            <h2>Difficulty: {roomName}</h2>
             <div className="chat-box">
                 <h3>Chat</h3>
                 <div className="chat-messages">
