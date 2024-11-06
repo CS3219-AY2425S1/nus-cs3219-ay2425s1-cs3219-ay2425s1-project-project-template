@@ -24,6 +24,8 @@ import {
     MenuItem,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
+import "./home.css"; 
+
 
 const HomePage = () => {
     const CATEGORIES = [
@@ -36,7 +38,7 @@ const HomePage = () => {
         "Brainteaser",
         "Arrays",
     ];
-    const COMPLEXITIES = ['Easy', 'Medium', 'Hard'];
+    const COMPLEXITIES = ["Easy", "Medium", "Hard"];
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -226,158 +228,165 @@ const HomePage = () => {
     }
 
     return (
-        <Container>
-            <Button variant="contained" color="primary" onClick={() => handleOpenDialog("add")} style={{ marginBottom: "20px" }}>
-                Add New Question
-            </Button>
-            <TableContainer component={Paper}>
-                <Table aria-label="questions table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>
-                                <strong>Title</strong>
-                            </TableCell>
-                            <TableCell>
-                                <strong>Category</strong>
-                            </TableCell>
-                            <TableCell>
-                                <strong>Complexity</strong>
-                            </TableCell>
-                            <TableCell align="center">
-                                <strong>Actions</strong>
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {questions.map((question) => (
-                            <TableRow key={question._id}>
-                                <TableCell>
-                                    <Button
-                                        color="primary"
-                                        onClick={() => handleOpenDescriptionDialog(question.description)}
-                                        style={{ textTransform: "none", padding: 0 }}
-                                    >
-                                        {question.title}
-                                    </Button>
-                                </TableCell>
-                                <TableCell>{question.category}</TableCell>
-                                <TableCell>{question.complexity}</TableCell>
-                                <TableCell align="center">
-                                    <IconButton color="primary" onClick={() => handleOpenDialog("edit", question)}>
-                                        <Edit />
-                                    </IconButton>
-                                    <IconButton color="secondary" onClick={() => handleDelete(question._id)}>
-                                        <Delete />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                        {questions.length === 0 && (
+        <>
+            <Container sx={{ marginTop: "10px"}}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleOpenDialog("add")}
+                    style={{ marginBottom: "20px" }}
+                >
+                    Add New Question
+                </Button>
+                <TableContainer component={Paper}>
+                    <Table aria-label="questions table">
+                        <TableHead>
                             <TableRow>
-                                <TableCell colSpan={4} align="center">
-                                    No questions available.
+                                <TableCell>
+                                    <strong>Title</strong>
+                                </TableCell>
+                                <TableCell>
+                                    <strong>Category</strong>
+                                </TableCell>
+                                <TableCell>
+                                    <strong>Complexity</strong>
+                                </TableCell>
+                                <TableCell align="center">
+                                    <strong>Actions</strong>
                                 </TableCell>
                             </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {questions.map((question) => (
+                                <TableRow key={question._id}>
+                                    <TableCell>
+                                        <Button
+                                            color="primary"
+                                            onClick={() => handleOpenDescriptionDialog(question.description)}
+                                            style={{ textTransform: "none", padding: 0 }}
+                                        >
+                                            {question.title}
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell>{question.category}</TableCell>
+                                    <TableCell>{question.complexity}</TableCell>
+                                    <TableCell align="center">
+                                        <IconButton color="primary" onClick={() => handleOpenDialog("edit", question)}>
+                                            <Edit />
+                                        </IconButton>
+                                        <IconButton color="secondary" onClick={() => handleDelete(question._id)}>
+                                            <Delete />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {questions.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center">
+                                        No questions available.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
 
-            {/* Add/Edit Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth>
-                <DialogTitle>{dialogMode === "add" ? "Add New Question" : "Edit Question"}</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        name="title"
-                        label="Title"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        value={currentQuestion.title}
-                        onChange={handleInputChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        name="description"
-                        label="Description"
-                        type="text"
-                        multiline
-                        rows={4}
-                        fullWidth
-                        variant="outlined"
-                        value={currentQuestion.description}
-                        onChange={handleInputChange}
-                    />
-                    <TextField
-                        select
-                        margin="dense"
-                        name="category"
-                        label="Category"
-                        fullWidth
-                        variant="outlined"
-                        value={currentQuestion.category}
-                        onChange={handleInputChange}
-                    >
-                        {CATEGORIES.map((category) => (
-                            <MenuItem key={category} value={category}>
-                                {category}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                    <TextField
-                        select
-                        margin="dense"
-                        name="complexity"
-                        label="Complexity"
-                        fullWidth
-                        variant="outlined"
-                        value={currentQuestion.complexity}
-                        onChange={handleInputChange}
-                    >
-                        {COMPLEXITIES.map((category) => (
-                            <MenuItem key={category} value={category}>
-                                {category}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} color="secondary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleSubmit} color="primary">
-                        {dialogMode === "add" ? "Add" : "Update"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                {/* Add/Edit Dialog */}
+                <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth>
+                    <DialogTitle>{dialogMode === "add" ? "Add New Question" : "Edit Question"}</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            name="title"
+                            label="Title"
+                            type="text"
+                            fullWidth
+                            variant="outlined"
+                            value={currentQuestion.title}
+                            onChange={handleInputChange}
+                        />
+                        <TextField
+                            margin="dense"
+                            name="description"
+                            label="Description"
+                            type="text"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            variant="outlined"
+                            value={currentQuestion.description}
+                            onChange={handleInputChange}
+                        />
+                        <TextField
+                            select
+                            margin="dense"
+                            name="category"
+                            label="Category"
+                            fullWidth
+                            variant="outlined"
+                            value={currentQuestion.category}
+                            onChange={handleInputChange}
+                        >
+                            {CATEGORIES.map((category) => (
+                                <MenuItem key={category} value={category}>
+                                    {category}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            select
+                            margin="dense"
+                            name="complexity"
+                            label="Complexity"
+                            fullWidth
+                            variant="outlined"
+                            value={currentQuestion.complexity}
+                            onChange={handleInputChange}
+                        >
+                            {COMPLEXITIES.map((category) => (
+                                <MenuItem key={category} value={category}>
+                                    {category}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} color="secondary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSubmit} color="primary">
+                            {dialogMode === "add" ? "Add" : "Update"}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
-            {/* Description Dialog */}
-            <Dialog open={openDescriptionDialog} onClose={handleCloseDescriptionDialog} fullWidth>
-                <DialogTitle>Question Description</DialogTitle>
-                <DialogContent>
-                    <Typography variant="body1">{selectedDescription}</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDescriptionDialog} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                {/* Description Dialog */}
+                <Dialog open={openDescriptionDialog} onClose={handleCloseDescriptionDialog} fullWidth>
+                    <DialogTitle>Question Description</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body1">{selectedDescription}</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDescriptionDialog} color="primary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
-            {/* Snackbar Notification */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-        </Container>
+                {/* Snackbar Notification */}
+                <Snackbar
+                    open={snackbar.open}
+                    autoHideDuration={3000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar>
+            </Container>
+        </>
     );
 };
 

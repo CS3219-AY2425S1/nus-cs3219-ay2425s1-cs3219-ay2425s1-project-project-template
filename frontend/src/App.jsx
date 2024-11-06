@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -13,21 +13,29 @@ import MatchUsers from "./pages/MatchUsers";
 import CollabSpace from "./pages/CollabSpace";
 
 function App() {
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        sessionStorage.removeItem("authorized");
+        sessionStorage.removeItem("authorization");
+        sessionStorage.removeItem('username')
+        navigate("/login");
+    };
+
     return (
         <>
-            <NavBar />
+            <NavBar handleLogout={handleLogout}/>
             <Routes>
                 <Route path="*" element={<NotFound />} />
                 {/* Public Routes */}
                 <Route path="/sign-up" element={<SignUp />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/collab/:roomId" element={<CollabSpace/>}/>
-                <Route path="/users-match" element={<MatchUsers />} />
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
+                    <Route path="/home" element={<Home />} />
                     <Route path="/account-settings" element={<AccountSettings />} />
+                    <Route path="/collab/:roomId" element={<CollabSpace />} />
+                    <Route path="/users-match" element={<MatchUsers />} />
                     <Route path="/confirm-logout" element={<ConfirmLogout />} />
                 </Route>
             </Routes>
