@@ -300,21 +300,23 @@ export default function QuestionPage() {
                       >
                         <div className="submission-header-detail">
                           <div style={{ fontWeight: "bold" }}>
-                            Submitted at:&nbsp;
+                            Submitted at:
                           </div>
-                          <div>{submission?.submittedAt || "-"}</div>
+                          <div style={{ paddingLeft: "5px" }}>
+                            {submission?.submittedAt || "-"}
+                          </div>
+                        </div>
+                        <div className="submission-header-detail">
+                          <div style={{ fontWeight: "bold" }}>Language:</div>
+                          <div style={{ paddingLeft: "5px" }}>
+                            {submission?.language || "-"}
+                          </div>
                         </div>
                         <div className="submission-header-detail">
                           <div style={{ fontWeight: "bold" }}>
-                            Language:&nbsp;
+                            Matched with:
                           </div>
-                          <div>{submission?.language || "-"}</div>
-                        </div>
-                        <div className="submission-header-detail">
-                          <div style={{ fontWeight: "bold" }}>
-                            Matched with:&nbsp;
-                          </div>
-                          <div>
+                          <div style={{ paddingLeft: "5px" }}>
                             {submission?.matchedUser
                               ? // Check to ensure that matched user is correct, otherwise swap with otherUser
                                 username == submission.matchedUser
