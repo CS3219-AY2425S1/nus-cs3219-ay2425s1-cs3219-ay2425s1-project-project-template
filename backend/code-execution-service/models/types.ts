@@ -1,4 +1,5 @@
 import  { Request, Response } from 'express'
+import { Types } from 'mongoose'
 
 export interface CodeExecutionRequest extends Request {
     body: {
@@ -14,6 +15,12 @@ export interface CodeSubmissionRequest extends Request {
         matchId: number
         code: string
         language: string
+    }
+}
+
+export interface GetCodeRequest extends Request {
+    params: {
+        matchId: string
     }
 }
 

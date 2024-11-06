@@ -12,7 +12,7 @@ export interface ISubmission extends Document {
 
 const SubmissionSchema = new Schema<ISubmission>(
     {
-        matchId: { type: Schema.Types.ObjectId, required: true, index: true },
+        matchId: { type: Schema.Types.ObjectId, required: true, unique: true, index: true },
         questionId: { type: Number, required: true, index: true },
         language: { type: String, required: true },
         code: { type: String, required: true, default: '' },
