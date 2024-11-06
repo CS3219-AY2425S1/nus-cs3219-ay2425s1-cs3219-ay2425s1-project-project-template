@@ -11,6 +11,7 @@ import QuestionContainer from "../components/collaboration/QuestionContainer";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
+import ChatBox from "../components/collaboration/ChatBox";
 import useAuth from "../hooks/useAuth";
 import { height } from "@mui/system";
 
@@ -181,18 +182,25 @@ const Collab = () => {
             />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "calc(100vh - 75px)" }}>
                 <QuestionContainer question={question} />
-                <div style={{ flex: 1, overflow: "hidden" }}>
-                    <Editor
-                        theme="vs-dark"
-                        defaultLanguage="python"
-                        language={language}
-                        onMount={handleEditorDidMount}
-                        options={{
-                            fontSize: 16,
-                            scrollBeyondLastLine: false,
-                            minimap: { enabled: false }
-                        }}
-                    />
+                <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+                    <div style={{ flex: 1, overflow: "hidden" }}>
+                        <Editor
+                            theme="vs-dark"
+                            defaultLanguage="python"
+                            language={language}
+                            onMount={handleEditorDidMount}
+                            options={{
+                                fontSize: 16,
+                                scrollBeyondLastLine: false,
+                                minimap: { enabled: false }
+                            }}
+                        />
+                    </div>
+                    {socketRef.current && (
+                        <div style={{ height: "30%", overflow: "auto" }}>
+                            <ChatBox socket={socketRef.current} roomId={roomId} username={username} />
+                        </div>
+                    )}
                 </div>
             </div>
             {/* Conditionally render popups */}
