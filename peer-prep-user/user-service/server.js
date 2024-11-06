@@ -5,15 +5,23 @@ import index from "./index.js"
 import "dotenv/config"
 
 import { connectToDB } from "./model/repository.js"
+import { connectToRabbitMQ, initConsumer } from "./mq-consumer/consumer.js"
 
 const port = process.env.PORT || 3001
 
 const server = http.createServer(index)
 
+await connectToRabbitMQ()
+  .then(() => {
+    initConsumer()
+  }).catch((err) => {
+    console.error("Failed to connect to RabbitMQ")
+    console.error(err)
+  })
+
 await connectToDB()
   .then(() => {
     console.log("MongoDB Connected!")
-
     server.listen(port)
     console.log("User service server listening on http://localhost:" + port)
   })

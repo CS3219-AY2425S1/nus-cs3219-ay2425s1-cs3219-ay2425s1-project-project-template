@@ -36,7 +36,7 @@ const startConsume = async (onMessage: (message: Message) => void) => {
 
 export const updateUserService = (session: Session) => {
   channel.assertQueue(ADD_SESSION_QUEUE,{durable: true})
-  channel.sendToQueue(ADD_SESSION_QUEUE, Buffer.from(session.toString()))
+  channel.sendToQueue(ADD_SESSION_QUEUE, Buffer.from(JSON.stringify(session)))
 }
 
 // To implement generation of session URL @LYNETTE @YUANTING -

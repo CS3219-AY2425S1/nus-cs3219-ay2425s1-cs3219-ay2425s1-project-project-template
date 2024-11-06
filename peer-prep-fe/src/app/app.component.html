@@ -1,6 +1,6 @@
 <nav class="navbar" *ngIf="!hideNavbar">
   <header id="header" class="cursor-pointer" routerLink="/">Peer Prep</header>
-  <a *ngIf="userName" class="username">-{{ userName }}-</a>
+  <a *ngIf="userName" routerLink="/profile" class="username">-{{ userName }}-</a>
   <a class="button" routerLink="/question-list" routerLinkActive="activebutton"
     >Question List</a
   >
