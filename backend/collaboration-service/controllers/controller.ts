@@ -120,11 +120,6 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
   res.setHeader("Content-Type", "application/json");
   const { roomId, code, language } = req.body;
   console.log(roomId + code + language);
-
-  // Clear the roomId cookie
-  res.clearCookie("roomId", {
-    httpOnly: true,
-  });
   
   try {
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
@@ -162,6 +157,13 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const clearRoomIdCookie = async (req: Request, res: Response): Promise<void> => {
+  res.clearCookie("roomId", {
+    httpOnly: true,
+  });
+};
+
 
 // GetSessionHandler retrieves a session based on the roomId
 export const getSessionHandler = async (req: Request, res: Response): Promise<void> => {

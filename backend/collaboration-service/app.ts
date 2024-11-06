@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import { startRabbitMQ } from "./consumer";
 import { authenticateAccessToken } from "./utils/jwt";
 import mongoose from "mongoose";
-import { checkAuthorisedUser, getInfoHandler, getHistoryHandler, saveCodeHandler, getSessionHandler } from "./controllers/controller";
+import { checkAuthorisedUser, getInfoHandler, getHistoryHandler, saveCodeHandler, getSessionHandler, clearRoomIdCookie} from "./controllers/controller";
 import { verifyAccessToken } from "./middleware/middleware";
 import axios from "axios";
 
@@ -66,6 +66,7 @@ app.get("/get-info", verifyAccessToken, getInfoHandler);
 app.get("/get-history", verifyAccessToken, getHistoryHandler);
 app.get("/get-session", verifyAccessToken, getSessionHandler);
 app.post("/save-code", saveCodeHandler);
+app.post("/clear-cookie", clearRoomIdCookie);
 
 // POST endpoint to submit code for execution
 app.post("/code-execute", async (req: Request, res: Response) => {
