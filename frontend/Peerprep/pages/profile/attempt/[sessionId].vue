@@ -148,7 +148,7 @@ onMounted(getInfo);
         {{ codeAttempt || 'No code available' }}
       </pre>
 
-      <p class="mt-4"><strong>Submitted on:</strong> {{ attemptTimestamp }}</p>
+      <p class="mt-4"><strong>Matched on:</strong> {{ attemptTimestamp }}</p>
       <p><strong>Matched User:</strong> {{ matchedUserDisplayName || 'N/A' }}</p>
       <p><strong>Session ID:</strong> {{ sessionId || 'N/A' }}</p>
     </div>
