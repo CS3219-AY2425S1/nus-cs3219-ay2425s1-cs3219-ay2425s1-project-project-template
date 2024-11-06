@@ -31,49 +31,64 @@ export class CollabPageComponent implements OnInit, OnDestroy {
     private webSocketService: WebSocketService
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     // Get session ID from route parameters
-    this.routeSubscription = this.route.params.subscribe(async (params) => {
+    this.routeSubscription = this.route.params.subscribe(params => {
       this.sessionId = params['sessionId'];
+
       this.userId = this.route.snapshot.queryParamMap.get('userId') || '';
-  
-      try {
-        await this.fetchSessionData(); // Wait for fetchSessionData() to complete
-        console.log("fetchSessionData() completed.");
-  
-        // Proceed with further logic after data is fetched
-        this.webSocketService.connect(this.sessionId, this.userId);
-      } catch (error) {
-        console.error("Error in ngOnInit while fetching session data:", error);
-        // Handle the error if needed, e.g., show a message or redirect
-      }
-    });
+
+      this.fetchSessionData();
+      // this.username = '123';
+      // Connect to editor
+      this.webSocketService.connect(this.sessionId, this.userId);
+    })
   }
 
-
-fetchSessionData(): Promise<void> {
-  console.log("CURRENTLY AT BEFORE FETCHING QUESTION");
-  return new Promise((resolve, reject) => {
+  fetchSessionData(): void {
+    console.log("CURRENTLY AT BEFORE FETCHING QUESTION");
     this.sessionSubscription = this.collabService.getSession(this.sessionId).subscribe(
       (session: Session) => {
         console.log("SESSION: ", session);
-        if (session && session.question) {
-          this.question = session.question;
-          console.log("Fetched session question", this.question);
-        }
+        this.question = session.question;
+        console.log("Fetched session question", session.question);
         this.username = session.users.username1;
         console.log("username 1: ", this.username);
         this.pairedUsername = session.users.username2;
         console.log("username 2: ", this.pairedUsername);
-        resolve(); // Resolve the promise when data is fetched
       },
       error => {
         console.error("Failed to fetch session data", error);
-        reject(error); // Reject the promise on error
+        // this.endSession()
       }
     );
-  });
-}
+  }
+  
+
+
+// fetchSessionData(): void{
+//   console.log("CURRENTLY AT BEFORE FETCHING QUESTION");
+//   // return new Promise((resolve, reject) => {
+//     this.sessionSubscription = this.collabService.getSession(this.sessionId).subscribe(
+//       (session: Session) => {
+//         console.log("SESSION: ", session);
+//         if (session && session.question) {
+//           this.question = session.question;
+//           console.log("Fetched session question", this.question);
+//         }
+//         this.username = session.users.username1;
+//         console.log("username 1: ", this.username);
+//         this.pairedUsername = session.users.username2;
+//         console.log("username 2: ", this.pairedUsername);
+//         resolve(); // Resolve the promise when data is fetched
+//       },
+//       error => {
+//         console.error("Failed to fetch session data", error);
+//         reject(error); // Reject the promise on error
+//       }
+//     );
+//   });
+// }
 
   // navigates back to landing page and disconnects websocket session
   endSession(): void {
