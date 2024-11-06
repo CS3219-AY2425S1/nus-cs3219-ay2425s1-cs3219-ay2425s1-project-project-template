@@ -24,21 +24,12 @@ import {
     MenuItem,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
+import { COMPLEXITIES, CATEGORIES, SAMPLE_QUESTIONS } from "../constants";
 import "./home.css"; 
 
-
 const HomePage = () => {
-    const CATEGORIES = [
-        "Strings",
-        "Algorithms",
-        "Data Structures",
-        "Bit Manipulation",
-        "Recursion",
-        "Databases",
-        "Brainteaser",
-        "Arrays",
-    ];
-    const COMPLEXITIES = ["Easy", "Medium", "Hard"];
+    const complexities = COMPLEXITIES;
+    const categories = CATEGORIES;
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -328,7 +319,7 @@ const HomePage = () => {
                             value={currentQuestion.category}
                             onChange={handleInputChange}
                         >
-                            {CATEGORIES.map((category) => (
+                            {categories.map((category) => (
                                 <MenuItem key={category} value={category}>
                                     {category}
                                 </MenuItem>
@@ -344,7 +335,7 @@ const HomePage = () => {
                             value={currentQuestion.complexity}
                             onChange={handleInputChange}
                         >
-                            {COMPLEXITIES.map((category) => (
+                            {complexities.map((category) => (
                                 <MenuItem key={category} value={category}>
                                     {category}
                                 </MenuItem>
