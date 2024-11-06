@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button } from '@mui/material';
 
 import codeExecutionService from '../../services/code-execution-service';
 import '../../styles/Output.css';

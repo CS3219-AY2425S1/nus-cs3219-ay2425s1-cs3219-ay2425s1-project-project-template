@@ -33,10 +33,6 @@
 
   .question-content {
     padding: 0px 10px 10px;
-  }
-
-  .question-content p,
-  .question-content a {
     font-size: 12px;
     word-wrap: break-word;
     text-align: left;
