@@ -46,6 +46,11 @@ export const HomePage = () => {
     // Removes the last comma
     return output.substring(0, output.length - 2);
   }
+
+  const handleLogout = (e) => {
+    localStorage.clear();
+    navigate("/login");
+  }
   
 
   useEffect(() => {
@@ -103,6 +108,7 @@ export const HomePage = () => {
           {isAdmin ? <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button> : null}
           <button className="create-btn" onClick={(e) => navigate("/match")}>Solve with a friend!</button>
           <button className="create-btn" onClick={(e) => navigate("/profile")}>Profile</button>
+          <button className="create-btn" onClick={handleLogout}>Logout</button>
         </div>
       </header>
     </div>

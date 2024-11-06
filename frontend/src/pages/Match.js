@@ -122,6 +122,8 @@ export const Match = () => {
         alert(
           `You have been matched with ${data.match}!\n${data.match_message}`
         );
+        //Record user's match partner
+        sessionStorage.setItem("partner", data.match);
         completeMatching();
       });
 

@@ -82,7 +82,7 @@ function App() {
         <Route path='/questions/:id' element={<PrivateRoute element={<Question />} isAuthenticated={isAuthenticated} />} />
         <Route path="/profile" element={<PrivateRoute element={<UserPage />} isAuthenticated={isAuthenticated} />} />
         <Route path="/match" element={<PrivateRoute element={<Match />} isAuthenticated={isAuthenticated} />} />
-        <Route path="/collab" element={<Collaboration />} />
+        <Route path="/collab" element={<PrivateRoute element={<Collaboration />} isAuthenticated={isAuthenticated} />} />
         <Route path="*" element={<p>404: Page Not Found!</p>} />
       </Routes>
     </div>
