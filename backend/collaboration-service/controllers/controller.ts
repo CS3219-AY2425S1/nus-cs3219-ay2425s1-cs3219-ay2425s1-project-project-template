@@ -125,8 +125,6 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
   res.clearCookie("roomId", {
     httpOnly: true,
   });
-
-  res.json({ message: "roomId cookie cleared successfully" });
   
   try {
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
@@ -158,7 +156,7 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
     match.status = "closed";
     await match.save();
 
-    res.status(201).json({ message: "Code saved successfully, match closed", session: newSession });
+    res.status(200).json({ message: "Code saved successfully, match closed", session: newSession });
   } catch (error) {
     console.error("Error saving code:", error);
     res.status(500).json({ error: "Internal Server Error" });

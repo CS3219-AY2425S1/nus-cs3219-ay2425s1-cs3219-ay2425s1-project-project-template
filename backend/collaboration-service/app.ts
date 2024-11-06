@@ -154,18 +154,11 @@ io.on("connection", (socket) => {
       });
 
       // User-agreed-end event
-      socket.on("user-agreed-end", (roomId: string, userId: string) => {
-        usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
-        usersAgreedEnd[roomId][userId] = true;
-        console.log(userId + " agreed end")
-        if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
-          console.log( "both agreed end")
-          io.to(roomId).emit("both-users-agreed-end", roomId);
-          usersAgreedEnd[roomId] = {};
-        } else {
-          io.to(roomId).emit("waiting-for-other-user-end", roomId);
+      socket.on("user-end", (roomId: string, userId: string) => {
+        console.log(userId + " ended")
+        io.to(roomId).emit("other-user-end", roomId);
         }
-      });
+      );
 
       // Handle disconnect
       socket.on("disconnect", () => {
