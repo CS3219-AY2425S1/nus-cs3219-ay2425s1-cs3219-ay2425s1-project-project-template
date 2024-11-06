@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { Observable } from "rxjs"
+import { baseUrlProduction } from "../../../constants"
 
 const userJson = sessionStorage.getItem("userData")
 const token = userJson !== null ? JSON.parse(userJson).data.accessToken : ""
@@ -11,8 +12,14 @@ const headers = new HttpHeaders({
 
 @Injectable({ providedIn: "root" })
 export class UserService {
-  private baseUrl = "http://localhost:3001/users"
+  // private baseUrl = "http://localhost:3001/users"
+  private baseUrl = this.isProduction() ? `${baseUrlProduction}/users` : "http://localhost:3001/users";
+
   constructor(private http: HttpClient) {}
+
+  private isProduction(): boolean {
+    return window.location.hostname !== "localhost";
+  }
 
   getAllUsers(): Observable<any> {
     return this.http.get<any>(this.baseUrl, { headers })
