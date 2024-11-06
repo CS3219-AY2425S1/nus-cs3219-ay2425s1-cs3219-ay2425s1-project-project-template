@@ -14,6 +14,8 @@ import { ChatMessage } from '../components/tabs/ChatBoxTab';
 import VideoCall from '../components/videoCall/VideoCall';
 import { useAuth } from '../hooks/AuthProvider';
 
+import { SupportedLanguage } from '../components/layout/codeEditorLayout/CodeEditorLayout';
+
 function Room() {
   const [loading, setLoading] = useState(true);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
@@ -23,6 +25,8 @@ function Room() {
 
   const [isLeaveSessionModalOpened, { open: openLeaveSessionModal, close: closeLeaveSessionModal }] = useDisclosure(false);
   const [code, setCode] = useState('');
+  const [language, setLanguage] = useState<SupportedLanguage>('python');
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [modalOpened, { close: closeModal, open: openModal }] = useDisclosure(false);
@@ -128,6 +132,15 @@ function Room() {
     
     
 
+    collaborationSocketRef.current.on('load-language', (newLanguage) => {
+      setLanguage(newLanguage);
+    });
+
+    collaborationSocketRef.current.on('language-updated', (newLanguage) => {
+      isRemoteUpdateRef.current = true;
+      setLanguage(newLanguage);
+    });
+
     collaborationSocketRef.current.on('user-joined', () => {
       notifications.show({
         title: 'Partner connected',
@@ -185,7 +198,12 @@ function Room() {
       collaborationSocketRef.current?.emit('edit-code', code);
     }
     isRemoteUpdateRef.current = false;
-  }, [code]);
+  }, [code, language]);
+
+  const onLanguageChange = (newLanguage: SupportedLanguage) => {
+    setLanguage(newLanguage);
+    collaborationSocketRef.current?.emit('edit-language', newLanguage);
+  };
 
   const handleLeaveSession = () => {
     collaborationSocketRef.current?.disconnect();
@@ -294,6 +312,8 @@ function Room() {
 
         <CodeEditorLayout
           openLeaveSessionModal={openLeaveSessionModal}
+          language={language}
+          onLanguageChange={onLanguageChange}
           code={code}
           setCode={setCode}
           viewUpdateRef={viewUpdateRef}

@@ -12,6 +12,7 @@ services:
       USER_SERVICE_ADDR: user-service:3001
       QUESTION_SERVICE_ADDR: question-service:8000
       MATCH_NOTIFICATION_SERVICE_ADDR: match-notification-service:4001
+      HISTORY_SERVICE_ADDR: history-service:5001
       COLLABORATION_SERVICE_ADDR: collaboration-service:8005
       COMMUNICATION_SERVICE_ADDR: communication-service:8443
     ports:
@@ -25,6 +26,7 @@ services:
       - question-service
       - matching-service
       - match-notification-service
+      - history-service
     env_file:
       - .env/.nginx_env
     healthcheck:
@@ -156,6 +158,16 @@ services:
       - my-network
     env_file:
       - .env/.collaboration_env
+      - .env/.global_auth_env
+
+  history-service:
+    build:
+      context: ./history-service
+    container_name: history-service
+    networks:
+      - my-network
+    env_file:
+      - .env/.history_env
       - .env/.global_auth_env
 
   code-execution-service:
