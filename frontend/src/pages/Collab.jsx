@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
@@ -13,7 +14,6 @@ import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationP
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
 import useAuth from "../hooks/useAuth";
-import { height } from "@mui/system";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
 const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
@@ -36,6 +36,7 @@ const Collab = () => {
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
 
     const [isSoloSession, setIsSoloSession] = useState(false);
+    const [showSnackbar, setShowSnackbar] = useState(false);
 
     // Ensure location state exists, else redirect to home
     useEffect(() => {
@@ -84,6 +85,12 @@ const Collab = () => {
     }, []);
 
     const startCountdown = () => {
+        
+        setShowSnackbar(true);
+
+        // Clear any existing interval to avoid multiple intervals running at once
+        if (intervalRef.current) clearInterval(intervalRef.current);
+
         intervalRef.current = setInterval(() => {
             setCountdown((prevCountdown) => {
                 if (prevCountdown <= 1) {
@@ -172,6 +179,11 @@ const Collab = () => {
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
 
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setShowSnackbar(false);
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
             <CollabNavBar 
@@ -186,28 +198,37 @@ const Collab = () => {
                     <CodeEditor language={language} onMount={handleEditorDidMount} />
                     <Output editorRef={editorRef} language={language} />
                 </div>
-            </div>
 
-            {/* Conditionally render popups */}
-            {showQuitPopup && (
-                <QuitConfirmationPopup 
-                    confirmQuit={handleQuitConfirm} 
-                    cancelQuit={handleQuitCancel} 
-                />
-            )}
-            {showPartnerQuitPopup && (
-                <PartnerQuitPopup 
-                    confirmQuit={handleQuitConfirm} 
-                    cancelQuit={() => setShowPartnerQuitPopup(false)} 
-                />
-            )}
-            {timeOver && (
-                <TimeUpPopup 
-                    continueSession={handleContinueSession}
-                    quitSession={handleQuitConfirm}
-                    continueAlone={handleContinueSessionAlone}
-                    isSoloSession={isSoloSession}/>
-            )}
+                {/* Conditionally render popups */}
+                {showQuitPopup && (
+                    <QuitConfirmationPopup 
+                        confirmQuit={handleQuitConfirm} 
+                        cancelQuit={handleQuitCancel} 
+                    />
+                )}
+                {!isSoloSession && showPartnerQuitPopup && countdown > 0 && (
+                    <PartnerQuitPopup 
+                        confirmQuit={handleQuitConfirm} 
+                        cancelQuit={() => setShowPartnerQuitPopup(false)} 
+                    />
+                )}
+                {timeOver && (
+                    <TimeUpPopup 
+                        continueSession={handleContinueSession}
+                        quitSession={handleQuitConfirm}
+                        continueAlone={handleContinueSessionAlone}
+                        isSoloSession={isSoloSession}/>
+                )}
+            </div>
+            
+            <Snackbar
+                open={showSnackbar}
+                onClose={handleCloseSnackbar}
+                message="You're session starts now! Happy Coding!"
+                autoHideDuration={3000} // Auto-hide after 3 seconds
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                className="custom-snackbar"
+            />
         </div>
     );
 };

@@ -16,7 +16,7 @@ const SessionExpiredPopup = ({ continueAlone }) => {
                     <h3>Session Expired</h3>
                     <p>Your partner didn't confirm in time. Would you like to still continue the session?</p>
                     <button className="confirm-button" onClick={continueAlone}>Continue Session</button>
-                    <button className="confirm-button" onClick={redirectToHome}>Go to Home</button>
+                    <button className="cancel-button" onClick={redirectToHome}>Go to Home</button>
                 </div>
             </dialog>
         </div>
