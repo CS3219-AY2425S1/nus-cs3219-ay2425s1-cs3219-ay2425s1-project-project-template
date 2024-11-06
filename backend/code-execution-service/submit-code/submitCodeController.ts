@@ -134,7 +134,7 @@ const submitUserCode = async (
 
     try {
         submissionId = submission._id
-        await axios.post(`${process.env.MATCH_SERVICE_URL}/update-match`, {
+        await axios.patch(`${process.env.MATCH_SERVICE_URL}/update-match`, {
             matchId,
             submissionId
         })

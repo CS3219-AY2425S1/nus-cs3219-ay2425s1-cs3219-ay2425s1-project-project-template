@@ -6,14 +6,25 @@ import { connectToDatabase } from './db'
 import { sendMatchingRequest } from '../producer/producer'
 import { activeMatches, startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
-import { addMatch } from '../utils/utils'
+import { parseBody, sendResponse, addMatch, updateMatch } from '../utils/utils'
 
 dotenv.config({ path: './.env' })
 
 connectToDatabase()
 const connectedClients = new Map<string, string>()
 
-const httpServer = createServer()
+const httpServer = createServer(async (req, res) => {
+    if (req.method == 'PATCH' && req.url == '/update-match') {
+        try {
+            const body = await parseBody(req)
+            const { status, message } = await updateMatch(body)
+            sendResponse(res, status, { message: message })
+        } catch (e) {
+            sendResponse(res, 500, { message: 'Error updating match' })
+        }
+    }
+})
+
 const io = new Server(httpServer, {
     cors: {
         origin: '*',
@@ -92,12 +103,16 @@ const io = new Server(httpServer, {
 
                         io.to(matchSession.users[userId].socketId).emit(
                             'matchAccepted',
-                            { matchId, roomId: res.data.roomId, language: res.data.language },
+                            {
+                                matchId,
+                                roomId: res.data.roomId,
+                                language: res.data.language,
+                            },
                         )
                         io.to(otherUser.socketId).emit('matchAccepted', {
                             matchId,
                             roomId: res.data.roomId,
-                            language: res.data.language
+                            language: res.data.language,
                         })
 
                         const payload = {
@@ -164,7 +179,7 @@ const io = new Server(httpServer, {
 
     const port = parseInt(process.env.PORT || '3000', 10)
 
-    io.listen(port)
+    httpServer.listen(port)
     logger.info(`Server started on port ${port}`, {
         service: 'matching-service',
         timestamp: new Date().toISOString(),
