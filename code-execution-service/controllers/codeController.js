@@ -92,11 +92,11 @@ const executeCode = (req, res) => {
 
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output, is_error: false });
+        res.status(200).json({ output, isError: false });
       } catch (error) {
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output: error.message, is_error: true });
+        res.status(200).json({ output: error.message, isError: true });
       }
     } else {
       // For other languages, execute immediately
@@ -109,11 +109,11 @@ const executeCode = (req, res) => {
 
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output, is_error: false });
+        res.status(200).json({ output, isError: false });
       } catch (error) {
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output: error.message, is_error: true });
+        res.status(200).json({ output: error.message, isError: true });
       }
     }
   } catch (error) {

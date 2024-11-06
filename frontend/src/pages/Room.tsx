@@ -15,7 +15,7 @@ import RoomTabs from '../components/tabs/RoomTabs';
 import config from '../config';
 import {
   CodeExecutionInput,
-  CodeExecutionResponse,
+  CodeOutput,
   SupportedLanguage,
 } from '../types/CodeExecutionType';
 import { Question } from '../types/QuestionType';
@@ -27,6 +27,9 @@ function Room() {
   ] = useDisclosure(false);
 
   const [question, setQuestion] = useState<Question | undefined>(undefined);
+  const [codeOutput, setCodeOutput] = useState<CodeOutput | undefined>(
+    undefined,
+  );
 
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<SupportedLanguage>('python');
@@ -150,8 +153,8 @@ function Room() {
       language,
     };
     executeCode(codeExecutionInput).then(
-      (_: CodeExecutionResponse) => {
-        // TODO: Update display of response
+      (codeOutput: CodeOutput) => {
+        setCodeOutput(codeOutput);
         setIsRunningCode(false);
       },
       (error: any) => {
@@ -189,7 +192,10 @@ function Room() {
             handleRunCode={handleRunCode}
             viewUpdateRef={viewUpdateRef}
           />
-          <CodeOutputTabs testCases={question?.testCases} />
+          <CodeOutputTabs
+            testCases={question?.testCases}
+            codeOutput={codeOutput}
+          />
         </Stack>
       </Group>
 

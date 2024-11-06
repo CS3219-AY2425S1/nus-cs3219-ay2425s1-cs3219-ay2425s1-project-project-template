@@ -1,10 +1,12 @@
 import { Tabs } from '@mantine/core';
 
+import { CodeOutput } from '../../types/CodeExecutionType';
 import { TestCase } from '../../types/QuestionType';
 import TestCasesTab from './TestCasesTab';
 
 interface CodeOutputTabsProps {
   testCases?: TestCase[];
+  codeOutput?: CodeOutput;
 }
 
 function CodeOutputTabs({ testCases }: CodeOutputTabsProps) {

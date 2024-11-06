@@ -11,7 +11,7 @@ export type CodeExecutionInput = {
   input?: string;
 };
 
-export type CodeExecutionResponse = {
+export type CodeOutput = {
   output: string;
-  is_error: boolean;
+  isError: boolean;
 };
