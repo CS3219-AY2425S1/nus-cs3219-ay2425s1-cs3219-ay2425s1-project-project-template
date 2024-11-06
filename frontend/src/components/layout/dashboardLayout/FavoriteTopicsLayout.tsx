@@ -1,21 +1,17 @@
 import { Badge, Group, Space, Stack, Text, Title } from '@mantine/core';
 
-const favoriteTopicsData = [
-  { topic: 'Array', solvedQuestions: 3 },
-  { topic: 'Linked List', solvedQuestions: 10 },
-  { topic: 'Hashmap', solvedQuestions: 12 },
-];
+import { Progress } from '../../../types/History';
 
-function FavoriteTopicsLayout() {
-  const favoriteTopics = favoriteTopicsData.map((favoriteTopicData, i) => (
+function FavoriteTopicsLayout({ progress }: { progress: Progress }) {
+  const favoriteTopics = progress.topTopics.map((topTopic, i) => (
     <Group key={i}>
       <Badge variant="light" color="gray">
-        {favoriteTopicData.topic}
+        {topTopic.topic}
       </Badge>
       <Space style={{ flexGrow: 1 }} />
       <Text>
         <Text span fw={700}>
-          {favoriteTopicData.solvedQuestions}{' '}
+          {topTopic.count}{' '}
         </Text>
         problems solved
       </Text>

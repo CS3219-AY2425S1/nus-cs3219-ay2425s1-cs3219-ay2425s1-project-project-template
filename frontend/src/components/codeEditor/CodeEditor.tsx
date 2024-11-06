@@ -8,7 +8,8 @@ interface CodeEditorProps {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   extensions: Extension[];
-  viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
+  readOnly?: boolean;
+  viewUpdateRef?: React.MutableRefObject<ViewUpdate | null>;
 }
 
 const customSublime = sublimeInit({
@@ -22,10 +23,13 @@ function CodeEditor({
   setCode,
   extensions,
   viewUpdateRef,
+  readOnly=false,
 }: CodeEditorProps) {
 
-  const updateViewUpdateRef = (viewUpdate: ViewUpdate) => { 
-    viewUpdateRef.current = viewUpdate;
+  const updateViewUpdateRef = (viewUpdate: ViewUpdate) => {
+    if (viewUpdateRef) {
+      viewUpdateRef.current = viewUpdate;
+    }
   }
 
   return (
@@ -35,7 +39,8 @@ function CodeEditor({
       className={classes.codeMirror}
       extensions={extensions}
       onChange={setCode}
-      onUpdate={updateViewUpdateRef}
+      readOnly={readOnly}
+      {...(!readOnly && viewUpdateRef ? { onUpdate: updateViewUpdateRef } : {})}
     />
   );
 }

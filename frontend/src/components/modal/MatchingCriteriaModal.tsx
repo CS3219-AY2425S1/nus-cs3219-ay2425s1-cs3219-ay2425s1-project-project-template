@@ -16,7 +16,7 @@ function MatchingCriteriaModal({
 }: MatchingCriteriaModalProps) {
   const [difficultyFilter, setDifficultyFilter] = useState<string[]>([]);
   const [topicFilter, setTopicFilter] = useState<string[]>([]);
-
+  // const topics = useTopics();
   const handleFindMatchClick = () => {
     closeMatchingCriteriaModal();
     findMatch(

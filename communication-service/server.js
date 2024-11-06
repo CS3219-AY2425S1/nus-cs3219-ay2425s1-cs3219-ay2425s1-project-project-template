@@ -1,54 +1,33 @@
 // server.js
 const express = require('express');
+const { Server } = require('socket.io');
 const http = require('http');
-const https = require('https');
-const path = require('path');
 const cors = require('cors');
-const { SSL_CERT, SSL_KEY, PORT, HTTP_OR_HTTPS, SERVE_FE } = require('./config');
-const initializeSocketRoutes = require('./routes/socketRoutes');
+const { PORT } = require('./config');
+const socketRoutes = require('./routes/socketRoutes');
+const { authMiddleware } = require('./middleware/authMiddleware');
 
 const app = express();
-app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors()); // config cors so that front-end can use
+app.options("*", cors());
 
-let server;
-if (HTTP_OR_HTTPS === 'https') {
-  // SSL certificates
-  const options = {
-    key: SSL_KEY,
-    cert: SSL_CERT,
-  };
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",  // Allow all origins
+    methods: ['GET', 'POST'],
+  },
+  path: '/api/comm/socket.io',
+  pingTimeout: 60000,
+  pingInterval: 25000,
+});
 
-  // Redirect HTTP to HTTPS
-  const httpServer = http.createServer((req, res) => {
-    res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-    res.end();
-  });
 
-  httpServer.listen(8080);
+app.use('/api/collab', authMiddleware, socketRoutes(io));
 
-  // Create HTTPS server
-  const httpsServer = https.createServer(options, app);
-  httpsServer.listen(PORT, () => {
-    console.log(`Communication service server is running on HTTPS, port ${PORT}`);
-  });
+server.listen(PORT, () => {
+  console.log(`Communication service server is running on HTTP, port ${PORT}`);
+});
 
-  server = httpsServer;
-} else {
-  const httpServer = http.createServer(app);
-  httpServer.listen(PORT, () => {
-    console.log(`Communication service server is running on HTTP, port ${PORT}`);
-  });
-
-  server = httpServer;
-}
-
-// Health Check
-app.get('/api/comm', (req, res) => {
-  res.status(200).send('Hello world');
-})
-
-if (SERVE_FE === 'true') {
-  app.use(express.static(path.join(__dirname, 'frontend')));
-}
-
-initializeSocketRoutes(server);

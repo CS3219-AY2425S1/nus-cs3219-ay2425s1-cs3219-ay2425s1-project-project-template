@@ -2,23 +2,25 @@ import { Group } from '@mantine/core';
 
 import DifficultyProgressRing from '../../progress/DifficultyProgressRing';
 
-function ProgressLayout() {
+import { Progress } from '../../../types/History';
+
+function ProgressLayout({ progress }: { progress: Progress }) {
   return (
     <Group p="20px" bg="slate.8" gap="10px" style={{ borderRadius: '4px' }}>
       <DifficultyProgressRing
         difficulty="Easy"
-        solvedQuestions={22}
-        totalQuestions={103}
+        solvedQuestions={progress.difficultyCount.Easy.completed}
+        totalQuestions={progress.difficultyCount.Easy.total}
       />
       <DifficultyProgressRing
         difficulty="Medium"
-        solvedQuestions={6}
-        totalQuestions={13}
+        solvedQuestions={progress.difficultyCount.Medium.completed}
+        totalQuestions={progress.difficultyCount.Medium.total}
       />
       <DifficultyProgressRing
         difficulty="Hard"
-        solvedQuestions={5}
-        totalQuestions={8}
+        solvedQuestions={progress.difficultyCount.Hard.completed}
+        totalQuestions={progress.difficultyCount.Hard.total}
       />
     </Group>
   );

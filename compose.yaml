@@ -5,15 +5,17 @@ services:
     container_name: nginx
     restart: always
     volumes:
-      - ./nginx/default.conf:/tmp/default.conf
-      - /etc/letsencrypt:/etc/letsencrypt
+      - ./nginx:/tmp
+      - .env/.ssl_certs:/etc/letsencrypt/live/localhost
       - react-build:/app/dist
     environment:
       USER_SERVICE_ADDR: user-service:3001
       QUESTION_SERVICE_ADDR: question-service:8000
       MATCH_NOTIFICATION_SERVICE_ADDR: match-notification-service:4001
+      HISTORY_SERVICE_ADDR: history-service:5001
       COLLABORATION_SERVICE_ADDR: collaboration-service:8005
       CODE_EXECUTION_SERVICE_ADDR: code-execution-service:8050
+      COMMUNICATION_SERVICE_ADDR: communication-service:8443
     ports:
       - '80:80'
       - '443:443'
@@ -25,6 +27,9 @@ services:
       - question-service
       - matching-service
       - match-notification-service
+      - history-service
+    env_file:
+      - .env/.nginx_env
     healthcheck:
       test:
         [
@@ -56,6 +61,7 @@ services:
     container_name: user-service-backend
     env_file:
       - .env/.user_env
+      - .env/.global_auth_env
     depends_on:
       - user-service-mongo
     networks:
@@ -141,20 +147,29 @@ services:
     container_name: communication-service-backend
     networks:
       - my-network
-    #  ports:
-    #    - "8443:8443" # for testing
     env_file:
       - .env/.communication_env
+      - .env/.global_auth_env
+
   collaboration-service:
     build:
       context: ./collaboration-service
     container_name: collaboration-service-backend
     networks:
       - my-network
-    # ports:
-    #   - "8004:8004" # for testing
     env_file:
       - .env/.collaboration_env
+      - .env/.global_auth_env
+
+  history-service:
+    build:
+      context: ./history-service
+    container_name: history-service
+    networks:
+      - my-network
+    env_file:
+      - .env/.history_env
+      - .env/.global_auth_env
 
   code-execution-service:
     build:
@@ -162,8 +177,6 @@ services:
     container_name: code-execution-service-backend
     networks:
       - my-network
-    ports:
-      - '8050:8050' # for testing
     env_file:
       - .env/.code_execution_env
 

@@ -13,7 +13,7 @@ interface CodeEditorLayoutProps {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   language: string;
-  setLanguage: React.Dispatch<React.SetStateAction<SupportedLanguage>>;
+  handleLanguageChange: (language: SupportedLanguage) => void;
   handleRunCode: () => void;
   isRunningCode: boolean;
   viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
@@ -26,7 +26,7 @@ function CodeEditorLayout({
   code,
   setCode,
   language,
-  setLanguage,
+  handleLanguageChange,
   isRunningCode,
   handleRunCode,
   viewUpdateRef,
@@ -35,10 +35,10 @@ function CodeEditorLayout({
     langs['python'](),
   ]);
 
-  const handleLanguageChange = (language: SupportedLanguage) => {
-    if (langs[language]) {
-      setExtensions([langs[language]()]);
-      setLanguage(language);
+  const handleLanguageSelect = (newLanguage: SupportedLanguage) => {
+    if (langs[newLanguage]) {
+      setExtensions([langs[newLanguage]()]);
+      handleLanguageChange(newLanguage);
     }
   };
 
@@ -62,7 +62,7 @@ function CodeEditorLayout({
           variant="unstyled"
           data={supportedLanguages}
           value={language}
-          onChange={(e) => handleLanguageChange(e as SupportedLanguage)}
+          onChange={(e) => handleLanguageSelect(e as SupportedLanguage)}
           allowDeselect={false}
           withCheckIcon={false}
           comboboxProps={{
