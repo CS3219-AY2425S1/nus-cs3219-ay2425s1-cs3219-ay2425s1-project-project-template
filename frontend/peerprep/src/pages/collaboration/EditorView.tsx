@@ -154,9 +154,9 @@ const EditorView: React.FC = () => {
             />
           </Box>
         </Box>
-        <Box style={styles.editorContainer}>
+        <Box style={styles.editorContainer} className="editor-scrollbar">
           {socketRef.current && (
-            <EditorElement socket={socketRef.current} className="editor-scrollbar" onCodeChange={saveCode} />
+            <EditorElement socket={socketRef.current} onCodeChange={saveCode} />
           )}
         </Box>
       </Box>
