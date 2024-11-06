@@ -10,11 +10,16 @@ export class WebSocketService {
 
   constructor() {}
 
+  isProduction(): boolean {
+    return window.location.hostname !== 'localhost';
+  }
+
   connect(sessionId: string, userId: string): void {
     if (this.socket$) {
       this.disconnect();
     }
     this.socket$ = webSocket(`ws://localhost:8081/${sessionId}?userID=${userId}`);
+    this.socket$ = this.isProduction() ? webSocket(`ws://code-websocket-1093398872288.asia-southeast1.run.app/${sessionId}?userID=${userId}`) : webSocket(`ws://localhost:8081/${sessionId}?userID=${userId}`);
   }
 
   sendMessage(message: any): void {

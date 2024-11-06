@@ -3,13 +3,17 @@ import { HttpClient } from "@angular/common/http"
 import { Observable } from "rxjs"
 import { Session } from "../app/models/session.model"
 import { Question } from "../app/models/question.model"
+import { baseUrlProduction } from "../../constants"
 
 @Injectable({
   providedIn: "root",
 })
 
 export class CollabService {
-    private baseUrl = 'http://localhost:4003/collab';
+    private baseUrl = this.isProduction() ? `${baseUrlProduction}/collab` : "http://localhost:8081/collab";
+    isProduction(): boolean {
+        return window.location.hostname !== "localhost";
+    }
     
     constructor(private http: HttpClient) {}
 
