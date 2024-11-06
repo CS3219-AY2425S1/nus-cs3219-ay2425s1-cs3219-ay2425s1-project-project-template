@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Editor from "@monaco-editor/react";
+import Snackbar from '@mui/material/Snackbar';
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
@@ -36,6 +37,7 @@ const Collab = () => {
     const [showPartnerQuitPopup, setShowPartnerQuitPopup] = useState(false);
 
     const [isSoloSession, setIsSoloSession] = useState(false);
+    const [showSnackbar, setShowSnackbar] = useState(false);
 
     // Ensure location state exists, else redirect to home
     useEffect(() => {
@@ -84,6 +86,12 @@ const Collab = () => {
     }, []);
 
     const startCountdown = () => {
+        
+        setShowSnackbar(true);
+
+        // Clear any existing interval to avoid multiple intervals running at once
+        if (intervalRef.current) clearInterval(intervalRef.current);
+
         intervalRef.current = setInterval(() => {
             setCountdown((prevCountdown) => {
                 if (prevCountdown <= 1) {
@@ -172,6 +180,11 @@ const Collab = () => {
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
 
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setShowSnackbar(false);
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
             <CollabNavBar 
@@ -202,27 +215,35 @@ const Collab = () => {
                         </div>
                     )}
                 </div>
+                {/* Conditionally render popups */}
+                {showQuitPopup && (
+                    <QuitConfirmationPopup 
+                        confirmQuit={handleQuitConfirm} 
+                        cancelQuit={handleQuitCancel} 
+                    />
+                )}
+                {!isSoloSession && showPartnerQuitPopup && countdown > 0 && (
+                    <PartnerQuitPopup 
+                        confirmQuit={handleQuitConfirm} 
+                        cancelQuit={() => setShowPartnerQuitPopup(false)} 
+                    />
+                )}
+                {timeOver && (
+                    <TimeUpPopup 
+                        continueSession={handleContinueSession}
+                        quitSession={handleQuitConfirm}
+                        continueAlone={handleContinueSessionAlone}
+                        isSoloSession={isSoloSession}/>
+                )}
             </div>
-            {/* Conditionally render popups */}
-            {showQuitPopup && (
-                <QuitConfirmationPopup 
-                    confirmQuit={handleQuitConfirm} 
-                    cancelQuit={handleQuitCancel} 
-                />
-            )}
-            {showPartnerQuitPopup && (
-                <PartnerQuitPopup 
-                    confirmQuit={handleQuitConfirm} 
-                    cancelQuit={() => setShowPartnerQuitPopup(false)} 
-                />
-            )}
-            {timeOver && (
-                <TimeUpPopup 
-                    continueSession={handleContinueSession}
-                    quitSession={handleQuitConfirm}
-                    continueAlone={handleContinueSessionAlone}
-                    isSoloSession={isSoloSession}/>
-            )}
+            <Snackbar
+                open={showSnackbar}
+                onClose={handleCloseSnackbar}
+                message="You're session starts now! Happy Coding!"
+                autoHideDuration={3000} // Auto-hide after 3 seconds
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                className="custom-snackbar"
+            />
         </div>
     );
 };

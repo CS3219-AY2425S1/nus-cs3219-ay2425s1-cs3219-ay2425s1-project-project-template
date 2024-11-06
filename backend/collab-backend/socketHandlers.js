@@ -25,6 +25,7 @@ function handleSocketEvents(io) {
             socket.roomId = roomId;
             socket.join(roomId);
             addUserToRoom(roomId, socket.username);
+            console.log(socket.username + ' joined room: ' + roomId);
 
             // Initialize chat history for this room if not already initialized
             if (!chatHistories.has(roomId)) {
@@ -67,16 +68,17 @@ function handleSocketEvents(io) {
                 const timeoutId = setTimeout(() => {
                     console.log(`${socket.username} left room ${socket.roomId} permanently`);
                     socket.to(socket.roomId).emit('user-left'); // Emit only to the specific room
-                    
-                    // Remove the user from the room and check if the room is now empty
+
+                    // Remove user from room and check if room is empty
                     const roomIsEmpty = removeUserFromRoom(socket.roomId, socket.username);
-
-                    // If the room is empty, clean up the room and chat history
-                    if (roomIsEmpty) {
-                        chatHistories.delete(socket.roomId); // Clear chat history for this room
-                    }
-
                     disconnectTimeouts.delete(socket.username);
+
+                    // If room is empty, clean up the room
+                    if (roomIsEmpty) {
+                        cleanupRoom(socket.roomId);
+                        chatHistories.delete(socket.roomId);
+                    }
+                    
                 }, 10000); // 10 seconds grace period
     
                 disconnectTimeouts.set(socket.username, timeoutId);
