@@ -1,24 +1,34 @@
 import React, { useState, useRef, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { Question } from "../question/questionModel";
-import exitIcon from '../../assets/ExitIcon.png';
+import exitIcon from "../../assets/ExitIcon.png";
 
 const socketUrl = "http://localhost:8081";
 
 interface ChatBoxProps {
   roomId: string | null;
   user: { username: string } | null;
-  onEndSession: (question: Question | null, currentCode: string) => Promise<void>;
+  onEndSession: (
+    question: Question | null,
+    currentCode: string
+  ) => Promise<void>;
   question: Question | null;
   currentCode: string;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question, currentCode }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({
+  roomId,
+  user,
+  onEndSession,
+  question,
+  currentCode,
+}) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(true);  // Start collapsed
-  const [isEndSessionExpanded, setIsEndSessionExpanded] = useState<boolean>(false);
-  const [otherUserName, setOtherUserName] = useState<string>("");  // New state for the other user's name
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(true); // Start collapsed
+  const [isEndSessionExpanded, setIsEndSessionExpanded] =
+    useState<boolean>(false);
+  const [otherUserName, setOtherUserName] = useState<string>(""); // New state for the other user's name
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -38,7 +48,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
         console.log("Joined room:", roomId);
       }
     });
-  
+
     // Listen for the `userJoined` event to update the other user's name
     socketRef.current.on("userJoined", (data: { username: string }) => {
       if (data.username !== user?.username) { // Ensure it's not the current user's name
@@ -50,17 +60,23 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
       console.log("Session Ended");
       onEndSession(questionRef.current, currentCodeRef.current); 
     });
-  
-    socketRef.current.on("receiveMessage", (data: { username: string; message: string }) => {
-      if (data.username !== user?.username) {
-        setMessages((prevMessages) => [...prevMessages, `${data.username}: ${data.message}`]);
-        setOtherUserName(data.username);
+
+    socketRef.current.on(
+      "receiveMessage",
+      (data: { username: string; message: string }) => {
+        if (data.username !== user?.username) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            `${data.username}: ${data.message}`,
+          ]);
+          setOtherUserName(data.username);
+        }
+        if (chatBoxRef.current) {
+          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }
       }
-      if (chatBoxRef.current) {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-      }
-    });
-  
+    );
+
     return () => {
       socketRef.current?.disconnect();
     };
@@ -80,7 +96,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
 
   const handleEndSessionClick = () => {
     if (isEndSessionExpanded) {
-      const confirmExit = window.confirm("Are you sure you want to end the session?");
+      const confirmExit = window.confirm(
+        "Are you sure you want to end the session?"
+      );
       if (confirmExit) {
         socketRef.current?.emit("endSession", roomId);
       }
@@ -93,17 +111,30 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
 
   const renderMessages = () => {
     if (isCollapsed && messages.length > 1) {
-      const latestUserMessage = messages.reverse().find(msg => msg.startsWith("You:"));
-      const latestOtherMessage = messages.reverse().find(msg => !msg.startsWith("You:"));
+      const latestUserMessage = messages
+        .reverse()
+        .find((msg) => msg.startsWith("You:"));
+      const latestOtherMessage = messages
+        .reverse()
+        .find((msg) => !msg.startsWith("You:"));
       return (
         <>
-          {latestOtherMessage && <div style={styles.receivedMessage}>{latestOtherMessage}</div>}
-          {latestUserMessage && <div style={styles.userMessage}>{latestUserMessage}</div>}
+          {latestOtherMessage && (
+            <div style={styles.receivedMessage}>{latestOtherMessage}</div>
+          )}
+          {latestUserMessage && (
+            <div style={styles.userMessage}>{latestUserMessage}</div>
+          )}
         </>
       );
     }
     return messages.map((msg, index) => (
-      <div key={index} style={msg.startsWith("You:") ? styles.userMessage : styles.receivedMessage}>
+      <div
+        key={index}
+        style={
+          msg.startsWith("You:") ? styles.userMessage : styles.receivedMessage
+        }
+      >
         {msg}
       </div>
     ));
@@ -113,14 +144,22 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
     <div style={styles.chatBoxContainer}>
       <div style={styles.buttonContainer}>
         <button style={styles.collapseButton} onClick={toggleCollapse}>
-        {isCollapsed ? "Click to chat" : "Collapse Chat"}
+          {isCollapsed ? "Click to chat" : "Collapse Chat"}
         </button>
         <button
-          style={isEndSessionExpanded ? styles.expandedEndButton : styles.shortEndButton}
+          style={
+            isEndSessionExpanded
+              ? styles.expandedEndButton
+              : styles.shortEndButton
+          }
           onClick={handleEndSessionClick}
-          onMouseLeave={() => setIsEndSessionExpanded(false)}  // Shrinks the button back when mouse leaves
+          onMouseLeave={() => setIsEndSessionExpanded(false)} // Shrinks the button back when mouse leaves
         >
-          {isEndSessionExpanded ? "End Session" : <img src={exitIcon} alt="Exit" style={styles.icon} />}
+          {isEndSessionExpanded ? (
+            "End Session"
+          ) : (
+            <img src={exitIcon} alt="Exit" style={styles.icon} />
+          )}
         </button>
       </div>
       <div ref={chatBoxRef} style={styles.messagesContainer}>
@@ -135,7 +174,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, user, onEndSession, question,
             placeholder="Type your message..."
             style={styles.input}
           />
-          <button onClick={sendMessage} style={styles.sendButton}>Send</button>
+          <button onClick={sendMessage} style={styles.sendButton}>
+            Send
+          </button>
         </div>
       )}
     </div>
@@ -169,7 +210,7 @@ const styles = {
     marginRight: "5px",
   },
   shortEndButton: {
-    width: "30px",  
+    width: "30px",
     borderRadius: "8px",
     border: "none",
     backgroundColor: "#FF5555",
@@ -178,11 +219,11 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "0",  
+    padding: "0",
   },
   expandedEndButton: {
     flex: 1,
-    padding: "5px 10px",  // Expanded padding for full button
+    padding: "5px 10px", // Expanded padding for full button
     borderRadius: "8px",
     border: "none",
     backgroundColor: "#FF5555",
