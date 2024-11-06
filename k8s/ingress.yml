@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fe-ingress
+  annotations: 
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls: 
+    - hosts:
+      - peerprep-interview.duckdns.org
+      secretName: peerprep-config
+  rules:
+    - host: peerprep-interview.duckdns.org
+      http:
+        paths: 
+        - path: /
+          pathType: Prefix
+          backend: 
+            service:
+              name: peerprep-fe
+              port:
+                number: 80
