@@ -101,7 +101,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
       if (userCount < previousUsersCount.current) {
         toast({
           title: 'User left the room',
-          description: 'Another user has left the room.',
+          description: 'The other user has left the room.',
           status: 'info',
           duration: 5000, // Infinite duration
           isClosable: true,
