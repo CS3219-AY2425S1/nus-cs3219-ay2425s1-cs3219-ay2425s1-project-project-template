@@ -8,6 +8,7 @@ import Login from "./pages/SignIn/login";
 import Home from "./home";
 import Signup from "./pages/SignUp/signup";
 import MatchingPage from "./pages/MatchingPage";
+import Chat from "../components/chat/ChatComponent";
 import { useEffect, useState } from "react";
 import CodeEditor from '../components/collab/CodeEditor';
 import RoomPage from "./pages/RoomPage";
@@ -37,6 +38,7 @@ function App() {
     setIsAuthenticated(authStatus);
     setUserIsAdmin(isAdminStatus);
   };
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -50,13 +52,14 @@ function App() {
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.message == "Token verified") {
+          if (data.message === "Token verified") {
             setIsAuthenticated(true);
             setUserIsAdmin(data.data.isAdmin);
             setUserData(data.data);
             if (data.data.mustUpdatePassword) {
               setIsChangePasswordModalOpen(true);
             }
+            setUserId(data.data.id);
           } else {
             localStorage.removeItem("token");
             setIsAuthenticated(false);
@@ -161,6 +164,7 @@ function App() {
           )}
 
 
+          <Route path="/chat" element={<Chat userId={userId || ""} />} />
         </Routes>
       </Box>
       {/* Render the Update Password Modal if required */}
