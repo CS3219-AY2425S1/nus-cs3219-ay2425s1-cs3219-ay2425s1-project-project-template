@@ -31,14 +31,16 @@ const fetchUsers = async () => {
         error.value = null;
 
         // Get a list of users
-        const { data, error: fetchError } = await useFetch(`/api/users`)
+        const response = await fetch(`/api/users`);
 
-        if (fetchError.value) {
-            throw new Error(fetchError.value.message);
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
         }
 
-        if (data.value && data.value.users) {
-            const listOfUsers = data.value.users;
+        const data = await response.json();
+
+        if (data && data.users) {
+            const listOfUsers = data.users;
 
             // Map through each user and add the admin status
             const usersWithAdminStatus = await Promise.all(
