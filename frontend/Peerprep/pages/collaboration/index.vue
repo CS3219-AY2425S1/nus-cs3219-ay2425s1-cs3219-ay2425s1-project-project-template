@@ -1,11 +1,13 @@
 <script setup>
 import { useCollaborationStore } from '~/stores/collaborationStore';
 import CodeEditor from '~/components/CodeEditor.vue';
+import AdviceBox from '~/components/collab/AdviceBox.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Chat from '~/components/chat/chat.vue';
 
 const collaborationStore = useCollaborationStore();
+const session_info = collaborationStore.getCollaborationInfo;
 const router = useRouter();
 
 const chatRef = ref(null); // Reference to the Chat component
@@ -62,6 +64,7 @@ const terminateCollaboration = () => {
       <h3 class="question-title">{{ question.title }}</h3>
       <p>{{ question.description }}</p>
     </div>
+    <AdviceBox v-if="question" :description="question.description" :uid="session_info.uid"/>
     <CodeEditor />
     <div style="margin-top: 8px; text-align: right;">
       <button class="red-button" @click="terminateCollaboration">
