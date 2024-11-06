@@ -31,8 +31,7 @@ const ChatBox = ({ socket, roomId, username }) => {
     const sendMessage = () => {
         if (message.trim()) {
             // Send message to the server
-            const formattedMessage = `${username}: ${message}`;
-            socket.emit("chat-message", formattedMessage);
+            socket.emit("chat-message", message);
             setMessage("");
         }
     };
@@ -44,14 +43,30 @@ const ChatBox = ({ socket, roomId, username }) => {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", borderLeft: "1px solid #ddd", padding: "10px" }}>
-            <div style={{ flex: 1, overflowY: "auto", padding: "10px" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", borderLeft: "1px solid #ddd"}}>
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px", display: "flex", flexDirection: "column" }}>
                 {messages.map((msg, index) => (
-                    <div key={index}>{msg}</div>
+                    <div
+                        key={index}
+                        style={{
+                            alignSelf: msg.username === username ? "flex-end" : "flex-start",
+                            wordWrap: "break-word",
+                            whiteSpace: "pre-wrap",
+                            textAlign: "left",
+                            marginBottom: "8px",
+                            padding: "10px",
+                            borderRadius: "8px",
+                            backgroundColor: msg.username === username ? "#DCF8C6" : "#f1f1f1",
+                            maxWidth: "80%",
+                            color: msg.username === username ? "#000" : "#333",
+                        }}
+                    >
+                        <strong>{msg.username}: </strong>{msg.content}
+                    </div>
                 ))}
                 <div ref={chatEndRef} />
             </div>
-            <div style={{ display: "flex", padding: "10px 0" }}>
+            <div style={{ display: "flex", padding: "10px" }}>
                 <input
                     type="text"
                     placeholder="Type a message..."
@@ -60,7 +75,7 @@ const ChatBox = ({ socket, roomId, username }) => {
                     onKeyPress={handleKeyPress}
                     style={{ flex: 1, padding: "10px", fontSize: "14px" }}
                 />
-                <button onClick={sendMessage} style={{ marginLeft: "10px", padding: "10px" }}>Send</button>
+                <button onClick={sendMessage} style={{ marginLeft: "10px", marginTop: "0px", alignItems: "center", padding: "10px" }}>Send</button>
             </div>
         </div>
     );

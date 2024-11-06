@@ -47,7 +47,10 @@ function handleSocketEvents(io) {
 
             if (!roomId || !username) return;
 
-            const message = messageContent;
+            const message = {
+                username: username,
+                content: messageContent
+            };
 
             // Save message in chat history
             chatHistories.get(roomId).push(message);
