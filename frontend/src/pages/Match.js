@@ -124,6 +124,8 @@ export const Match = () => {
         );
         //Record user's match partner
         sessionStorage.setItem("partner", data.match);
+        sessionStorage.setItem("match_topic", data.match_topic);
+        sessionStorage.setItem("match_difficulty", data.match_difficulty);
         completeMatching();
       });
 

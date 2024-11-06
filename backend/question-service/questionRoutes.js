@@ -43,6 +43,19 @@ router.get('/questions/:id', async (req, res) => {
     }
 });
 
+// GET endpoint to retrieve a question by category and complexity
+router.get('/questions/:category/:complexity', async (req, res) => {
+    try {
+        const question = await Question.findOne({ category: req.params.category, complexity: req.params.complexity });
+        if (!question) {
+            return res.status(404).send();
+        }
+        res.send(question);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 // PATCH endpoint to update a question by ID
 router.patch('/questions/:id', async (req, res) => {
     const updates = Object.keys(req.body);
