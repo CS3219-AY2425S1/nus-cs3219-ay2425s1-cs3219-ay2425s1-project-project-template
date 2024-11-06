@@ -1,17 +1,7 @@
 import { Button, Modal, MultiSelect, Stack, Title } from '@mantine/core';
 import { useState } from 'react';
 
-const difficulties = ['Easy', 'Medium', 'Hard'];
-const topics = [
-  'Strings',
-  'Algorithms',
-  'Bit Manipulation',
-  'Data Structures',
-  'Recursion',
-  'Databases',
-  'Arrays',
-  'Brainteaser',
-];
+import { difficulties } from '../../constants/Question';
 
 interface MatchingCriteriaModalProps {
   isMatchingCriteriaModalOpened: boolean;
@@ -26,6 +16,33 @@ function MatchingCriteriaModal({
 }: MatchingCriteriaModalProps) {
   const [difficultyFilter, setDifficultyFilter] = useState<string[]>([]);
   const [topicFilter, setTopicFilter] = useState<string[]>([]);
+  // const topics = useTopics();
+  const topics = [
+    'Array',
+    'Two Pointers',
+    'Sliding Window',
+    'Hash Table',
+    'Linked List',
+    'Doubly-Linked List',
+    'String',
+    'Math',
+    'Bit Manipulation',
+    'Recursion',
+    'Backtracking',
+    'Dynamic Programming',
+    'Greedy',
+    'Stack',
+    'Queue',
+    'Priority Queue',
+    'Graph',
+    'Matrix',
+    'Depth-First Search',
+    'Breadth-First Search',
+    'Topological Sort',
+    'Tree',
+    'Database',
+    'Brainteaser',
+  ];
 
   const handleFindMatchClick = () => {
     closeMatchingCriteriaModal();
