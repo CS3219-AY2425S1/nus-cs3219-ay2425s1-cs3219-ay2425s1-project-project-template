@@ -128,20 +128,24 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     email: ForgotPasswordInput,
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => {
-    forgotPassword(email)
-      .then((response) => {
-        setError(null);
-        console.log('Password reset email sent successfully:', response);
-      })
-      .catch((error) => {
-        setError(error);
-        notifications.show({
-          title: 'Error',
-          message: 'Failed to send email!',
-          color: 'red',
-          autoClose: 3000,
-        });
+    try {
+      await forgotPassword(email);
+      setError(null);
+      notifications.show({
+        title: 'Success',
+        message: 'Reset Password Email sent successfully!',
+        color: 'blue',
       });
+    } catch (error: any) {
+      setError(error);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to send email!',
+        color: 'red',
+        autoClose: 3000,
+      });
+      throw error;
+    }
   };
 
   const resetPasswordAction = async (

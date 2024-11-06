@@ -1,6 +1,5 @@
 import { Alert, Button, Modal, Stack, TextInput, Title } from '@mantine/core';
 import { isEmail, useForm } from '@mantine/form';
-import { Notifications, notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
 
@@ -18,6 +17,7 @@ function ForgotPasswordModal({
   const [forgotPasswordError, setForgotPasswordError] = useState<string | null>(
     null,
   );
+  const [loading, setLoading] = useState(false);
   const auth = useAuth();
 
   const form = useForm({
@@ -30,14 +30,16 @@ function ForgotPasswordModal({
     },
   });
 
-  const handleForgotPasswordClick = (values: typeof form.values) => {
-    auth.forgotPasswordAction(values, setForgotPasswordError);
-    notifications.show({
-      title: 'Success',
-      message: 'Reset Password Email sent successfully!',
-      color: 'blue',
-    });
-    closeForgotPasswordModal();
+  const handleForgotPasswordClick = async (values: typeof form.values) => {
+    setLoading(true);
+    try {
+      await auth.forgotPasswordAction(values, setForgotPasswordError);
+      handleCloseForgotPasswordModal();
+    } catch (error) {
+      console.error('Error! No email found!', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseForgotPasswordModal = () => {
@@ -48,7 +50,6 @@ function ForgotPasswordModal({
 
   return (
     <>
-      <Notifications position="top-right" zIndex={9000} autoClose={2000} />
       <Modal
         opened={isForgotPasswordModalOpened}
         onClose={handleCloseForgotPasswordModal}
@@ -67,6 +68,7 @@ function ForgotPasswordModal({
               {...form.getInputProps('email')}
               key={form.key('email')}
               placeholder="Email"
+              disabled={loading}
             />
             {forgotPasswordError && (
               <Alert
@@ -76,7 +78,9 @@ function ForgotPasswordModal({
                 icon={<IconAlertCircle />}
               />
             )}
-            <Button type="submit">Forgot Password</Button>
+            <Button type="submit" loading={loading}>
+              Forgot Password
+            </Button>
           </Stack>
         </form>
       </Modal>
