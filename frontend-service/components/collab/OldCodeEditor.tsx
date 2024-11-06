@@ -63,7 +63,7 @@ const OldCodeEditor: React.FC<OldCodeEditorProps> = ({ roomId, thisUserId }) => 
   };
 
   const handleLeaveRoom = () => {
-    navigate('/home');
+    navigate('/');
   };
 
   return (
