@@ -197,6 +197,7 @@ export function formatUserResponse(user) {
     username: user.username,
     email: user.email,
     isAdmin: user.isAdmin,
-    createdAt: user.createdAt
+    createdAt: user.createdAt,
+    matches: user.matches
   }
 }

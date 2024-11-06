@@ -1,0 +1,38 @@
+.container {
+  display: flex;
+  color: rgb(255, 78, 196);
+  flex-direction: column;
+}
+
+.header {
+  color: white;
+  font-size: 2rem;
+  width: 90%;
+  margin-top: 5vh;
+  font-weight: 600;
+}
+
+.inner-container {
+  margin-top: 3vh;
+  background-color: rgb(34, 36, 39);
+  opacity: 0.9;
+  border-radius: 6px;
+  width: 90%;
+}
+.details {
+  margin-top: 2vh;
+  margin-left: 1vw;
+}
+
+.field {
+  font-family: "Signika Negative", sans-serif;
+  font-weight: 600;
+}
+
+.value {
+  font-family: "Signika Negative", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 10px;
+  color: white;
+}

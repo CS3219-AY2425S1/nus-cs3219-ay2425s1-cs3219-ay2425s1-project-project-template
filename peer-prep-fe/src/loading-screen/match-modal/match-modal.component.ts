@@ -53,7 +53,6 @@ export class MatchModalComponent implements OnInit {
       this.queueName = params['queueName'];
     });
     await this.setMyUsername();
-    console.log('curr username', this.myUsername);
     this.userData = {difficulty: this.difficulty, topic: this.category, user_id: this.userId, username: this.myUsername};
     console.log('userData', this.userData);
     this.findMatch();

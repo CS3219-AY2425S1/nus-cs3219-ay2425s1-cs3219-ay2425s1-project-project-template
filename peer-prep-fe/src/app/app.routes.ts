@@ -15,11 +15,13 @@ import { adminGuard } from "./authService/admin.guard"
 import {CollaborativeEditorComponent} from "../code-editor/collaborative-editor/collaborative-editor.component";
 import {CollabPageComponent} from "../collab-page/collab-page.component";
 import {loginGuard} from "./authService/login.guard";
+import { ProfilePageComponent } from "./profile-page/profile-page.component"
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
   { path: "login", component: LoginComponent, canActivate: [loginGuard]},
   { path: "create-account", component: CreateAccountComponent },
+  { path: "profile", component: ProfilePageComponent, canActivate: [authGuard]},
   { path: "admin-controls", component: AdminComponent, canActivate: [adminGuard] },
   { path: "add-question", component: AddPageComponent },
   { path: "edit-question", component: EditPageComponent },
@@ -34,6 +36,5 @@ export const routes: Routes = [
       { path: "editor", component: CollaborativeEditorComponent }
     ]
   },
-
   { path: "code-editor", component: CollaborativeEditorComponent }
 ];
