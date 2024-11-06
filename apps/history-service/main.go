@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"history-service/databases"
 	"history-service/handlers"
+	"history-service/messagequeue"
+	"history-service/utils"
 	"log"
 	"net/http"
 	"os"
@@ -20,19 +23,19 @@ import (
 
 func main() {
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	utils.FailOnError(err, "Error loading .env file")
 
 	// Initialize Firestore client
 	ctx := context.Background()
 	client, err := initFirestore(ctx)
-	if err != nil {
-		log.Fatalf("Failed to initialize Firestore client: %v", err)
-	}
+	utils.FailOnError(err, "Failed to initialize Firestore client")
 	defer client.Close()
 
 	service := &handlers.Service{Client: client}
+
+	amqpChannel := messagequeue.InitRabbitMQServer()
+	defer amqpChannel.Close()
+	messagequeue.ConsumeSubmissionMessages(client, databases.CreateHistory)
 
 	r := initChiRouter(service)
 	initRestServer(r)

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"execution-service/handlers"
+	"execution-service/messagequeue"
+	"execution-service/utils"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,16 +23,15 @@ import (
 func main() {
 	// Load .env file
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	utils.FailOnError(err, "Error loading .env file")
+
+	amqpChannel := messagequeue.InitRabbitMQServer()
+	defer amqpChannel.Close()
 
 	// Initialize Firestore client
 	ctx := context.Background()
 	client, err := initFirestore(ctx)
-	if err != nil {
-		log.Fatalf("Failed to initialize Firestore client: %v", err)
-	}
+	utils.FailOnError(err, "Failed to initialize Firestore client")
 	defer client.Close()
 
 	service := &handlers.Service{Client: client}
@@ -107,7 +108,5 @@ func initRestServer(r *chi.Mux) {
 	// Start the server
 	log.Printf("Starting REST server on http://localhost:%s", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
-	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+	utils.FailOnError(err, "Failed to start REST server")
 }
