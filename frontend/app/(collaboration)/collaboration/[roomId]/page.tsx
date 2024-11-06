@@ -38,12 +38,7 @@ export default function Page() {
   const socket = useContext(SocketContext);
   const { user } = useUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const {
-    isOpen: isUserDisconnect,
-    onOpen: onUserDisconnectOpen,
-    onOpenChange: onUserDisconnectOpenChange,
-  } = useDisclosure();
-  const [otherUserDisconnect, setUserDisconnect] = useState<boolean>(false);
+  const [otherUserEnd, setOtherUserEnd] = useState<boolean>(false);
   const [otherUser, setOtherUser] = useState<string>("");
   const [question, setQuestion] = useState<Question>({
     title: "",
@@ -53,6 +48,16 @@ export default function Page() {
     examples: "",
     constraints: "",
   });
+
+  const { data: roomInfo, isPending: isQuestionPending } = useGetInfo(
+    roomId as string,
+  );
+
+  const {
+    data: isAuthorisedUser,
+    isPending: isAuthorisationPending,
+    isError,
+  } = useGetIsAuthorisedUser(roomId as string, user?.username as string);
 
   const { mutate: saveCode } = useSaveCode();
 
@@ -65,26 +70,26 @@ export default function Page() {
       { ...savedCode },
       {
         onSuccess: () => {
-          toast.success("Code saved successfully");
+          socket?.emit("user-end", roomId, user?.id);
           router.push("/match");
         },
         onError: (error) => {
           console.error("Error saving code:", error);
-          toast.error("Error saving code");
           router.push("/match");
         },
       },
     );
   };
 
-  const { data: roomInfo, isPending: isQuestionPending } =
-    useGetInfo(roomId as string);
+  const handleEndSession = (): void => {
+    socket?.off("other-user-end");
 
-  const {
-    data: isAuthorisedUser,
-    isPending: isAuthorisationPending,
-    isError,
-  } = useGetIsAuthorisedUser(roomId as string, user?.username as string);
+    saveCodeAndEndSession({
+      roomId: roomId as string,
+      code: code.current,
+      language: language.current,
+    });
+  };
 
   useEffect(() => {
     if (!isAuthorisationPending && !isAuthorisedUser?.authorised) {
@@ -92,13 +97,9 @@ export default function Page() {
     }
   }, [isAuthorisationPending, isAuthorisedUser, router]);
 
-  const handleEndSession = (): void => {
-    socket?.emit("user-agreed-end", roomId, user?.id);
-  };
-
   useEffect(() => {
-    if (!isQuestionPending) {
-      const matchedQuestion = roomInfo.question;
+    if (!isQuestionPending && roomInfo) {
+      const matchedQuestion = roomInfo?.question;
 
       if (roomInfo.userOne !== user?.username) {
         setOtherUser(roomInfo.userOne);
@@ -115,9 +116,9 @@ export default function Page() {
         constraints: matchedQuestion?.constraints || "",
       });
 
-      language.current = roomInfo["programming_language"][0];
+      language.current = roomInfo["programming_language"]?.[0] || "";
     }
-  }, [isQuestionPending, setQuestion]);
+  }, [isQuestionPending, roomInfo, user]);
 
   useEffect(() => {
     if (socket && roomId && user) {
@@ -130,52 +131,38 @@ export default function Page() {
             autoClose: 1000,
             hideProgressBar: false,
           });
+
+          setOtherUser(otherUser);
         }
-        setUserDisconnect(false);
-        setOtherUser(otherUser);
       });
 
       // Setup socket listeners
       const handleUserDisconnect = () => {
-        setUserDisconnect(true);
+        toast.info(
+          `User ${otherUser} disconnected, you can wait or exit the session.`,
+          {
+            position: "top-left",
+            autoClose: 2000,
+            hideProgressBar: false,
+          },
+        );
         setOtherUser("");
       };
 
-      const handleWaitingForOtherUserEnd = () => {
-        toast.info("Waiting for both users to click exit.", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-        });
-      };
-
-      const handleBothUsersAgreedEnd = () => {
-        saveCodeAndEndSession({
-          roomId: roomId as string,
-          code: code.current,
-          language: language.current,
-        }); // Call function to save code and redirect
-        router.push("/match");
+      const handleOtherUserEnd = () => {
+        setOtherUserEnd(true);
       };
 
       socket.on("user-disconnect", handleUserDisconnect);
-      socket.on("waiting-for-other-user-end", handleWaitingForOtherUserEnd);
-      socket.on("both-users-agreed-end", handleBothUsersAgreedEnd);
+      socket.on("other-user-end", handleOtherUserEnd);
 
       // Cleanup function to remove listeners on unmount or when dependencies change
       return () => {
         socket.off("user-disconnect", handleUserDisconnect);
-        socket.off("waiting-for-other-user-end", handleWaitingForOtherUserEnd);
-        socket.off("both-users-agreed-end", handleBothUsersAgreedEnd);
+        socket.off("other-user-end", handleOtherUserEnd);
       };
     }
   }, [socket, roomId, user]);
-
-  useEffect(() => {
-    if (otherUserDisconnect) {
-      onUserDisconnectOpen();
-    }
-  }, [otherUserDisconnect, onUserDisconnectOpen]);
 
   const isAvatarActive = (otherUser: string) => {
     return otherUser ? "success" : "default";
@@ -198,7 +185,7 @@ export default function Page() {
             {/* Editor Section */}
             <div className="flex-[2_2_0%] p-2 border-r border-gray-700">
               <CodeEditor
-                language={roomInfo["programming_language"][0] || "javaScript"}
+                language={language.current || "javaScript"}
                 roomId={roomId as string}
                 setOutput={setOutput}
                 userEmail={user?.email || "unknown user"}
@@ -261,7 +248,6 @@ export default function Page() {
                       color="primary"
                       onPress={() => {
                         handleEndSession();
-                        onClose();
                       }}
                     >
                       Yes, Exit
@@ -273,29 +259,28 @@ export default function Page() {
           </Modal>
 
           <Modal
-            isOpen={isUserDisconnect}
-            onOpenChange={onUserDisconnectOpenChange}
+            hideCloseButton={true}
+            isDismissable={false}
+            isOpen={otherUserEnd}
           >
             <ModalContent>
-              {(onClose) => (
+              {() => (
                 <>
                   <ModalHeader className="flex flex-col gap-1">
-                    Other user disconnected
+                    The other user exited the session.
                   </ModalHeader>
                   <ModalBody>
-                    <p>
-                      The other user disconnected, you can wait or exit the
-                      session.
-                    </p>
+                    <p>The session ended and this room is no longer open.</p>
                   </ModalBody>
                   <ModalFooter>
                     <Button
                       color="primary"
                       onPress={() => {
-                        onClose();
+                        handleEndSession();
+                        router.push("/match");
                       }}
                     >
-                      Okay
+                      Back to match
                     </Button>
                   </ModalFooter>
                 </>
