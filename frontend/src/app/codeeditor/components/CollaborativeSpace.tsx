@@ -11,14 +11,8 @@ import Editor from '@monaco-editor/react'
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-
-interface CollaborativeSpaceProps {
-  initialCode?: string;
-  language?: string;
-  theme?: 'light' | 'vs-dark';
-  roomId: string;
-  userName: string;
-}
+import { CollaborativeSpaceProps } from '../models/types'
+import {DUMMY_QUESTION} from '../models/dummies'
 
 const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   initialCode = '',
@@ -26,12 +20,10 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   theme = 'light',
   roomId,
   userName,
+  question = DUMMY_QUESTION
 }) => {
   const ydoc = useMemo(() => new Y.Doc(), [])
-  const [editor, setEditor] = useState<any | null>(null)
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
-  const [binding, setBinding] = useState<MonacoBinding | null>(null);
-  const router = useRouter(); // For navigation
   const [codeValue, setCodeValue] = useState(initialCode); // To store code from editor
   const [output, setOutput] = useState(''); // To display output from running code
   const [hasRunCode, setHasRunCode] = useState(false);
@@ -58,11 +50,6 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   }
 
     // Function to handle exit room
-    const handleExitRoom = () => {
-      provider?.destroy();
-      ydoc?.destroy();
-      router.push('/explore');
-    };
   
     // Function to handle running code
     const handleRunCode = async () => {
@@ -96,17 +83,42 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     }
 
   return (
-    <div className='flex w-full h-full'>
+    <div className='flex w-full h-dvh'>
       <div className='flex-col w-2/5 p-4'>
         <div className='border rounded-xl h-full'>
-          <div>reverse a string</div>
-          <div>easy strings algorihtms</div>
-          <div>write a function that reverses stirng</div>
-          <div>test example 1:</div>
-          <div>bla bla</div>
-          <div>test example 2:</div>
-          <div>bla bla</div>
-          <div>any other info</div>
+          {/* Header Section */}
+        <div className="mb-4">
+          <div className="text-sm text-gray-600">You are coding with:</div>
+          <div className="text-xl font-semibold text-gray-800">{language}</div>
+        </div>
+
+        {/* Question Title and Difficulty */}
+        <div className="mb-4">
+          <h4 className="text-2xl font-bold text-gray-900 mb-2">
+            Question {question.questionId}: {question.title}
+          </h4>
+          <div>Difficulty: {question.difficulty}</div>
+        </div>
+
+        {/* Categories */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2">
+            {question.categories.map((category, index) => (
+              <span
+                key={index}
+                className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium"
+              >
+                {category}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="text-gray-700 mt-auto">
+          {question.description}
+        </div>
+          
         </div>
       </div>
       <div className='flex-col w-3/5'>

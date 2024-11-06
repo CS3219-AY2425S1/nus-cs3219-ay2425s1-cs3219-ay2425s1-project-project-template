@@ -3,7 +3,7 @@ export interface ITestCase {
     expected: any
 }
 
-interface Question {
+export interface Question {
     questionId: number
     title: string
     description: string
@@ -13,11 +13,11 @@ interface Question {
     testCases: ITestCase[]
 }
 
-interface Room {
+export interface CollaborativeSpaceProps {
+    initialCode?: string;
+    language?: string;
+    theme?: 'light' | 'vs-dark';
     roomId: string;
-    userIds: string[];
-    language: string;
+    userName: string;
     question: Question;
 }
-
-export { Room }

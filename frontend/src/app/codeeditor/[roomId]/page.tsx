@@ -4,15 +4,17 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/authContext';
 import CollaborativeCodingPage from '../components/CollaborativeSpace';
 import axios from 'axios';
+import { Question } from '../models/types'
 
 const CollabRoomPage = ({ params }: {
     params: {roomId:string}
 }) => {
-    const router = useRouter();
     const roomId = String(params.roomId);
     const { user, isAuthenticated } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [isValidRoom, setIsValidRoom] = useState(false);
+    const [collabQuestion, setCollabQuestion] = useState <Question | undefined> (undefined);
+    const [collabLanguage, setCollabLanguage] = useState <string | undefined> (undefined);
 
     useEffect(() => {
         const verifyRoom = async () => {
@@ -26,6 +28,8 @@ const CollabRoomPage = ({ params }: {
 
                 if (response.status === 200) {
                     setIsValidRoom(true);
+                    setCollabQuestion(response.data.question)
+                    setCollabLanguage(response.data.language)
                 }
             } catch (error: any) {
                 console.error('Error verifying room:', error.response?.data?.message || error.message);
@@ -46,14 +50,20 @@ const CollabRoomPage = ({ params }: {
         return <div>Oops! This room either does not exist or you are not authorized to access this room.</div>;
     }
 
+    if (!collabLanguage || !collabQuestion
+    ) {
+        return <div>Oops! Something seems to have gone wrong. Please reload or try finding another match.</div>;
+    }
+
     return (
         <div className='w-screen'>
             <CollaborativeCodingPage
                 initialCode='import math'
-                language="javascript"
+                language={collabLanguage}
                 theme="vs-dark"
                 roomId={roomId}
                 userName={String(user?.name)}
+                question={collabQuestion}
             />
             {/* DO NOT REMOVE THIS PLEASE */} <span className='opacity-0 select-none'>do not remove this {roomId}</span>     
         </div>

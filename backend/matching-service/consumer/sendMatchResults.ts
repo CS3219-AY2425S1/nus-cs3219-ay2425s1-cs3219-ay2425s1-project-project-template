@@ -30,12 +30,7 @@ const sendMatchResult = async (
                     hasAccepted: false,
                 },
             },
-            question: {
-                questionId: partner.questionId,
-                title: partner.title,
-                difficulty: partner.difficulty,
-                categories: partner.categories,
-            },
+            question: partner.question,
             language: partner.language,
         };
 

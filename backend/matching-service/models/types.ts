@@ -10,14 +10,27 @@ export interface TimedMatchRequest {
     timestamp: number
 }
 
+export interface ITestCase {
+    input: any,
+    expected: any
+}
+
+interface IQuestion {
+    questionId: number
+    title: string
+    description: string
+    categories: string[]
+    difficulty: string
+    imageUrl?: string
+    testCases: ITestCase[]
+}
+
+
 export interface MatchPartner {
     userId: string
     userName: string
-    questionId: number,
-    title: string,
-    difficulty: string
     language: string
-    categories: string[]
+    question: IQuestion
 }
 
 export interface MatchSession {
@@ -29,12 +42,7 @@ export interface MatchSession {
             hasAccepted: boolean;
         };
     };
-    question: {
-        questionId: number;
-        title: string;
-        difficulty: string;
-        categories: string[];
-    };
+    question: IQuestion;
     language: string;
 }
 

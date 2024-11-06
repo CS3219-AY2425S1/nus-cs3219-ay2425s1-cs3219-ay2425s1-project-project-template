@@ -1,17 +1,14 @@
 import { Request, Response } from 'express';
-import * as Y from 'yjs';
-import { Awareness } from 'y-protocols/awareness';
-import { WebSocket } from 'ws';
 import { createRoomId } from '../utils/utils';
 import { rooms } from '../server/rooms';
 import { Room } from '../models/types';
 import logger from '../utils/logger';
 
 const createRoom = async (req: Request, res: Response):Promise<any> => {
-    const { userId1, userId2, language } = req.body;
+    const { userId1, userId2, language, question } = req.body;
 
-    if (!userId1 || !userId2) {
-        return res.status(400).json({ message: 'User IDs are required' });
+    if (!userId1 || !userId2 || !language || !question) {
+        return res.status(400).json({ message: 'userId1, userId2, language, question are all required' });
     }
 
     const roomId = createRoomId(userId1, userId2);
@@ -21,17 +18,14 @@ const createRoom = async (req: Request, res: Response):Promise<any> => {
         return res.status(400).json({ message: 'Room already exists', roomId });
     }
 
-    const yDoc = new Y.Doc();
-    const awareness = new Awareness(yDoc);
-
     const newRoom: Room = {
         roomId,
         userIds: [userId1, userId2],
-        code: yDoc,
         language: language,
-        connectedClients: new Set<WebSocket>(),
-        awareness: awareness,
+        question: question
     };
+
+    logger.info(`New Room with question ${newRoom.question.title} created`)
 
     rooms.set(roomId, newRoom);
 

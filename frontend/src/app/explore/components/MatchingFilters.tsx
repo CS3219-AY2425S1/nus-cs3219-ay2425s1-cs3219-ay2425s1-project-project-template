@@ -117,7 +117,6 @@ const MatchingFilters = () => {
             // codespace logic
             const { roomId } = data;
             router.push(`/codeeditor/${roomId}`);
-            localStorage.setItem('language', data.language);
         });
 
         return () => {

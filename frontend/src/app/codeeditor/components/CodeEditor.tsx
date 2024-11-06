@@ -22,6 +22,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   theme = 'light',
 }) => {
   const [editor, setEditor] = useState<any | null>(null)
+  const [collabLanguage, setCollabLanguage] = useState<string | undefined>(language.toLowerCase())
   const [collabProvider, setProvider] = useState<WebsocketProvider | null>(provider);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
@@ -36,7 +37,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   }
 
   useEffect(() => {
-    if (collabProvider == null || editor == null) {
+    if (collabProvider == null || editor == null || collabLanguage == null) {
       return
     }
     const ytext = ydoc.getText('monaco');
@@ -46,7 +47,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     return () => {
       binding.destroy()
     }
-  }, [ydoc, collabProvider, editor])
+  }, [ydoc, collabProvider, editor, collabLanguage])
 
 
   // useEffect(() => {
@@ -77,7 +78,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       <Editor
         height="100%"
         width="100%"
-        defaultLanguage={localStorage.getItem('language')?.toLowerCase() || language}
+        defaultLanguage={collabLanguage}
         theme={theme}
         onMount={handleEditorDidMount}
         options={{

@@ -6,7 +6,7 @@ export const verifyRoom = (req: Request, res: Response): void => {
     const { roomId, userId } = req.body;
 
     if (!roomId || !userId) {
-        logger.info(`Room Validity Check: Insufficient information given.`)
+        logger.info(`Room Validity Check: Insufficient information given. userId: ${userId}, roomId: ${roomId}`)
         res.status(400).json({ message: 'roomId and userId are required' });
         return;
     }
@@ -26,5 +26,10 @@ export const verifyRoom = (req: Request, res: Response): void => {
     }
 
     logger.info(`Room Validity Check: Room and user are both valid and authorised.`)
-    res.status(200).json({ message: 'Room is valid', roomId });
+    res.status(200).json({ 
+        message: 'Room is valid', 
+        room_id: roomId,
+        language: room.language,
+        question: room.question 
+    });
 };
