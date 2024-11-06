@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeEditor from '../../components/collab/CodeEditor';
-import { Box, Button, Spinner, Text } from '@chakra-ui/react';
+import { Box, Spinner, Text } from '@chakra-ui/react';
+import { FIREBASE_DB } from '../../FirebaseConfig';
+import { ref, onValue } from 'firebase/database';
 
-const RoomPage: React.FC = () => {
+interface RoomPageProps {
+  userId: string;
+}
+
+const RoomPage: React.FC<RoomPageProps> = ({ userId }) => {
   const navigate = useNavigate();
-  const [userId] = useState(localStorage.getItem('userId') || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [roomStatus, setRoomStatus] = useState<'active' | 'inactive'>('inactive');
 
   // Function to handle joining the room
   const joinRoom = async () => {
@@ -46,6 +52,22 @@ const RoomPage: React.FC = () => {
     }
   };
 
+  // Listen for changes in the room's status in Firebase
+  useEffect(() => {
+    if (roomId) {
+      const statusRef = ref(FIREBASE_DB, `rooms/${roomId}/status`);
+      
+      const unsubscribe = onValue(statusRef, (snapshot) => {
+        const status = snapshot.val();
+        setRoomStatus(status === 'active' ? 'active' : 'inactive');
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [roomId]);
+
   useEffect(() => {
     // Automatically try to join room when component mounts
     if (userId) {
@@ -64,10 +86,10 @@ const RoomPage: React.FC = () => {
 
   return (
     <Box padding={4}>
-      {/* Display the room ID at the top */}
+      {/* Display the room ID and active status at the top */}
       {roomId && (
         <Text fontSize="sm" color="gray.500" mb={4}>
-          You are in Room ID: <strong>{roomId}</strong>
+          You are in Room ID: <strong>{roomId}</strong> - Status: <strong>{roomStatus.toUpperCase()}</strong>
         </Text>
       )}
 
@@ -75,7 +97,7 @@ const RoomPage: React.FC = () => {
       {error && <Text color="red.500" mb={4}>{error}</Text>}
 
       {/* Display the Code Editor if joined successfully */}
-      {roomId && <CodeEditor roomId={roomId} />}
+      {roomId && <CodeEditor roomId={roomId} thisUserId={userId} />}
 
     </Box>
   );

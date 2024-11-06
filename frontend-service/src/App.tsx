@@ -150,7 +150,7 @@ function App() {
             <>
               <Route path="/match-me" element={<MatchingPage />} />
               <Route path="/editor" element={<CodeEditor />} />
-              <Route path="/room" element={<RoomPage />} />
+              <Route path="/room" element={<RoomPage userId={userData?.id} />} />
               <Route path="/account" element={<AccountPage
                 username={userData ? userData.username : ''}
                 id={userData ? userData.id : ''}
