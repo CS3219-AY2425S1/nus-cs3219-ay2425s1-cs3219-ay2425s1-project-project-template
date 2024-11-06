@@ -7,6 +7,7 @@ import Question from '../../components/Question';
 import CodeEditor from './CodeEditor';
 import PartnerDisplay from '../../components/PartnerDisplay';
 import useHistoryUpdate from '../../hooks/useHistoryUpdate';
+import Chat from '../../components/Chat';
 
 import styles from './CollaborationPage.module.css';
 
@@ -158,6 +159,7 @@ const CollaborationPage = () => {
                 <p>Loading...</p>
             ) : (
                 <>
+                    
                     <div className={styles.editorContainer}>
                         <div className={styles.toolbar}>
                             <select value={language} onChange={handleLanguageChange}>
@@ -198,8 +200,10 @@ const CollaborationPage = () => {
                         <div className={styles.questionFooter}>
                             <PartnerDisplay partnerUsername={partnerUsername} isConnected={isConnected} />
                             <button onClick={handleLeave} className={styles.leaveRoomButton}>Leave Room</button>
+                            <Chat className={styles.Chat} roomId={roomId} />
                         </div>
                     </div>
+                    
                 </>
             )}
         </div>
