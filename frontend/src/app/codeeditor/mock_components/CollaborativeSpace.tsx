@@ -4,9 +4,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco'
-import CodeEditor from '@/app/codeeditor/components/CodeEditor';
-import Chat from '@/app/codeeditor/components/chat';
-import CodeOutput from '@/app/codeeditor/components/CodeOutput';
+import CodeEditor from '@/app/codeeditor/mock_components/CodeEditor';
+import Chat from '@/app/codeeditor/mock_components/chat';
+import CodeOutput from '@/app/codeeditor/mock_components/CodeOutput';
 import Editor from '@monaco-editor/react'
 import { useRouter } from 'next/navigation';
 import axios from "axios";
@@ -130,6 +130,38 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
         </div>
       </div>
     </div>
+
+
+
+
+
+
+
+
+    // <div className='flex flex-col h-screen w-full gap-2'>
+    //   <Button variant="destructive" className="flex justify-start ml-2 mt-4 w-fit" type="button" onClick={handleExitRoom}>Leave room</Button>
+    //   <div className="flex h-4/5 w-4/5 gap-4 pt-1 pl-1 mx-auto overflow-hidden">
+    //     <div className='w-3/5'>
+    //       <CodeEditor
+    //         ydoc={ydoc}
+    //         provider={provider}
+    //         initialCode={initialCode}
+    //         language={language}
+    //         theme={theme}
+    //       />
+    //     </div>
+    //     <div className='w-1/4'>
+    //       <Chat ydoc={ydoc} provider={provider} userName={userName} />
+    //     </div>
+    //   </div>
+    //   <div className='flex w-3/4 justify-end'>
+    //       <Button variant="secondary" type="button" onClick={handleRunCode}>Run Code</Button>
+    //       <Button variant="default" type="submit" onClick={handleSubmitCode}>Submit</Button>
+    //   </div>
+    //   {hasRunCode && <div>
+    //     the output that will be shown through testcases etc
+    //   </div>}
+    // </div>
   );
 };
 export default CollaborativeSpace;
