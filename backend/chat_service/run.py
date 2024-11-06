@@ -87,11 +87,6 @@ def get_history(conversation):
     return jsonify({"messages": messages})
 
 
-# load conversation lists
-# @app.route('/api/conversations', methods=['GET'])
-# def get_conversations():
-#     return jsonify({'conversations': conversations_data})
-
 
 # DB ver
 @socketio.on("chat message")
@@ -114,7 +109,7 @@ def handle_message(data):
     # Save the message to Firestore
     db.collection("messages").add(message_data)
 
-    if "stop" in message.lower():  # lower() to make sure stop in all cases
+    if "user has exited collaboration" in message.lower():  # lower() to make sure stop in all cases
         # update convo as stop
         session_ref = (
             db.collection("sessionlist").where("sessionName", "==", conversation).get()
@@ -123,7 +118,7 @@ def handle_message(data):
         if not session_ref:
             return jsonify({"error": "Session not found"}), 404
 
-        # update collection's flag
+        # update Firebase collection's flag
         for session in session_ref:
             session.reference.update({"flag": "stop"})  # flag now stopped here!
             updated_session = session.to_dict()
@@ -138,9 +133,4 @@ def handle_message(data):
 
 
 if __name__ == "__main__":
-    # import os
-    # if os.getenv('FLASK_ENV') == 'development':
     socketio.run(app, host="0.0.0.0", port=5002, allow_unsafe_werkzeug=True)
-    # else:
-    #     from waitress import serve
-    #     serve(app, host='0.0.0.0', port=5002)
