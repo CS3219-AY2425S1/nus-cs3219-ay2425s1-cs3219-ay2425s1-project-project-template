@@ -5,9 +5,6 @@ class Room {
         this.messages = []; // Initialize an empty array to store messages
     }
 
-    // updateMessages(message) {
-    //     this.messages.push(message); // Add a new message to the messages array
-    // }
 
     addMessage(content, senderUsername) {
         const message = {
