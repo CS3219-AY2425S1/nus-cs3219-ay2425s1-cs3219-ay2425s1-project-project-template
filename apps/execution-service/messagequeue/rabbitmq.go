@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const CODE_SUBMISSION_QUEUE_KEY = "code-submission"
+const (
+	CODE_SUBMISSION_QUEUE_KEY = "code-submission"
+	NUM_RETRIES               = 10
+)
 
 var (
 	codeSubmissionQueue amqp.Queue
 	rabbitMQChannel     *amqp.Channel
 )
 
-func InitRabbitMQServer() *amqp.Channel {
-	// Connect to RabbitMQ server
-	rabbitMQURL := os.Getenv("RABBITMQ_URL")
-	conn, err := amqp.Dial(rabbitMQURL)
-	utils.FailOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
+func InitRabbitMQServer() (*amqp.Connection, *amqp.Channel) {
+	conn := connectToRabbitMQ()
 
 	// Create a channel
 	ch, err := conn.Channel()
@@ -40,7 +40,24 @@ func InitRabbitMQServer() *amqp.Channel {
 	utils.FailOnError(err, "Failed to declare a queue")
 	codeSubmissionQueue = q
 
-	return ch
+	return conn, ch
+}
+
+func connectToRabbitMQ() *amqp.Connection {
+	var conn *amqp.Connection
+	var err error
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	for i := 0; i < NUM_RETRIES; i++ { // Retry up to 10 times
+		conn, err = amqp.Dial(rabbitMQURL)
+		if err == nil {
+			log.Println("Connected to RabbitMQ")
+			return conn
+		}
+		log.Printf("Failed to connect to RabbitMQ, retrying in 5 seconds... (Attempt %d/%d)", i+1, NUM_RETRIES)
+		time.Sleep(5 * time.Second)
+	}
+	utils.FailOnError(err, fmt.Sprintf("Failed to connect to RabbitMQ after %d attempts", NUM_RETRIES))
+	return nil
 }
 
 func PublishSubmissionMessage(submission []byte) error {

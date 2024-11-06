@@ -33,9 +33,10 @@ func main() {
 
 	service := &handlers.Service{Client: client}
 
-	amqpChannel := messagequeue.InitRabbitMQServer()
+	amqpConnection, amqpChannel := messagequeue.InitRabbitMQServer()
+	defer amqpConnection.Close()
 	defer amqpChannel.Close()
-	messagequeue.ConsumeSubmissionMessages(client, databases.CreateHistory)
+	go messagequeue.ConsumeSubmissionMessages(client, databases.CreateHistory)
 
 	r := initChiRouter(service)
 	initRestServer(r)

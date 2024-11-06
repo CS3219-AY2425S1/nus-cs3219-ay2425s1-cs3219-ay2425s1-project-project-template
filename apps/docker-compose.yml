@@ -68,6 +68,8 @@ services:
       - apps_network
     volumes:
       - ./history-service:/history-service
+    depends_on:
+      - rabbitmq
 
   signalling-service:
     build:
@@ -95,6 +97,8 @@ services:
     volumes:
       - ./execution-service:/execution-service
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - rabbitmq
 
   redis:
     image: redis:latest
@@ -104,7 +108,7 @@ services:
       - 6379:6379
     container_name: redis-container
 
-  rabbit-mq:
+  rabbitmq:
     image: rabbitmq:3-management
     networks:
       - apps_network

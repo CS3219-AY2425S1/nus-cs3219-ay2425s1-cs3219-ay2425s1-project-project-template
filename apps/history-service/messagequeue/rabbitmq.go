@@ -3,34 +3,34 @@ package messagequeue
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"history-service/models"
 	"history-service/utils"
 	"log"
 	"os"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const CODE_SUBMISSION_QUEUE_KEY = "code-submission"
+const (
+	CODE_SUBMISSION_QUEUE_KEY = "code-submission"
+	NUM_RETRIES               = 10
+)
 
 var (
 	codeSubmissionQueue amqp.Queue
 	rabbitMQChannel     *amqp.Channel
 )
 
-func InitRabbitMQServer() *amqp.Channel {
-	// Connect to RabbitMQ server
-	rabbitMQURL := os.Getenv("RABBITMQ_URL")
-	conn, err := amqp.Dial(rabbitMQURL)
-	utils.FailOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
+func InitRabbitMQServer() (*amqp.Connection, *amqp.Channel) {
+	conn := connectToRabbitMQ()
 
 	// Create a channel
 	ch, err := conn.Channel()
 	utils.FailOnError(err, "Failed to open a channel")
 	rabbitMQChannel = ch
-	defer ch.Close()
 
 	// Declare a queue
 	q, err := ch.QueueDeclare(
@@ -44,7 +44,24 @@ func InitRabbitMQServer() *amqp.Channel {
 	utils.FailOnError(err, "Failed to declare a queue")
 	codeSubmissionQueue = q
 
-	return ch
+	return conn, ch
+}
+
+func connectToRabbitMQ() *amqp.Connection {
+	var conn *amqp.Connection
+	var err error
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	for i := 0; i < NUM_RETRIES; i++ { // Retry up to 10 times
+		conn, err = amqp.Dial(rabbitMQURL)
+		if err == nil {
+			log.Println("Connected to RabbitMQ")
+			return conn
+		}
+		log.Printf("Failed to connect to RabbitMQ, retrying in 5 seconds... (Attempt %d/%d)", i+1, NUM_RETRIES)
+		time.Sleep(5 * time.Second)
+	}
+	utils.FailOnError(err, fmt.Sprintf("Failed to connect to RabbitMQ after %d attempts", NUM_RETRIES))
+	return nil
 }
 
 func ConsumeSubmissionMessages(client *firestore.Client, createSubmission func(
@@ -62,7 +79,7 @@ func ConsumeSubmissionMessages(client *firestore.Client, createSubmission func(
 		false,                    // no-wait
 		nil,                      // args
 	)
-	utils.FailOnError(err, "Failed to register a consumer")
+	utils.FailOnError(err, "RabbitMQ: Failed to register a consumer")
 
 	// Create a channel to block indefinitely
 	forever := make(chan bool)

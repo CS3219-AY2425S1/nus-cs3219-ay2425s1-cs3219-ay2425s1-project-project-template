@@ -25,9 +25,6 @@ func main() {
 	err := godotenv.Load()
 	utils.FailOnError(err, "Error loading .env file")
 
-	amqpChannel := messagequeue.InitRabbitMQServer()
-	defer amqpChannel.Close()
-
 	// Initialize Firestore client
 	ctx := context.Background()
 	client, err := initFirestore(ctx)
@@ -35,6 +32,10 @@ func main() {
 	defer client.Close()
 
 	service := &handlers.Service{Client: client}
+
+	amqpConnection, amqpChannel := messagequeue.InitRabbitMQServer()
+	defer amqpConnection.Close()
+	defer amqpChannel.Close()
 
 	r := initChiRouter(service)
 	initRestServer(r)
