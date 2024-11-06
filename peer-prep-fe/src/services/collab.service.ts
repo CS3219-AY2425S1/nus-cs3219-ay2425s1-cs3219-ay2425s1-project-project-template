@@ -10,7 +10,7 @@ import { baseUrlProduction } from "../../constants"
 })
 
 export class CollabService {
-    private baseUrl = this.isProduction() ? `${baseUrlProduction}/collab` : "http://localhost:8081/collab";
+    private baseUrl = this.isProduction() ? `${baseUrlProduction}/collab` : "http://localhost:4003/collab";
     isProduction(): boolean {
         return window.location.hostname !== "localhost";
     }
