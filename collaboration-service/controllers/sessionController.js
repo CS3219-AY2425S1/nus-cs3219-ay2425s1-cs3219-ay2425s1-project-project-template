@@ -80,6 +80,10 @@ const joinSession = (socket, io) => {
       socket.to(sessionId).emit('language-updated', newLanguage);
     });
 
+    socket.on('codex-output', (output) => {
+      socket.to(sessionId).emit('codex-output', output);
+    });
+
     // Notify other users in the session about the new user
     socket.to(sessionId).emit('user-joined', userId);
 
