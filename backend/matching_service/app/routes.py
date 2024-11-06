@@ -136,9 +136,6 @@ def delivery_report(err, msg):
         logger.info("Message delivered to {} [{}]".format(msg.topic(), msg.partition()))
 
 
-import requests
-
-
 def validate_user(token):
     try:
         res = requests.post(

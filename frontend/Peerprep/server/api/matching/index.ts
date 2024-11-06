@@ -13,12 +13,13 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error) {
-    console.error("Error during matching service request:", error);
+    let errorMessage = "Unknown error occurred";
 
+    if (error && typeof error === "object" && "response" in error) {
+      errorMessage = (error as any).response._data.error;
+    }
     return {
-      statusCode: 500,
-      message: "Internal Server Error",
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: errorMessage,
     };
   }
 });

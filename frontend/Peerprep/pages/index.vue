@@ -209,38 +209,29 @@ async function handleSubmit() {
     category: selectedCategory.value
   })
 
-  try {
-    const response: MatchResponse = await $fetch(`/api/matching`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: body
-    });
-    startMatchTimeout()
-    isProcessing.value = false
-  } catch (error: unknown) {
+  const response = await $fetch(`/api/matching`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: body
+  });
+  startMatchTimeout()
+  isProcessing.value = false
+  console.log('Match response:', response);
+  if (response && typeof response === "object" && 'error' in response && response.error) {
     isMatching.value = false;
     matchFound.value = false
     isProcessing.value = false
-    const fetchError = createError(error as Partial<Error> & { data?: { error?: string } });
-    if (fetchError?.data?.error) {
-      console.error("Error from server:", fetchError.data.error);
-      toast({
-        description: fetchError.data.error,
-        variant: 'destructive',
-      });
-    } else if (fetchError.message) {
-      console.error("An error occurred:", fetchError.message);
-      toast({
-        description: 'An error occurred while trying to find a match.',
-        variant: 'destructive',
-      });
-    } else {
-      console.error("An unknown error occurred:", error);
-    }
+    resetCountdown()
+    console.error("An error occurred:", response.error);
+    toast({
+      description: String(response.error),
+      variant: 'destructive',
+    });
   }
+
 }
 
 function startMatchTimeout() {
