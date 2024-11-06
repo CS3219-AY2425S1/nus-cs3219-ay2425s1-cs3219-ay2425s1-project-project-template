@@ -109,25 +109,32 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
 
   useEffect(() => {
     const unsubscribe = onValue(codeRef, (snapshot) => {
-      const updatedCode = snapshot.val();
-      setCode(updatedCode?.[codeLanguage] || languageType[codeLanguage]);
-    });
-
+      const updatedCode = snapshot.val()
+      if (updatedCode !== null && updatedCode !== code) {
+        setCode(updatedCode)
+        if (updatedCode !== null && updatedCode[codeLanguage]) {
+          setCode(updatedCode[codeLanguage])
+        } else {
+          setCode(languageType[codeLanguage]) // Set to default if no snippet is saved
+        }
+      }
+    })
     const unsubscribeLanguage = onValue(languageRef, (snapshot) => {
-      const savedLanguage = snapshot.val();
-      if (savedLanguage) setCodeLanguage(savedLanguage);
-    });
-
+      const savedLanguage = snapshot.val()
+      if (savedLanguage) {
+        setCodeLanguage(savedLanguage)
+      }
+    })
     return () => {
-      unsubscribe();
-      unsubscribeLanguage();
-    };
-  }, [codeLanguage]);
+      unsubscribe()
+      unsubscribeLanguage()
+    }
+  }, [code, codeLanguage])
 
   useEffect(() => {
     const unsubscribe = onValue(usersRef, (snapshot) => {
       const users = snapshot.val();
-      
+
       // Count only users with a true status, excluding the current user
       const activeUsers = users
         ? Object.entries(users).filter(([userId, status]) => status === true && userId !== thisUserId)
@@ -180,7 +187,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
 
       setLeaveRoomMessage(response.data.message || "You have left the room.");
       await fetchWithAuth("http://localhost:3002/reset-status", { method: "POST" });
-      
+
       setIsRedirecting(true); // Show redirecting modal
 
       setTimeout(() => {
@@ -203,15 +210,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   };
 
   const handleLanguageChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedLanguage = event.target.value;
-    await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), code);
-    await set(languageRef, selectedLanguage);
-    setCodeLanguage(selectedLanguage);
+    const selectedLanguage = event.target.value
+    await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), code)
+    await set(languageRef, selectedLanguage)
+    setCodeLanguage(selectedLanguage)
 
-    const codeSnippetsSnapshot = await get(codeRef);
-    const codeSnippets = codeSnippetsSnapshot.val();
-    setCode(codeSnippets?.[selectedLanguage] || languageType[selectedLanguage]);
-    await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${selectedLanguage}`), languageType[selectedLanguage]);
+    const codeSnippetsSnapshot = await get(codeRef)
+    const codeSnippets = codeSnippetsSnapshot.val()
+    if (codeSnippets && codeSnippets[selectedLanguage]) {
+      setCode(codeSnippets[selectedLanguage])
+    } else {
+      // If no code snippet exists for this language, use default
+      const defaultCode = languageType[selectedLanguage] || '// Start writing your code here...'
+      setCode(defaultCode)
+      // Save the default code snippet to Firebase
+      await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${selectedLanguage}`), defaultCode)
+    }
 
     if (monacoEditorRef.current) {
       const model = monacoEditorRef.current.getModel();
@@ -304,10 +318,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
         </AlertDialog>
 
         {/* Redirecting Modal */}
-        <AlertDialog 
-          isOpen={isRedirecting} 
-          leastDestructiveRef={cancelRef} 
-          closeOnOverlayClick={false} 
+        <AlertDialog
+          isOpen={isRedirecting}
+          leastDestructiveRef={cancelRef}
+          closeOnOverlayClick={false}
           onClose={() => setIsRedirecting(false)}
         >
           <AlertDialogOverlay>
