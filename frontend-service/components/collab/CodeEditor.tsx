@@ -46,6 +46,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
 
   const toast = useToast(); // Initialize Chakra UI toast
   const previousUsersCount = useRef<number>(0);
+  const [assignedQuestionId, setAssignedQuestionId] = useState<number | null>(null)
 
   const usersRef = ref(FIREBASE_DB, `rooms/${roomId}/users`);
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`);
@@ -54,6 +55,42 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   const cancelRef = useRef(null);
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const navigate = useNavigate();
+
+  // create a use effect for fetching of question id assigned to users in the room
+  useEffect(() => {
+    const fetchRoomData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/room/data', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        const assignedQuestionId = response.data.selectedQuestionId;
+        console.log("Fetched room data:", response.data);
+        console.log("Selected Question ID from room data:", assignedQuestionId);
+
+        if (assignedQuestionId) {
+          setAssignedQuestionId(assignedQuestionId);
+          fetchAssignedQn(assignedQuestionId);
+        } else {
+          console.error("No selectedQuestionId found in room data");
+        }
+      } catch (error) {
+        console.error("Failed to fetch room data:", error);
+      }
+    };
+
+    const fetchAssignedQn = async (questionId: number) => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/questions/${questionId}`)
+        console.log("Fetched question details:", response.data)
+        setQuestion(response.data)
+      } catch (error) {
+        console.error("Failed to fetch question details:", error)
+      }
+    }
+
+    fetchRoomData();
+  }, [roomId]);
 
   useEffect(() => {
     const setupSyntaxHighlighting = async () => {
@@ -165,15 +202,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
     set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), defaultCode);
   };
 
-  const handleSelectQuestion = async (questionId: string) => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/questions/${questionId}`);
-      setQuestion(response.data);
-    } catch (error) {
-      console.error("Failed to fetch question details:", error);
-    }
-  };
-
   const handleLanguageChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedLanguage = event.target.value;
     await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), code);
@@ -200,9 +228,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   return (
     <Box display="flex" height="100vh">
       <Box width="500px" flexShrink={0} borderRight="1px solid #e2e8f0">
-        <QuestionSideBar onSelectQuestion={handleSelectQuestion} />
+        {/* display question details of assigned question */}
+        {assignedQuestionId ? (
+          <QuestionSideBar assignedQuestionId={assignedQuestionId.toString()} userId={thisUserId} roomId={roomId} />
+        ) : (
+          <Text color="red.500">Loading question...</Text>
+        )}
       </Box>
-      <Box flex="1" maxWidth="900px" margin="auto" mt={4} p={4} borderRadius="8px" border="1px solid #e2e8f0" bg="gray.50">
+      <Box
+        flex="1"
+        maxWidth="900px"
+        margin="auto"
+        mt={4}
+        p={4}
+        borderRadius="8px"
+        border="1px solid #e2e8f0"
+        bg="gray.50"
+      >
+
+        {/*
         {question && (
           <Box mb={4} p={4} bg="white" borderRadius="md" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold">{question.title}</Text>
@@ -211,6 +255,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
             <Text mt={2}>{question.description}</Text>
           </Box>
         )}
+          */}
 
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={3} p={2} borderBottom="1px solid #e2e8f0">
           <Text fontSize="lg" fontWeight="bold" color="gray.700">Code Editor</Text>
