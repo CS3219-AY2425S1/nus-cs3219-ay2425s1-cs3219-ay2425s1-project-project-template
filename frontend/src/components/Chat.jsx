@@ -65,7 +65,7 @@ function Chat({ roomId }) {
         <div>
             {!isOpen && (
                 <button className={styles.chatButton} onClick={togglePopup}>
-                    Open Chat
+                    💬
                 </button>
             )}
 
