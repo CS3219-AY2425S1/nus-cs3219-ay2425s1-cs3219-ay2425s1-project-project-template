@@ -26,6 +26,7 @@ import {
   useSaveCode,
 } from "@/hooks/api/collaboration";
 import { SaveCodeVariables } from "@/utils/collaboration";
+import Cookies from "js-cookie";
 
 export default function Page() {
   const [output, setOutput] = useState("Your output will appear here...");
@@ -112,8 +113,36 @@ export default function Page() {
   }, [isQuestionPending, setQuestion]);
 
   useEffect(() => {
+    const handleBeforeUnload = () => {
+      const peerID = Cookies.get("peerID");
+      if (peerID) {
+        fetch(`http://localhost:8085/leave/${roomId}?peerID=${peerID}`, {
+          method: "POST",
+        }).catch((err) => console.error("Error leaving room:", err));
+      }
+    };
+  
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [roomId]);
+  
+  useEffect(() => {
     if (socket && roomId && user) {
-      socket.emit("join-room", roomId, user?.username);
+      // Check for existing peerID in localStorage for reconnection
+      const storedPeerID = localStorage.getItem("peerID");
+
+      if (storedPeerID) {
+        // Attempt reconnection 
+        socket.emit("join-room", roomId, user.username, storedPeerID);
+      } else {
+        // Join as a new connection
+        socket.emit("join-room", roomId, user.username);
+
+        // Store peerID received from server after initial join
+        socket.on("joined-room", (peerID) => {
+          localStorage.setItem("peerID", peerID);
+        });
+      }
 
       socket.on("user-join", (otherUser) => {
         if (otherUser !== user?.username) {

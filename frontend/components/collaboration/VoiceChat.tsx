@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Peer, { MediaConnection } from "peerjs";
 import { useParams } from "next/navigation";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
+import Cookies from "js-cookie";
 
 interface VoiceChatProps {
   className?: string;
 }
+
 export default function VoiceChat({
   className: cardClassName,
 }: VoiceChatProps) {
@@ -21,21 +23,29 @@ export default function VoiceChat({
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    const storedPeerID = Cookies.get("peerID");
     if (roomID) {
       console.log("Fetching peer IDs for room:", roomID);
-      fetch(`http://localhost:8085/join/${roomID}`)
+
+      fetch(`http://localhost:8085/join/${roomID}?peerID=${storedPeerID || ""}`)
         .then((response) => response.json())
         .then((data) => {
           setPeerID(data.peerID);
           setConnectionPeerID(data.connectionPeerID || "");
           console.log("Received peer IDs:", data);
+
+          // Update the cookie with the new peerID if it's not already stored
+          if (data.peerID !== storedPeerID) {
+            Cookies.set("peerID", data.peerID, { expires: 1 });
+            console.log("peerID saved to cookie:", Cookies.get("peerID"));
+          }
         })
         .catch((err) => console.error("Error fetching peer IDs:", err));
     }
   }, [roomID]);
 
   useEffect(() => {
-    // Only initialize if there's no existing peer
+    // Only initialize PeerJS if peerID exists and peer is not set
     if (peerID && !peer) {
       console.log("Initializing PeerJS instance with peerID:", peerID);
       const peerInstance = new Peer(peerID, {
@@ -69,7 +79,17 @@ export default function VoiceChat({
         console.error("PeerJS error:", err);
       });
 
-      // Cleanup on component unmount or peerID change
+      // Reconnect on disconnection
+      peerInstance.on("disconnected", () => {
+        console.log("Peer disconnected, attempting to reconnect...");
+        peerInstance.reconnect();
+      });
+
+      peerInstance.on("close", () => {
+        console.log("Peer connection closed");
+      });
+
+      // Cleanup on component unmount
       return () => {
         console.log("Destroying PeerJS instance");
         peerInstance.destroy();

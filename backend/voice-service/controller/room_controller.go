@@ -1,71 +1,130 @@
 package controller
 
 import (
-    "log"
-    "math/rand"
-    "net/http"
-    "sync"
-    "time"
+	"log"
+	"math/rand"
+	"net/http"
+	"sync"
+	"time"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
+// Room represents a voice chat room with two peers
 type Room struct {
-    Peer1ID string
-    Peer2ID string
+	Peer1ID string
+	Peer2ID string
 }
 
 var (
-    rooms      = make(map[string]*Room)
-    roomsMutex = sync.Mutex{}
+	rooms      = make(map[string]*Room)
+	roomsMutex = sync.Mutex{}
 )
 
-// JoinRoom handles the request to join a room, generating a unique peer ID
-// and returning the connection peer ID if available.
+// JoinRoom handles requests to join or reconnect to a room.
 func JoinRoom(c *gin.Context) {
-    roomID := c.Param("roomID")
-    peerID := generatePeerID()
-    log.Println("RoomID:", roomID)
+	roomID := c.Param("roomID")
+	providedPeerID := c.Query("peerID") // Get the peerID from the query parameter for reconnection
+	log.Printf("Attempting to join RoomID: %s with Provided PeerID: %s", roomID, providedPeerID)
 
-    roomsMutex.Lock()
-    defer roomsMutex.Unlock()
+	roomsMutex.Lock()
+	defer roomsMutex.Unlock()
 
-    // Create or update room with peer IDs
-    if rooms[roomID] == nil {
-        rooms[roomID] = &Room{Peer1ID: peerID}
-        log.Println("Assigned Peer1ID:", peerID)
-    } else if rooms[roomID].Peer1ID != "" && rooms[roomID].Peer2ID == "" && rooms[roomID].Peer1ID != peerID {
-        rooms[roomID].Peer2ID = peerID
-        log.Println("Assigned Peer2ID:", peerID)
-    } else {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Room is full"})
-        return
-    }
+	// Ensure room entry exists in the map
+	if rooms[roomID] == nil {
+		rooms[roomID] = &Room{}
+		log.Printf("Created new room for RoomID: %s", roomID)
+	}
+	room := rooms[roomID]
 
-    // Determine the connection peer ID
-    connectionPeerID := ""
-    if rooms[roomID].Peer1ID != "" && rooms[roomID].Peer2ID != "" {
-        if rooms[roomID].Peer1ID == peerID {
-            connectionPeerID = rooms[roomID].Peer2ID
-        } else {
-            connectionPeerID = rooms[roomID].Peer1ID
-        }
-    }
+	// Reconnection logic: Check if providedPeerID matches an existing peer in the room
+	if providedPeerID != "" {
+		if providedPeerID == room.Peer1ID || providedPeerID == room.Peer2ID {
+			log.Printf("Reconnecting with existing PeerID: %s", providedPeerID)
+			c.JSON(http.StatusOK, gin.H{
+				"peerID":           providedPeerID,
+				"connectionPeerID": getConnectionPeerID(room, providedPeerID),
+			})
+			return
+		} else {
+			log.Printf("Provided PeerID: %s does not match any existing PeerID in RoomID: %s", providedPeerID, roomID)
+		}
+	}
 
-    c.JSON(http.StatusOK, gin.H{
-        "peerID":           peerID,
-        "connectionPeerID": connectionPeerID,
-    })
+	// If it's a new join (no valid providedPeerID for reconnection), generate a new peerID
+	newPeerID := generatePeerID()
+	if room.Peer1ID == "" {
+		room.Peer1ID = newPeerID
+		log.Printf("Assigned new Peer1ID: %s for RoomID: %s", room.Peer1ID, roomID)
+		c.JSON(http.StatusOK, gin.H{
+			"peerID":           room.Peer1ID,
+			"connectionPeerID": room.Peer2ID,
+		})
+		return
+	} else if room.Peer2ID == "" {
+		room.Peer2ID = newPeerID
+		log.Printf("Assigned new Peer2ID: %s for RoomID: %s", room.Peer2ID, roomID)
+		c.JSON(http.StatusOK, gin.H{
+			"peerID":           room.Peer2ID,
+			"connectionPeerID": room.Peer1ID,
+		})
+		return
+	}
+
+	// Room is full, and reconnection failed
+	log.Printf("Room %s is full and reconnection failed. Provided PeerID: %s", roomID, providedPeerID)
+	c.JSON(http.StatusBadRequest, gin.H{"error": "Room is full and no reconnection match found"})
 }
 
-// generatePeerID creates a random unique peer ID
+// getConnectionPeerID returns the connection peer ID for the other peer in the room.
+func getConnectionPeerID(room *Room, peerID string) string {
+	if room.Peer1ID == peerID {
+		return room.Peer2ID
+	} else if room.Peer2ID == peerID {
+		return room.Peer1ID
+	}
+	return ""
+}
+
+// generatePeerID creates a random unique peer ID with a prefix
 func generatePeerID() string {
-    rand.Seed(time.Now().UnixNano())
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    length := 10
-    result := make([]byte, length)
-    for i := range result {
-        result[i] = charset[rand.Intn(len(charset))]
-    }
-    return "peer-" + string(result)
+	rand.Seed(time.Now().UnixNano())
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	length := 10
+	result := make([]byte, length)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+	return "peer-" + string(result)
+}
+
+func LeaveRoom(c *gin.Context) {
+	roomID := c.Param("roomID")
+	peerID := c.Query("peerID") // Get the peerID to be removed
+	log.Println("RoomID:", roomID, "PeerID to be removed:", peerID)
+
+	roomsMutex.Lock()
+	defer roomsMutex.Unlock()
+
+	// Find the room and remove the peerID
+	room, exists := rooms[roomID]
+	if !exists {
+		log.Println("Room does not exist:", roomID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Room does not exist"})
+		return
+	}
+
+	if room.Peer1ID == peerID {
+		room.Peer1ID = ""
+		log.Println("Removed Peer1ID:", peerID)
+	} else if room.Peer2ID == peerID {
+		room.Peer2ID = ""
+		log.Println("Removed Peer2ID:", peerID)
+	} else {
+		log.Println("PeerID not found in room:", peerID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "PeerID not found in room"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "PeerID removed successfully"})
 }
