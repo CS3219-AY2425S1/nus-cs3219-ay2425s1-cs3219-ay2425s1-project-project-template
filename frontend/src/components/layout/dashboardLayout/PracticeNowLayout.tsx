@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
 import { checkSession } from '../../../apis/CollaborationApi';
+// import { useTopics } from '../../../constants/Question';
 import { useAuth } from '../../../hooks/AuthProvider';
 import { SessionResponse } from '../../../types/Collaboration';
 import HelpModal from '../../modal/HelpModal';
@@ -40,6 +41,7 @@ function PracticeLayout() {
 
   const auth = useAuth();
   const navigate = useNavigate();
+  // const topics = useTopics();
 
   const handleTimeout = () => {
     if (!hasTimedOut.current) {
@@ -52,6 +54,7 @@ function PracticeLayout() {
         title: 'Matching Timeout',
         message: 'We could not find a partner for you. Please try again later.',
         color: 'red',
+        autoClose: 3000,
       });
       closeMatchingModal();
     }
@@ -103,6 +106,7 @@ function PracticeLayout() {
         title: 'Match found!',
         message: 'Creating a practice room...',
         color: 'green',
+        autoClose: 3000,
       });
       handleCancelMatching();
       navigate('/room', { state: session });
@@ -142,6 +146,7 @@ function PracticeLayout() {
         title: 'Success',
         message: 'Rejoining existing room.',
         color: 'green',
+        autoClose: 3000,
       });
       navigate('/room', { state: existingSession });
     }
@@ -176,11 +181,13 @@ function PracticeLayout() {
         isHelpModalOpened={isHelpModalOpened}
         closeHelpModal={closeHelpModal}
       />
+      {/* {topics && topics.length > 0 && ( */}
       <MatchingCriteriaModal
         isMatchingCriteriaModalOpened={isMatchingCriteriaModalOpen}
         closeMatchingCriteriaModal={closeMatchingCriteriaModal}
         findMatch={findMatch}
       />
+      {/* )} */}
       <MatchingModal
         isMatchingModalOpened={isMatchingModalOpen}
         closeMatchingModal={handleCancelMatching}

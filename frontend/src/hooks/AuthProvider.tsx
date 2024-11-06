@@ -1,3 +1,4 @@
+import { notifications } from '@mantine/notifications';
 import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,6 +39,7 @@ type AuthContextProps = {
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => Promise<void>;
   resetPasswordAction: (
+    token: string,
     password: ResetPasswordInput,
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => Promise<void>;
@@ -110,6 +112,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .then((response) => {
         setError(null);
         console.log('Profile updated successfully:', response);
+        notifications.show({
+          title: 'Profile Updated!',
+          message: 'Profile updated successfully!',
+          color: 'green',
+          autoClose: 3000,
+        });
       })
       .catch((error: any) => {
         setError(error);
@@ -127,20 +135,34 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       })
       .catch((error) => {
         setError(error);
+        notifications.show({
+          title: 'Error',
+          message: 'Failed to send email!',
+          color: 'red',
+          autoClose: 3000,
+        });
       });
   };
 
   const resetPasswordAction = async (
+    token: string,
     password: ResetPasswordInput,
     setError: React.Dispatch<React.SetStateAction<string | null>>,
   ) => {
-    resetPassword(password)
+    resetPassword(token, password)
       .then((response) => {
         setError(null);
         console.log('Password reset successfully:', response);
+        navigate('/');
       })
       .catch((error) => {
         setError(error);
+        notifications.show({
+          title: 'Error',
+          message: 'Failed to reset password! Try again!',
+          color: 'red',
+          autoClose: 3000,
+        });
       });
   };
 

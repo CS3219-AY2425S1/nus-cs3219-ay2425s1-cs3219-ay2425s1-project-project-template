@@ -1,6 +1,7 @@
+import { Button, Modal, PasswordInput, Text, TextInput } from '@mantine/core';
 import { useState } from 'react';
-import { Modal, TextInput, Button, Text } from '@mantine/core';
-import { useAuth } from '../../hooks/AuthProvider'; 
+
+import { useAuth } from '../../hooks/AuthProvider';
 
 interface EditProfileModalProps {
   isEditProfileModalOpen: boolean;
@@ -18,28 +19,31 @@ function EditProfileModal({
   const [editProfileError, setEditProfileError] = useState<string | null>(null);
 
   const auth = useAuth();
-  
+
   const handleSaveChanges = async () => {
     try {
-      const updatedProfileData = { username, password }; 
+      const updatedProfileData = { username, password };
       await auth.updateProfileAction(updatedProfileData, setEditProfileError);
       setEditProfileError(null);
-      closeEditProfileModal(); 
+      closeEditProfileModal();
     } catch (error) {
       console.error('Error saving profile changes:', error);
     }
   };
 
   return (
-    <Modal opened={isEditProfileModalOpen} onClose={closeEditProfileModal} title="Edit Profile">
+    <Modal
+      opened={isEditProfileModalOpen}
+      onClose={closeEditProfileModal}
+      title="Edit Profile"
+    >
       <TextInput
         label="New Username"
-        value={username}
+        placeholder="Leave empty to keep the same"
         onChange={(event) => setUsername(event.currentTarget.value)}
       />
-      <TextInput
+      <PasswordInput
         label="New Password"
-        type="password"
         placeholder="Leave empty to keep the same"
         onChange={(event) => setPassword(event.currentTarget.value)}
       />
@@ -47,6 +51,6 @@ function EditProfileModal({
       {editProfileError && <Text>{editProfileError}</Text>}
     </Modal>
   );
-};
+}
 
 export default EditProfileModal;

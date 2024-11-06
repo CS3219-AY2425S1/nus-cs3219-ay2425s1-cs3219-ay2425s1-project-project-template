@@ -11,7 +11,6 @@ import {
 import { hasLength, matchesField, useForm } from '@mantine/form';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../hooks/AuthProvider';
 
@@ -19,8 +18,9 @@ function ResetPassword() {
   const [resetPasswordErrorMessage, setErrorMessage] = useState<string | null>(
     null,
   );
-  const navigate = useNavigate();
   const auth = useAuth();
+
+  const token = window.location.pathname.split('/').pop();
 
   const form = useForm({
     mode: 'uncontrolled',
@@ -38,10 +38,14 @@ function ResetPassword() {
   });
 
   const handlePasswordReset = async (values: typeof form.values) => {
+    if (!token) {
+      setErrorMessage('No reset token!');
+      return;
+    }
+
     try {
       setErrorMessage(null);
-      await auth.resetPasswordAction(values, setErrorMessage);
-      setTimeout(() => navigate('/'), 3000);
+      await auth.resetPasswordAction(token, values, setErrorMessage);
     } catch (error) {
       console.error('Error resetting password:', error);
     }
