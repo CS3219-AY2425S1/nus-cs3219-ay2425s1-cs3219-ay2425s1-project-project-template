@@ -31,7 +31,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     awareness.on('change', () => {
       // Whenever somebody updates their awareness information,
       // we log all awareness information from all users.
-      console.log(Array.from(awareness.getStates().values()))
+      // console.log(Array.from(awareness.getStates().values()))
     })
   }
 

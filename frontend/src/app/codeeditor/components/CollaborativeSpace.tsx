@@ -7,6 +7,7 @@ import { MonacoBinding } from 'y-monaco'
 import CodeEditor from '@/app/codeeditor/components/CodeEditor';
 import Chat from '@/app/codeeditor/components/chat';
 import Editor from '@monaco-editor/react'
+import VideoCall from '@/app/codeeditor/components/VideoCall';
 
 interface CollaborativeSpaceProps {
   initialCode?: string;
@@ -60,8 +61,16 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
           theme={theme}
         />
       </div>
-      <div className='w-1/3'>
-        <Chat ydoc={ydoc} provider={provider} userName={userName} />
+      <div className='w-1/3 flex flex-col gap-4'>
+        <div className='h-1/2'>
+        <VideoCall 
+            userName={userName} 
+            roomId={roomId}
+          />
+        </div>
+        <div className='h-1/2'>
+          <Chat ydoc={ydoc} provider={provider} userName={userName} />
+        </div>
       </div>
     </div>
   );
