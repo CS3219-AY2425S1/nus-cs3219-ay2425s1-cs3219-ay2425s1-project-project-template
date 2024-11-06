@@ -78,7 +78,7 @@ go run main.go
 
 A message queue is used to pass submission results asynchronously from the execution-service to the history-service.
 
-1. In order to do so, we can run the following command to set up a docker container for rabbitmq:
+1. In order to do so, we can run the following command to set up a docker container for RabbitMQ:
 
 ```bash
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
