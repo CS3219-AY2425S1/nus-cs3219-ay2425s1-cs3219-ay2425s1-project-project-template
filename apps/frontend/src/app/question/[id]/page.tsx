@@ -21,6 +21,7 @@ interface Submission {
   submittedAt: string;
   language: string;
   matchedUser: string;
+  otherUser: string;
   historyDocRefId: string;
   code: string;
 }
@@ -162,6 +163,7 @@ export default function QuestionPage() {
         language: data.language,
         matchedUser:
           username == data.matchedUser ? data.user : data.matchedUser,
+        otherUser: data.user,
         historyDocRefId: data.historyDocRefId,
         code: data.code,
       });
@@ -279,7 +281,13 @@ export default function QuestionPage() {
                           Language: {submission?.language || "-"}
                         </div>
                         <div className="submission-header-detail">
-                          Matched with: {submission?.matchedUser || "-"}
+                          Matched with:{" "}
+                          {submission?.matchedUser
+                            ? // Check to ensure that matched user is correct, otherwise swap with otherUser
+                              username == submission.matchedUser
+                              ? submission.otherUser
+                              : submission.matchedUser
+                            : "-"}
                         </div>
                       </div>
 
