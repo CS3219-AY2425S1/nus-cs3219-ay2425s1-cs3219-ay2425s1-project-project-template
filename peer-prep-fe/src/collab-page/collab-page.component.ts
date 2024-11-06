@@ -39,7 +39,7 @@ export class CollabPageComponent implements OnInit, OnDestroy {
       this.userId = this.route.snapshot.queryParamMap.get('userId') || '';
 
       this.fetchSessionData();
-      // this.username = '123';
+
       // Connect to editor
       this.webSocketService.connect(this.sessionId, this.userId);
     })
@@ -59,47 +59,17 @@ export class CollabPageComponent implements OnInit, OnDestroy {
       },
       error => {
         console.error("Failed to fetch session data", error);
-        // this.endSession()
       }
     );
   }
   
-
-
-// fetchSessionData(): void{
-//   console.log("CURRENTLY AT BEFORE FETCHING QUESTION");
-//   // return new Promise((resolve, reject) => {
-//     this.sessionSubscription = this.collabService.getSession(this.sessionId).subscribe(
-//       (session: Session) => {
-//         console.log("SESSION: ", session);
-//         if (session && session.question) {
-//           this.question = session.question;
-//           console.log("Fetched session question", this.question);
-//         }
-//         this.username = session.users.username1;
-//         console.log("username 1: ", this.username);
-//         this.pairedUsername = session.users.username2;
-//         console.log("username 2: ", this.pairedUsername);
-//         resolve(); // Resolve the promise when data is fetched
-//       },
-//       error => {
-//         console.error("Failed to fetch session data", error);
-//         reject(error); // Reject the promise on error
-//       }
-//     );
-//   });
-// }
 
   // navigates back to landing page and disconnects websocket session
   endSession(): void {
     this.webSocketService.disconnect();
     this.router.navigate(['landing']);
   }
-
-  // endCollab(): void {
-  //   this.collabService.endSession(this.sessionId).subscribe(
-  // }
-
+  
   ngOnDestroy(): void {
     // this.endSession();
     if (this.routeSubscription) {
