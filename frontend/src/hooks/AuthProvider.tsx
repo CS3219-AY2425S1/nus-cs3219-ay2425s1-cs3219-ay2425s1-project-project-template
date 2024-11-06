@@ -61,8 +61,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token') || null,
   );
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(
+    localStorage.getItem('userId') || null,
+  );
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
+
   const navigate = useNavigate();
 
   const loginAction = async (
@@ -75,6 +78,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setToken(response.token);
         localStorage.setItem('token', response.token);
         setUserId(response.userId);
+        localStorage.setItem('userId', response.userId);
         navigate('/dashboard');
       },
       (error: any) => {

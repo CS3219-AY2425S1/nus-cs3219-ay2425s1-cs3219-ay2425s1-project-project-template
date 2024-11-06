@@ -4,9 +4,9 @@ const { Schema } = mongoose;
 
 const QuestionSchema = new Schema({
     id: {
-      type: Number,
-      required: true,
-      unique: true,
+        type: Number,
+        required: true,
+        unique: true,
     },
     title: {
         type: String,
@@ -18,16 +18,16 @@ const QuestionSchema = new Schema({
         required: true,
     },
     topics: {
-      type: [String],
-      required: true,
+        type: [String],
+        required: true,
     },
     difficulty: {
         type: String,
         required: true,
     },
     images: {
-      type: [String],
-      required: false,
+        type: [String],
+        required: false,
     }
 });
 

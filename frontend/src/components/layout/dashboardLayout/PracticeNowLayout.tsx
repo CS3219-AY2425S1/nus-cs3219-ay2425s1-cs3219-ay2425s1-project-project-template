@@ -13,6 +13,7 @@ import HelpModal from '../../modal/HelpModal';
 import MatchingCriteriaModal from '../../modal/MatchingCriteriaModal';
 import MatchingModal from '../../modal/MatchingModal';
 import RejoinSessionModal from '../../modal/RejoinSessionModal';
+import config from '../../../config';
 
 function PracticeLayout() {
   const [isHelpModalOpened, { open: openHelpModal, close: closeHelpModal }] =
@@ -67,7 +68,7 @@ function PracticeLayout() {
       setDisplayTimer(0);
       hasTimedOut.current = false;
 
-      interval = setInterval(() => {
+      interval = window.setInterval(() => {
         timerRef.current += 1;
         setDisplayTimer(timerRef.current);
         if (timerRef.current >= timeoutTime) {
@@ -89,7 +90,7 @@ function PracticeLayout() {
       socketRef.current.disconnect();
     }
 
-    socketRef.current = io('http://localhost', {
+    socketRef.current = io(config.ROOT_BASE_API, {
       path: '/api/matching-notification/socket.io',
       transports: ['websocket'],
       reconnectionAttempts: 5,

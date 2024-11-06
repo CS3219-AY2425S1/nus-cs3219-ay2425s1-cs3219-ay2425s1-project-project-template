@@ -5,6 +5,7 @@ const { authMiddlewareSocket } = require('../middleware/authMiddleware');
 
 // This route serves the socket connection for session handling
 module.exports = (io) => {
+
   // health check
   router.get('/', (req, res) => {
     return res.send('hello world');
@@ -14,11 +15,9 @@ module.exports = (io) => {
   router.get('/check-session', (req, res) => {
     try {
       const userId = req.user.userId;
-
       if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
       }
-
       const sessionDetails = sessionController.checkSessionForUser(userId);
       return res.status(200).json(sessionDetails);
     } catch (error) {
