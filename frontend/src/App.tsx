@@ -6,8 +6,9 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
 import './App.css';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './components/routes/PrivateRoute';
 import AuthProvider from './hooks/AuthProvider';
+import PublicRoute from './components/routes/PublicRoute';
 
 const Admin = lazy(() => import('./pages/Admin'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -41,7 +42,9 @@ function App() {
         <AuthProvider>
           <Suspense fallback={<></>}>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route element={<PublicRoute />}>
+                <Route path="/" element={<Landing />} />
+              </Route>
               <Route element={<PrivateRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<Admin />} />
