@@ -9,7 +9,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     // Verify the token and extract the user payload
-    const decoded = jwt.verify(token, process.env.USER_JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.decoded = decoded;
 
     next();

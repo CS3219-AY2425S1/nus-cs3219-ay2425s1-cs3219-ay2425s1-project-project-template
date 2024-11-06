@@ -1,9 +1,34 @@
+const https = require('https');
 const History = require('../model/History');
 const {
     getHistoryByUserId,
     saveHistory,
     deleteAllHistory,
 } = require('./historyManipulation');
+
+// Fetch questions from the question service
+const fetchQuestions = async (req) => {
+    const agent = new https.Agent({
+        rejectUnauthorized: false,
+    });
+
+    const { default: fetch } = await import('node-fetch');
+
+    const response = await fetch("https://nginx/api/questions/all", {
+        method: 'GET',
+        headers: {
+            'Authorization': req.header('Authorization'),
+            'Content-Type': 'application/json',
+        },
+        agent: agent,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch questions');
+    }
+
+    return response.json();
+};
 
 // Get all history by user ID
 const viewHistory = async (req, res) => {
@@ -14,19 +39,7 @@ const viewHistory = async (req, res) => {
         }
         const history = await getHistoryByUserId(userId);
 
-        const response = await fetch("http://nginx/api/questions/all", {
-            method: 'GET',
-            headers: {
-                'Authorization': req.header('Authorization'),
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch questions');
-        }
-
-        const questions = await response.json();
+        const questions = await fetchQuestions(req);
 
         const enrichedHistory = history.map(hist => {
             const relatedQuestion = questions.find(q => q.id === hist.questionId);
@@ -102,19 +115,7 @@ const viewProgress = async (req, res) => {
 
         const history = await getHistoryByUserId(userId);
 
-        const response = await fetch("http://nginx/api/questions/all", {
-            method: 'GET',
-            headers: {
-                'Authorization': req.header('Authorization'),
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch questions');
-        }
-
-        const questions = await response.json(); // Await here to get the actual data
+        const questions = await fetchQuestions(req);
 
         // Initialize counts for difficulties
         const difficultyCount = {

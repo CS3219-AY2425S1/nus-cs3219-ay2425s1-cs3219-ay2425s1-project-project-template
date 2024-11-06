@@ -1,15 +1,35 @@
 import { useState } from 'react';
-import { Group, Stack, Table, Title, Modal } from '@mantine/core';
+import { Group, Stack, Table, Title, Modal, Tabs } from '@mantine/core';
 import { PracticeHistoryItem } from '../../types/History';
 import  CodeEditor  from '../codeEditor/CodeEditor';
-import RoomTabs from '../tabs/RoomTabs';
 import { langs } from '@uiw/codemirror-extensions-langs';
+import DescriptionTab from '../tabs/DescriptionTab';
 
 type SupportedLanguages = keyof typeof langs;
 
 function formatDate(dateString: string): string {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
   return new Date(dateString).toLocaleDateString('en-US', options);
+}
+
+function QuestionTab({ questionId }: { questionId: string }) {
+  return (
+    <Tabs
+      defaultValue="description"
+      h="calc(100% - 160px)"
+      bg="slate.9"
+      p="10px"
+      style={{ borderRadius: '4px' }}
+    >
+      <Tabs.List>
+        <Tabs.Tab value="description">Description</Tabs.Tab>
+      </Tabs.List>
+
+      <Tabs.Panel value="description" h="calc(100% - 36px)">
+        <DescriptionTab questionId={questionId} />
+      </Tabs.Panel>
+    </Tabs>
+  );
 }
 
 function PracticeRoom({ practiceData }: { practiceData: PracticeHistoryItem }) {
@@ -19,7 +39,7 @@ function PracticeRoom({ practiceData }: { practiceData: PracticeHistoryItem }) {
     <>
       <Group h="90vh" bg="slate.8" gap="10px" p="10px" align="flex-start">
         <Stack h="100%" w="500px" gap="10px">
-          <RoomTabs questionId={practiceData.questionId.toString()} />
+          <QuestionTab questionId={practiceData.questionId.toString()} />
         </Stack>
 
         <Stack

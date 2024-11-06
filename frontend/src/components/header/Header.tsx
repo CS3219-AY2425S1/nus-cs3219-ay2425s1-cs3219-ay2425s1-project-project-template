@@ -1,4 +1,5 @@
 import { AppShell, Avatar, Group, Title, UnstyledButton } from '@mantine/core';
+import { Link } from 'react-router-dom';
 
 function Header() {
   return (
@@ -7,12 +8,14 @@ function Header() {
         <a href="." className="logo">
           <Title c="white">PeerPrep</Title>
         </a>
-        <UnstyledButton>
-          <Avatar
-            src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
-            radius="xl"
-          />
-        </UnstyledButton>
+        <Link to="../profile">
+          <UnstyledButton>
+            <Avatar
+              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+              radius="xl"
+            />
+          </UnstyledButton>
+        </Link>
       </Group>
     </AppShell.Header>
   );

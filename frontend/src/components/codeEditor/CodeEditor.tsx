@@ -1,5 +1,5 @@
 import { sublimeInit } from '@uiw/codemirror-theme-sublime';
-import CodeMirror, { Extension } from '@uiw/react-codemirror';
+import CodeMirror, { Extension, ViewUpdate } from '@uiw/react-codemirror';
 
 import './CodeEditor.css';
 import classes from './CodeEditor.module.css';
@@ -9,6 +9,7 @@ interface CodeEditorProps {
   setCode: React.Dispatch<React.SetStateAction<string>>;
   extensions: Extension[];
   readOnly?: boolean;
+  viewUpdateRef?: React.MutableRefObject<ViewUpdate | null>;
 }
 
 const customSublime = sublimeInit({
@@ -17,7 +18,20 @@ const customSublime = sublimeInit({
   },
 });
 
-function CodeEditor({ code, setCode, extensions, readOnly=false }: CodeEditorProps) {
+function CodeEditor({
+  code,
+  setCode,
+  extensions,
+  viewUpdateRef,
+  readOnly=false,
+}: CodeEditorProps) {
+
+  const updateViewUpdateRef = (viewUpdate: ViewUpdate) => {
+    if (viewUpdateRef) {
+      viewUpdateRef.current = viewUpdate;
+    }
+  }
+
   return (
     <CodeMirror
       value={code}
@@ -26,6 +40,7 @@ function CodeEditor({ code, setCode, extensions, readOnly=false }: CodeEditorPro
       extensions={extensions}
       onChange={setCode}
       readOnly={readOnly}
+      {...(!readOnly && viewUpdateRef ? { onUpdate: updateViewUpdateRef } : {})}
     />
   );
 }

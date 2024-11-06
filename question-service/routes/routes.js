@@ -15,17 +15,6 @@ import {
 } from '../controller/read.js';
 import { updateQuestion } from '../controller/update.js';
 
-import {
-    getAllQuestions,
-    getQuestionById,
-    getQuestionByDifficulty,
-    getQuestionByTopic,
-    getQuestionByFilter,
-    getOneQuestionByFilter,
-    getNextAvailId,
-    getAllTopics,
-} from '../controller/read.js';
-
 const router = Router();
 
 /**
