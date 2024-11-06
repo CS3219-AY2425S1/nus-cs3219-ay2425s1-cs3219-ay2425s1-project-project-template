@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Box, Typography, CircularProgress, Avatar, Container, CssBaseline, Backdrop, Paper } from "@mui/material";
+import {
+    Button,
+    Box,
+    Typography,
+    CircularProgress,
+    Avatar,
+    Container,
+    CssBaseline,
+    Backdrop,
+    Paper,
+    AppBar,
+    Toolbar,
+} from "@mui/material";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
 import io from "socket.io-client";
@@ -15,7 +27,8 @@ const MatchComponent = () => {
     const [isWaiting, setIsWaiting] = useState(false);
     const [isCanceling, setIsCanceling] = useState(false);
     const [matchedUserId, setMatchedUserId] = useState(null);
-    const [matchedRoomId, setMatchedRoomId] = useState(null); 
+    const [matchedRoomId, setMatchedRoomId] = useState(null);
+    const [matchedQuestion, setMatchedQuestion] = useState(null);
     const [selectedComplexity, setSelectedComplexity] = useState("Easy");
     const [selectedCategory, setSelectedCategory] = useState("Strings");
     const [showMatchedMessage, setShowMatchedMessage] = useState(false);
@@ -34,7 +47,8 @@ const MatchComponent = () => {
 
         socket.on("match_found", (data) => {
             setMatchedUserId(data.matchedUser.id);
-            setMatchedRoomId(data.roomId)
+            setMatchedRoomId(data.roomId);
+            setMatchedQuestion(data.question);
             setIsWaiting(false);
             console.log(data);
         });
@@ -59,10 +73,10 @@ const MatchComponent = () => {
             setWaitingTime(0);
         }
 
-        if (matchedUserId) {
+        if (matchedUserId && matchedQuestion) {
             setShowMatchedMessage(true);
             const timer = setTimeout(() => {
-                navigate(`/collab/${matchedRoomId}`); // Navigate to '/collab' after 3 seconds
+                navigate(`/collab/${matchedRoomId}`, { state: { question: matchedQuestion } }); // Navigate to '/collab' after 3 seconds
             }, 3000); // 3000ms = 3 seconds
 
             // Clean up the timer if the component unmounts
@@ -76,7 +90,6 @@ const MatchComponent = () => {
 
     const getFilteredQuestion = () => {
         if (!selectedComplexity || !selectedCategory) return null;
-
         return sampleQuestions.find((q) => q.complexity === selectedComplexity && q.categories.includes(selectedCategory));
     };
 
@@ -130,109 +143,99 @@ const MatchComponent = () => {
     };
 
     return (
-        <Container maxWidth="lg">
-            {matchedUserId && (
-                <Backdrop open={showMatchedMessage} style={{ zIndex: 1300 }} transitionDuration={500}>
-                    <Paper style={paperStyles}>
-                        <Typography variant="h6" align="center">
-                            Matched! Redirecting to collaborative space...
-                        </Typography>
-                    </Paper>
-                </Backdrop>
-            )}
-            <CssBaseline />
-            <Grid container spacing={2}>
-                {/* Matching options section */}
-                <Grid size={6}>
-                    <Box sx={{ alignItems: "center", padding: "10px" }}>
-                        <Avatar sx={{ m: 1, bgcolor: "primary.light" }}>
-                            <HowToRegIcon />
-                        </Avatar>
-                        <Typography variant="h5">User Matching Service</Typography>
-
-                        <Box sx={{ mt: 3 }}>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                Select Complexity
+        <>
+            <Container maxWidth="lg">
+                {matchedUserId && (
+                    <Backdrop open={showMatchedMessage} style={{ zIndex: 1300 }} transitionDuration={500}>
+                        <Paper style={paperStyles}>
+                            <Typography variant="h6" align="center">
+                                Matched! Redirecting to collaborative space...
                             </Typography>
-                            <Box
-                                sx={{
-                                    flexWrap: "wrap",
-                                    justifyContent: "space-around",
-                                }}
-                            >
-                                {complexities.map((complexity) => (
-                                    <Button
-                                        key={complexity}
-                                        onClick={() => setSelectedComplexity(complexity)}
-                                        variant={selectedComplexity === complexity ? "contained" : "outlined"}
-                                        sx={{ margin: "5px" }}
-                                    >
-                                        {complexity}
-                                    </Button>
-                                ))}
-                            </Box>
+                        </Paper>
+                    </Backdrop>
+                )}
+                <CssBaseline />
+                <Grid container spacing={2}>
+                    {/* Matching options section */}
+                    <Grid size={6}>
+                        <Box sx={{ alignItems: "center", padding: "10px" }}>
+                            <Avatar sx={{ m: 1, bgcolor: "primary.light" }}>
+                                <HowToRegIcon />
+                            </Avatar>
+                            <Typography variant="h5">User Matching Service</Typography>
 
-                            <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-                                Select Category
-                            </Typography>
-                            <Box
-                                sx={{
-                                    flexWrap: "wrap",
-                                    justifyContent: "space-around",
-                                }}
-                            >
-                                {categories.map((category) => (
-                                    <Button
-                                        key={category}
-                                        onClick={() => setSelectedCategory(category)}
-                                        variant={selectedCategory === category ? "contained" : "outlined"}
-                                        sx={{ margin: "5px" }}
-                                    >
-                                        {category}
-                                    </Button>
-                                ))}
-                            </Box>
-                        </Box>
-
-                        {isWaiting ? (
-                            <>
-                                <CircularProgress sx={{ mt: 3 }} />
-                                <Typography variant="h6" sx={{ mt: 2 }}>
-                                    Waiting for a match... {waitingTime} seconds
+                            <Box sx={{ mt: 3 }}>
+                                <Typography variant="h6" sx={{ mb: 2 }}>
+                                    Select Complexity
                                 </Typography>
+                                <Box sx={{ flexWrap: "wrap", justifyContent: "space-around" }}>
+                                    {complexities.map((complexity) => (
+                                        <Button
+                                            key={complexity}
+                                            onClick={() => setSelectedComplexity(complexity)}
+                                            variant={selectedComplexity === complexity ? "contained" : "outlined"}
+                                            sx={{ margin: "5px" }}
+                                        >
+                                            {complexity}
+                                        </Button>
+                                    ))}
+                                </Box>
+
+                                <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+                                    Select Category
+                                </Typography>
+                                <Box sx={{ flexWrap: "wrap", justifyContent: "space-around" }}>
+                                    {categories.map((category) => (
+                                        <Button
+                                            key={category}
+                                            onClick={() => setSelectedCategory(category)}
+                                            variant={selectedCategory === category ? "contained" : "outlined"}
+                                            sx={{ margin: "5px" }}
+                                        >
+                                            {category}
+                                        </Button>
+                                    ))}
+                                </Box>
+                            </Box>
+
+                            {isWaiting ? (
+                                <>
+                                    <CircularProgress sx={{ mt: 3 }} />
+                                    <Typography variant="h6" sx={{ mt: 2 }}>
+                                        Waiting for a match... {waitingTime} seconds
+                                    </Typography>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={cancelMatch}
+                                        sx={{ mt: 3 }}
+                                        disabled={isCanceling}
+                                    >
+                                        {isCanceling ? "Cancelling..." : "Cancel Match"}
+                                    </Button>
+                                </>
+                            ) : matchedUserId ? (
+                                <Typography variant="h6" color="green" sx={{ mt: 3 }}>
+                                    Matched with User ID: {matchedUserId}
+                                </Typography>
+                            ) : (
                                 <Button
                                     fullWidth
                                     variant="contained"
-                                    color="secondary"
-                                    onClick={cancelMatch}
+                                    color="primary"
+                                    onClick={requestMatch}
                                     sx={{ mt: 3 }}
-                                    disabled={isCanceling}
+                                    disabled={isWaiting || isCanceling}
                                 >
-                                    {isCanceling ? "Cancelling..." : "Cancel Match"}
+                                    {isWaiting ? "Searching..." : "Find a Match"}
                                 </Button>
-                            </>
-                        ) : matchedUserId ? (
-                            <Typography variant="h6" color="green" sx={{ mt: 3 }}>
-                                Matched with User ID: {matchedUserId}
-                            </Typography>
-                        ) : (
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                onClick={requestMatch}
-                                sx={{ mt: 3 }}
-                                disabled={isWaiting || isCanceling}
-                            >
-                                {isWaiting ? "Searching..." : "Find a Match"}
-                            </Button>
-                        )}
-                    </Box>
+                            )}
+                        </Box>
+                    </Grid>
                 </Grid>
-
                 {/* Sample questions section */}
                 <Grid size={6}>
-                    
                     <Box sx={{ alignItems: "center", padding: "10px" }}>
                         <Avatar sx={{ m: 1, bgcolor: "primary.light" }}>
                             <QuestionAnswerRoundedIcon />
@@ -248,8 +251,8 @@ const MatchComponent = () => {
                         )}
                     </Box>
                 </Grid>
-            </Grid>
-        </Container>
+            </Container>
+        </>
     );
 };
 

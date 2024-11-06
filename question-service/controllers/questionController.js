@@ -1,4 +1,4 @@
-const Question = require('../models/questionModel')
+const { Question, getRandomQuestion } = require('../models/questionModel')
 
 // returns every question in the database 
 exports.getQuestions = async (req, res, next) => {

@@ -14,7 +14,7 @@ RUN npm install -g nodemon
 RUN npm install
 
 # Copy the rest of the app's source code
-# COPY . .
+COPY . .
 
 # Expose the backend port
 EXPOSE 4444

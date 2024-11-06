@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from 'react-helmet-async';
-import { Alert, Box, Button, CssBaseline, Snackbar, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, CardContent, Chip, Divider, CssBaseline, Snackbar, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
@@ -13,6 +13,8 @@ const serverWsUrl = import.meta.env.VITE_WS_COLLAB_URL;
 
 const CollabSpace = () => {
     const { roomId } = useParams();
+    const location = useLocation();
+    const { question } = location.state;
     const [showRedirectMessage, setShowRedirectMessage] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false); // Loading state
@@ -24,7 +26,7 @@ const CollabSpace = () => {
     const handleRoomClosed = () => {
         if (hasClosedRef.current) return; // Prevent multiple triggers
         hasClosedRef.current = true;
-
+        setIsLeaving(true);
         setShowRedirectMessage(true);
         setTimeout(() => {
             setShowRedirectMessage(false);
@@ -52,6 +54,10 @@ const CollabSpace = () => {
 
     useEffect(() => {
         console.log("mounting");
+
+        if (question) {
+            console.log(question);
+        }
 
         if (!docRef.current) {
             docRef.current = new Y.Doc();
@@ -161,7 +167,13 @@ const CollabSpace = () => {
                 >
                     {/* Chat Section */}
                     <Grid item size={3.5} sx={{ height: '100%', overflow: 'hidden' }}>
-                        {providerRef.current && <Chat provider={providerRef.current} />}
+                        <Box sx={{ flexGrow: 4, marginBottom: 2, overflowY: "auto" }}>
+                            <QuestionCard question={question} />
+                        </Box>
+
+                        <Box sx={{ flexGrow: 2, flexBasis: "50vh", marginBottom: 2, overflowY: "auto" }}>
+                            {providerRef.current && <Chat provider={providerRef.current} />}
+                        </Box>
                     </Grid>
 
                     {/* Code Editor Section */}
@@ -176,6 +188,29 @@ const CollabSpace = () => {
                 </Grid>
             </Box>
         </>
+    );
+};
+
+const QuestionCard = ({ question }) => {
+    return (
+        <Card variant="outlined" sx={{ maxWidth: 600, margin: "auto", marginTop: 4, padding: 2 }}>
+            <CardContent>                
+                <Typography variant="h5" component="div" gutterBottom>
+                    {question.title}
+                </Typography>
+
+                <Box display="flex" alignItems="center" gap={1} marginBottom={2}>
+                    <Chip label={question.category} color="primary" variant="outlined" />
+                    <Chip label={`Complexity: ${question.complexity}`} color="secondary" variant="outlined" />
+                </Box>
+
+                <Divider variant="middle" sx={{ marginBottom: 2 }} />
+
+                <Typography variant="body1" color="text.secondary">
+                    {question.description}
+                </Typography>
+            </CardContent>
+        </Card>
     );
 };
 

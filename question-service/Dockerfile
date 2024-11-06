@@ -13,7 +13,7 @@ RUN rm -rf node_modules
 RUN npm install
 
 # Copy the rest of the app's source code
-# COPY . .
+COPY . .
 
 # Expose the backend port
 EXPOSE 8080

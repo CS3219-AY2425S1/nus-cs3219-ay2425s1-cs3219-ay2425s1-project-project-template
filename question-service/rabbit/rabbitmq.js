@@ -26,7 +26,7 @@ const initializeRabbitMQ = async () => {
         let payload = null
 
         // Start consuming messages
-        channel.consume(MATCH_TO_QUESTION_QUEUE, (msg) => {
+        channel.consume(MATCH_TO_QUESTION_QUEUE, async (msg) => {
             if (msg !== null) {
 
                 // payload: userID1, userID2, socketID1, socketID2, complexity, category
@@ -34,7 +34,7 @@ const initializeRabbitMQ = async () => {
                 console.log('Received add question request:', requestPayload);
 
                 // Process the request (e.g., fetch a random question)
-                const question = getRandomQuestion(requestPayload); // Your function to retrieve a question
+                const question = await getRandomQuestion(requestPayload); // Your function to retrieve a question
 
 
                 // payload: userID1, userID2, socketID1, socketID2, complexity, category, question
