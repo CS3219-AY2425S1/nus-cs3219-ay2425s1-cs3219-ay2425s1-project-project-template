@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ChatProps {
   ydoc: Y.Doc;
@@ -54,16 +56,16 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
 
   return (
     <div className="flex h-4/5 flex-col w-full">
-      <div className='text-2xl text-center font-bold'>Chat</div>
-      <div className="flex-1 overflow-y-auto p-2.5 border">
+      <div className="text-2xl text-center font-bold">Chat</div>
+      <div className="h-full w-full overflow-y-auto border">
         {messages.map((msg, index) => (
-          <div key={index} className='mb-2.5'>
+          <div key={index} className="mb-2.5">
             <strong>{msg.user}:</strong> {msg.message}
           </div>
         ))}
       </div>
-      <div className="flex p-2.5">
-        <input
+      <div className="flex w-full">
+        <Input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
@@ -71,11 +73,11 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
             if (e.key === 'Enter') handleSendMessage();
           }}
           placeholder="Type a message..."
-          className='flex-1 p-1'
+          className='flex-grow'
         />
-        <button onClick={handleSendMessage} className="pl-1 pt-2.5">
+        <Button onClick={handleSendMessage} className="justify-end w-fit">
           Send
-        </button>
+        </Button>
       </div>
     </div>
   );
