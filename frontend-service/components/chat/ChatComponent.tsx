@@ -10,6 +10,9 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import ScrollableFeed from "react-scrollable-feed";
+import { ref, onValue } from "firebase/database"; // Import Firebase functions
+import { FIREBASE_DB } from "../../FirebaseConfig"; // Adjust path to your Firebase config
+import axios from "axios"; // Import axios for API requests
 
 interface ChatComponentProps {
   userId: string;
@@ -22,6 +25,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
   const [messages, setMessages] = useState<
     { author: string; message: string; time: string }[]
   >([]);
+  const [otherUsername, setOtherUsername] = useState<string | null>(null); // State for the other user's username
 
   useEffect(() => {
     // Initialize the socket connection only after userId and roomId are set
@@ -39,6 +43,36 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
     };
   }, [userId, roomId]);
 
+  useEffect(() => {
+    // Reference to the users in the room
+    const userRef = ref(FIREBASE_DB, `rooms/${roomId}/users`);
+
+    // Listen to changes in the users list in the room
+    const unsubscribe = onValue(userRef, async (snapshot) => {
+      const users = snapshot.val();
+      
+      // Find the other user's ID by filtering out the current user's ID
+      const otherUserId = Object.keys(users || {}).find((id) => id !== userId);
+
+      if (otherUserId) {
+        try {
+          // Fetch the username using the /id-to-username/:id endpoint
+          const response = await axios.get(`http://localhost:3001/users/id-to-username/${otherUserId}`);
+          const username = response.data.username;
+
+          // Update the state with the other user's username
+          setOtherUsername(username);
+        } catch (error) {
+          console.error("Failed to fetch username:", error);
+        }
+      } else {
+        setOtherUsername(null); // Clear the username if no other user is in the room
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup the listener when component unmounts
+  }, [roomId, userId]);
+
   const sendMessage = () => {
     if (!socket || !userId || !roomId) return;
 
@@ -55,6 +89,13 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
   return (
     <Box p={4} borderWidth={1} borderRadius="md" boxShadow="md" maxW="md">
       <VStack spacing={4} align="stretch">
+        {/* Display the other user's username if available */}
+        {otherUsername && (
+          <Text fontSize="lg" fontWeight="bold">
+            Chatting with: {otherUsername}
+          </Text>
+        )}
+
         <Box
           bg="gray.50"
           p={4}
