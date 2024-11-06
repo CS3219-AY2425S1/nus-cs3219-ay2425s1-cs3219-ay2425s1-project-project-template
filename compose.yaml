@@ -82,6 +82,7 @@ services:
       - my-network
     env_file:
       - .env/.question_env
+      - .env/.global_auth_env
 
   rabbitmq:
     image: rabbitmq:3-management
