@@ -14,8 +14,8 @@ const MatchFound = ({ matchData, closePopup }) => {
       const handleStartSession = async () => {
           closePopup();
 
-          try {
-            const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, cookies);
+        try {
+          const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, roomId, cookies);
 
             if (question) {
               console.log(question.title);

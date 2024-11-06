@@ -32,7 +32,8 @@ const StartSession = ({ username }) => {
     setShowPopup(true);
 
     try {
-      const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, cookies);
+      const roomId = "random"; // random roomId to check if the question exists
+      const question = await questionService.getQuestionByTopicAndDifficulty(topic, difficulty, roomId, cookies);
 
       const response = await fetch('http://localhost:3002/api/find-match', {
         method: 'POST',

@@ -13,6 +13,7 @@ import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationP
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
 import useAuth from "../hooks/useAuth";
+import { height } from "@mui/system";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
 const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
@@ -117,6 +118,32 @@ const Collab = () => {
         });
     };
 
+    const [prevHeight, setPrevHeight] = useState(window.innerHeight);
+    useEffect(() => {
+        // Debounce function to reduce frequency of layout updates
+        const debounce = (func, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func(...args), delay);
+            };
+        };
+
+        const handleResize = debounce(() => {
+            const currentHeight = window.innerHeight;
+            if (editorRef.current && currentHeight !== prevHeight) {
+                editorRef.current.layout();
+                setPrevHeight(currentHeight);
+            }
+        }, 100); // Adjust delay as necessary
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [prevHeight]);
+
     if (!location.state) { return null; }
 
     const { question, language, matchedUser, roomId } = location.state;
@@ -158,19 +185,17 @@ const Collab = () => {
     };
 
     return (
-        <>
-            <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
-                <CollabNavBar 
-                    partnerUsername={partnerUsername} 
-                    countdown={formatTime(countdown)} 
-                    handleSubmit={handleSubmit}
-                    handleQuit={handleQuit}
-                />
-                <div style={{ display: "flex", flex: 1 }}>
-                    <QuestionContainer question={question} />
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+            <CollabNavBar 
+                partnerUsername={partnerUsername} 
+                countdown={formatTime(countdown)} 
+                handleSubmit={handleSubmit}
+                handleQuit={handleQuit}
+            />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "calc(100vh - 75px)" }}>
+                <QuestionContainer question={question} />
+                <div style={{ flex: 1, overflow: "hidden" }}>
                     <Editor
-                        height="100%"
-                        width="50%"
                         theme="vs-dark"
                         defaultLanguage="python"
                         language={language}
