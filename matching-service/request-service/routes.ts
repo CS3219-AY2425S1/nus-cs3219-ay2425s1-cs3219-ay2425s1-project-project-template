@@ -3,7 +3,7 @@ import { Kafka } from 'kafkajs';
 
 const router = Router();
 
-const kafka = new Kafka({ brokers: ['kafka:9092'] });
+const kafka = new Kafka({ brokers: ['kafka:9092'], retry: { retries: 5 } });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: 'request-service' });
 const dequeueConsumer = kafka.consumer({ groupId: 'request-service-dequeue' });

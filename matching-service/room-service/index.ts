@@ -4,7 +4,7 @@ import cors from "cors";
 
 const app = express();
 
-const kafka = new Kafka({ brokers: ["kafka:9092"] });
+const kafka = new Kafka({ brokers: ["kafka:9092"], retry: { retries: 5 } });
 const kafkaConsumer = kafka.consumer({ groupId: "room-service" });
 
 app.use(express.json());

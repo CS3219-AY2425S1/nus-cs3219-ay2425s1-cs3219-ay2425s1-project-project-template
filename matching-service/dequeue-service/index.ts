@@ -5,7 +5,7 @@ import cors from "cors";
 const app = express();
 
 // Initialize Kafka
-const kafka = new Kafka({ brokers: ["kafka:9092"] });
+const kafka = new Kafka({ brokers: ["kafka:9092"], retry: { retries: 5 } });
 const kafkaProducer = kafka.producer();
 const kafkaConsumer = kafka.consumer({ groupId: "dequeue-service" });
 const matchFoundConsumer = kafka.consumer({
