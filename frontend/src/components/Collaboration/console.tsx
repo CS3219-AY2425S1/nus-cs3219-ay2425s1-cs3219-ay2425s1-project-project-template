@@ -30,7 +30,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
     }
 
     // if (!collabSocket.connected) {
-    //   collabSocket = io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`);
+    //   collabSocket = io(`${process.env.REACT_APP_COLLAB_SVC_PORT}`);
     // }
     
     collabSocket.on("sync-console", (qid: Number, consoleResults: Array<string>) => {
@@ -38,7 +38,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
       if (qid !== 0) {
         const attempt = { userId: user.id, qid: qid };
         // console.log(attempt);
-        axios.post(`http://localhost:${process.env.REACT_APP_HISTORY_SVC_PORT}/api/history`, attempt);
+        axios.post(`${process.env.REACT_APP_HISTORY_SVC_PORT}/api/history`, attempt);
       }
     });
 
@@ -61,10 +61,13 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
       setLoading(true);
       collabSocket?.emit("console-load", roomId, true);
       const result = await executeCode(language, sourceCode);
-      const consoleResults = result.output.split("\n");
+      let consoleResults = result.output.split("\n");
+      if (result.output === "" && result.error) {
+        consoleResults = result.error.split("\n");
+      }
       setOutput(consoleResults);
       collabSocket?.emit("console-change", roomId, qid, consoleResults);
-      result.stderr ? setIsError(true) : setIsError(false);
+      result.error ? setIsError(true) : setIsError(false);
     } catch (error) {
       console.log(error);
       <Snackbar

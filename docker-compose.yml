@@ -7,13 +7,13 @@ services:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
     environment:
       - PORT=${FRONTEND_PORT}
-      - REACT_APP_USER_SVC_PORT=${USER_SVC_PORT}
-      - REACT_APP_QUESTION_SVC_PORT=${QUESTION_SVC_PORT}
-      - REACT_APP_MATCHING_SVC_PORT=${MATCHING_SVC_PORT}
-      - REACT_APP_COLLAB_SVC_PORT=${COLLAB_SVC_PORT}
-      - REACT_APP_COMM_SVC_PORT=${COMM_SVC_PORT}
-      - REACT_APP_CODE_EXECUTION_SVC_PORT=${CODE_EXECUTION_SVC_PORT}
-      - REACT_APP_HISTORY_SVC_PORT=${HISTORY_SVC_PORT}
+      - REACT_APP_USER_SVC_PORT=${REACT_APP_USER_SVC_PORT}
+      - REACT_APP_QUESTION_SVC_PORT=${REACT_APP_QUESTION_SVC_PORT}
+      - REACT_APP_MATCHING_SVC_PORT=${REACT_APP_MATCHING_SVC_PORT}
+      - REACT_APP_COLLAB_SVC_PORT=${REACT_APP_COLLAB_SVC_PORT}
+      - REACT_APP_COMM_SVC_PORT=${REACT_APP_COMM_SVC_PORT}
+      - REACT_APP_CODE_EXECUTION_SVC_PORT=${REACT_APP_CODE_EXECUTION_SVC_PORT}
+      - REACT_APP_HISTORY_SVC_PORT=${REACT_APP_HISTORY_SVC_PORT}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -36,8 +36,8 @@ services:
       - PORT=${USER_SVC_PORT}
       - DB_LOCAL_URI=${USER_DB_URI}
       - JWT_SECRET=${JWT_SECRET}
-      - FRONTEND_PORT=${FRONTEND_PORT}
-      - CLOUD_DOMAIN=${CLOUD_DOMAIN}
+      - FRONTEND_PORT=${FRONTEND_PORT_URL}
+      - CLOUD_DOMAIN=${FRONTEND_CLOUD_URL}
       - EMAIL_USERNAME=${EMAIL_USERNAME}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
@@ -56,7 +56,7 @@ services:
     environment:
       - PORT=${QUESTION_SVC_PORT}
       - MONGOURI=${QUESTION_DB_URI}
-      - FRONTEND_PORT=${FRONTEND_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/QuestionService:/app
       - /app/node_modules
@@ -108,12 +108,13 @@ services:
 
   code-execution-service:
     build:
+      target: ${BUILD_ENV}
       context: ./backend/CodeExecutionService
     ports:
       - ${CODE_EXECUTION_SVC_PORT}:${CODE_EXECUTION_SVC_PORT}
     environment:
-      - TORK_COORDINATOR_ADDRESS=0.0.0.0:${CODE_EXECUTION_SVC_PORT}
-
+      - JUDGE_0_ENDPOINT=${JUDGE_0_ENDPOINT}
+      - CODE_EXECUTION_SVC_PORT=${CODE_EXECUTION_SVC_PORT}
     volumes:
       - ./backend/CodeExecutionService:/app
       - /var/run/docker.sock:/var/run/docker.sock
@@ -127,7 +128,7 @@ services:
     environment:
       - PORT=${HISTORY_SVC_PORT}
       - MONGOURI=${HISTORY_DB_URI}
-      - FRONTEND_PORT=${FRONTEND_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/HistoryService:/app
       - /app/node_modules

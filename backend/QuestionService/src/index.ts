@@ -9,7 +9,13 @@ const app = express();
 
 app.use(express.json());
 
-app.use(cors<Request>());
+app.use(cors<Request>(
+    {
+        origin: `${process.env.FRONTEND_PORT}`, // config cors so that front-end can use
+        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+        credentials: true,
+    }
+));
 
 app.use("/api/question", questionRoute);
 

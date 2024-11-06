@@ -422,7 +422,7 @@ function useCreateQuestion() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (question: Question) => {
-      return await axios.post(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, question);
+      return await axios.post(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, question);
     },
 
     //client side optimistic update
@@ -443,7 +443,7 @@ function useGetQuestions() {
   return useQuery<Question[]>({
     queryKey: ["questions"],
     queryFn: async () => {
-      return (await axios.get(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
+      return (await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
     },
     refetchOnWindowFocus: false,
   });
@@ -456,7 +456,7 @@ function useUpdateQuestion() {
     mutationFn: async (question: Question) => {
       const { qid, ...noIdQuestion } = question;
       return await axios.patch(
-        `http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`,
+        `${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`,
         noIdQuestion
       );
     },
@@ -483,7 +483,7 @@ function useDeleteQuestion() {
     mutationFn: async (questionId: string) => {
       //send api update request here
       const qid = +questionId;
-      return await axios.delete(`http://localhost:${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`);
+      return await axios.delete(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`);
     },
 
     //client side optimistic update
