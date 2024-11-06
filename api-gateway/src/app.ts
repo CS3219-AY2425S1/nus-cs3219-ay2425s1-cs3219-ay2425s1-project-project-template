@@ -26,6 +26,11 @@ app.options('*', cors());
 // Routes
 app.use('/api/v1', routes);
 
+// Health check route
+app.get('/api/v1/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Error handling
 app.use(errorHandler);
 
