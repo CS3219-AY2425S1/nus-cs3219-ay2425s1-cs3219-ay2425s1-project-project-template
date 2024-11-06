@@ -114,7 +114,7 @@ def handle_message(data):
     # Save the message to Firestore
     db.collection("messages").add(message_data)
 
-    if "stop" in message.lower():  # lower() to make sure stop in all cases
+    if "user has exited collaboration" in message.lower():  # lower() to make sure stop in all cases
         # update convo as stop
         session_ref = (
             db.collection("sessionlist").where("sessionName", "==", conversation).get()
@@ -123,7 +123,7 @@ def handle_message(data):
         if not session_ref:
             return jsonify({"error": "Session not found"}), 404
 
-        # update collection's flag
+        # update Firebase collection's flag
         for session in session_ref:
             session.reference.update({"flag": "stop"})  # flag now stopped here!
             updated_session = session.to_dict()

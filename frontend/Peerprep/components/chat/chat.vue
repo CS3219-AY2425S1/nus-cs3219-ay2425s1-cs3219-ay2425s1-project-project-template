@@ -42,7 +42,7 @@ const sendMessage = () => {
 
 // Function for sending "stop" message
 const sendStopMessage = () => {
-  socket.emit('chat message', { conversation: selectedConversation.value, message: "stop", username: user?.value?.email });
+  socket.emit('chat message', { conversation: selectedConversation.value, message: "user has exited collaboration", username: user?.value?.email });
   loadConversations(); // Load convo list
 };
 
@@ -50,8 +50,11 @@ const sendStopMessage = () => {
 const receiveMessage = (msg: { conversation: string; message: Message }) => {
   if (msg.conversation === selectedConversation.value) {
     messages.value.push(msg.message);
+    // Sort messages by timestamp after adding the new message
+    messages.value.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }
 };
+
 
 // Function to format timestamp
 const formatTimestamp = (timestamp: string | number | Date) => {
@@ -136,13 +139,16 @@ const loadConversations = async () => {
 const loadHistory = async (conversation: string) => {
   try {
     const response = await axios.get(`${runtimeConfig.public.chatService}/api/history/${conversation}`);
-    // Assuming response.data.messages is an array of Message objects
     messages.value = response.data.messages;
-    selectedConversation.value = conversation; // Set selected convo here
+    selectedConversation.value = conversation;
+
+    // Sort messages by timestamp after loading history
+    messages.value.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   } catch (error) {
     console.error('Error loading history:', error);
   }
 };
+
 
 // When component is mounted, set up Socket.IO events
 onMounted(() => {
