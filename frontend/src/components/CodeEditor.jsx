@@ -1,5 +1,5 @@
-import { useTheme, Button, Box, Select, Typography, MenuItem } from "@mui/material";
-import { useEffect, useState, useRef } from "react";
+import { useTheme, Button, Box, Select, Typography, MenuItem, Card, CardContent, Typography } from "@mui/material";
+import { useEffect, useState, useEffect, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
 import { MonacoBinding } from "y-monaco";
 import io from "socket.io-client";
@@ -9,8 +9,11 @@ import parserTypescript from "prettier/parser-typescript";
 import { CODE_SNIPPETS } from "../constants";
 
 const socket = io(import.meta.env.VITE_USER_URL);
+import axios from "axios";
 
-export default function CodeEditor({ roomId, provider, doc, onRoomClosed }) {
+export default function CodeEditor({ roomId, provider, doc, onRoomClosed}) {
+    const [isRunning, setIsRunning] = useState(false);
+    const [output, setOutput] = useState();
     const theme = useTheme();
     const editorRef = useRef();
     const [language, setLanguage] = useState("javascript");
@@ -63,6 +66,25 @@ export default function CodeEditor({ roomId, provider, doc, onRoomClosed }) {
         }
     };*/}
 
+    const handleRunCode = async () => {
+        setIsRunning(true);
+
+        if (editorRef.current) {
+            const code = editorRef.current.getValue(); // Get the current code
+            const body = {code: code};
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_SANDBOX_URL}/sandbox/execute`, body);
+                console.log('Execution result:', response.data.output);
+                setOutput(response.data.output);
+            } catch (error) {
+                setOutput('Error executing code');
+                console.error('Error executing code:', error);
+            }
+        }
+
+        setIsRunning(false)
+    };
+
     return (
         <Box sx={{ width: "100%", flexGrow: 1 }}>
             <Typography variant="h6" sx={{ textAlign: "center", padding: 1 }}>
@@ -107,6 +129,21 @@ export default function CodeEditor({ roomId, provider, doc, onRoomClosed }) {
                     },
                 }}
             />
+                        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <Card variant="outlined" sx={{ width: "100%", margin: "auto", marginTop: 4, padding: 2 }}>
+                    <CardContent>  
+                        <Typography variant="body1" color="text.secondary">
+                            {"OUTPUT: "}
+                            {output}
+                        </Typography>
+                    </CardContent>
+                </Card>
+                <Box sx={{ alignSelf: "flex-start", margin: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleRunCode} disabled={isRunning}>
+                        {isRunning ? "Running..." : "Run Code"}
+                    </Button>
+                </Box>
+            </Box>
         </Box>
     );
 }
