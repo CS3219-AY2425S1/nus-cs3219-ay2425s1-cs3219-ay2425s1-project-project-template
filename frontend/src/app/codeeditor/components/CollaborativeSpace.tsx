@@ -83,9 +83,9 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     }
 
   return (
-    <div className='flex w-full h-dvh'>
+    <div className='flex w-full h-full'>
       <div className='flex-col w-2/5 p-4'>
-        <div className='border rounded-xl h-full'>
+        <div className='border rounded-xl h-screen'>
           {/* Header Section */}
         <div className="mb-4">
           <div className="text-sm text-gray-600">You are coding with:</div>
