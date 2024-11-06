@@ -47,34 +47,7 @@ To start the server, run the following command:
 go run main.go
 ```
 
-The server will be available at http://localhost:8082.
-
-## Running the Application via Docker
-
-To run the application via Docker, run the following command:
-
-```bash
-docker build -t history-service .
-```
-
-```bash
-docker run -p 8082:8082 -d history-service
-```
-
-The server will be available at http://localhost:8082.
-
-## API Endpoints
-
-- `POST /histories`
-- `GET /histories/{docRefId}`
-- `PUT /histories/{docRefId}`
-- `DELETE /histories/{docRefId}`
-
-```bash
-go run main.go
-```
-
-## Setting up message queue with RabbitMQ
+### Setting up message queue with RabbitMQ
 
 A message queue is used to pass submission results asynchronously from the execution-service to the history-service.
 
@@ -98,3 +71,30 @@ go run main.go
 ```
 
 To view more details on the RabbitMQ queue, we can go to `localhost:15672`, and login using `guest` as the username and password.
+
+The server will be available at http://localhost:8082.
+
+### Running the Application via Docker
+
+To run the application via Docker, run the following command:
+
+```bash
+docker build -t history-service .
+```
+
+```bash
+docker run -p 8082:8082 -d history-service
+```
+
+The server will be available at http://localhost:8082.
+
+## API Endpoints
+
+- `POST /histories`
+- `GET /histories/{docRefId}`
+- `PUT /histories/{docRefId}`
+- `DELETE /histories/{docRefId}`
+
+```bash
+go run main.go
+```
