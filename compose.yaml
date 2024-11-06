@@ -13,6 +13,7 @@ services:
       QUESTION_SERVICE_ADDR: question-service:8000
       MATCH_NOTIFICATION_SERVICE_ADDR: match-notification-service:4001
       COLLABORATION_SERVICE_ADDR: collaboration-service:8005
+      CODE_EXECUTION_SERVICE_ADDR: code-execution-service:8050
     ports:
       - '80:80'
       - '443:443'
@@ -135,15 +136,15 @@ services:
       retries: 5 # Adjust based on how long it takes for RabbitMQ to be ready
 
   communication-service:
-     build:
-       context: ./communication-service
-     container_name: communication-service-backend
-     networks:
-       - my-network
+    build:
+      context: ./communication-service
+    container_name: communication-service-backend
+    networks:
+      - my-network
     #  ports:
     #    - "8443:8443" # for testing
-     env_file:
-       - .env/.communication_env
+    env_file:
+      - .env/.communication_env
   collaboration-service:
     build:
       context: ./collaboration-service
@@ -162,7 +163,7 @@ services:
     networks:
       - my-network
     ports:
-      - "8050:8050"  # for testing
+      - '8050:8050' # for testing
     env_file:
       - .env/.code_execution_env
 
