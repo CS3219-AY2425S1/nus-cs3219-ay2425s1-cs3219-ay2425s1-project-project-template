@@ -161,7 +161,9 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
               updatedFields.difficulty = parsedValues.difficulty;
             }
 
-            console.log('updatedFields', updatedFields);
+            if (dirtyFields.testCases) {
+              updatedFields.testCases = parsedValues.testCases;
+            }
             
             const response = await fetch(`http://localhost:5001/edit-question/${questionId}`, {
                 method: 'PATCH',

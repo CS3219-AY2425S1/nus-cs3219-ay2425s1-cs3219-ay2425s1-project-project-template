@@ -33,7 +33,30 @@ const editQuestion = async (req: Request, res: Response) => {
             }
         }
 
-        const updatedFields = { title, description, categories, difficulty, testCases }
+        // const updatedFields = { title, description, categories, difficulty, testCases }
+        // console.log(updatedFields)
+
+        const updatedFields: any = {}
+
+        if (title) {
+            updatedFields.title = title
+        }
+
+        if (description) {
+            updatedFields.description = description
+        }
+
+        if (categories) {
+            updatedFields.categories = categories
+        }
+
+        if (difficulty) {
+            updatedFields.difficulty = difficulty
+        }
+
+        if (testCases) {
+            updatedFields.testCases = testCases
+        }
 
         const updatedQuestion = await Question.findOneAndUpdate(
             { questionId },
