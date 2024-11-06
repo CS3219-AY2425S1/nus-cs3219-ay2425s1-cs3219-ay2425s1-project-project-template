@@ -1,10 +1,18 @@
 import * as React from 'react';
+import { CssBaseline, Box } from "@mui/material";
+import { Helmet } from 'react-helmet-async';
 import MatchComponent from '../components/Matchmaking';
 
 const MatchUsers = () => {
     return (
         <>  
-            <MatchComponent/>
+            <Helmet>
+                <title>Match User</title>
+            </Helmet>
+            <Box sx={{ display: 'flex' }}>
+                <CssBaseline />
+                <MatchComponent/>
+            </Box>
         </>
     );
 }
