@@ -5,50 +5,27 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
 import { editor as MonacoEditor } from 'monaco-editor';
-import { OnMount } from '@monaco-editor/react';
 import { useAuthStore } from '@/state/useAuthStore';
 import Avatar, { genConfig } from 'react-nice-avatar';
 import CodeEditor from './CodeEditor';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectItem,
-  SelectContent,
-} from '@/components/ui/select';
 import { AwarenessState, ConnectedClient } from '@/types/types';
 import { useToast } from '@/hooks/use-toast';
 import { useCollaborationStore } from '@/state/useCollaborationStore';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import { stringToColor } from '@/lib/utils';
+import LanguageSelector from './LanguageSelector';
+import LeaveSessionDialog from './AlertDialogues';
+import { SUPPORTED_PROGRAMMING_LANGUAGES } from '@/lib/constants';
 import AudioSharing from './AudioSharing';
 
 interface CollaborationEditorProps {
-  language: string;
   matchId: string | null;
-  onLanguageChange: (language: string) => void;
-  supportedLanguages: string[];
 }
 
-const CollaborationEditor = ({
-  language,
-  matchId,
-  onLanguageChange,
-  supportedLanguages,
-}: CollaborationEditorProps) => {
+const CollaborationEditor = ({ matchId }: CollaborationEditorProps) => {
   const { user } = useAuthStore();
+  const [language, setLanguage] = useState(SUPPORTED_PROGRAMMING_LANGUAGES[0]);
   const [connectedClients, setConnectedClients] = useState<
     Map<number, ConnectedClient>
   >(new Map());
@@ -62,7 +39,11 @@ const CollaborationEditor = ({
   const { clearLastMatchId } = useCollaborationStore();
   const router = useRouter();
 
-  const handleEditorMount: OnMount = (editor) => {
+  const onLanguageChange = (language: string) => {
+    setLanguage(language);
+  };
+
+  const handleEditorMount = (editor: MonacoEditor.IStandaloneCodeEditor) => {
     if (!matchId) {
       console.error('Cannot mount editor: Match ID is undefined');
       return;
@@ -184,18 +165,11 @@ const CollaborationEditor = ({
     <>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Select value={language} onValueChange={onLanguageChange}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Select Language" />
-            </SelectTrigger>
-            <SelectContent>
-              {supportedLanguages.map((lang) => (
-                <SelectItem key={lang} value={lang}>
-                  {lang}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <LanguageSelector
+            language={language}
+            onSelect={onLanguageChange}
+            supportedLanguages={SUPPORTED_PROGRAMMING_LANGUAGES}
+          />
         </div>
 
         <div className="flex items-center gap-4">
@@ -218,40 +192,13 @@ const CollaborationEditor = ({
               </Button>
             ))}
           </div>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                size="sm"
-                className="border border-amber-700/50 bg-amber-950/90 text-amber-100 hover:bg-amber-900/90"
-              >
-                Leave Session
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-black">
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Leave Collaboration Session?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to leave this session? Any unsaved
-                  progress will be lost.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleLeaveSession}
-                  className="border border-amber-700/50 bg-amber-950/90 text-amber-100 hover:bg-amber-900/90"
-                >
-                  Leave Session
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <LeaveSessionDialog onLeave={handleLeaveSession} />
         </div>
       </div>
-      <CodeEditor onMount={handleEditorMount} language={language} />
+      <CodeEditor
+        onMount={handleEditorMount}
+        language={language.toLowerCase()}
+      />
       <AudioSharing />
     </>
   );

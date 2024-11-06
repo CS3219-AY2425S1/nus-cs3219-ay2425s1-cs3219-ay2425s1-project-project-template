@@ -24,10 +24,17 @@ export const INITIAL_PROBLEM_DATA: Problem = {
 
 export const SUPPORTED_PROGRAMMING_LANGUAGES = ['Python', 'Java', 'C++'];
 
-export const DEFAULT_CODE = `int main() {
-    "Hello World!";
-    return 0;
-}`;
+export const LANGUAGE_VERSIONS: { [key: string]: string } = {
+  python: '3.10.0',
+  java: '15.0.2',
+  'c++': '10.2.0',
+};
+
+export const LANGUAGE_EXTENSION: { [key: string]: string } = {
+  python: 'py',
+  java: 'java',
+  'c++': 'cpp',
+};
 
 export const PASSWORD_RULES = {
   minLength: 8,

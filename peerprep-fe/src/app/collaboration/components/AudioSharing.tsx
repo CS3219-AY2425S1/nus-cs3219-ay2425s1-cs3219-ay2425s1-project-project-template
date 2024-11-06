@@ -48,7 +48,7 @@ const AudioSharing = () => {
       },
     });
 
-    peer.on('signal', (data) => {
+    peer.on('signal', (data: any) => {
       console.log('Sending signal data:', data);
       socketRef.current?.emit('signal', data);
     });
@@ -62,7 +62,7 @@ const AudioSharing = () => {
         .catch((error) => console.error('Error playing audio:', error));
     });
 
-    peer.on('error', (err) => {
+    peer.on('error', (err: any) => {
       console.error('Peer connection error:', err);
       cleanupAudio();
     });
@@ -91,12 +91,12 @@ const AudioSharing = () => {
       console.log('Socket connected');
     });
 
-    socketRef.current.on('connect_error', (error) => {
+    socketRef.current.on('connect_error', (error: any) => {
       console.error('Connection error:', error);
       cleanupAudio();
     });
 
-    socketRef.current.on('signal', async (data) => {
+    socketRef.current.on('signal', async (data: any) => {
       console.log('Received signal data:', data);
 
       if (data.type === 'offer' && !peerRef.current) {
