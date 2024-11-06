@@ -11,7 +11,8 @@ import {
   Button,
   Select,
   Spinner,
-  Text
+  Text,
+  useToast,
 } from '@chakra-ui/react';
 import { FIREBASE_DB } from '../../FirebaseConfig';
 import { ref, onValue, set, get } from 'firebase/database';
@@ -32,9 +33,10 @@ const languageType: { [key: string]: string } = {
 
 interface CodeEditorProps {
   roomId: string;
+  thisUserId: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   const [code, setCode] = useState('//Start writing your code here..');
   const [codeLanguage, setCodeLanguage] = useState<string>('javascript');
   const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null);
@@ -42,6 +44,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false); // New state
 
+  const toast = useToast(); // Initialize Chakra UI toast
+  const previousUsersCount = useRef<number>(0);
+
+  const usersRef = ref(FIREBASE_DB, `rooms/${roomId}/users`);
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`);
   const languageRef = ref(FIREBASE_DB, `rooms/${roomId}/currentLanguage`);
 
@@ -80,6 +86,37 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId }) => {
       unsubscribeLanguage();
     };
   }, [codeLanguage]);
+
+  useEffect(() => {
+    const unsubscribe = onValue(usersRef, (snapshot) => {
+      const users = snapshot.val();
+      
+      // Count only users with a true status, excluding the current user
+      const activeUsers = users
+        ? Object.entries(users).filter(([userId, status]) => status === true && userId !== thisUserId)
+        : [];
+      const userCount = activeUsers.length;
+
+      // Check if the count decreased, meaning a user other than the current user has left
+      if (userCount < previousUsersCount.current) {
+        toast({
+          title: 'User left the room',
+          description: 'Another user has left the room.',
+          status: 'info',
+          duration: 5000, // Infinite duration
+          isClosable: true,
+        });
+      }
+
+      // Update the previous user count to the current count
+      previousUsersCount.current = userCount;
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [toast]);
+
 
   const handleEditorChange = (newValue: string | undefined) => {
     if (newValue !== undefined) {
