@@ -26,6 +26,7 @@ const isProcessing = ref(false)
 const isMatching = ref<boolean>(false)
 const matchFound = ref(false)
 const countdown = ref(30)
+
 let countdownInterval: number | null = null
 
 const fetchTopics = async () => {
@@ -51,48 +52,68 @@ const fetchTopics = async () => {
 
 
 async function handleMessage(ws: WebSocket, event: MessageEvent) {
-
   const message = JSON.parse(event.data);
   const is_user1 = message.user1_id === user.value?.uid;
+
   if (isMatching.value) {
     try {
       console.log('Received message:', message);
       resetCountdown();
       isMatching.value = false;
+
       const status = message.status;
       console.log('status:', status);
+
       if (status === 'cancelled') {
         console.log('Match was cancelled by the other user');
         toast({
           description: 'The match was canceled by the other user. Please try again.',
           variant: 'destructive',
         });
-        console.log('Match was cancelled by the other user');
       } else if (status === 'no_question') {
         console.log('No question found for the category:', message.status);
         toast({
           description: `No question found for the category: ${message.category}. Please try again.`,
           variant: 'destructive',
         });
-      }
-      else {
+      } else {
+        // Update collaboration info first
+        await updateCollaborationInfo(message, status);
 
-        const formattedStatus = message.status[0].toUpperCase() + status.slice(1);
-        let matched_user = message.user1_id;
+        // Retrieve the uid from the collaborationStore
+        const collaborationInfo = collaborationStore.getCollaborationInfo;
+
+        if (!collaborationInfo) {
+          throw new Error('Collaboration information is missing.');
+        }
+
+        const sessionId = collaborationInfo.uid; // Use the uid as session ID
+        console.log('Using session ID from collaborationStore:', sessionId);
+
         if (is_user1) {
-          matched_user = message.user2_id;
           const ack = {
             status: "success",
             uid: message.uid
-          }
+          };
           send(JSON.stringify(ack));
-        }
-        updateCollaborationInfo(message, status);
-        if (collaborationStore.isCollaborating) {
+          console.log('sending ack:', ack);
           toast({
-            description: `${formattedStatus} found! Matched with user: ${matched_user}. Question ID: ${message.question_id}.  Category: ${message.category}. Difficulty: ${message.difficulty}. Redirecting to the collaboration room...`,
+            description: `Match found! Matched with user ${message.user2_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
           });
+          createSession(sessionId, message.user1_id); // Use sessionId from store
+        } else {
+          createSession(sessionId, message.user2_id); // Use sessionId from store
+          toast({
+            description: `Match found! Matched with user ${message.user1_id}. Question ID: ${message.question_id}. Difficulty: ${message.difficulty}. Category: ${message.category}`,
+          });
+        }
+
+        // Optionally navigate to collaboration page
+        if (collaborationStore.isCollaborating) {
           await navigateTo(`/collaboration`);
+          toast({
+            description: `Match found! Redirecting to the collaboration room...`,
+          });
           matchFound.value = true;
         }
       }
@@ -103,9 +124,34 @@ async function handleMessage(ws: WebSocket, event: MessageEvent) {
     const ack = {
       status: "error",
       uid: message.uid
-    }
+    };
     send(JSON.stringify(ack));
   }
+}
+
+
+
+
+function createSession(sessionId: string, username: string) {
+  fetch(`${runtimeConfig.public.chatService}/api/sessions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sessionname: sessionId, username }) // Pass sessionId as sessionname
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Failed to create session');
+    })
+    .then(data => {
+      console.log('Session created:', data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
 async function updateCollaborationInfo(message: any, status: string) {
@@ -116,9 +162,8 @@ async function updateCollaborationInfo(message: any, status: string) {
     question_id: message.question_id,
   };
   collaborationStore.setCollaborationInfo(collaborationInfo);
-
-
 }
+
 
 async function handleCancel() {
 
@@ -288,13 +333,17 @@ onUnmounted(() => {
               </Button>
             </div>
 
-            <Button v-else class="w-3/4 mt-3" :disabled="isProcessing || collaborationStore.isCollaborating">
+
+            <Button v-else class="w-3/4 mt-3" :disabled="isProcessing">
               Match
             </Button>
           </div>
-
-
         </form>
+        <!--
+        <Button @click="collaborationStore.clearCollaborationInfo" class="w-full">
+          Clear
+        </Button>
+        -->
       </CardContent>
     </Card>
   </div>

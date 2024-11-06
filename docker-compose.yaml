@@ -125,6 +125,18 @@ services:
     ports:
       - "5001:5001"
 
+  chat_service:
+    container_name: chat_service
+    build:
+      context: ./backend/chat_service
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_ENV=production
+    ports:
+      - "5002:5002"
+    networks:
+      - backend_network
+
 volumes:
   redis_data:
   kafka_data:

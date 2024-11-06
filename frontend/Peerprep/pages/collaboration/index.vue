@@ -3,9 +3,12 @@ import { useCollaborationStore } from '~/stores/collaborationStore';
 import CodeEditor from '~/components/CodeEditor.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Chat from '~/components/chat/chat.vue';
 
 const collaborationStore = useCollaborationStore();
 const router = useRouter();
+
+const chatRef = ref(null); // Reference to the Chat component
 
 const question = ref(null); // Store the fetched question
 const isLoading = ref(false);
@@ -15,8 +18,8 @@ const fetchQuestion = async (id) => {
   try {
     isLoading.value = true;
     error.value = null;
-    const { data, error: fetchError } = await useFetch(`http://localhost:5000/questions/${id}`);
-    
+    const { data, error: fetchError } = await useFetch(`/api/questions/${id}`);
+
     if (fetchError.value) {
       throw new Error(fetchError.value.message);
     }
@@ -43,29 +46,31 @@ onMounted(() => {
 });
 
 const terminateCollaboration = () => {
-    try {
-        collaborationStore.clearCollaborationInfo();
-        navigateTo('/');
-        // router.replace('/');
-    } catch (error) {
-        console.error('Error in terminateCollaboration:', error);
-    }
+  try {
+    collaborationStore.clearCollaborationInfo();
+    chatRef.value?.sendStopMessage(); // Trigger the stop message in Chat component
+    navigateTo('/');
+  } catch (error) {
+    console.error('Error in terminateCollaboration:', error);
+  }
 };
 </script>
 
 <template>
-    <div class="page-container">
-        <div class="question-box">
-            <h3 class="question-title">{{ question.title }}</h3>
-            <p>{{ question.description }}</p>
-        </div>
-        <CodeEditor/>
-        <div style="margin-top: 8px; text-align: right;">
-            <button class="red-button" @click="terminateCollaboration">
-                Terminate Collaboration
-            </button>
-        </div>
+  <div class="page-container">
+    <div class="question-box">
+      <h3 class="question-title">{{ question.title }}</h3>
+      <p>{{ question.description }}</p>
     </div>
+    <CodeEditor />
+    <div style="margin-top: 8px; text-align: right;">
+      <button class="red-button" @click="terminateCollaboration">
+        Terminate Collaboration
+      </button>
+    </div>
+    <!-- Attach ref to the Chat component -->
+    <Chat ref="chatRef" />
+  </div>
 </template>
 
 <style scoped>
@@ -91,7 +96,7 @@ const terminateCollaboration = () => {
   border: 2px solid black;
   padding: 10px 20px;
   cursor: pointer;
-  font-size: 16px;      
+  font-size: 16px;
   border-radius: 5px;
 }
 
