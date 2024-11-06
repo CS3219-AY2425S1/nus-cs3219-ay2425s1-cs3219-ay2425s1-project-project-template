@@ -8,9 +8,38 @@ connectToDatabase().then(database => {
 })
 
 const difficulties = ["Easy", "Medium", "Hard"];
+/* Verify user's token */
+async function verifyUser(token) {
+    try {
+        console.log("Verifying user " + token);
 
+        const response = await fetch('http://user-service:3001/auth/verify-token', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}` // Include the token in the header if required
+            },
+        });
+
+        if (!response.ok) {
+            // If response is not OK, handle the error
+            return false;
+        }
+
+        // const data = await response.json();
+
+        // Sending the data from the API call as the response
+        return true;
+    } catch (error) {
+        console.error("Error during authentication:", error);
+        return false;
+    }
+}
 /* GET single question. */
 router.get('/question', async (req, res, next) => {
+    const token = req.cookies.accessToken;
+    if (!await verifyUser(token)) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
     console.log(req.query.questionId);
     const questionId = Number(req.query.questionId);
     if (isNaN(questionId)) {
@@ -29,6 +58,10 @@ router.get('/question', async (req, res, next) => {
 
 /* GET multiple questions */
 router.get('/questions', async (req, res, next) => {
+    const token = req.cookies.accessToken;
+    if (!await verifyUser(token)) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
     console.log(req.query.questionId);
     const topic = req.query.topic;
     const difficulty = req.query.difficulty;
@@ -48,8 +81,46 @@ router.get('/questions', async (req, res, next) => {
     res.send(result);
 });
 
+/* GET a random question */
+router.get('/question/random', async (req, res, next) => {
+
+    const topic = req.query.topic;
+    const difficulty = req.query.difficulty;
+    const collection = await db.collection('questions');
+
+    const query = {};
+    if (topic !== undefined) {
+        query['Question Categories'] = topic; // Query based on topic
+    }
+    if (difficulty !== undefined) {
+        query['Question Complexity'] = difficulty; // Query based on difficulty
+    }
+
+    try {
+        const questions = await collection.find(query).toArray();
+        
+        if (questions.length === 0) {
+            return res.status(404).json({ error: 'No questions found' });
+        }
+        
+        // Select a random question from the list
+        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+        delete randomQuestion['_id'];
+
+        res.json(randomQuestion);
+    } catch (error) {
+        console.error("Error retrieving random question:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 /* POST add a question */
 router.post('/question', async (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!await verifyUser(token)) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
     const id = req.body.id;
     const name = req.body.name;
     const description = req.body.description;
@@ -58,11 +129,33 @@ router.post('/question', async (req, res) => {
     const difficulty = req.body.difficulty;
 
     // Check if request body is correctly filled
-    if (id === undefined || name === undefined || name === '' || description === undefined || description === '' ||
-    topics === undefined || difficulty === undefined) {
-        res.status(400).json({'error': 'Invalid Body'});
+    if (id === undefined) {
+        console.error('Error: id is required');
+        res.status(400).json({'error': 'id is required'});
+        return;
+    }
+    if (name === undefined || name === '') {
+        console.error('Error: name is required');
+        res.status(400).json({'error': 'name is required'});
+        return;
+    }
+    if (description === undefined || description === '') {
+        console.error('Error: description is required');
+        res.status(400).json({'error': 'description is required'});
+        return;
+    }
+    if (topics === undefined) {
+        console.error('Error: topics are required');
+        res.status(400).json({'error': 'topics are required'});
+        return;
+    }
+    if (difficulty === undefined) {
+        console.error('Error: difficulty is required');
+        res.status(400).json({'error': 'difficulty is required'});
+        return;
     }
     if (!difficulties.includes(difficulty)) {
+        console.error('Error: Invalid Difficulty');
         res.status(400).json({'error': 'Invalid Difficulty'});
         return;
     }
@@ -71,10 +164,20 @@ router.post('/question', async (req, res) => {
     // Check if a question with the same ID, Title or Description already exists
     const existing_questions = await collection.find({}).toArray();
     for (const question of existing_questions) {
-        if (question['Question ID'] === id || question['Question Title'] === name ||
-            question['Question Description'] === description ||
-            leetcode_link !== undefined && question.Link === leetcode_link) {
-            res.status(400).json({'error': 'Question already exists'});
+        if (question['Question ID'] === id) {
+            res.status(400).json({'error': 'Question ID already exists'});
+            return;
+        }
+        if (question['Question Title'] === name) {
+            res.status(400).json({'error': 'Question Title already exists'});
+            return;
+        }
+        if (question['Question Description'] === description) {
+            res.status(400).json({'error': 'Question Description already exists'});
+            return;
+        }
+        if (leetcode_link !== undefined && question.Link === leetcode_link) {
+            res.status(400).json({'error': 'Leetcode link already exists'});
             return;
         }
     }
@@ -91,6 +194,10 @@ router.post('/question', async (req, res) => {
 });
 
 router.delete('/question/:questionId', async (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!await verifyUser(token)) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
     const collection = await db.collection('questions');
     const questionId = Number(req.params.questionId);
     if (isNaN(questionId)) {
@@ -117,6 +224,10 @@ router.delete('/question/:questionId', async (req, res) => {
 });
 
 router.patch('/question/:questionId', async (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!await verifyUser(token)) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
     const questionId = Number(req.params.questionId);
     if (isNaN(questionId)) {
         res.status(400).json({'error': 'Invalid Question ID'});
@@ -152,10 +263,21 @@ router.patch('/question/:questionId', async (req, res) => {
     const existing_questions = await collection.find({}).toArray();
     for (const question of existing_questions) {
         if (question['Question ID'] === id) { continue; }
-        if (question['Question Title'] === name ||
-            question['Question Description'] === description ||
-            leetcode_link !== undefined && question.Link === leetcode_link) {
-            res.status(400).json({'error': 'Question already exists'});
+        if (question['Question ID'] === id) {
+            res.status(400).json({'error': 'Question ID already exists'});
+            return;
+        }
+        if (question['Question Title'] === name) {
+            res.status(400).json({'error': 'Question Title already exists'});
+            return;
+        }
+        if (question['Question Description'] === description) {
+            console.log("HERE " + id);
+            res.status(400).json({'error': 'Question Description already exists'});
+            return;
+        }
+        if (leetcode_link !== undefined && question.Link === leetcode_link) {
+            res.status(400).json({'error': 'Leetcode link already exists'});
             return;
         }
     }

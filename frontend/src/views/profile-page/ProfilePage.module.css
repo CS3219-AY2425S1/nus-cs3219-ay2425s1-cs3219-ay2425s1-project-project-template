@@ -1,0 +1,160 @@
+.profilePage {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.profileContainer {
+    width: 80vw;
+    max-width: 800px;
+    max-height: max-content;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #1f2937;
+    border-radius: 8px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profileHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.userDetails h2 {
+    margin: 0;
+    font-size: 1.8em;
+    color: #ffffff;
+}
+
+.userDetails p {
+    margin: 0;
+    font-size: 1em;
+    color: #a1a1a1; 
+}
+
+.profileInfo {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.infoBlock {
+    flex: 1;
+    min-width: 45%;
+    margin-bottom: 20px;
+}
+
+.infoBlock p {
+    margin: 0;
+    color: #a1a1a1;
+    font-size: 0.9em;
+}
+
+.infoBlock strong {
+    font-size: 1.2em;
+    color: #f5f5f5;
+}
+
+.questionHistory {
+    width: 80vw;
+    max-width: 800px;
+    max-height: max-content;
+    margin: 20px auto;
+    border-radius: 8px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.questionHistory h2 {
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+.questionHistory ul {
+    list-style: none;
+    padding: 0;
+}
+
+.questionItem {
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 6px;
+}
+
+.questionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    background-color: #1f2937;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.questionHeader:hover {
+    background-color: #444;
+}
+
+.snippetContainer {
+    padding: 15px;
+    background-color: #1e1f26;
+    border-radius: 4px;
+}
+
+.questionDescription {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.label {
+    font-weight: bold; 
+    font-size: 1.2em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.tabContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+}
+
+.tabButton {
+    background-color: #2a2a4d; 
+    border: none;
+    color: #ffffff; 
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tabButton:hover {
+    background-color: #e0e0e0; 
+}
+
+.tabButton.activeTab {
+    background-color: #ffffff; /* Active background color */
+    color: #2a2a4d; /* Text color when active */
+    font-weight: bold; /* Bold text when active */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional shadow for emphasis */
+}
+
+.codeBlock {
+    background-color: #27282d;
+    padding: 10px;
+    border-radius: 4px;
+    color: white;
+    overflow-x: auto;
+    margin-top: 10px;
+}

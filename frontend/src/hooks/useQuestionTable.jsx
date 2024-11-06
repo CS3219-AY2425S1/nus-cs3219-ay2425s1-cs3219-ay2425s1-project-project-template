@@ -7,7 +7,7 @@ function useQuestionTable() {
 
     const fetchQuestions = async () => {
         try {
-            const response = await fetch(`${VITE_QUESTION_SERVICE_API}/questions`);
+            const response = await fetch(`${VITE_QUESTION_SERVICE_API}/questions`, {credentials: "include"});
             console.log(response);
             if (!response.ok) {
                 const errorData = await response.json();
@@ -29,8 +29,13 @@ function useQuestionTable() {
 
     const handleDelete = async (questionId) => {
         try {
+<<<<<<< HEAD
             const response = await fetch(`${VITE_QUESTION_SERVICE_API}/question/${questionId}`, {
                 method: 'DELETE',
+=======
+            const response = await fetch(`http://localhost:4000/question/${questionId}`, {
+                method: 'DELETE', credentials: "include"
+>>>>>>> main
             });
             if (!response.ok) {
                 const errorData = await response.json();
@@ -52,6 +57,7 @@ function useQuestionTable() {
         try {
             const response = await fetch(`${VITE_QUESTION_SERVICE_API}/question`, {
                 method: 'POST',
+                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json', // Indicate that the request body is JSON
                 },
@@ -83,6 +89,7 @@ function useQuestionTable() {
         try {
             const response = await fetch(`${VITE_QUESTION_SERVICE_API}/question/${questionId}`, {
                 method: 'PATCH',
+                credetials: "include",
                 headers: {
                     'Content-Type': 'application/json', // Indicate that the request body is JSON
                 },
