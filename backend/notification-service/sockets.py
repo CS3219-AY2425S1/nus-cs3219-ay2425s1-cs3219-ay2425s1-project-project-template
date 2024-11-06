@@ -26,18 +26,20 @@ def handle_match_found(data):
     user1_id, user2_id = data.get("user1Id"), data.get("user2Id")
     user1_name, user2_name = data.get("user1Name"), data.get("user2Name")
     match_message = data.get("message")
+    match_topic = data.get("match_topic")
+    match_difficulty = data.get("match_difficulty")
     user1_socket_id, user2_socket_id = connected_users.get(user1_id), connected_users.get(user2_id)
 
     # Notify user 1 if connected
     if user1_socket_id:
-        emit("notification", {"match": user2_name, "match_message": match_message}, room=user1_socket_id)
+        emit("notification", {"match": user2_name, "match_message": match_message, "match_topic": match_topic, "match_difficulty": match_difficulty}, room=user1_socket_id)
         print(f"Notification sent to user {user1_name} about user {user2_name}", file=sys.stderr)
     else:
         print(f"User {user1_name} is not connected", file=sys.stderr)
 
     # Notify user 2 if connected
     if user2_socket_id:
-        emit("notification", {"match": user1_name, "match_message": match_message}, room=user2_socket_id)
+        emit("notification", {"match": user1_name, "match_message": match_message, "match_topic": match_topic, "match_difficulty": match_difficulty}, room=user2_socket_id)
         print(f"Notification sent to user {user2_name} about user {user1_name}", file=sys.stderr)
     else:
         print(f"User {user2_name} is not connected", file=sys.stderr)

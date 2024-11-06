@@ -69,19 +69,19 @@ def match_user(request):
                 continue
         elif pending['topic'] == topic and pending['difficulty'] == difficulty:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
-            sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty} and topic: {topic}"))
+            sio.emit("match_found", get_match_payload(user1, user2, topic, difficulty, f"Matched on difficulty: {difficulty} and topic: {topic}"))
             pending_requests.remove(pending)
             print("Sent match found event", file=sys.stderr)
             print("New pending requests list: " + str(pending_requests), file=sys.stderr)
             return
         elif pending['topic'] == topic:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
-            sio.emit("match_found", get_match_payload(user1, user2, f"Matched on topic: {topic}"))
+            sio.emit("match_found", get_match_payload(user1, user2, topic, difficulty, f"Matched on topic: {topic}"))
             pending_requests.remove(pending)
             return
         elif pending['difficulty'] == difficulty:
             print(f"MATCHED {user1['username']} with {user2['username']}", file=sys.stderr)
-            sio.emit("match_found", get_match_payload(user1, user2, f"Matched on difficulty: {difficulty}"))
+            sio.emit("match_found", get_match_payload(user1, user2, topic, difficulty, f"Matched on difficulty: {difficulty}"))
             pending_requests.remove(pending)
             return
 
@@ -93,13 +93,15 @@ def match_user(request):
     threading.Timer(60.0, remove_request, [request]).start()
 
 
-def get_match_payload(user1, user2, match_message):
+def get_match_payload(user1, user2, match_topic, match_difficulty, match_message):
     return {
         "user1Id": user1['userId'],
         "user1Name": user1['username'],
         "user2Id": user2['userId'],
         "user2Name": user2['username'],
-        "message": match_message
+        "message": match_message,
+        "match_topic": match_topic,
+        "match_difficulty": match_difficulty
     }
 
 
