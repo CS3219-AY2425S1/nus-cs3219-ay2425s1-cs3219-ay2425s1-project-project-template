@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CodeEditor from '../../components/collab/CodeEditor';
+import CodeEditor from '../../../components/collab/CodeEditor';
 import { Box, Spinner, Text } from '@chakra-ui/react';
-import { FIREBASE_DB } from '../../FirebaseConfig';
+import { FIREBASE_DB } from '../../../FirebaseConfig';
 import { ref, onValue } from 'firebase/database';
 
 interface RoomPageProps {
