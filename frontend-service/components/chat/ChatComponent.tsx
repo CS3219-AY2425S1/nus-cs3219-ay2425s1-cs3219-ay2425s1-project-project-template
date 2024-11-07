@@ -76,11 +76,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
   }, [roomId, userId]);
 
   const sendMessage = () => {
-    if (!socket || !userId || !roomId) return;
+    if (!socket || !userId || !roomId || !message.trim()) return; // Check if message is not empty or whitespace
 
     const messageData = {
       roomId,
-      message,
+      message: message.trim(), // Trim any extra whitespace
       author: userId,
       time: new Date().toISOString(),
     };
