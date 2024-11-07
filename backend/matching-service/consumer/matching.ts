@@ -56,7 +56,7 @@ const performMatching = async (
                 questionId: res.data.questionId,
                 title: res.data.title,
                 description: res.data.description,
-                difficulty: bestMatch.difficulty,
+                difficulty: res.data.difficulty,
                 categories: res.data.categories,
                 testCases: res.data.testCases
             }
