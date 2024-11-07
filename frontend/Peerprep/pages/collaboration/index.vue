@@ -64,7 +64,7 @@ const terminateCollaboration = () => {
       <h3 class="question-title">{{ question.title }}</h3>
       <p>{{ question.description }}</p>
     </div>
-    <AdviceBox v-if="question" :description="question.description" :uid="session_info.uid"/>
+    <AdviceBox style="padding-bottom: 20px;" v-if="question" :description="question.description" :uid="session_info.uid"/>
     <div style="display:flex; width:100%;">
       <div style="flex:2;">
         <Chat ref="chatRef" />
