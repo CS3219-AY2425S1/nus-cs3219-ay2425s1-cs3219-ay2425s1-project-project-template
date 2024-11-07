@@ -9,7 +9,7 @@ const useHistoryUpdate = () => {
     const [isError, setError] = useState(false);
     const [cookies] = useCookies(['accessToken']);
 
-    const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost:3001';
+    const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost/api/users';
 
     const handleHistoryUpdate = async (userId, sessionId, questionId, questionDescription, language, codeSnippet) => {
         setLoading(true);
