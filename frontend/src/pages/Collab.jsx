@@ -39,6 +39,8 @@ const Collab = () => {
     const [isSoloSession, setIsSoloSession] = useState(false);
     const [showSnackbar, setShowSnackbar] = useState(false);
 
+    const [attemptStatus, setAttemptStatus] = useState('attempted');
+
     // Ensure location state exists, else redirect to home
     useEffect(() => {
         if (!location.state) {
@@ -71,16 +73,6 @@ const Collab = () => {
         return () => {
             if (socketRef.current) {
                 socketRef.current.emit("user-left", roomId);
-                if (editorRef.current)
-                    historyService.updateUserHistory(userId, cookies.token, {
-                        roomId,
-                        question: question._id,
-                        user: userId,
-                        partner: partnerUsername,
-                        status: 'attempted',
-                        datetime: datetime,
-                        solution: editorRef.current.getValue(),
-                    });
                 socketRef.current.disconnect();
             }
         };
@@ -160,11 +152,23 @@ const Collab = () => {
     const { question, language, matchedUser, roomId, datetime } = location.state;
     const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
-    const handleSubmit = () => { console.log("Submit code"); };
+    const handleSubmit = () => {
+        console.log("Submit code");
+        setAttemptStatus("submitted");
+    };
 
     const handleQuit = () => setShowQuitPopup(true);
 
     const handleQuitConfirm = () => {
+        historyService.updateUserHistory(userId, cookies.token, {
+            roomId,
+            question: question._id,
+            user: userId,
+            partner: partnerUsername,
+            status: attemptStatus,
+            datetime: datetime,
+            solution: editorRef.current.getValue(),
+        });
         setShowPartnerQuitPopup(false);
         socketRef.current.emit("user-left", location.state.roomId);
         providerRef.current?.destroy();

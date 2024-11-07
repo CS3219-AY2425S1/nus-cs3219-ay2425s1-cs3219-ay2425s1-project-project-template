@@ -145,7 +145,7 @@ export default function HistoryTable() {
                         sx={{
                           color: 
                             row.status.toLowerCase() === 'attempted' ? '#FFB800' :
-                            row.status.toLowerCase() === 'solved' ? '#00C000' : 'black',
+                            row.status.toLowerCase() === 'submitted' ? '#00C000' : 'black',
                           fontSize: 20, 
                           fontFamily: 'Poppins', 
                           fontWeight: '600', 
