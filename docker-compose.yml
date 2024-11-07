@@ -107,8 +107,22 @@ services:
       - "8082:8082"
     networks:
       - ihatefrontend  
-
-
+      
+  nginx:
+    image: nginx:alpine
+    container_name: peer-prep-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - question
+      - user
+      - collaboration
+      - websocket
+    networks:
+      - ihatefrontend
+      
 networks:
   rabbitmqNetwork:
     driver: bridge
