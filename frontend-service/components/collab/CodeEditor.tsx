@@ -329,7 +329,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
               ))}
             </Select>
             <Button size="sm" colorScheme="red" mr={3} onClick={() => setIsDialogOpen(true)}>Leave Room</Button>
-            <Button size="sm" colorScheme="blue" mr={3}>Run</Button>
             <Button size="sm" colorScheme="gray" onClick={handleResetCode}>Reset</Button>
           </Box>
         </Box>
