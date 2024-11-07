@@ -1,11 +1,15 @@
 import { Request, Response } from 'express'
-import Question from '../models/question'
-import { getPossibleDuplicates, getQuestionById } from '../utils/utils'
+import Question, { ITestCase } from '../models/question'
+import {
+    getPossibleDuplicates,
+    getQuestionById,
+    removeDuplicateTestCases,
+} from '../utils/utils'
 import logger from '../utils/logger'
 
 const editQuestion = async (req: Request, res: Response) => {
     const { questionId } = req.params
-    const { title, description, categories, difficulty } = req.body
+    const { title, description, categories, difficulty, testCases } = req.body
 
     if (!questionId) {
         logger.error('Question ID required')
@@ -20,20 +24,48 @@ const editQuestion = async (req: Request, res: Response) => {
     }
 
     try {
-        if (title != existingQuestion.title || description != existingQuestion.description) {
+        if (
+            title != existingQuestion.title ||
+            description != existingQuestion.description
+        ) {
             const possibleDuplicates = await getPossibleDuplicates(
                 parseInt(questionId),
                 title,
-                description
+                description,
             )
 
             if (possibleDuplicates && possibleDuplicates.length > 0) {
                 logger.error('Question already exists')
-                return res.status(400).json({ message: 'Question already exists' })
+                return res
+                    .status(400)
+                    .json({ message: 'Question already exists' })
             }
         }
 
-        const updatedFields = { title, description, categories, difficulty }
+        const updatedFields: any = {}
+
+        if (title) {
+            updatedFields.title = title
+        }
+
+        if (description) {
+            updatedFields.description = description
+        }
+
+        if (categories) {
+            updatedFields.categories = categories
+        }
+
+        if (difficulty) {
+            updatedFields.difficulty = difficulty
+        }
+
+        if (testCases) {
+            const cleanedTestCases = removeDuplicateTestCases(
+                testCases as ITestCase[],
+            )
+            updatedFields.testCases = cleanedTestCases
+        }
 
         const updatedQuestion = await Question.findOneAndUpdate(
             { questionId },

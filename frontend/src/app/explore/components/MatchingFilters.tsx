@@ -1,4 +1,5 @@
 "use client"
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { MultiSelect } from "@/components/multi-select";
@@ -20,10 +21,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Hourglass } from 'lucide-react';
 
 const MatchingFilters = () => {
+    const router = useRouter();
     const socketRef = useRef<Socket | null>(null);
     const { user, isAuthenticated } = useAuth();
     const { toast } = useToast()
-    const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+    const [selectedLanguage, setSelectedLanguage] = useState<string>();
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
@@ -53,24 +55,14 @@ const MatchingFilters = () => {
         { label: "Databases", value: "Databases" },
         { label: "Arrays", value: "Arrays" },
         { label: "Brainteaser", value: "Brainteaser" },
+        { label: "Dynamic Programming", value: "Dynamic Programming" },
     ]
     const difficultyList = [
         { label: "Easy", value: "Easy" },
         { label: "Medium", value: "Medium" },
         { label: "Hard", value: "Hard" },
     ]
-    const questionsList = [
-        { label: "Question 1", value: "Question 1" },
-        { label: "Question 2", value: "Question 2" },
-        { label: "Question 3", value: "Question 3" },
-        { label: "Question 4", value: "Question 4" },
-        { label: "Question 5", value: "Question 5" },
-        { label: "Question 6", value: "Question 6" },
-        { label: "Question 7", value: "Question 7" },
-        { label: "Question 8", value: "Question 8" },
-        { label: "Question 9", value: "Question 9" },
-        { label: "Question 10", value: "Question 10" },
-    ]
+    const [matchStatus, setMatchStatus] = useState<'pending' | 'waiting' | 'accepted' | 'timeout' | 'failed'>('pending');
 
     // Setup socket connection and event handlers
     useEffect(() => {
@@ -87,6 +79,16 @@ const MatchingFilters = () => {
             setMatchPartner(partner);
             setIsMatchFound(true);
             setIsSearching(false);
+            setMatchStatus('pending');
+        });
+
+        socket.on('waitingForPartner', (data: any) => {
+            console.log(data.message);
+            setMatchStatus('waiting');
+            toast({
+                title: 'Waiting for Partner',
+                description: data.message,
+            });
         });
 
         socket.on('noMatchFound', (data: any) => {
@@ -100,6 +102,7 @@ const MatchingFilters = () => {
 
         socket.on('matchCanceled', (data: any) => {
             console.log(`Match canceled:`, data.message);
+            setMatchStatus('failed');
             toast({
                 title: "Match Canceled",
                 description: data.message,
@@ -107,15 +110,26 @@ const MatchingFilters = () => {
             setIsSearching(false);
         });
 
+        socket.on('matchAccepted', (data: any) => {
+            console.log('Both users have accepted the match:', data.matchId, data.roomId, data.language);
+            setMatchStatus('accepted');
+
+            // codespace logic
+            const { roomId } = data;
+            router.push(`/codeeditor/${roomId}`);
+        });
+
         return () => {
             socket.off('connect');
             socket.off('matchFound');
             socket.off('noMatchFound');
             socket.off('matchCanceled');
+            socket.off('matchAccepted');
+            socket.off('waitingForPartner');
             socket.disconnect();
         }
     }, [user]);
-
+    
     const onSearchPress = () => {
         if (!isSearching) {
             setIsSearching(true);
@@ -124,6 +138,7 @@ const MatchingFilters = () => {
                 userName: user?.name,
                 difficulty: selectedDifficulty,
                 categories: selectedCategories,
+                language: selectedLanguage
             }
             socketRef.current?.emit('login', user?.id);
             socketRef.current?.emit('requestMatch', matchRequest);
@@ -134,6 +149,11 @@ const MatchingFilters = () => {
             console.log('Sent cancel match for user', user?.id);
         }
     }
+
+    const handleAccept = (matchId: string) => {
+        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id });
+        setMatchStatus('waiting');
+    };
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -155,7 +175,7 @@ const MatchingFilters = () => {
 
     return (
         <div className="flex flex-col p-8 gap-4">
-            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={() => { }} />}
+            {isMatchFound && <SuccessMatchInfo isOpen={isMatchFound} match={matchPartner} onOpenChange={setIsMatchFound} handleAccept={handleAccept} matchStatus={matchStatus} setMatchStatus={setMatchStatus}/>}
             <h1 className="text-2xl font-bold self-start text-transparent bg-clip-text bg-gradient-to-r from-[var(--gradient-text-first)] via-[var(--gradient-text-second)] to-[var(--gradient-text-third)]">Look for peers to code now!</h1>
             <div className='flex gap-6'>
                 {/* <div className='w-1/3'>
@@ -169,7 +189,7 @@ const MatchingFilters = () => {
                         disabled={isSearching}
                     />
                 </div> */}
-                <div className='w-1/3'>
+                <div className='w-1/4'>
                     <Label>Difficulty</Label>
                     <Select disabled={isSearching} onValueChange={(value: string) => setSelectedDifficulty(value)}>
                         <SelectTrigger>
@@ -184,7 +204,22 @@ const MatchingFilters = () => {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className='w-2/3'>
+                <div className='w-1/4'>
+                    <Label>Language</Label>
+                    <Select disabled={isSearching} onValueChange={(value: string) => setSelectedLanguage(value)}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {languagesList.map((language) => (
+                                <SelectItem key={language.value} value={language.value}>
+                                    {language.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className='w-2/4'>
                     <Label>Categories</Label>
                     <MultiSelect
                         options={categoriesList}

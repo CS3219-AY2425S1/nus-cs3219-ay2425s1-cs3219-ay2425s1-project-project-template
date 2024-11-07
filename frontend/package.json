@@ -11,6 +11,7 @@
     "dependencies": {
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
+        "@monaco-editor/react": "^4.6.0",
         "@mui/icons-material": "^6.1.1",
         "@mui/material": "^6.1.1",
         "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -20,8 +21,10 @@
         "@radix-ui/react-progress": "^1.1.0",
         "@radix-ui/react-separator": "^1.1.0",
         "@radix-ui/react-slot": "^1.1.0",
+        "@radix-ui/react-switch": "^1.1.1",
         "@radix-ui/react-toast": "^1.2.2",
         "@radix-ui/react-tooltip": "^1.1.2",
+        "axios": "^1.7.7",
         "class-variance-authority": "^0.7.0",
         "classnames": "^2.5.1",
         "clsx": "^2.1.1",
@@ -33,7 +36,11 @@
         "react-dom": "^18.3.1",
         "socket.io-client": "^4.8.0",
         "tailwind-merge": "^2.5.2",
-        "tailwindcss-animate": "^1.0.7"
+        "tailwindcss-animate": "^1.0.7",
+        "y-monaco": "^0.1.6",
+        "y-webrtc": "^10.3.0",
+        "y-websocket": "^2.0.4",
+        "yjs": "^13.6.20"
     },
     "devDependencies": {
         "@hookform/resolvers": "^3.9.0",

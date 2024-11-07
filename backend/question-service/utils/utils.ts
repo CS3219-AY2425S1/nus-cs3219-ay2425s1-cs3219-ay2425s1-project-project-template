@@ -1,4 +1,4 @@
-import Question from '../models/question'
+import Question, { ITestCase } from '../models/question'
 
 const checkQuestionExists = async (
     title: string,
@@ -63,4 +63,17 @@ const getNextQuestionId = async () => {
     }
 }
 
-export { checkQuestionExists, getPossibleDuplicates, getQuestionById, getNextQuestionId }
+const removeDuplicateTestCases = (testCases: ITestCase[]) => {
+    const seen = new Set()
+    const filtered = []
+
+    for (const testCase of testCases) {
+        if (!seen.has(testCase.input)) {
+            seen.add(testCase.input)
+            filtered.push(testCase)
+        }
+    }
+    return filtered
+}
+
+export { checkQuestionExists, getPossibleDuplicates, getQuestionById, getNextQuestionId, removeDuplicateTestCases }
