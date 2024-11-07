@@ -16,7 +16,7 @@ import {
   Profile,
   ResetPasswordInput,
   UpdateProfileInput,
-} from '../types/Api';
+} from '../types/AuthType';
 
 type AuthContextProps = {
   token: string | null;

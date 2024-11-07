@@ -6,32 +6,15 @@ import {
   Title,
   TypographyStylesProvider,
 } from '@mantine/core';
-import { useEffect, useState } from 'react';
 
-import { getQuestionById } from '../../apis/QuestionApi';
-import { Question } from '../../types/Question';
+import { Question } from '../../types/QuestionType';
 import DifficultyBadge from '../badge/DifficultyBadge';
 
 interface DescriptionTabProps {
-  questionId: string;
+  question?: Question;
 }
 
-function DescriptionTab({ questionId }: DescriptionTabProps) {
-  const [question, setQuestion] = useState<Question | null>(null);
-
-  useEffect(() => {
-    if (questionId) {
-      getQuestionById(questionId).then(
-        (response: Question[]) => {
-          setQuestion(response[0]);
-        },
-        (error: any) => {
-          console.log(error);
-        },
-      );
-    }
-  }, [questionId]);
-
+function DescriptionTab({ question }: DescriptionTabProps) {
   return (
     <ScrollArea h="100%" offsetScrollbars>
       {question && (

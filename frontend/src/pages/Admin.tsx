@@ -20,13 +20,13 @@ import Header from '../components/header/Header';
 import ConfirmationModal from '../components/modal/ConfirmationModal';
 import UpdateQuestionModal from '../components/modal/UpdateQuestionModal';
 import ViewQuestionModal from '../components/modal/ViewQuestionModal';
+import config from '../config';
 import { difficulties, useTopics } from '../constants/Question';
 import {
   AddQuestionInput,
   Question,
   UpdateQuestionInput,
-} from '../types/Question';
-import config from '../config';
+} from '../types/QuestionType';
 
 const API_BASE_URL = `${config.ROOT_BASE_API}api/questions`;
 

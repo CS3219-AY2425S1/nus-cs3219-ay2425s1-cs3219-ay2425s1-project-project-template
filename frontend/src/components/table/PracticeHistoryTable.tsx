@@ -1,22 +1,52 @@
-import { useState } from 'react';
-import { Group, Stack, Table, Title, Modal, Tabs } from '@mantine/core';
-import { PracticeHistoryItem } from '../../types/History';
-import  CodeEditor  from '../codeEditor/CodeEditor';
+import {
+  ActionIcon,
+  Group,
+  Modal,
+  Stack,
+  Table,
+  Tabs,
+  Title,
+} from '@mantine/core';
+import { IconEye } from '@tabler/icons-react';
 import { langs } from '@uiw/codemirror-extensions-langs';
+import { useEffect, useState } from 'react';
+
+import { getQuestionById } from '../../apis/QuestionApi';
+import { SupportedLanguage } from '../../types/CodeExecutionType';
+import { PracticeHistoryItem } from '../../types/History';
+import { Question } from '../../types/QuestionType';
+import CodeEditor from '../codeEditor/CodeEditor';
 import DescriptionTab from '../tabs/DescriptionTab';
 
-type SupportedLanguages = keyof typeof langs;
-
 function formatDate(dateString: string): string {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  };
   return new Date(dateString).toLocaleDateString('en-US', options);
 }
 
 function QuestionTab({ questionId }: { questionId: string }) {
+  const [question, setQuestion] = useState<Question | undefined>(undefined);
+
+  useEffect(() => {
+    if (questionId) {
+      getQuestionById(questionId).then(
+        (response: Question[]) => {
+          setQuestion(response[0]);
+        },
+        (error: any) => {
+          console.log(error);
+        },
+      );
+    }
+  }, [questionId]);
+
   return (
     <Tabs
       defaultValue="description"
-      h="calc(100% - 160px)"
+      h="100%"
       bg="slate.9"
       p="10px"
       style={{ borderRadius: '4px' }}
@@ -26,14 +56,15 @@ function QuestionTab({ questionId }: { questionId: string }) {
       </Tabs.List>
 
       <Tabs.Panel value="description" h="calc(100% - 36px)">
-        <DescriptionTab questionId={questionId} />
+        <DescriptionTab question={question} />
       </Tabs.Panel>
     </Tabs>
   );
 }
 
 function PracticeRoom({ practiceData }: { practiceData: PracticeHistoryItem }) {
-  const programmingLanguage = practiceData.programmingLanguage.toLowerCase() as SupportedLanguages;
+  const programmingLanguage =
+    practiceData.programmingLanguage.toLowerCase() as SupportedLanguage;
 
   return (
     <>
@@ -52,10 +83,8 @@ function PracticeRoom({ practiceData }: { practiceData: PracticeHistoryItem }) {
           <CodeEditor
             code={practiceData.textWritten}
             setCode={() => {}}
-            extensions={[
-              langs[programmingLanguage](),
-            ]}
-            readOnly={true}
+            extensions={[langs[programmingLanguage]()]}
+            readOnly
           />
         </Stack>
       </Group>
@@ -63,9 +92,14 @@ function PracticeRoom({ practiceData }: { practiceData: PracticeHistoryItem }) {
   );
 }
 
-function PracticeHistoryTable({ attempts }: { attempts: PracticeHistoryItem[] }) {
+function PracticeHistoryTable({
+  attempts,
+}: {
+  attempts: PracticeHistoryItem[];
+}) {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedAttempt, setSelectedAttempt] = useState<PracticeHistoryItem | null>(null);
+  const [selectedAttempt, setSelectedAttempt] =
+    useState<PracticeHistoryItem | null>(null);
 
   const openModal = (attempt: PracticeHistoryItem) => {
     setSelectedAttempt(attempt);
@@ -78,8 +112,17 @@ function PracticeHistoryTable({ attempts }: { attempts: PracticeHistoryItem[] })
       <Table.Td>{attempt.questionDifficulty}</Table.Td>
       <Table.Td>{attempt.programmingLanguage}</Table.Td>
       <Table.Td>{formatDate(attempt.datetime)}</Table.Td>
-      <Table.Td onClick={() => openModal(attempt)} style={{ cursor: 'pointer' }}>
-        View
+      <Table.Td>
+        <ActionIcon
+          variant="light"
+          color="gray"
+          aria-label="View"
+          onClick={() => {
+            openModal(attempt);
+          }}
+        >
+          <IconEye />
+        </ActionIcon>
       </Table.Td>
     </Table.Tr>
   ));
@@ -88,7 +131,12 @@ function PracticeHistoryTable({ attempts }: { attempts: PracticeHistoryItem[] })
     <>
       <Stack p="20px" bg="slate.8" gap="20px" style={{ borderRadius: '4px' }}>
         <Title order={2}>Practice History</Title>
-        <Table verticalSpacing="sm" highlightOnHover>
+        <Table
+          verticalSpacing="sm"
+          highlightOnHover
+          highlightOnHoverColor="slate.9"
+          borderColor="dark.4"
+        >
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Question</Table.Th>
@@ -107,7 +155,7 @@ function PracticeHistoryTable({ attempts }: { attempts: PracticeHistoryItem[] })
         onClose={() => setModalOpen(false)}
         title={
           selectedAttempt
-            ? `Review: ${selectedAttempt.questionName } on ${formatDate(selectedAttempt.datetime)} in ${selectedAttempt.programmingLanguage}.`
+            ? `Review: ${selectedAttempt.questionName} on ${formatDate(selectedAttempt.datetime)} in ${selectedAttempt.programmingLanguage}.`
             : 'Review'
         }
         fullScreen

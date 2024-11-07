@@ -13,7 +13,34 @@
     "description": "Roman numerals are represented by seven different symbols: <code>I</code>, <code>V</code>, <code>X</code>, <code>L</code>, <code>C</code>, <code>D</code> and <code>M</code>.\n<ul>\n  <li><code>I -> 1</code></li>\n  <li><code>V -> 5</code></li>\n  <li><code>X -> 10</code></li>\n  <li><code>L -> 50</code></li>\n  <li><code>C -> 100</code></li>\n  <li><code>D -> 500</code></li>\n  <li><code>M -> 1000</code></li>\n</ul>\nFor example, <code>2</code> is written as <code>II</code> in Roman numeral, just two ones added together. <code>12</code> is written as <code>XII</code>, which is simply <code>X + II</code>. The number <code>27</code> is written as <code>XXVII</code>, which is <code>XX + V + II</code>.<br /><br />\n\nRoman numerals are usually written largest to smallest from left to right. However, the numeral for four is not <code>IIII</code>. Instead, the number four is written as <code>IV</code>. Because the one is before the five we subtract it making four. The same principle applies to the number nine, which is written as <code>IX</code>. There are six instances where subtraction is used:\n<ul>\n  <li><code>I</code> can be placed before <code>V</code> (5) and <code>X</code> (10) to make 4 and 9.</li>\n  <li><code>X</code> can be placed before <code>L</code> (50) and <code>C</code> (100) to make 40 and 90.</li>\n  <li><code>C</code> can be placed before <code>D</code> (500) and <code>M</code> (1000) to make 400 and 900.</li>\n</ul>\nGiven a roman numeral, convert it to an integer.<br /><br />\n\n<b>Example 1:</b><br />\nInput: <code>s = \"III\"</code><br />\nOutput: <code>3</code><br />\nExplanation: <code>III = 3.</code><br /><br />\n\n<b>Example 2:</b><br />\nInput: <code>s = \"LVIII\"</code><br />\nOutput: <code>58</code><br />\nExplanation: <code>L = 50, V= 5, III = 3.</code><br /><br />\n\n<b>Example 3:</b><br />\nInput: <code>s = \"MCMXCIV\"</code><br />\nOutput: <code>1994</code><br />\nExplanation: <code>M = 1000, CM = 900, XC = 90 and IV = 4.</code><br /><br />\n\n<b>Constraints:</b>\n<ul>\n  <li><code>1 <= s.length <= 15</code></li>\n  <li><code>s</code> contains only the characters <code>('I', 'V', 'X', 'L', 'C', 'D', 'M')</code>.</li>\n  <li>It is <b>guaranteed</b> that <code>s</code> is a valid roman numeral in the range <code>[1, 3999]</code>.\n</li>\n</ul>",
     "topics": ["Hash Table", "Math", "String"],
     "difficulty": "Easy",
-    "images": []
+    "images": [],
+    "testCases": [
+      {
+        "input": "III",
+        "answer": "3",
+        "isHidden": false
+      },
+      {
+        "input": "XIV",
+        "answer": "14",
+        "isHidden": false
+      },
+      {
+        "input": "XXIX",
+        "answer": "29",
+        "isHidden": false
+      },
+      {
+        "input": "LXXXIV",
+        "answer": "84",
+        "isHidden": true
+      },
+      {
+        "input": "MCMXCIV",
+        "answer": "1994",
+        "isHidden": true
+      }
+    ]
   },
   {
     "id": 3,
@@ -21,7 +48,34 @@
     "description": "The <b>Fibonacci numbers</b>, commonly denoted <code>F(n)</code> form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from <code>0</code> and <code>1</code>. That is,<br />\n<code>F(0) = 0, F(1) = 1</code><br />\n<code>F(n) = F(n - 1) + F(n - 2), for n > 1.</code><br /><br />\n\nGiven <code>n</code>, calculate <code>F(n)</code>.<br /><br />\n\n<b>Example 1:</b><br />\nInput: <code>n = 2</code><br />\nOutput: <code>1</code><br />\nExplanation: <code>F(2) = F(1) + F(0) = 1 + 0 = 1.</code><br /><br />\n\n<b>Example 2:</b><br />\nInput: <code>n = 3</code><br />\nOutput: <code>2</code><br />\nExplanation: <code>F(3) = F(2) + F(1) = 1 + 1 = 2.</code><br /><br />\n          \n<b>Constraints:</b>\n<ul>\n  <li><code>0 <= n <= 30</code></li>\n</ul>",
     "topics": ["Math", "Recursion", "Dynamic Programming"],
     "difficulty": "Easy",
-    "images": []
+    "images": [],
+    "testCases": [
+      {
+        "input": "2",
+        "answer": "1",
+        "isHidden": false
+      },
+      {
+        "input": "4",
+        "answer": "3",
+        "isHidden": false
+      },
+      {
+        "input": "6",
+        "answer": "8",
+        "isHidden": false
+      },
+      {
+        "input": "10",
+        "answer": "55",
+        "isHidden": true
+      },
+      {
+        "input": "20",
+        "answer": "6765",
+        "isHidden": true
+      }
+    ]
   },
   {
     "id": 4,
@@ -157,7 +211,7 @@
     "images": []
   },
   {
-    "id": 19,
+    "id": 20,
     "title": "Add Binary",
     "description": "Given two binary strings <code>a</code> and <code>b</code>, return <i>their sum as a binary string</i>.<br /><br />\n\n<b>Example 1:</b><br />\nInput: <code>a = \"11\", b = \"1\"</code><br />\nOutput: <code>\"100\"</code><br /><br />\n\n<b>Example 2:</b><br />\nInput: <code>a = \"1010\", b = \"1011\"</code><br />\nOutput: <code>\"10101\"</code><br /><br />\n          \n<b>Constraints:</b><br />\n<ul>\n  <li><code>1 <= a.length, b.length <= 10^4</code></li>\n  <li><code>a</code> and <code>b</code> consist only of <code>'0'</code> or <code>'1'</code> characters.</li>\n  <li>Each string does not contain leading zeros except for the zero itself.</li>\n</ul>",
     "topics": ["Math", "String", "Bit Manipulation"],

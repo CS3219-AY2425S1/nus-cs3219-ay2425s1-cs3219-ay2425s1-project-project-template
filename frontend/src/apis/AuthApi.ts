@@ -6,7 +6,7 @@ import {
   RegisterInput,
   ResetPasswordInput,
   UpdateProfileInput,
-} from '../types/Api';
+} from '../types/AuthType';
 import { api } from './ApiClient';
 
 export const login = async (data: LoginInput): Promise<AuthResponse> => {

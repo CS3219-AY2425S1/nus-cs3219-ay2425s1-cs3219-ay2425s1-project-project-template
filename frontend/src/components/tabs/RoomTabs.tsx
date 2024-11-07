@@ -1,11 +1,12 @@
 import { Tabs } from '@mantine/core';
 
-import DescriptionTab from './DescriptionTab';
+import { Question } from '../../types/QuestionType';
 import ChatBoxTab from './ChatBoxTab';
 import { ChatMessage } from './ChatBoxTab';
+import DescriptionTab from './DescriptionTab';
 
 interface RoomTabsProps {
-  questionId: string;
+  question?: Question;
   sessionId: string;
   token: string;
   messages: ChatMessage[];
@@ -14,7 +15,15 @@ interface RoomTabsProps {
   sendMessage: () => void;
 }
 
-function RoomTabs({ questionId, sessionId, token, messages, input, setInput, sendMessage }: RoomTabsProps) {
+function RoomTabs({
+  question,
+  sessionId,
+  token,
+  messages,
+  input,
+  setInput,
+  sendMessage,
+}: RoomTabsProps) {
   return (
     <Tabs
       defaultValue="description"
@@ -29,7 +38,7 @@ function RoomTabs({ questionId, sessionId, token, messages, input, setInput, sen
       </Tabs.List>
 
       <Tabs.Panel value="description" h="calc(100% - 36px)">
-        <DescriptionTab questionId={questionId} />
+        <DescriptionTab question={question} />
       </Tabs.Panel>
       <Tabs.Panel value="chat" h="calc(100% - 36px)">
         <ChatBoxTab

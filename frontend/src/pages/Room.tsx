@@ -1,4 +1,4 @@
-import { Group, Stack, Loader, Text, Modal, Button } from '@mantine/core';
+import { Button, Group, Loader, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { ViewUpdate } from '@uiw/react-codemirror';
@@ -6,15 +6,22 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 
+import { executeCode } from '../apis/CodeExecutionApi';
+import { getQuestionById } from '../apis/QuestionApi';
 import CodeEditorLayout from '../components/layout/codeEditorLayout/CodeEditorLayout';
 import ConfirmationModal from '../components/modal/ConfirmationModal';
-import RoomTabs from '../components/tabs/RoomTabs';
-import config from '../config';
 import { ChatMessage } from '../components/tabs/ChatBoxTab';
+import CodeOutputTabs from '../components/tabs/CodeOutputTabs';
+import RoomTabs from '../components/tabs/RoomTabs';
 import VideoCall from '../components/videoCall/VideoCall';
+import config from '../config';
 import { useAuth } from '../hooks/AuthProvider';
-
-import { SupportedLanguage } from '../components/layout/codeEditorLayout/CodeEditorLayout';
+import {
+  CodeExecutionInput,
+  CodeOutput,
+  SupportedLanguage,
+} from '../types/CodeExecutionType';
+import { Question } from '../types/QuestionType';
 
 function Room() {
   const [loading, setLoading] = useState(true);
@@ -23,14 +30,25 @@ function Room() {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
-  const [isLeaveSessionModalOpened, { open: openLeaveSessionModal, close: closeLeaveSessionModal }] = useDisclosure(false);
+  const [question, setQuestion] = useState<Question | undefined>(undefined);
+  const [codeOutput, setCodeOutput] = useState<CodeOutput | undefined>(
+    undefined,
+  );
+
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState<SupportedLanguage>('python');
+  const [isRunningCode, setIsRunningCode] = useState(false);
+
+  const [
+    isLeaveSessionModalOpened,
+    { open: openLeaveSessionModal, close: closeLeaveSessionModal },
+  ] = useDisclosure(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [modalOpened, { close: closeModal, open: openModal }] = useDisclosure(false);
-  
+  const [modalOpened, { close: closeModal, open: openModal }] =
+    useDisclosure(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const sessionData = location.state;
@@ -42,12 +60,17 @@ function Room() {
   const isRemoteUpdateRef = useRef(false);
   const viewUpdateRef = useRef<ViewUpdate | null>(null);
 
-  const configServer = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+  const configServer = {
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  };
 
   useEffect(() => {
     const requestMediaPermissions = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: true,
+        });
         setLocalStream(stream);
         setPermissionsGranted(true);
         setLoading(false);
@@ -73,12 +96,28 @@ function Room() {
     }
 
     const { sessionId, matchedUserId, questionId } = sessionData;
+
     connectCollaborationSocket(sessionId, matchedUserId, questionId);
     connectCommunicationSocket(sessionId);
+
+    if (questionId) {
+      getQuestionById(questionId).then(
+        (response: Question[]) => {
+          setQuestion(response[0]);
+        },
+        (error: any) => {
+          console.log(error);
+        },
+      );
+    }
   }, [permissionsGranted, sessionData]);
 
   // Connect Collaboration Socket
-  const connectCollaborationSocket = (sessionId: string, matchedUserId: string, questionId: number) => {
+  const connectCollaborationSocket = (
+    sessionId: string,
+    matchedUserId: string,
+    questionId: number,
+  ) => {
     if (collaborationSocketRef.current) {
       collaborationSocketRef.current.disconnect();
     }
@@ -101,7 +140,9 @@ function Room() {
       });
     });
 
-    collaborationSocketRef.current.on('load-code', (newCode) => setCode(newCode));
+    collaborationSocketRef.current.on('load-code', (newCode) =>
+      setCode(newCode),
+    );
 
     collaborationSocketRef.current.on('code-updated', (newCode) => {
       // Capture the current cursor position as line and column
@@ -113,15 +154,17 @@ function Room() {
         cursorLine = pos.number - 1; // Adjusting for 0-based index
         cursorColumn = head - pos.from;
       }
-    
+
       // Update the code with the new content
       isRemoteUpdateRef.current = true;
       setCode(newCode);
-    
+
       // Restore line and column position after the code has been updated
       setTimeout(() => {
         if (viewUpdateRef.current) {
-          const line = viewUpdateRef.current.view.state.doc.line(cursorLine + 1); // Adjusting back to 1-based
+          const line = viewUpdateRef.current.view.state.doc.line(
+            cursorLine + 1,
+          ); // Adjusting back to 1-based
           const newPos = line.from + cursorColumn;
           viewUpdateRef.current.view.dispatch({
             selection: { anchor: newPos, head: newPos },
@@ -129,16 +172,17 @@ function Room() {
         }
       }, 5); // the delay to be set may vary from device to device
     });
-    
-    
 
     collaborationSocketRef.current.on('load-language', (newLanguage) => {
       setLanguage(newLanguage);
     });
 
     collaborationSocketRef.current.on('language-updated', (newLanguage) => {
-      isRemoteUpdateRef.current = true;
       setLanguage(newLanguage);
+    });
+
+    collaborationSocketRef.current.on('codex-output', (newOutput) => {
+      setCodeOutput(newOutput);
     });
 
     collaborationSocketRef.current.on('user-joined', () => {
@@ -176,9 +220,12 @@ function Room() {
       communicationSocketRef.current?.emit('joinRoom', roomId);
     });
 
-    communicationSocketRef.current.on('loadPreviousMessages', (pastMessages: ChatMessage[]) => {
-      setMessages(pastMessages);
-    });
+    communicationSocketRef.current.on(
+      'loadPreviousMessages',
+      (pastMessages: ChatMessage[]) => {
+        setMessages(pastMessages);
+      },
+    );
 
     communicationSocketRef.current.on('chatMessage', (msg: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
@@ -193,14 +240,15 @@ function Room() {
     setupPeerConnection();
   };
 
+  // To prevent remote updates from emitting 'edit-code', avoiding the loop
   useEffect(() => {
     if (!isRemoteUpdateRef.current) {
       collaborationSocketRef.current?.emit('edit-code', code);
     }
     isRemoteUpdateRef.current = false;
-  }, [code, language]);
+  }, [code]);
 
-  const onLanguageChange = (newLanguage: SupportedLanguage) => {
+  const handleLanguageChange = (newLanguage: SupportedLanguage) => {
     setLanguage(newLanguage);
     collaborationSocketRef.current?.emit('edit-language', newLanguage);
   };
@@ -209,6 +257,31 @@ function Room() {
     collaborationSocketRef.current?.disconnect();
     communicationSocketRef.current?.disconnect();
     navigate('/dashboard');
+  };
+
+  const handleRunCode = () => {
+    setIsRunningCode(true);
+    const codeExecutionInput: CodeExecutionInput = {
+      code,
+      language,
+    };
+    executeCode(codeExecutionInput).then(
+      (codeOutput: CodeOutput) => {
+        setCodeOutput(codeOutput);
+        collaborationSocketRef.current?.emit('codex-output', codeOutput);
+        setIsRunningCode(false);
+      },
+      (error: any) => {
+        notifications.show({
+          title: 'Code Execution Error',
+          message:
+            'We were unable to execute your code. Please try again later.',
+          color: 'red',
+        });
+        console.log(error);
+        setIsRunningCode(false);
+      },
+    );
   };
 
   const sendMessage = () => {
@@ -231,13 +304,19 @@ function Room() {
       setRemoteStream(event.streams[0]);
     };
 
-    localStream?.getTracks().forEach((track) =>
-      peerConnectionRef.current?.addTrack(track, localStream)
-    );
+    localStream
+      ?.getTracks()
+      .forEach((track) =>
+        peerConnectionRef.current?.addTrack(track, localStream),
+      );
   };
 
   const handleReadyToCall = async (user: string) => {
-    if (peerConnectionRef.current && communicationSocketRef.current && user !== userId) {
+    if (
+      peerConnectionRef.current &&
+      communicationSocketRef.current &&
+      user !== userId
+    ) {
       const offer = await peerConnectionRef.current.createOffer();
       await peerConnectionRef.current.setLocalDescription(offer);
       communicationSocketRef.current.emit('offer', offer);
@@ -246,7 +325,9 @@ function Room() {
 
   const handleReceiveOffer = async (offer: RTCSessionDescriptionInit) => {
     if (peerConnectionRef.current) {
-      await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(offer));
+      await peerConnectionRef.current.setRemoteDescription(
+        new RTCSessionDescription(offer),
+      );
       const answer = await peerConnectionRef.current.createAnswer();
       await peerConnectionRef.current.setLocalDescription(answer);
       communicationSocketRef.current?.emit('answer', answer);
@@ -254,7 +335,9 @@ function Room() {
   };
 
   const handleReceiveAnswer = (answer: RTCSessionDescriptionInit) => {
-    peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(answer));
+    peerConnectionRef.current?.setRemoteDescription(
+      new RTCSessionDescription(answer),
+    );
   };
 
   const handleReceiveCandidate = (candidate: RTCIceCandidateInit) => {
@@ -265,7 +348,6 @@ function Room() {
     setRemoteStream(null); // Reset the remote video
   };
 
-
   const handleCloseModal = () => {
     closeModal();
     navigate('/dashboard'); // Redirect to dashboard when modal is closed
@@ -273,17 +355,19 @@ function Room() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100vw',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 1000
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100vw',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 1000,
+        }}
+      >
         <Loader />
       </div>
     );
@@ -294,13 +378,10 @@ function Room() {
       <Group h="100vh" bg="slate.8" gap="10px" p="10px">
         <Stack h="100%" w="500px" gap="10px">
           <Group gap="10px">
-            <VideoCall
-              localStream={localStream}
-              remoteStream={remoteStream}
-            />
+            <VideoCall localStream={localStream} remoteStream={remoteStream} />
           </Group>
           <RoomTabs
-            questionId={sessionData.questionId}
+            question={question}
             sessionId={sessionData.sessionId}
             token={localStorage.getItem('token') || ''}
             messages={messages}
@@ -310,14 +391,19 @@ function Room() {
           />
         </Stack>
 
-        <CodeEditorLayout
-          openLeaveSessionModal={openLeaveSessionModal}
-          language={language}
-          onLanguageChange={onLanguageChange}
-          code={code}
-          setCode={setCode}
-          viewUpdateRef={viewUpdateRef}
-        />
+        <Stack h="100%" w="calc(100% - 510px)" gap="10px">
+          <CodeEditorLayout
+            openLeaveSessionModal={openLeaveSessionModal}
+            code={code}
+            setCode={setCode}
+            language={language}
+            handleLanguageChange={handleLanguageChange}
+            isRunningCode={isRunningCode}
+            handleRunCode={handleRunCode}
+            viewUpdateRef={viewUpdateRef}
+          />
+          <CodeOutputTabs codeOutput={codeOutput} />
+        </Stack>
       </Group>
 
       <ConfirmationModal
@@ -335,9 +421,13 @@ function Room() {
         title="Permissions Required"
       >
         <Text size="lg">
-          Camera and microphone permissions are required to access this room. Please refresh the page and grant access.
+          Camera and microphone permissions are required to access this room.
+          Please refresh the page and grant access.
         </Text>
-        <Button onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
+        <Button
+          onClick={() => window.location.reload()}
+          style={{ marginTop: '20px' }}
+        >
           Refresh
         </Button>
       </Modal>
