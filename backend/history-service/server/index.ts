@@ -4,6 +4,7 @@ import express from "express"
 import logger from "../utils/logger"
 import { router as getMatchHistoryRoute } from "../get-match-history/getMatchHistoryRoute" 
 import { router as getSubmissionsRoute } from "../get-submissions/getSubmissionsRoute"
+import { router as getUserRoute } from "../get-user/getUserRoute"
 
 dotenv.config({ path: './.env' })
 
@@ -13,6 +14,7 @@ app.use(express.json())
 
 app.use(getMatchHistoryRoute)
 app.use(getSubmissionsRoute)
+app.use(getUserRoute)
 
 const port = process.env.PORT || 3000
 

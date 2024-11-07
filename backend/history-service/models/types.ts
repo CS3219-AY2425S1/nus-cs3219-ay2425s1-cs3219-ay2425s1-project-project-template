@@ -5,3 +5,9 @@ export interface GetUserMatchRequest extends Request {
         userId: string
     }
 }
+
+export interface GetSubmissionRequest extends Request {
+    body: {
+        matchId: string
+    }
+}
