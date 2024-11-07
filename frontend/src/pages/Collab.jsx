@@ -29,6 +29,7 @@ const Collab = () => {
     const socketRef = useRef(null);
     const providerRef = useRef(null);
     const intervalRef = useRef(null);
+    const attemptStatus = useRef('attempted');
 
     const [countdown, setCountdown] = useState(20); // set to 1 min default timer
     const [timeOver, setTimeOver] = useState(false);
@@ -38,8 +39,6 @@ const Collab = () => {
 
     const [isSoloSession, setIsSoloSession] = useState(false);
     const [showSnackbar, setShowSnackbar] = useState(false);
-
-    const [attemptStatus, setAttemptStatus] = useState('attempted');
 
     // Ensure location state exists, else redirect to home
     useEffect(() => {
@@ -154,7 +153,7 @@ const Collab = () => {
 
     const handleSubmit = () => {
         console.log("Submit code");
-        setAttemptStatus("submitted");
+        attemptStatus.current = "submitted";
     };
 
     const handleQuit = () => setShowQuitPopup(true);
@@ -165,7 +164,7 @@ const Collab = () => {
             question: question._id,
             user: userId,
             partner: partnerUsername,
-            status: attemptStatus,
+            status: attemptStatus.current,
             datetime: datetime,
             solution: editorRef.current.getValue(),
         });
