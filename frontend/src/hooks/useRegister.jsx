@@ -7,7 +7,7 @@ const useRegister = () => {
     const [isInvalidRegister, setIsInvalidRegister] = useState(false);
     const navigate = useNavigate();
 
-    const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost:3001';
+    const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost/api/users';
     
     console.log(VITE_USER_SERVICE_API);
 

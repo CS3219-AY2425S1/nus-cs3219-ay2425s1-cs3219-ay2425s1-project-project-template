@@ -8,7 +8,7 @@ const useLogin = () => {
     const [cookies, setCookie] = useCookies([ "username", "accessToken", "userId" ]);
     const navigate = useNavigate();
 
-    const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost:3001';
+    const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost/api/users';
 
     const handleLogin = async (email, password) => {
         setLoading(true);

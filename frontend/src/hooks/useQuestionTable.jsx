@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 function useQuestionTable() {
     const [questions, setQuestions] = useState([]);
 
-    const VITE_QUESTION_SERVICE_API = import.meta.env.VITE_QUESTION_SERVICE_API || 'http://localhost:4000';
+    const VITE_QUESTION_SERVICE_API = import.meta.env.VITE_QUESTION_SERVICE_API || 'http://localhost/api/questions';
 
     const fetchQuestions = async () => {
         try {

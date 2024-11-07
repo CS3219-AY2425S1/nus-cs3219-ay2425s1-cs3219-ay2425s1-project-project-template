@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
 
-const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost:3001';
+const VITE_USER_SERVICE_API = import.meta.env.VITE_USER_SERVICE_API || 'http://localhost/api/users';
 
 async function verifyUser(token) {
     try {

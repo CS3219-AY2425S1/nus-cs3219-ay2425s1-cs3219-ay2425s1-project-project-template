@@ -7,58 +7,11 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     ports:
-      - "27017:27017"
+      - "27017"
     volumes:
       - mongo-data:/data/db
     networks:
       - app-network
-
-  # QuestionService
-  question-service:
-    build: ./QuestionService
-    container_name: question-service
-    ports:
-      - "4000:3000"
-    environment:
-      - MONGO_URI=mongodb://root:example@mongo:27017/
-    depends_on:
-      - mongo
-    networks:
-      - app-network
-
-  # MongoDB Service for UserService
-  mongo_user:
-    image: mongo:latest
-    container_name: mongo_user
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=example
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongo-user-data:/data/db
-    networks:
-      - app-network
-
-  # UserService
-  user-service:
-    build: ./UserService
-    container_name: user-service
-    ports:
-      - "3001:3001"
-    environment:
-      - DB_LOCAL_URI=mongodb://root:example@mongo_user:27017
-      - ENV=DEV
-      - JWT_SECRET=you-can-replace-this-with-your-own-secret
-    depends_on:
-      - mongo_user
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Seed MongoDB server with sample questions
   mongo-seed:
@@ -74,12 +27,59 @@ services:
     networks:
       - app-network
 
+  # QuestionService
+  question-service:
+    build: ./QuestionService
+    container_name: question-service
+    ports:
+      - "3000"
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # MongoDB Service for UserService
+  mongo_user:
+    image: mongo:latest
+    container_name: mongo_user
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    ports:
+      - "27017"
+    volumes:
+      - mongo-user-data:/data/db
+    networks:
+      - app-network
+
+  # UserService
+  user-service:
+    build: ./UserService
+    container_name: user-service
+    ports:
+      - "3001"
+    environment:
+      - DB_LOCAL_URI=mongodb://root:example@mongo_user:27017
+      - ENV=DEV
+      - JWT_SECRET=you-can-replace-this-with-your-own-secret
+    depends_on:
+      - mongo_user
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # MatchingService
   matching-service:
     build: ./MatchingService
     container_name: MatchingService
     ports:
-      - "3000:3000"
+      - "3000"
     depends_on:
       - rabbitmq
       - redis
@@ -91,8 +91,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672"
+      - "15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -106,7 +106,37 @@ services:
     depends_on:
       - rabbitmq
     ports:
-      - "6379:6379"
+      - "6379"
+    networks:
+      - app-network
+
+  # CollaborationService
+  collaboration-service:
+    build: ./CollaborationService
+    container_name: CollaborationService
+    ports:
+      - "3002"
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+
+  # NGINX Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3000:3000"
+      - "3002:3002"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - question-service
+      - user-service
+      - matching-service
+      - collaboration-service
     networks:
       - app-network
 
