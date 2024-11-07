@@ -6,7 +6,7 @@ services:
     restart: always
     volumes:
       - ./nginx:/tmp
-      - .env/.ssl_certs:/etc/letsencrypt/live/localhost
+      - .env/.ssl_certs:/etc/cloudflare/live
       - react-build:/app/dist
     environment:
       USER_SERVICE_ADDR: user-service:3001
