@@ -6,7 +6,7 @@ export const DUMMY_QUESTION: Question = {
     questionId: 420,
     title: "Hmmm... something went wrong",
     description: "This is a dummy question. Something went wrong with loading your question.",
-    categories: ['Brainteaser'],
+    categories: ['Brainteaser', 'Dynamic Programming', 'Algorithms'],
     difficulty: 'Hard',
     testCases: [DUMMY_TEST_CASE]
 }

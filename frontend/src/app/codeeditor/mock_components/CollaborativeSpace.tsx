@@ -95,7 +95,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     return (
       <div className='flex w-full h-full'>
         <div className='flex-col w-2/5 p-4'>
-          <div className='border rounded-lg h-full p-4'>
+          <div className='border rounded-lg h-full max-h-[88vh] p-4 overflow-y-auto'>
   
           {/* Question Title and Difficulty */}
           <div className="mb-4">
