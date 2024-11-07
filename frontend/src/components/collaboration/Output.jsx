@@ -24,7 +24,6 @@ const Output = ({editorRef, language}) => {
     return (
         <div className="output-container" >
             <div className="output-header" >
-                <h2>Output</h2>
                 <button className='run-button' onClick={runCode} disabled={loading}>
                     {loading ? "Loading..." : "Run"}
                 </button>  
