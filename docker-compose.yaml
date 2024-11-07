@@ -7,7 +7,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     ports:
-      - "27017:27017"
+      - "27017"
     volumes:
       - mongo-data:/data/db
     networks:
@@ -32,7 +32,7 @@ services:
     build: ./QuestionService
     container_name: question-service
     ports:
-      - "4000:3000"
+      - "3000"
     environment:
       - MONGO_URI=mongodb://root:example@mongo:27017/
     depends_on:
@@ -48,7 +48,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     ports:
-      - "27018:27017"
+      - "27017"
     volumes:
       - mongo-user-data:/data/db
     networks:
@@ -59,7 +59,7 @@ services:
     build: ./UserService
     container_name: user-service
     ports:
-      - "3001:3001"
+      - "3001"
     environment:
       - DB_LOCAL_URI=mongodb://root:example@mongo_user:27017
       - ENV=DEV
@@ -79,7 +79,7 @@ services:
     build: ./MatchingService
     container_name: MatchingService
     ports:
-      - "3000:3000"
+      - "3000"
     depends_on:
       - rabbitmq
       - redis
@@ -91,8 +91,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672"
+      - "15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -106,7 +106,7 @@ services:
     depends_on:
       - rabbitmq
     ports:
-      - "6379:6379"
+      - "6379"
     networks:
       - app-network
 
@@ -115,7 +115,7 @@ services:
     build: ./CollaborationService
     container_name: CollaborationService
     ports:
-      - "3002:3002"
+      - "3002"
     depends_on:
       - rabbitmq
     networks:
@@ -127,6 +127,22 @@ services:
     container_name: ChatService
     ports:
       - "3003:3003"
+  # NGINX Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3000:3000"
+      - "3002:3002"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - question-service
+      - user-service
+      - matching-service
+      - collaboration-service
     networks:
       - app-network
 
