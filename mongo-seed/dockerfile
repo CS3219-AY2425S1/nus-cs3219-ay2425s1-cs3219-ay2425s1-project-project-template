@@ -3,4 +3,4 @@ COPY . /import_questions
 WORKDIR /import_questions
 RUN pip install -r requirements.txt
 
-CMD ["python3", "import_questions_prod.py"]
+CMD ["python3", "import_questions.py"]
