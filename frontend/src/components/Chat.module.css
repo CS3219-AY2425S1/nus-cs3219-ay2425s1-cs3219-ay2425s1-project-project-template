@@ -105,3 +105,15 @@
 .sendButton:hover {
     background-color: #f0f0f0; /* Light gray on hover */
 }
+
+.messagesList {
+    list-style-type: none;
+    margin: 0;
+    padding: 8px 12px;
+    flex-grow: 1;
+    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 200px; /* Set a max height for the chat area */
+    font-size: 14px;
+    color: #333; /* Dark text for messages */
+    background-color: #f9f9f9; /* Light gray background for messages */
+}
