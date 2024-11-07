@@ -3,7 +3,7 @@
     grid-template-columns: 1fr 1fr; 
     gap: 35px;
     padding: 20px;
-    height: calc(100vh - 100px);
+    height: calc(100vh - 75px);
     border-radius: 10px;
 }
 
