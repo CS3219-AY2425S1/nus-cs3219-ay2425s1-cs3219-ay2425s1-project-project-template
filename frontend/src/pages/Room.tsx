@@ -27,6 +27,8 @@ function Room() {
   const [loading, setLoading] = useState(true);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
+
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
@@ -72,6 +74,7 @@ function Room() {
           video: true,
         });
         setLocalStream(stream);
+        localStreamRef.current = stream;
         setPermissionsGranted(true);
         setLoading(false);
       } catch (error) {
@@ -81,6 +84,23 @@ function Room() {
     };
 
     requestMediaPermissions();
+
+    return () => {
+      console.log('cleaning up');
+      if (localStreamRef.current) {
+        console.log('unmounting media');
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      // Disconnect sockets
+      if (collaborationSocketRef.current) {
+        collaborationSocketRef.current.disconnect();
+        collaborationSocketRef.current = null;
+      }
+      if (communicationSocketRef.current) {
+        communicationSocketRef.current.disconnect();
+        communicationSocketRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -255,7 +275,9 @@ function Room() {
 
   const handleLeaveSession = () => {
     collaborationSocketRef.current?.disconnect();
+    collaborationSocketRef.current = null;
     communicationSocketRef.current?.disconnect();
+    communicationSocketRef.current = null;
     navigate('/dashboard');
   };
 
