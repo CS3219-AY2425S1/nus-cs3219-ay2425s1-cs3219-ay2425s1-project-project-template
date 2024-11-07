@@ -11,11 +11,8 @@ import {
 } from "@ant-design/icons";
 
 const VideoPanel = () => {
-  const matchId = localStorage.getItem("collabId")?.toString() ?? "";
-  const currentUsername = localStorage.getItem("user")?.toString();
-  const matchedUsername = localStorage.getItem("matchedUser")?.toString();
-  const currentId = currentUsername + "-" + matchId ?? "";
-  const partnerId = matchedUsername + "-" + matchId ?? "";
+  const [currentId, setCurrentId] = useState<string | undefined>();
+  const [partnerId, setPartnerId] = useState<string | undefined>();
 
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const currentUserVideoRef = useRef<HTMLVideoElement>(null);
@@ -29,6 +26,15 @@ const VideoPanel = () => {
   const [videoOn, setVideoOn] = useState<boolean>(true);
   const [muteOn, setMuteOn] = useState<boolean>(false);
   const [isCalling, setIsCalling] = useState<boolean>(false);
+
+  useEffect(() => {
+    const matchId = localStorage.getItem("collabId")?.toString() ?? "";
+    const currentUsername = localStorage.getItem("user")?.toString();
+    const matchedUsername = localStorage.getItem("matchedUser")?.toString();
+
+    setCurrentId(currentUsername + "-" + (matchId ?? ""));
+    setPartnerId(matchedUsername + "-" + (matchId ?? ""));
+  }, []);
 
   const handleCall = () => {
     navigator.mediaDevices
@@ -120,7 +126,7 @@ const VideoPanel = () => {
         }
       };
     }
-  }, []);
+  }, [currentId]);
 
   // When remote peer initiates end call, we set isCalling to false
   useEffect(() => {

@@ -15,8 +15,8 @@ import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
 import { EditorView, basicSetup } from "codemirror";
-import { keymap } from "@codemirror/view"
-import { indentWithTab } from "@codemirror/commands"
+import { keymap } from "@codemirror/view";
+import { indentWithTab } from "@codemirror/commands";
 import { EditorState, Compartment } from "@codemirror/state";
 import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 import { python, pythonLanguage } from "@codemirror/lang-python";
@@ -68,15 +68,15 @@ interface Awareness {
   executionResultsState: {
     executionResults: ExecutionResults;
     id: number;
-  }
+  };
   executingState: {
     executing: boolean;
     id: number;
-  }
+  };
   submittingState: {
     submitting: boolean;
     id: number;
-  }
+  };
 }
 
 export const usercolors = [
@@ -111,8 +111,7 @@ const CollaborativeEditor = forwardRef(
         props.onCodeChange(update.state.doc.toString());
       }
     });
-    
-    
+
     // Referenced: https://codemirror.net/examples/config/#dynamic-configuration
     // const autoLanguage = EditorState.transactionExtender.of((tr) => {
     //   if (!tr.docChanged) return null;
@@ -196,10 +195,10 @@ const CollaborativeEditor = forwardRef(
       });
     };
 
-    let latestExecutionId: number = (new Date(0)).getTime();
-    let latestSubmissionId: number = (new Date(0)).getTime();
-    let latestExecutingId: number = (new Date(0)).getTime();
-    let latestSubmittingId: number = (new Date(0)).getTime();
+    let latestExecutionId: number = new Date(0).getTime();
+    let latestSubmissionId: number = new Date(0).getTime();
+    let latestExecutingId: number = new Date(0).getTime();
+    let latestSubmittingId: number = new Date(0).getTime();
 
     useImperativeHandle(ref, () => ({
       endSession: () => {
@@ -311,12 +310,14 @@ const CollaborativeEditor = forwardRef(
               .get(clientID) as Awareness;
 
             if (
-              state && 
+              state &&
               state.submissionResultsState &&
               state.submissionResultsState.id !== latestSubmissionId
             ) {
               latestSubmissionId = state.submissionResultsState.id;
-              props.updateSubmissionResults(state.submissionResultsState.submissionResults);
+              props.updateSubmissionResults(
+                state.submissionResultsState.submissionResults
+              );
               messageApi.open({
                 type: "success",
                 content: `${
@@ -326,12 +327,14 @@ const CollaborativeEditor = forwardRef(
             }
 
             if (
-              state && 
-              state.executionResultsState && 
+              state &&
+              state.executionResultsState &&
               state.executionResultsState.id !== latestExecutionId
             ) {
               latestExecutionId = state.executionResultsState.id;
-              props.updateExecutionResults(state.executionResultsState.executionResults);
+              props.updateExecutionResults(
+                state.executionResultsState.executionResults
+              );
               messageApi.open({
                 type: "success",
                 content: `${
@@ -341,8 +344,8 @@ const CollaborativeEditor = forwardRef(
             }
 
             if (
-              state && 
-              state.executingState && 
+              state &&
+              state.executingState &&
               state.executingState.id !== latestExecutingId
             ) {
               latestExecutingId = state.executingState.id;
@@ -358,8 +361,8 @@ const CollaborativeEditor = forwardRef(
             }
 
             if (
-              state && 
-              state.submittingState && 
+              state &&
+              state.submittingState &&
               state.submittingState.id !== latestSubmittingId
             ) {
               latestSubmittingId = state.submittingState.id;
@@ -367,9 +370,7 @@ const CollaborativeEditor = forwardRef(
               if (state.submittingState.submitting) {
                 messageApi.open({
                   type: "info",
-                  content: `${
-                    props.matchedUser ?? "Peer"
-                  } is saving code...`,
+                  content: `${props.matchedUser ?? "Peer"} is saving code...`,
                 });
               }
             }
