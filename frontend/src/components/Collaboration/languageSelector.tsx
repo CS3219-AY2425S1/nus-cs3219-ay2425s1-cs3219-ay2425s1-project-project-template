@@ -84,6 +84,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onSelect 
       >
         {languages.map(([lang, version]) => (
           <MenuItem
+            key={lang}
             onClick={() => {
               onSelect(lang);
               handleClose();
