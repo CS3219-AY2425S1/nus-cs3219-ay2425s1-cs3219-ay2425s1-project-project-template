@@ -436,6 +436,7 @@ function Room() {
             codeOutput={codeOutput}
             testCases={question?.testCases}
             testResults={testResults}
+            isRunningCode={isRunningCode}
           />
         </Stack>
       </Group>

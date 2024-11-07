@@ -1,4 +1,5 @@
-import { Tabs } from '@mantine/core';
+import { Indicator, Tabs } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 
 import { CodeOutput, TestResult } from '../../types/CodeExecutionType';
@@ -11,29 +12,51 @@ interface CodeOutputTabsProps {
   codeOutput?: CodeOutput;
   testCases?: TestCase[];
   testResults?: TestResult[];
+  isRunningCode: boolean;
 }
 
 function CodeOutputTabs({
   codeOutput,
   testCases,
   testResults,
+  isRunningCode,
 }: CodeOutputTabsProps) {
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [
+    isTestResultsIndicatorShowed,
+    { open: showTestResultsIndicator, close: hideTestResultsIndicator },
+  ] = useDisclosure(false);
+  const [
+    isOutputIndicatorShowed,
+    { open: showOutputIndicator, close: hideOutputIndicator },
+  ] = useDisclosure(false);
 
   const showTestCases = testCases && testCases.length > 0;
 
   useEffect(() => {
-    if (activeTab) {
-      return;
+    switch (activeTab) {
+      case 'testResults':
+        hideTestResultsIndicator();
+        break;
+      case 'output':
+        hideOutputIndicator();
+        break;
+      default:
+        break;
     }
-    if (testResults) {
-      setActiveTab('testResults');
-      return;
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (testResults && activeTab !== 'testResults') {
+      showTestResultsIndicator();
     }
-    if (codeOutput) {
-      setActiveTab('output');
+  }, [testResults]);
+
+  useEffect(() => {
+    if (codeOutput && activeTab !== 'output') {
+      showOutputIndicator();
     }
-  }, [codeOutput, testResults]);
+  }, [codeOutput]);
 
   return (
     <Tabs
@@ -48,10 +71,20 @@ function CodeOutputTabs({
         {showTestCases && (
           <>
             <Tabs.Tab value="testCases">Test Cases</Tabs.Tab>
-            <Tabs.Tab value="testResults">Test Results</Tabs.Tab>
+            <Indicator
+              disabled={!isTestResultsIndicatorShowed}
+              processing={isRunningCode}
+            >
+              <Tabs.Tab value="testResults">Test Results</Tabs.Tab>
+            </Indicator>
           </>
         )}
-        <Tabs.Tab value="output">Output</Tabs.Tab>
+        <Indicator
+          disabled={!isOutputIndicatorShowed}
+          processing={isRunningCode}
+        >
+          <Tabs.Tab value="output">Output</Tabs.Tab>
+        </Indicator>
       </Tabs.List>
 
       {showTestCases && (

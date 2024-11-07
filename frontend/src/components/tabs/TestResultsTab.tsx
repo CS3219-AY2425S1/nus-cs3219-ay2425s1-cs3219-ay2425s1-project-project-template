@@ -8,7 +8,7 @@ interface TestResultsTabProps {
 
 function TestResultsTab({ testResults }: TestResultsTabProps) {
   const testResultPanel = (testResult: TestResult) => {
-    const isCorrect = testResult.answer === testResult.output;
+    const isCorrect = testResult.answer.trim() === testResult.output.trim();
 
     return (
       <Stack p="16px" pb={0} gap="16px">
