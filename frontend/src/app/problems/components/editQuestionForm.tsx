@@ -31,6 +31,16 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState } from "react";
 
+const singleQuoteStringSchema = z
+  .string()
+  .min(1, { message: "Input is required." }) // Use min() first
+  .refine(
+    (val) => !val.includes('"'), // Check that the string does not contain double quotes
+    {
+      message: 'String must not contain double quotation marks ("). Use single quotation marks (\') instead.',
+    }
+  );
+
 const formSchema = z.object({
   title: z.string().optional(),
   difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
@@ -38,8 +48,8 @@ const formSchema = z.object({
   description: z.string().optional(),
   testCases: z.array(
     z.object({
-      input: z.string().min(1, { message: "Input is required." }),
-      expected: z.string().min(1, { message: "Output is required." }),
+      input: singleQuoteStringSchema,
+      expected: singleQuoteStringSchema,
     })
   ).min(1, { message: "At least one test case is required." })
 });
@@ -129,11 +139,11 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
         const parsedValues = {
           ...values,
           testCases: values.testCases.map((testCase) => ({
-            input: JSON.parse(testCase.input),
-            expected: JSON.parse(testCase.expected),
+            input: testCase.input,
+            expected: testCase.expected,
           })),
         }
-
+        
         try {
             if (!isDirty) {
               hasError = true;
@@ -141,7 +151,6 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
               return;
             }
             setError('');
-
             const updatedFields: any = {}
 
             if (dirtyFields.title) {
@@ -334,7 +343,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
                   {form.formState.errors.testCases.message}
                 </p>
               )}
-              <Button type="button" onClick={() => append({ input: '', expected: '' })}>
+              <Button type="button" onClick={() => append({ input: "", expected: "" })}>
                 + Add Test Case
               </Button>
             </div>
