@@ -9,6 +9,6 @@
 
 .content {
     flex: 1;
-    
+    background-color: #1F2833;
     overflow-y: auto;
 }

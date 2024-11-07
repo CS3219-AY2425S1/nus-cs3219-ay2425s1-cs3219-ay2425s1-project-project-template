@@ -3,10 +3,9 @@ nav {
     background-color: white;
     justify-content: flex-end;
     align-items: center;
-    gap: 25px;
+    gap: 10px;
     height: 75px;
     padding: 0 25px;
-    
     width: 100%;
     margin: 0;
 }
@@ -39,4 +38,8 @@ nav {
 
 .navContainer div {
     text-align: center;
+}
+
+.username {
+    padding: 0 35px;
 }
