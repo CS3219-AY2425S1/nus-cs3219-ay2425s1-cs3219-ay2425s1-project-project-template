@@ -402,7 +402,10 @@ function Room() {
             handleRunCode={handleRunCode}
             viewUpdateRef={viewUpdateRef}
           />
-          <CodeOutputTabs codeOutput={codeOutput} />
+          <CodeOutputTabs
+            codeOutput={codeOutput}
+            testCases={question?.testCases}
+          />
         </Stack>
       </Group>
 
