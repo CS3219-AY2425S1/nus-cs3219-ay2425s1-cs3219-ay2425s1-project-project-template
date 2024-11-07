@@ -137,6 +137,13 @@ services:
       - user-service
       - matching-service
       - collaboration-service
+
+  # ChatService
+  chat-service:
+    build: ./ChatService
+    container_name: ChatService
+    ports:
+      - "3003:3003"
     networks:
       - app-network
 

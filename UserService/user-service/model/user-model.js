@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import HistoryModel from "./history-model.js";
 
 const Schema = mongoose.Schema;
 
@@ -43,6 +44,7 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  history: [HistoryModel.schema],
 });
 
 export default mongoose.model("UserModel", UserModelSchema);
