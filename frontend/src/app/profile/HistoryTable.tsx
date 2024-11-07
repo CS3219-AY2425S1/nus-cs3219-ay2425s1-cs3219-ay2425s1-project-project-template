@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ArchiveX } from 'lucide-react';
+import Link from 'next/link';
 
 interface HistoryTableProps {
   matches: any[]
@@ -34,7 +35,7 @@ const HistoryTable = (props: HistoryTableProps) => {
         <TableBody>
           {matches.map((match: any, index: number) => (
             <TableRow key={index} className="h-20 hover:bg-transparent">
-              <TableCell>Question</TableCell>
+              <TableCell><Link href={`/profile/history/${match.id}`}>Question</Link></TableCell>
               <TableCell>Partner</TableCell>
               <TableCell>Date</TableCell>
             </TableRow>
