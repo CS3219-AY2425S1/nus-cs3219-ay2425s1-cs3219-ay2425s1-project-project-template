@@ -58,7 +58,7 @@ const CollabRoomPage = ({ params }: {
     }
 
     return (
-        <div className='flex flex-col h-[calc(100vh-4rem)]'>
+        <div className='flex flex-col flex-grow h-[calc(100vh-4rem)]'>
             <CollaborativeCodingPage
                 initialCode='import math'
                 language={collabLanguage}
