@@ -6,7 +6,7 @@ import { connectToDatabase } from './db'
 import { sendMatchingRequest } from '../producer/producer'
 import { activeMatches, startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
-import { parseBody, sendResponse, addMatch, updateMatch } from '../utils/utils'
+import { parseBody, sendResponse, addMatch, updateMatch, getMatchesWithUser } from '../utils/utils'
 
 dotenv.config({ path: './.env' })
 
@@ -22,7 +22,20 @@ const httpServer = createServer(async (req, res) => {
         } catch (e) {
             sendResponse(res, 500, { message: 'Error updating match' })
         }
-    }
+    } else if (req.method == 'GET' && req.url?.startsWith('/get-user-match-history')) {
+        try {
+            const userId = req.url.split('/')[2]
+            const { status, data, message } = await getMatchesWithUser(userId)
+
+            if (status == 200) {
+                sendResponse(res, status, { data })
+            } else {
+                sendResponse(res, status, { message })
+            }
+        } catch (e) {
+            sendResponse(res, 500, { message: 'Error fetching past successful matches' })
+        }
+    } 
 })
 
 const io = new Server(httpServer, {
