@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { startCollaboration, getCollaborationSession, getDocument } from '../controllers/collaboration.controller';
+import { startCollaboration, getCollaborationSession, getDocument, saveCodeToDocument } from '../controllers/collaboration.controller';
 
 const router = Router();
 
@@ -9,6 +9,10 @@ router.post('/start', startCollaboration);
 // Route to get an existing collaboration session by sessionId
 router.get('/:sessionId', getCollaborationSession);
 
-router.get('/code/:documentId', getDocument)
+// Fetch code based on documentId
+router.get('/code/:documentId', getDocument);
+
+// Save code based on documentId
+router.post('/save/', saveCodeToDocument)
 
 export default router;

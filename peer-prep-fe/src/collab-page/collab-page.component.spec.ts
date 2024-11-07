@@ -5,11 +5,13 @@ import { CollabPageComponent } from './collab-page.component';
 import { CollabService } from '../services/collab.service';
 import { WebSocketService } from '../code-editor/websocket.service';
 import { NGX_MONACO_EDITOR_CONFIG } from 'ngx-monaco-editor-v2';
+import { CollaborativeEditorComponent } from '../code-editor/collaborative-editor/collaborative-editor.component';
 
 describe('CollabPageComponent', () => {
   let component: CollabPageComponent;
   let fixture: ComponentFixture<CollabPageComponent>;
   let webSocketServiceMock: any;
+  let editor: CollaborativeEditorComponent
 
   beforeEach(async () => {
     const messageSubject = new Subject();
@@ -18,7 +20,7 @@ describe('CollabPageComponent', () => {
     webSocketServiceMock.getMessages.and.returnValue(messageSubject.asObservable());
 
     await TestBed.configureTestingModule({
-      imports: [CollabPageComponent],
+      imports: [CollabPageComponent, CollaborativeEditorComponent],
       providers: [
         {
           provide: NGX_MONACO_EDITOR_CONFIG,
@@ -36,7 +38,8 @@ describe('CollabPageComponent', () => {
         },
         { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
         { provide: CollabService, useValue: jasmine.createSpyObj('CollabService', ['getSession']) },
-        { provide: WebSocketService, useValue: webSocketServiceMock }
+        { provide: WebSocketService, useValue: webSocketServiceMock },
+        { provide: CollaborativeEditorComponent, useValue: editor}
       ]
     }).compileComponents();
 

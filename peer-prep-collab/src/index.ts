@@ -52,7 +52,6 @@ async function onMessage(message: any) {
   console.log("BEFORE CALLING INITIATE COLLABORATION - sessionId: ", sessionId);
   // creates collaboration service 
   await initiateCollaboration(sessionId, finalDifficulty, finalCategory, username1, username2);
-
 }
 
 function processPreferences(matchedUsers: any): { finalDifficulty: string, finalCategory: string } {

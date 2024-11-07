@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import {CollaborativeEditorComponent} from "../code-editor/collaborative-editor/collaborative-editor.component";
 import { CollabService } from '../services/collab.service';
 import { WebSocketService } from '../code-editor/websocket.service';
 import { Question } from '../app/models/question.model';
-import { Session } from '../app/models/session.model';
+import { SessionResponse } from '../app/models/session.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,8 +21,11 @@ export class CollabPageComponent implements OnInit, OnDestroy {
   question!: Question;
   username!: string;
   pairedUsername!: string;
+  docId!: string;
   private routeSubscription!: Subscription;
   private sessionSubscription!: Subscription;
+
+  @ViewChild(CollaborativeEditorComponent) editor!: CollaborativeEditorComponent;
 
   constructor(
     private router: Router,
@@ -50,30 +53,39 @@ export class CollabPageComponent implements OnInit, OnDestroy {
     });
   }
 
-
-fetchSessionData(): Promise<void> {
-  console.log("CURRENTLY AT BEFORE FETCHING QUESTION");
-  return new Promise((resolve, reject) => {
-    this.sessionSubscription = this.collabService.getSession(this.sessionId).subscribe(
-      (session: Session) => {
-        console.log("SESSION: ", session);
-        if (session && session.question) {
-          this.question = session.question;
-          console.log("Fetched session question", this.question);
+  fetchSessionData(): Promise<void> {
+    console.log("CURRENTLY AT BEFORE FETCHING QUESTION");
+    return new Promise((resolve, reject) => {
+      this.sessionSubscription = this.collabService.getSession(this.sessionId).subscribe(
+        (session: SessionResponse) => {
+          console.log("SESSION: ", session);
+          if (session && session.question) {
+            this.question = session.question;
+            console.log("Fetched session question", this.question);
+          }
+          this.username = session.users.username1;
+          console.log("username 1: ", this.username);
+          this.pairedUsername = session.users.username2;
+          console.log("username 2: ", this.pairedUsername);
+          this.docId = session.docId
+          resolve(); // Resolve the promise when data is fetched
+        },
+        error => {
+          console.error("Failed to fetch session data", error);
+          reject(error); // Reject the promise on error
         }
-        this.username = session.users.username1;
-        console.log("username 1: ", this.username);
-        this.pairedUsername = session.users.username2;
-        console.log("username 2: ", this.pairedUsername);
-        resolve(); // Resolve the promise when data is fetched
-      },
-      error => {
-        console.error("Failed to fetch session data", error);
-        reject(error); // Reject the promise on error
-      }
-    );
-  });
-}
+      );
+    });
+  }
+
+  canDeactivate(): boolean {
+    if(confirm("You are about to leave page, are you sure?\n\nYour code will be saved.")) {
+      this.editor.save()
+      return true
+    } else {
+      return false
+    }
+  }
 
   // navigates back to landing page and disconnects websocket session
   endSession(): void {

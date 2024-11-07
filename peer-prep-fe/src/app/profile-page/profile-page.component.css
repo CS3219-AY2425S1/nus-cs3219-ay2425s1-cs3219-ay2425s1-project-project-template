@@ -22,11 +22,12 @@ body {
 
 .header {
   color: white;
-  font-size: 2rem;
+  font-size: 3rem;
   width: 95%;
   font-weight: 600;
   flex: 1;
   margin-top: 5vh;
+  font-family: "Tourney", sans-serif;
 }
 
 .inner-container {
