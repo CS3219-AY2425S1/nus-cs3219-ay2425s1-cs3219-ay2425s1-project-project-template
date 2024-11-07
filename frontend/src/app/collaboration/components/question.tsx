@@ -18,7 +18,7 @@ import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
 
-const CHAT_SOCKET_URL = "http://34.54.37.142/chat-websocket";
+const CHAT_SOCKET_URL = process.env["NEXT_PUBLIC_CHAT_SERVICE_WEBSOCKET"] || "";
 
 interface Message {
   position: "left" | "right";
@@ -201,7 +201,6 @@ const Question = ({ collabid }: { collabid: string }) => {
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            
             {visibleCategories.map((category) => (
               <Pill key={category} text={category} />
             ))}
