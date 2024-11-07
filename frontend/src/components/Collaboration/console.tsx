@@ -20,7 +20,6 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
   const { collabSocket } = useSocket();
   const { roomId } = useParams();
   const [output, setOutput] = useState<Array<string>>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -29,10 +28,6 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
       return;
     }
 
-    // if (!collabSocket.connected) {
-    //   collabSocket = io(`${process.env.REACT_APP_COLLAB_SVC_PORT}`);
-    // }
-    
     collabSocket.on("sync-console", (qid: Number, consoleResults: Array<string>) => {
       setOutput(consoleResults);
       if (qid !== 0) {
@@ -48,7 +43,6 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }) => {
 
     return () => {
       if (collabSocket && collabSocket.connected) {
-        collabSocket.removeAllListeners();
         collabSocket.disconnect();
       }  
     }
