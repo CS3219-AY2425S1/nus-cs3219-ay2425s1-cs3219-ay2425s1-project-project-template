@@ -45,6 +45,10 @@ function Profile() {
     fetchProfile();
   }, [auth.userProfile]);
 
+  const handleLogoutAction = () => {
+    auth.logOutAction();
+  };
+
   const openEditModal = () => {
     openEditProfileModal();
   };
@@ -83,6 +87,7 @@ function Profile() {
                   </Title>
                   <Text>{new Date(lastLogin).toLocaleString()}</Text>
                 </Paper>
+                <Button onClick={handleLogoutAction}>Log Out</Button>
               </Stack>
             </Paper>
           </Container>
