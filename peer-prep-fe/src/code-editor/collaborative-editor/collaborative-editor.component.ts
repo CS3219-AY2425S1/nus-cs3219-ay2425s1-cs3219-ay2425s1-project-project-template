@@ -10,6 +10,7 @@ import {format} from "prettier";
 import {ActivatedRoute} from "@angular/router";
 import {NgForOf, NgIf} from "@angular/common";
 import { CollabService } from '../../services/collab.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Injectable({
   providedIn: "root"
@@ -17,7 +18,7 @@ import { CollabService } from '../../services/collab.service';
 @Component({
   selector: 'app-collaborative-editor',
   standalone: true,
-  imports: [FormsModule, MonacoEditorModule, NgForOf, NgIf],
+  imports: [FormsModule, MonacoEditorModule, NgForOf, NgIf, HttpClientModule],
   templateUrl: './collaborative-editor.component.html',
   styleUrls: ['./collaborative-editor.component.css']
 })

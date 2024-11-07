@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { authService } from '../authService/authService';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from "@angular/common/http"
+import { HttpClient, HttpClientModule } from "@angular/common/http"
 import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
 import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [CommonModule, MonacoEditorModule, FormsModule],
+  imports: [CommonModule, MonacoEditorModule, FormsModule, HttpClientModule],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.css'
 })
