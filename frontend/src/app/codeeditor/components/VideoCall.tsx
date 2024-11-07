@@ -14,6 +14,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/authContext';
 
 interface VideoCallProps {
     userName: string;
@@ -32,10 +33,10 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
     const [isAudioEnabled, setIsAudioEnabled] = useState(true);
     const [isVideoEnabled, setIsVideoEnabled] = useState(true);
     const [connections, setConnections] = useState(new Set<string>());
-    const [isExpanded, setIsExpanded] = useState(false);
     const [isConnectedToServer, setIsConnectedToServer] = useState(false);
     const [peerStreams, setPeerStreams] = useState<Map<string, MediaStream>>(new Map());
     const { toast } = useToast();
+    const { user, isAuthenticated } = useAuth();
 
     const myVideo = useRef<HTMLVideoElement>(null);
     const peerConnections = useRef<Record<string, PeerConnection>>({});
@@ -45,10 +46,36 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
     const createPeerConnection = useCallback(async (peerId: string, username: string) => {
         console.log(`Creating peer connection for ${username} (${peerId})`);
 
-        if (peerConnections.current[peerId]) {
-            console.log(`Connection already exists for ${username}, reusing`);
-            return peerConnections.current[peerId];
+        // Clean up any existing connection for this user
+        for (const [existingPeerId, connection] of Object.entries(peerConnections.current)) {
+            if (connection.username === username && existingPeerId !== peerId) {
+                console.log(`Cleaning up existing connection for ${username}`);
+                connection.connection.close();
+                delete peerConnections.current[existingPeerId];
+                setPeerStreams(prev => {
+                    const newStreams = new Map(prev);
+                    newStreams.delete(existingPeerId);
+                    return newStreams;
+                });
+                setConnections(prev => {
+                    const newConnections = new Set(prev);
+                    newConnections.delete(existingPeerId);
+                    return newConnections;
+                });
+            }
         }
+
+        if (peerConnections.current[peerId]) {
+            console.log(`Connection already exists for ${username} with peerId ${peerId}, cleaning up`);
+            peerConnections.current[peerId].connection.close();
+            delete peerConnections.current[peerId];
+            setPeerStreams(prev => {
+                const newStreams = new Map(prev);
+                newStreams.delete(peerId);
+                return newStreams;
+            });
+        }
+
 
         const configuration = {
             iceServers: [
@@ -64,13 +91,23 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
         peerConnection.ontrack = (event) => {
             console.log(`Received tracks from ${username}:`, event.streams);
             const [remoteStream] = event.streams;
+
             setPeerStreams(prev => {
+                // Clean up any existing streams for this username
                 const newStreams = new Map(prev);
+                for (const [existingPeerId, _] of newStreams) {
+                    if (peerConnections.current[existingPeerId]?.username === username && existingPeerId !== peerId) {
+                        newStreams.delete(existingPeerId);
+                    }
+                }
                 newStreams.set(peerId, remoteStream);
+                console.log(`Added stream for ${username} to peer streams`);
                 return newStreams;
             });
-            setConnections(prev => new Set(prev).add(peerId));
-            console.log(`Added stream for ${username} to peer streams`);
+
+            setConnections(prev => new Set([...prev].filter(id =>
+                peerConnections.current[id]?.username !== username || id === peerId
+            )).add(peerId));
         };
 
         // Add local stream tracks
@@ -137,7 +174,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
             console.log('Connected to signaling server with socket ID:', socket.id);
             setIsConnectedToServer(true);
             reconnectAttempts.current = 0;
-            socket.emit('join-room', { roomId, username: userName });
+            socket.emit('join-room', { roomId, username: userName, userId: user?.id || '' });
         });
 
         socket.on('existing-users', async (users) => {
@@ -165,6 +202,27 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
             console.log('New user joined:', username);
             await createPeerConnection(peerId, username);
         });
+
+        socket.on('user-disconnected', async ({ socketId, disconnectedUser }) => {
+            console.log(`Cleaning up disconnected user ${disconnectedUser} from socket ${socketId}`)
+            for (const [peerId, connection] of Object.entries(peerConnections.current)) {
+                if (connection.username === disconnectedUser?.username || peerId === socketId) {
+                    console.log(`Cleaning up connection for ${connection.username} (${peerId})`);
+                    connection.connection.close();
+                    delete peerConnections.current[peerId];
+                    setPeerStreams(prev => {
+                        const newStreams = new Map(prev);
+                        newStreams.delete(peerId);
+                        return newStreams;
+                    });
+                    setConnections(prev => {
+                        const newConnections = new Set(prev);
+                        newConnections.delete(peerId);
+                        return newConnections;
+                    });
+                }
+            }
+        })
 
         socket.on('offer', async ({ offer, peerId, username }) => {
             try {
@@ -211,6 +269,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
         return () => {
             socket.off('connect');
             socket.off('existing-users');
+            socket.off('user-disconnected');
             socket.off('user-joined');
             socket.off('offer');
             socket.off('answer');
@@ -255,14 +314,13 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
     }, []);
 
     return (
-        <Card className={`${isExpanded ? 'fixed inset-4 z-50' : 'h-full'}`}>
+        <Card className='h-full'>
             <CardHeader className="p-2">
                 <CardTitle className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-2">
-                        <span>Video Call ({connections.size} connected)</span>
+                        <span>Video Call ({connections.size + 1} connected)</span>
                         <div
-                            className={`w-2 h-2 rounded-full ${isConnectedToServer ? 'bg-green-500' : 'bg-red-500'
-                                }`}
+                            className={`w-2 h-2 rounded-full ${isConnectedToServer ? 'bg-green-500' : 'bg-red-500'}`}
                             title={isConnectedToServer ? 'Connected' : 'Disconnected'}
                         />
                         {!isConnectedToServer && (
@@ -276,29 +334,17 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
                             </Button>
                         )}
                     </div>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsExpanded(!isExpanded)}
-                        >
-                            {isExpanded ?
-                                <Minimize2 className="h-3 w-3" /> :
-                                <Maximize2 className="h-3 w-3" />
-                            }
-                        </Button>
-                    </div>
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-2">
-                <div className={`grid ${isExpanded ? 'grid-cols-3' : 'grid-cols-1'} gap-2`}>
-                    <div className="relative rounded-lg overflow-hidden bg-secondary">
+                <div className='grid grid-cols-2 gap-2'>
+                    <div className="relative rounded-lg overflow-hidden bg-secondary aspect-video">
                         <video
                             ref={myVideo}
                             muted
                             autoPlay
                             playsInline
-                            className="w-full h-24 object-cover"
+                            className="w-full h-full object-cover"
                         />
                         <div className="absolute bottom-1 left-1 bg-black/50 text-white px-1 py-0.5 rounded text-xs">
                             {userName} (You)
@@ -306,11 +352,11 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
                     </div>
 
                     {Array.from(peerStreams.entries()).map(([peerId, peerStream]) => (
-                        <div key={peerId} className="relative rounded-lg overflow-hidden bg-secondary">
+                        <div key={peerId} className="relative rounded-lg overflow-hidden bg-secondary aspect-video">
                             <video
                                 autoPlay
                                 playsInline
-                                className="w-full h-24 object-cover"
+                                className="w-full h-full object-cover"
                                 ref={el => {
                                     if (el) {
                                         el.srcObject = peerStream;
@@ -318,7 +364,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
                                 }}
                             />
                             <div className="absolute bottom-1 left-1 bg-black/50 text-white px-1 py-0.5 rounded text-xs">
-                                {peerConnections.current[peerId]?.username}
+                                {peerConnections.current[peerId]?.username || `User ${peerId}`}
                             </div>
                         </div>
                     ))}
@@ -368,7 +414,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
                 </div>
             </CardContent>
         </Card>
-    );
+    )
 };
 
 export default VideoCall;

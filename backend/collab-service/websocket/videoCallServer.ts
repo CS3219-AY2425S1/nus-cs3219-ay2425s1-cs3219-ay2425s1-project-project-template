@@ -5,6 +5,7 @@ import logger from '../utils/logger';
 interface RoomUser {
     socketId: string;
     username: string;
+    userId: string;
 }
 
 export const setupVideoCallServer = (server: HTTPServer) => {
@@ -20,19 +21,35 @@ export const setupVideoCallServer = (server: HTTPServer) => {
     io.on('connection', (socket) => {
         logger.info(`Client connected from VideoCallServer: ${socket.id}`);
 
-        socket.on('join-room', ({ roomId, username }) => {
+        socket.on('join-room', ({ roomId, username, userId }) => {
             // Initialize room if it doesn't exist
             if (!rooms.has(roomId)) {
                 rooms.set(roomId, new Map());
             }
 
-            // Add user to room
             const room = rooms.get(roomId)!;
-            room.set(socket.id, { socketId: socket.id, username });
+
+            const existingConnections = Array.from(room.entries())
+                .filter(([_, user]) => user.userId === userId);
+
+            for (const [oldSocketId, user] of existingConnections) {
+                if (oldSocketId !== socket.id) {
+                    logger.info(`Cleaning up existing connection for ${user.username} (${oldSocketId})`);
+                    room.delete(oldSocketId);
+                    io.to(roomId).emit('user-disconnected', {
+                        socketId: oldSocketId,
+                        disconnectedUser: user
+                    });
+                }
+            }
+
+            room.set(socket.id, { socketId: socket.id, username, userId });
             socket.join(roomId);
 
             // Log current room state
-            logger.info(`VideoCallServer: Room ${roomId} current users: ${Array.from(room.values()).map(u => u.username).join(', ')}`);
+            logger.info(`Room ${roomId} current users: ${Array.from(room.values())
+                .map(u => `${u.username} (${u.socketId})`)
+                .join(', ')}`);
 
             // Notify others in the room
             socket.to(roomId).emit('user-joined', {
@@ -79,12 +96,12 @@ export const setupVideoCallServer = (server: HTTPServer) => {
             });
         });
 
-        socket.on('disconnect', () => {
+        socket.on("disconnect", () => {
             rooms.forEach((users, roomId) => {
                 if (users.has(socket.id)) {
                     const disconnectedUser = users.get(socket.id);
                     users.delete(socket.id);
-                    io.to(roomId).emit('user-disconnected', socket.id);
+                    io.to(roomId).emit("user-disconnected", { socketId: socket.id, disconnectedUser });
                     logger.info(`User ${disconnectedUser?.username} disconnected from room ${roomId}`);
 
                     if (users.size === 0) {

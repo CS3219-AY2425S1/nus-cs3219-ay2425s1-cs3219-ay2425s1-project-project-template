@@ -62,13 +62,13 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
         />
       </div>
       <div className='w-1/3 flex flex-col gap-4'>
-        <div className='h-1/2'>
+        <div className='h-auto'>
         <VideoCall 
             userName={userName} 
             roomId={roomId}
           />
         </div>
-        <div className='h-1/2'>
+        <div className='flex-grow'>
           <Chat ydoc={ydoc} provider={provider} userName={userName} />
         </div>
       </div>
