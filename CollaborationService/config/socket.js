@@ -12,9 +12,10 @@ function createSocket(io) {
         socket.on('joinRoom', ({ roomId }) => {
             console.log(`User ${socket.id} attempting to join room: ${roomId}`);
             const room = getRoom(roomId);
+            socket.join(roomId);
+            console.log(`User ${socket.id} joined room: ${roomId}`);
             if (room) {
-                socket.join(roomId);
-                console.log(`User ${socket.id} joined room: ${roomId}`);
+                console.log(`Room ${roomId} exists! Emmiting load_room_content event to user ${socket.id}`);
 
                 socket.emit('load_room_content', { 
                     question: room.question,
@@ -25,6 +26,8 @@ function createSocket(io) {
                 console.error(`Room ${roomId} not found for user ${socket.id}`);
                 socket.emit('error', { message: 'Room not found' });
             }
+
+
         });
 
         socket.on('editDocument', ({ roomId, content }) => {
@@ -84,7 +87,7 @@ function createSocket(io) {
         });
 
         socket.on('second_username', ({ roomId, username }) => {
-            console.log(`Received first_username event from user: ${username}`);
+            console.log(`Received second_username event from user: ${username}`);
             socket.to(roomId).emit('second_username', { username });
         });
     });

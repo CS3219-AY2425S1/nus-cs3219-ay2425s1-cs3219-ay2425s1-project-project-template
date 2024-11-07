@@ -35,13 +35,13 @@ const CollaborationPage = () => {
 
         const joinedState = localStorage.getItem(`joined-${roomId}`) === 'true';
 
-        if (joinedState) {
-            console.log('Emitting joinRoom');
-            socketRef.current.emit('joinRoom', { roomId });
-            localStorage.setItem(`joined-${roomId}`, 'true');
-            console.log('Emitting first_username');
-            socketRef.current.emit('first_username', { roomId, username: cookies.username });
-        }
+    
+        console.log('Emitting joinRoom');
+        socketRef.current.emit('joinRoom', { roomId });
+        localStorage.setItem(`joined-${roomId}`, 'true');
+        console.log('Emitting first_username');
+        socketRef.current.emit('first_username', { roomId, username: cookies.username });
+        
 
         socketRef.current.on('collaboration_ready', (data) => {
             setQuestion(data.question);
@@ -49,11 +49,12 @@ const CollaborationPage = () => {
             setQuestionContent(data.question["Question Description"])
             setIsLoading(false);
             console.log('collaboration_ready event received');
-            console.log('Emitting joinRoom');
-            socketRef.current.emit('joinRoom', { roomId });
-            localStorage.setItem(`joined-${roomId}`, 'true');
+            // // console.log('Emitting joinRoom');
+            // // socketRef.current.emit('joinRoom', { roomId });
+            // // localStorage.setItem(`joined-${roomId}`, 'true');
             console.log('Emitting first_username');
             socketRef.current.emit('first_username', { roomId, username: cookies.username });
+        
         });
 
         socketRef.current.on('load_room_content', (data) => {
@@ -63,6 +64,8 @@ const CollaborationPage = () => {
             setContent(data.documentContent);
             setIsLoading(false);
             console.log('load_room_content event received');
+            socketRef.current.emit('first_username', { roomId, username: cookies.username });
+
         });
 
         socketRef.current.on('first_username', (data) => {
