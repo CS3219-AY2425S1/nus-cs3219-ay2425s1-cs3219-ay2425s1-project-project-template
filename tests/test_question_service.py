@@ -3,7 +3,7 @@ import pytest
 from test_user_service import login
 from test_user_service import ENDPOINT as USER_SERVICE_ENDPOINT
 
-BASE_URL = "http://question-service:3000"
+BASE_URL = "http://nginx/api/questions"
 
 # Test data
 test_question = {

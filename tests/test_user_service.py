@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-ENDPOINT = "http://user-service:3001/"
+ENDPOINT = "http://nginx/api/users/"
 
 
 def login(email: str, password: str) -> requests.Response:

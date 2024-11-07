@@ -4,7 +4,7 @@ import time
 from test_user_service import login
 from test_user_service import ENDPOINT as USER_SERVICE_ENDPOINT
 
-BASE_URL = "http://matching-service:3000/matcher"
+BASE_URL = "http://nginx/api/match/matcher"
 
 COUNTER = 0
 # Test data
