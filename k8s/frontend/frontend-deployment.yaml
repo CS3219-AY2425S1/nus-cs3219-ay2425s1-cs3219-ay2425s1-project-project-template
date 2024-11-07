@@ -27,3 +27,5 @@ spec:
           value: "http://34.101.183.192:4000"
         - name: VITE_COLLABORATION_SERVICE_API
           value: "http://34.101.47.29:3002"
+        - name: VITE_CHAT_SERVICE_API
+          value: "http://34.101.130.176:3003"
