@@ -1,21 +1,21 @@
 from time import sleep
 import requests
 import csv
+import os
 
-USER_ENDPOINT = "http://user-service:3001/"
-QUESTION_ENDPOINT = "http://question-service:3000/"
+# Get endpoints from environment variables, with defaults for local testing
+USER_ENDPOINT = os.getenv("USER_ENDPOINT", "http://localhost:3001/")
+QUESTION_ENDPOINT = os.getenv("QUESTION_ENDPOINT", "http://localhost:3000/")
+
 USER_PAYLOAD = {
-      "username": "SampleUserName",
-      "email": "sample@gmail.com",
-      "password": "SecurePassword"
-    }
-
+    "username": "SampleUserName",
+    "email": "sample@gmail.com",
+    "password": "SecurePassword"
+}
 
 def create_user():
-    # sleep(10)  # docker compose doesn't seem to be waiting for user-service to be up
     endpoint = f"{USER_ENDPOINT}users"
     _ = requests.post(endpoint, json=USER_PAYLOAD)
-
 
 def login():
     endpoint = f"{USER_ENDPOINT}auth/login"
@@ -39,10 +39,17 @@ def import_questions():
                 "difficulty": question["Question Complexity"]
             }
             payload["topics"] = payload["topics"].lstrip("[").rstrip("]").replace('"', "").split(", ")
-            response = requests.post(f"{QUESTION_ENDPOINT}/question", json=payload, cookies={"accessToken": access_token})
+            response = requests.post(
+                f"{QUESTION_ENDPOINT}/question", 
+                json=payload, 
+                cookies={"accessToken": access_token}
+            )
             print(response.json())
     # Delete user
-    resp = requests.delete(f"{USER_ENDPOINT}users/{user_id}", headers={"Authorization": f"Bearer {access_token}"})
+    resp = requests.delete(
+        f"{USER_ENDPOINT}users/{user_id}", 
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
     print(resp.json())
 
 if __name__ == "__main__":
