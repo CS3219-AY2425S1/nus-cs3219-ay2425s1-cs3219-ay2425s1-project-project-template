@@ -46,6 +46,8 @@ const Collab = () => {
 
     const [tabValue, setTabValue] = useState(0);
 
+    const [messages, setMessages] = useState([]);
+
     // Ensure location state exists, else redirect to home
     useEffect(() => {
         if (!location.state) {
@@ -72,6 +74,15 @@ const Collab = () => {
         // Listen for user-left event for the specific room
         socketRef.current.on("user-left", () => {
             setShowPartnerQuitPopup(true);
+        });
+        
+        // Listen for incoming messages and update `messages` state
+        socketRef.current.on("chat-message", (msg) => {
+            setMessages((prevMessages) => [...prevMessages, msg]);
+        });
+
+        socketRef.current.on("chat-history", (history) => {
+            setMessages(history);
         });
 
         // Clean up on component unmount
@@ -258,9 +269,7 @@ const Collab = () => {
                             <Output editorRef={editorRef} language={language} />
                         </CustomTabPanel>
                         <CustomTabPanel value={tabValue} index={1}>
-                            <div style={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                                <ChatBox socket={socketRef.current} roomId={roomId} username={username} />
-                            </div>
+                            <ChatBox socket={socketRef.current} username={username}  messages={messages} />
                         </CustomTabPanel>
                     </Box>
                 </div>

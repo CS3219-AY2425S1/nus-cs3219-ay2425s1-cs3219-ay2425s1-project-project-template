@@ -1,32 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const ChatBox = ({ socket, roomId, username }) => {
+const ChatBox = ({ socket, username, messages}) => {
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState([]);
     const chatEndRef = useRef(null);
 
     // Scroll to the bottom of the chat on new messages
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
-
-    // Listen for incoming messages from the server
-    useEffect(() => {
-        if (!socket) return;
-        
-        socket.on("chat-message", (msg) => {
-            setMessages((prevMessages) => [...prevMessages, msg]);
-        });
-
-        socket.on("chat-history", (history) => {
-            setMessages(history);
-        });
-
-        return () => {
-            socket.off("chat-message");
-            socket.off("chat-history");
-        };
-    }, [socket]);
 
     const sendMessage = () => {
         if (message.trim()) {
@@ -43,7 +24,7 @@ const ChatBox = ({ socket, roomId, username }) => {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", borderLeft: "1px solid #ddd"}}>
+        <div style={{ display: "flex", flexDirection: "column", height: "30vh" }}>
             <div style={{ flex: 1, overflowY: "auto", padding: "10px", display: "flex", flexDirection: "column" }}>
                 {messages.map((msg, index) => (
                     <div
@@ -66,7 +47,7 @@ const ChatBox = ({ socket, roomId, username }) => {
                 ))}
                 <div ref={chatEndRef} />
             </div>
-            <div style={{ display: "flex", padding: "10px" }}>
+            <div style={{ borderRadius: "10px", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)", display: "flex", padding: "10px" }}>
                 <input
                     type="text"
                     placeholder="Type a message..."
