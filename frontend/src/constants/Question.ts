@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
+import config from '../config';
 
 export const difficulties = ['Easy', 'Medium', 'Hard'];
 
-const API_BASE_URL = 'http://localhost/api/questions';
+const API_BASE_URL = `${config.ROOT_BASE_API}api/questions`;
 
 export const useTopics = () => {
   const [topics, setTopics] = useState<string[]>([]);
