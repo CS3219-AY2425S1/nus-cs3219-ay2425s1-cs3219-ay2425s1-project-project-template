@@ -61,7 +61,6 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 	}
 
 	// Save the collaboration history via the history-service
-	// TODO: convert to message queue
 	submissionReq := models.Submission{
 		Code:               submission.Code,
 		Language:           submission.Language,
@@ -89,34 +88,6 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 		http.Error(w, fmt.Sprintf("Failed to save submission history: %v", err), http.StatusInternalServerError)
 		return
 	}
-
-	// get history-service url from os env
-	// historyServiceUrl := os.Getenv("HISTORY_SERVICE_URL")
-	// if historyServiceUrl == "" {
-	// 	http.Error(w, "HISTORY_SERVICE_URL is not set", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// req, err := http.NewRequest(http.MethodPost, historyServiceUrl+"histories",
-	// 	bytes.NewBuffer(jsonData))
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// req.Header.Set("Content-Type", "application/json")
-
-	// client := &http.Client{}
-	// resp, err := client.Do(req)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-	// defer resp.Body.Close()
-
-	// if resp.StatusCode != http.StatusOK {
-	// 	http.Error(w, "Failed to save submission history", http.StatusInternalServerError)
-	// }
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
