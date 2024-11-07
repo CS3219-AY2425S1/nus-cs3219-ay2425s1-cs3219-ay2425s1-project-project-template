@@ -10,14 +10,7 @@ const frontendURL = process.env.frontend_url || "http://localhost:8080";
 const app = express();
 const port = 3000;
 const server = createServer(app);
-const io = new Server(server, {
-    // cors: {
-    //     origin: 'http://localhost:5173', 
-    //     // origin: "*",
-    //     methods: ['GET', 'POST'],
-    //     preflightContinue: true
-    // }
-});
+const io = new Server(server);
 
 io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`);
@@ -27,7 +20,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// app.use(cors({origin: "http://localhost:5172", credentials: true, preflightContinue: true, methods: ['GET', 'POST', "OPTIONS"]}));
 app.use(json());
 app.use(cookieParser());
 app.use((req, res, next) => {
