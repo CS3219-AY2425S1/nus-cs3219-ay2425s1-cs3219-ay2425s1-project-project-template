@@ -9,19 +9,9 @@
   
   .output-header {
     padding: 10px;
-    background-color: #1C1678;
-    border-radius: 10px 10px 0px 0px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .output-header h2 {
-    margin: 0;
-    color: #FFF;
-    font-size: 16px;
-    word-wrap: break-word;
-    text-align: left;
   }
 
   .run-button {

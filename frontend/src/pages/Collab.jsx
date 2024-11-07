@@ -175,7 +175,7 @@ const Collab = () => {
     };
 
     const handleContinueSessionAlone = () => {
-        setCountdown(20); // Reset to your desired starting time
+        setCountdown(180); // Reset to your desired starting time
         setTimeOver(false);
         startCountdown();
         setIsSoloSession(true);
