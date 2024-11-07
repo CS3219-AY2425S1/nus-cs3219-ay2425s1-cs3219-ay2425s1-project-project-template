@@ -51,44 +51,46 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     return <div>Loading...</div>;
   }
 
-  // Function to handle exit room
-
-  // Function to handle running code
-  const handleRunCode = async () => {
-    try {
-      const response = await axios.post('http://localhost:5005/execute-code', {
-        questionId: question.questionId,
-        code: ydoc.getText('monaco'),
-        language,
-      });
-      const testCasesPassed: string = response.data.testCasesPassed;
-      const testCasesTotal: string = response.data.testCasesTotal;
-      if (testCasesPassed == testCasesTotal) {
-        setAllTestCasesPassed(true);
+    // Function to handle exit room
+  
+    // Function to handle running code
+    const handleRunCode = async () => {
+      try {
+        const response = await axios.post('http://localhost:5005/execute-code', {
+          questionId: question.questionId,
+          code: ydoc.getText('monaco'),
+          language,
+        });
+        const testCasesPassed:string = response.data.testCasesPassed;
+        const testCasesTotal:string = response.data.testCasesTotal;
+        if (testCasesPassed == testCasesTotal) {
+          setAllTestCasesPassed(true);
+        } else {
+          setAllTestCasesPassed(false);
+        }
+        setOutput(`Test cases passed: ${testCasesPassed}/${testCasesTotal}`);
+        console.log(response.data)
+      } catch (error) {
+        console.error('Error running code:', error);
+        setOutput('An error occurred while running the code.');
       }
-      setOutput(`Test cases passed: ${testCasesPassed}/${testCasesTotal}`);
-      console.log(response.data)
-    } catch (error) {
-      console.error('Error running code:', error);
-      setOutput('An error occurred while running the code.');
+    };
+  
+    // Function to handle submitting code
+    const handleSubmitCode = async () => {
+      try {
+        const response = await axios.post('http://localhost:5005/submit-code', {
+          questionId: question.questionId,
+          matchId: matchId, 
+          code: ydoc.getText('monaco'),
+          language,
+        });
+        // Handle the response as needed
+        console.log('Code submitted successfully:', response.data);
+      } catch (error) {
+        console.error('Error submitting code:', error);
+      }
     }
-  };
-
-  // Function to handle submitting code
-  const handleSubmitCode = async () => {
-    try {
-      const response = await axios.post('http://localhost:5005/submit-code', {
-        questionId: question.questionId,
-        matchId: matchId,
-        code: ydoc.getText('monaco'),
-        language,
-      });
-      // Handle the response as needed
-      console.log('Code submitted successfully:', response.data);
-    } catch (error) {
-      console.error('Error submitting code:', error);
-    }
-  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
