@@ -26,7 +26,13 @@ services:
     volumes:
       - ./peer-prep-user/user-service:/app
       - /app/node_modules
-    command: sh -c "npm install && npm start"
+    environment:
+      - TZ=Asia/Kuala_Lumpur
+    command: >
+        sh -c "apk add --no-cache tzdata\ && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && 
+        echo $TZ > /etc/timezone && 
+        npm install &&
+        npm start"
     ports:
       - "3001:3001"
     depends_on:
