@@ -16,10 +16,9 @@ select {
 }
 
 .App {
-    background-color: #1b1f24;
+    background-color: #1F2833;
     display: flex;
     flex-direction: column;
-    gap: 20px;
     padding: 0;
     margin: 0;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = 'http://localhost/api/users/';
 
 const useUsername = (id) => {
     const [username, setUsername] = useState(null);

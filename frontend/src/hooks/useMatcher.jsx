@@ -6,7 +6,7 @@ const useMatcher = (userId) => {
     const [isMatchSuccessful, setIsMatchSuccessful] = useState(null);
     const [timerStart, setTimerStart] = useState(false);
     const [socket, setSocket] = useState(null);
-    const API_BASE_URL = 'http://localhost:3000/matcher';
+    const API_BASE_URL = 'http://localhost/api/match/matcher';
     const navigate = useNavigate();
     
 

@@ -2,9 +2,11 @@
     display: flex;
     flex-direction: row;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 75px);
     margin: 0;
     padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
 }
 
 .leftSection {
@@ -13,7 +15,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-color: #1F2833;
 }
+
+
 
 .matchingContainer {
     display: flex;
@@ -22,18 +27,17 @@
     justify-content: flex-start;
     color: white;
     padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .rightSection {
     flex: 1;
-    background-color: #1f2937;
+    background-color: #0B0C10;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 20px;
+    margin: 0;
+    padding: 40px;
 }
 
 .heading {
@@ -48,24 +52,43 @@
     width: 100%
 }
 
+button {
+    border: none;
+}
+
+.topicButton {
+    border-radius: 20px;
+    transform-origin: center;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin: 5px;
+    margin-right: 10px;
+}
+
+.topicButton:not(:disabled):hover, .difficultyButton:not(:disabled):hover {
+    border-color: #7440cf;
+    background-color: #c9b6ed;
+    transform : scale(1.1);
+}
+
 .difficultyButtons {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     width: 100%;
 }
 
 .difficultyButton {
     flex: 1; 
     padding: 10px 20px; 
+    border-radius: 20px;
     border: 2px solid transparent;
-    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease ;
     text-align: center;
 }
 
 .difficultyButton.notSelected {
-    background-color: #ceccc6;
     color: black;
 }
 
@@ -97,18 +120,8 @@
     gap: 10px;
 }
 
-.topicButton {
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    margin: 5px;
-    margin-right: 10px;
-    transition: background-color 0.3s ease;
-}
 
 .topicButton.topicNotSelected {
-    background-color: #ceccc6;
     color: black;
 }
 
@@ -120,18 +133,18 @@
 .findMatchButton {
     padding: 15px 30px;
     margin-bottom: 20px;
+    border-radius: 20px;
     width: 100%;
-    background-color: #2864ec;
-    color: white;
+    background-color: #66FCF1;
+    color: black;
     font-size: 1.2rem;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .findMatchButton:hover {
-    background-color: #204cdc;
+    background-color: #45A29E;
 }
 
 .findMatchButtonDisabled {
