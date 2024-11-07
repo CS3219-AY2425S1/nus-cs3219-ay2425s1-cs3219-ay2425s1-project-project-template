@@ -98,7 +98,7 @@ function PracticeLayout() {
     });
 
     socketRef.current.on('connect', () => {
-      socketRef.current?.emit('register', auth.userId, difficulties, topics);
+      socketRef.current?.emit('register', auth.userId, difficulties, topics, localStorage.getItem('token'));
     });
 
     socketRef.current.on('match_found', (session) => {
