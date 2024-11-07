@@ -103,7 +103,6 @@ const getCodingAttempt = async () => {
     }
 
     const data = docSnap.data();
-    console.log(data);
 
     if (data && data.code !== undefined) {
         return JSON.stringify({ code: data.code });
@@ -126,7 +125,8 @@ const getInfo = async () => {
     questionInfo.value = await getQuestionInfo(questionId);
 
     // Get Coding Attempt
-    codeAttempt.value = await getCodingAttempt();
+    const receivedCodingAttempt = await getCodingAttempt();
+    codeAttempt.value = JSON.parse(receivedCodingAttempt).code;
 
     isLoading.value = false;
 }
