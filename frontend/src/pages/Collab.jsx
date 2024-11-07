@@ -13,6 +13,7 @@ import QuestionContainer from "../components/collaboration/QuestionContainer";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
+import ChatBox from "../components/collaboration/ChatBox";
 import useAuth from "../hooks/useAuth";
 
 const yjsWsUrl = "ws://localhost:8201/yjs";  // y-websocket now on port 8201
@@ -194,6 +195,13 @@ const Collab = () => {
             />
             <div style={{ display: "grid", gridTemplateColumns: "2fr 3fr", height: "calc(100vh - 75px)", padding: "10px" }}>
                 <QuestionContainer question={question} />
+                
+                {socketRef.current && (
+                    <div style={{ height: "30%", overflow: "auto" }}>
+                        <ChatBox socket={socketRef.current} roomId={roomId} username={username} />
+                    </div>
+                )}
+
                 <div style={{ display: "grid", gridTemplateRows: "3fr 2fr", marginLeft: "10px", rowGap: "10px", overflow: "auto" }}>
                     <CodeEditor language={language} onMount={handleEditorDidMount} />
                     <Output editorRef={editorRef} language={language} />
