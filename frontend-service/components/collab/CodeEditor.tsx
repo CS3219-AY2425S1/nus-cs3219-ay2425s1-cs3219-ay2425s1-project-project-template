@@ -45,6 +45,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   const [isRedirecting, setIsRedirecting] = useState(false); // New state
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'typing' | null>(null);
   const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   const toast = useToast(); // Initialize Chakra UI toast
   const previousUsersCount = useRef<number>(0);
@@ -143,13 +144,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
         : [];
       const userCount = activeUsers.length;
 
+      // Update isReadOnly based on the presence of other users
+      setIsReadOnly(userCount === 0);
+
       // Check if the count decreased, meaning a user other than the current user has left
       if (userCount < previousUsersCount.current) {
         toast({
-          title: 'User left the room',
-          description: 'The other user has left the room.',
-          status: 'info',
-          duration: 5000, // Infinite duration
+          title: 'Partner left the room',
+          description: 'The other user has left the room. The editor is now read-only.',
+          status: 'warning',
+          duration: 5000,
           isClosable: true,
         });
       }
@@ -320,7 +324,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
               fontSize: 16,
               fontFamily: "'Fira Code', monospace",
               minimap: { enabled: false },
-              lineNumbers: "on"
+              lineNumbers: "on",
+              readOnly: isReadOnly,
             }}
           />
         </Box>
