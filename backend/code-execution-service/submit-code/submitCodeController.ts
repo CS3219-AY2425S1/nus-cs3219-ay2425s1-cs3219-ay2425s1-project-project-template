@@ -85,18 +85,6 @@ const submitUserCode = async (
             },
         )
 
-        if (executeCodeRes.data.stderr) {
-            logger.error(
-                'Error appeared when executing code',
-                executeCodeRes.data.stderr,
-            )
-            return res.status(400).json({
-                success: false,
-                error: executeCodeRes.data.stderr,
-                compilationOutput: executeCodeRes.data.compilationOutput,
-            })
-        }
-
         const codeOutput = (executeCodeRes.data.stdout || '').trim().split('\n')
         results = testCases.map((tc, i) => ({
             input: tc.input,
