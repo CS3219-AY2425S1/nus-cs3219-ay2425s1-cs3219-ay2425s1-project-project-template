@@ -97,7 +97,7 @@ onMounted(async () => {
     });
 
     // Observe changes in the shared Yjs map for language updates from other users
-    yMap.observe(event => {
+    yMap.observe(() => {
         const newLanguage = yMap.get("language");
         if (language.value !== newLanguage) {
             language.value = newLanguage; // Sync local language with shared state

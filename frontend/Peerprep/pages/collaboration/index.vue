@@ -62,14 +62,19 @@ const terminateCollaboration = () => {
       <h3 class="question-title">{{ question.title }}</h3>
       <p>{{ question.description }}</p>
     </div>
-    <CodeEditor />
+    <div style="display:flex; width:100%;">
+      <div style="flex:2;">
+        <Chat ref="chatRef" />
+      </div>
+      <div style="flex:3; overflow-y:auto; max-height: 500px; background-color: #282c34;">
+        <CodeEditor/>
+      </div>
+    </div>
     <div style="margin-top: 8px; text-align: right;">
       <button class="red-button" @click="terminateCollaboration">
         Terminate Collaboration
       </button>
     </div>
-    <!-- Attach ref to the Chat component -->
-    <Chat ref="chatRef" />
   </div>
 </template>
 
