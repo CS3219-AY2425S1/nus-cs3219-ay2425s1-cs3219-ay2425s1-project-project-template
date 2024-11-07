@@ -56,7 +56,7 @@ const CollabRoomPage = ({ params }: {
     }
 
     return (
-        <div className='w-screen'>
+        <div className='w-screen relative'>
             <CollaborativeCodingPage
                 initialCode='import math'
                 language={collabLanguage}
@@ -65,7 +65,7 @@ const CollabRoomPage = ({ params }: {
                 userName={String(user?.name)}
                 question={collabQuestion}
             />
-            {/* DO NOT REMOVE THIS PLEASE */} <span className='opacity-0 select-none'>do not remove this {roomId}</span>     
+            {/* DO NOT REMOVE THIS PLEASE */} <span className='absolute left-0 top-0 opacity-0 select-none'>do not remove this {roomId}</span>     
         </div>
     );
 };
