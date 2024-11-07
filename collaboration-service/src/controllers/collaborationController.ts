@@ -109,10 +109,10 @@ function formatTime(unixTime: number): string {
 
 export const createRoom = async (req: Request, res: Response) => {
   try {
-    const { userId1, userId2, topic } = req.body;
+    const { userId1, difficulty1, userId2, difficulty2, topic } = req.body;
 
     const questionsByCategory = await fetch(
-      `http://question-service:8080/api/questions/category?category=${topic}`,
+      `http://question-service:8080/api/questions/filter?category=${topic}&difficulty=${difficulty1}&difficulty=${difficulty2}`,
       {
         method: "GET",
         headers: {
@@ -120,6 +120,7 @@ export const createRoom = async (req: Request, res: Response) => {
         },
       }
     );
+    // TODO: Question pool should match difficulty
     const questions = await questionsByCategory.json();
 
     if (questions.length === 0) {
@@ -129,8 +130,7 @@ export const createRoom = async (req: Request, res: Response) => {
     }
 
     // "random" algorithm to get a random question from the list of questions
-    const randQuestion =
-      questions[Math.floor(Math.random() * questions.length)];
+    const randQuestion = questions[Math.floor(Math.random() * questions.length)];
     const selectedId = randQuestion.questionId;
 
     const roomId = uuidv4();
