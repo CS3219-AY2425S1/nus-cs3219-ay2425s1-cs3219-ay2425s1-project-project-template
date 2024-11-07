@@ -54,6 +54,5 @@ export const topics = [
   'Breadth-First Search',
   'Topological Sort',
   'Tree',
-  'Database',
   'Brainteaser',
 ];
