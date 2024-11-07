@@ -7,15 +7,15 @@ import axios from 'axios';
 import { Question } from '../models/types'
 
 const CollabRoomPage = ({ params }: {
-    params: {roomId:string}
+    params: { roomId: string }
 }) => {
     const roomId = String(params.roomId);
     const { user, isAuthenticated } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [isValidRoom, setIsValidRoom] = useState(false);
-    const [collabQuestion, setCollabQuestion] = useState <Question | undefined> (undefined);
-    const [collabLanguage, setCollabLanguage] = useState <string | undefined> (undefined);
-    const [matchId, setMatchId] = useState <string | undefined> (undefined);
+    const [collabQuestion, setCollabQuestion] = useState<Question | undefined>(undefined);
+    const [collabLanguage, setCollabLanguage] = useState<string | undefined>(undefined);
+    const [matchId, setMatchId] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         const verifyRoom = async () => {
@@ -58,7 +58,7 @@ const CollabRoomPage = ({ params }: {
     }
 
     return (
-        <div className='w-screen relative'>
+        <div className='flex flex-col flex-grow h-[calc(100vh-4rem)]'>
             <CollaborativeCodingPage
                 initialCode='import math'
                 language={collabLanguage}
@@ -68,7 +68,7 @@ const CollabRoomPage = ({ params }: {
                 question={collabQuestion}
                 matchId={matchId}
             />
-            {/* DO NOT REMOVE THIS PLEASE */} <span className='absolute left-0 top-0 opacity-0 select-none'>do not remove this {roomId}</span>     
+            {/* DO NOT REMOVE THIS PLEASE */} <span className='absolute left-0 top-0 opacity-0 select-none'>do not remove this {roomId}</span>
         </div>
     );
 };

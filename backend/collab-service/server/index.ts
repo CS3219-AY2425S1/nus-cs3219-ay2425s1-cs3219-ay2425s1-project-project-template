@@ -7,6 +7,7 @@ import logger from '../utils/logger'
 import createRoomRouter from '../create-room/createRoomRouter'
 import deleteRoomRouter from '../delete-room/deleteRoomRouter'
 import { setupCodeCollabWebSocketServer } from '../websocket/websocketServer'
+import { setupVideoCallServer } from '../websocket/videoCallServer'
 import { verifyRoom } from '../verify-room-validity/verifyRoomValidityController'
 
 dotenv.config({ path: './.env' })
@@ -23,6 +24,7 @@ const PORT = process.env.PORT || 5003
 const server = createServer(app)
 
 setupCodeCollabWebSocketServer()
+setupVideoCallServer(server)
 
 server.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`)
