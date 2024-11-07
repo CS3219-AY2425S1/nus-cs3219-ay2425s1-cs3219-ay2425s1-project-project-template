@@ -11,20 +11,22 @@ const app = express();
 const port = 3002;
 const server = http.createServer(app);
 
-// Enable CORS for Express
-app.use(cors({
-    origin: frontendURL, 
-    credentials: true     
-}));
+const io = process.env.FRONTEND_URL
+    ? new Server(server, {
+        cors: {
+            origin: frontendURL,  
+            methods: ['GET', 'POST'],
+            credentials: true     
+        }
+      })
+    : new Server(server);
 
-// Initialize Socket.IO with CORS options
-const io = new Server(server, {
-    cors: {
-        origin: frontendURL,  
-        methods: ['GET', 'POST'],
+if (process.env.FRONTEND_URL) {
+    app.use(cors({
+        origin: frontendURL, 
         credentials: true     
-    }
-});
+    }));
+}
 
 app.use(express.json());
 

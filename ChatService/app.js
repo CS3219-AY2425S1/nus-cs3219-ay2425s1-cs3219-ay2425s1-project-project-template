@@ -16,7 +16,7 @@ app.use(cors({
 
 const io = new Server(server, {
     cors: {
-        origin: frontendURL, 
+        origin: frontendURL,  
         methods: ['GET', 'POST'],
         credentials: true
     }
