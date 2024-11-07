@@ -15,6 +15,7 @@ const CollabRoomPage = ({ params }: {
     const [isValidRoom, setIsValidRoom] = useState(false);
     const [collabQuestion, setCollabQuestion] = useState <Question | undefined> (undefined);
     const [collabLanguage, setCollabLanguage] = useState <string | undefined> (undefined);
+    const [matchId, setMatchId] = useState <string | undefined> (undefined);
 
     useEffect(() => {
         const verifyRoom = async () => {
@@ -30,6 +31,7 @@ const CollabRoomPage = ({ params }: {
                     setIsValidRoom(true);
                     setCollabQuestion(response.data.question)
                     setCollabLanguage(response.data.language)
+                    setMatchId(response.data.matchId)
                 }
             } catch (error: any) {
                 console.error('Error verifying room:', error.response?.data?.message || error.message);
@@ -64,6 +66,7 @@ const CollabRoomPage = ({ params }: {
                 roomId={roomId}
                 userName={String(user?.name)}
                 question={collabQuestion}
+                matchId={matchId}
             />
             {/* DO NOT REMOVE THIS PLEASE */} <span className='absolute left-0 top-0 opacity-0 select-none'>do not remove this {roomId}</span>     
         </div>

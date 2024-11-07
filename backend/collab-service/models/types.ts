@@ -18,6 +18,7 @@ interface Room {
     userIds: string[];
     language: string;
     question: Question;
+    matchId: string;
 }
 
 export { Room }

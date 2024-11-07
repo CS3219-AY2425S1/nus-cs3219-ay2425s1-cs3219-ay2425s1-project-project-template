@@ -5,7 +5,7 @@ import { Room } from '../models/types';
 import logger from '../utils/logger';
 
 const createRoom = async (req: Request, res: Response):Promise<any> => {
-    const { userId1, userId2, language, question } = req.body;
+    const { userId1, userId2, language, question, matchId } = req.body;
 
     if (!userId1 || !userId2 || !language || !question) {
         return res.status(400).json({ message: 'userId1, userId2, language, question are all required' });
@@ -22,7 +22,8 @@ const createRoom = async (req: Request, res: Response):Promise<any> => {
         roomId,
         userIds: [userId1, userId2],
         language: language,
-        question: question
+        question: question,
+        matchId
     };
 
     logger.info(`New Room with question ${newRoom.question.title} created`)

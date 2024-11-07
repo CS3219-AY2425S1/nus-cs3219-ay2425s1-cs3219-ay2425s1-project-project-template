@@ -20,11 +20,13 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   theme = 'light',
   roomId,
   userName,
-  question = DUMMY_QUESTION
+  question = DUMMY_QUESTION,
+  matchId = ''
 }) => {
   const ydoc = useMemo(() => new Y.Doc(), [])
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [output, setOutput] = useState(''); // To display output from running code
+  const [allTestCasesPassed, setAllTestCasesPassed] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
   useEffect(() => {
     // websocket link updated 
@@ -52,12 +54,18 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     // Function to handle running code
     const handleRunCode = async () => {
       try {
-        const response = await axios.post('http://localhost:5005/api/execute-code', {
+        const response = await axios.post('http://localhost:5005/execute-code', {
           questionId: question.questionId,
           code: ydoc.getText('monaco'),
           language,
         });
-        setOutput(response.data.output);
+        const testCasesPassed:string = response.data.testCasesPassed;
+        const testCasesTotal:string = response.data.testCasesTotal;
+        if (testCasesPassed == testCasesTotal) {
+          setAllTestCasesPassed(true);
+        }
+        setOutput(`Test cases passed: ${testCasesPassed}/${testCasesTotal}`);
+        console.log(response.data)
       } catch (error) {
         console.error('Error running code:', error);
         setOutput('An error occurred while running the code.');
@@ -67,8 +75,9 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     // Function to handle submitting code
     const handleSubmitCode = async () => {
       try {
-        const response = await axios.post('http://localhost:5005/api/submit-code', {
+        const response = await axios.post('http://localhost:5005/submit-code', {
           questionId: question.questionId,
+          matchId: matchId, 
           code: ydoc.getText('monaco'),
           language,
         });
@@ -125,7 +134,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
           </div>
             {isChatOpen 
               ? <Chat ydoc={ydoc} provider={provider} userName={userName} />
-              : <CodeOutput outputText={output} handleRunCode={handleRunCode} handleSubmitCode={handleSubmitCode} />}
+              : <CodeOutput outputText={output} allPassed={allTestCasesPassed} handleRunCode={handleRunCode} handleSubmitCode={handleSubmitCode} />}
           </div>
         </div>
       </div>

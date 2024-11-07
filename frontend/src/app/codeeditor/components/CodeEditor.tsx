@@ -32,7 +32,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     awareness.on('change', () => {
       // Whenever somebody updates their awareness information,
       // we log all awareness information from all users.
-      console.log(Array.from(awareness.getStates().values()))
+      // console.log(Array.from(awareness.getStates().values())) // we remove this for now because it clogs up the logs
     })
   }
 
@@ -78,7 +78,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       <Editor
         height="100%"
         width="100%"
-        defaultLanguage={localStorage.getItem('language')?.toLowerCase() || language}
+        defaultLanguage={collabLanguage}
         theme={theme}
         onMount={handleEditorDidMount}
         options={{

@@ -30,6 +30,7 @@ export const verifyRoom = (req: Request, res: Response): void => {
         message: 'Room is valid', 
         room_id: roomId,
         language: room.language,
-        question: room.question 
+        question: room.question, 
+        matchId: room.matchId
     });
 };

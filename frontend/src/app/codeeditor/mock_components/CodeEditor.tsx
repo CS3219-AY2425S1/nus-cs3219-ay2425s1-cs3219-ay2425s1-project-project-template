@@ -23,6 +23,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   const [editor, setEditor] = useState<any | null>(null)
   const [collabProvider, setProvider] = useState<WebsocketProvider | null>(provider);
+  const [collabLanguage, setCollabLanguage] = useState<string | undefined>(language.toLowerCase())
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
   const awareness = collabProvider?.awareness
@@ -31,12 +32,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     awareness.on('change', () => {
       // Whenever somebody updates their awareness information,
       // we log all awareness information from all users.
-      console.log(Array.from(awareness.getStates().values()))
+      // console.log(Array.from(awareness.getStates().values())) // we remove this for now because it clogs up the logs
     })
   }
 
   useEffect(() => {
-    if (collabProvider == null || editor == null) {
+    if (collabProvider == null || editor == null || collabLanguage == null) {
       return
     }
     const ytext = ydoc.getText('monaco');
@@ -46,7 +47,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     return () => {
       binding.destroy()
     }
-  }, [ydoc, collabProvider, editor])
+  }, [ydoc, collabProvider, editor, collabLanguage])
 
 
   // useEffect(() => {
@@ -77,7 +78,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       <Editor
         height="100%"
         width="100%"
-        defaultLanguage={localStorage.getItem('language')?.toLowerCase() || language}
+        defaultLanguage={collabLanguage}
         theme={theme}
         onMount={handleEditorDidMount}
         options={{

@@ -98,7 +98,8 @@ const io = new Server(httpServer, {
                                 userId1: userId,
                                 userId2: otherUserId,
                                 language: matchSession.language,
-                                question: matchSession.question
+                                question: matchSession.question,
+                                matchId,
                             },
                         )
 

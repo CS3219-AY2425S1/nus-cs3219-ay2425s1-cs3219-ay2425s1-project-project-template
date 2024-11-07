@@ -20,4 +20,5 @@ export interface CollaborativeSpaceProps {
     roomId: string;
     userName: string;
     question: Question;
+    matchId?: string;
 }
