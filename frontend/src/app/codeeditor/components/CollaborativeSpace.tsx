@@ -63,6 +63,8 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
         const testCasesTotal:string = response.data.testCasesTotal;
         if (testCasesPassed == testCasesTotal) {
           setAllTestCasesPassed(true);
+        } else {
+          setAllTestCasesPassed(false);
         }
         setOutput(`Test cases passed: ${testCasesPassed}/${testCasesTotal}`);
         console.log(response.data)

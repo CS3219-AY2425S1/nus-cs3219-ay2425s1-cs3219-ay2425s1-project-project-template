@@ -113,10 +113,8 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
 
         if (currentCategories!.includes(category)) {
           newCategories = currentCategories!.filter(cat => cat !== category);
-          console.log('x')
         } else {
           newCategories = [...currentCategories!, category];
-          console.log('y')
         }
 
         form.setValue('categories', newCategories, { shouldDirty: true });
@@ -185,7 +183,6 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
             if (response.ok) {
               hasError = false;
               setError('');
-              console.log("ok");
             } else {
               hasError = true;
               const errorData = await response.json()
