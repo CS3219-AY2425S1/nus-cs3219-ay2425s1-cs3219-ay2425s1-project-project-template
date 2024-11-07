@@ -47,7 +47,7 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
       awareness.off('change', handleAwarenessChange);
     };
   }, [ydoc, provider]);
-  
+
   const handleSendMessage = () => {
     if (newMessage.trim() !== '') {
       const ymessages = ydoc.getArray<{ user: string; message: string }>('chat-messages');
@@ -66,8 +66,8 @@ const Chat: React.FC<ChatProps> = ({ ydoc, provider, userName }) => {
     }
   }, [messages]);
   return (
-    <div className="flex h-full flex-col w-full border border-2 rounded-lg border-purple-300">
-      <div className="w-full h-[200px] overflow-y-auto border p-2.5">
+    <div className="flex flex-col h-full w-full rounded-lg">
+      <div className="w-full h-full overflow-y-auto border p-2.5">
         {messages.map((msg, index) => (
           <div key={index} className="mb-2.5 last:mb-0">
             <strong>{msg.user}:</strong> {msg.message}
