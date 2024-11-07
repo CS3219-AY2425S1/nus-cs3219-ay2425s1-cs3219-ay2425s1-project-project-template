@@ -164,20 +164,24 @@ export const getFiltered = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const category = req.query.category as string;
-  const difficulties = req.query.difficulty as string | string[];
+  const category = req.query.category as string | undefined;
+  const difficulties = req.query.difficulty as string | string[] | undefined;
 
   console.log("Category:", category);
   console.log("Difficulties:", difficulties);
 
   try {
     // Convert difficulties to an array if it's a single string
-    const difficultyArray = Array.isArray(difficulties) ? difficulties : [difficulties];
+    const difficultyArray = difficulties ? (Array.isArray(difficulties) ? difficulties : [difficulties]) : undefined;
 
-    const query = {
-      category: category,
-      difficulty: { $in: difficultyArray },
-    };
+    // Build the query object dynamically
+    const query: { [key: string]: any } = {};
+    if (category) {
+      query.category = category;
+    }
+    if (difficultyArray) {
+      query.difficulty = { $in: difficultyArray };
+    }
 
     const questions = await Question.find(query);
 
@@ -190,3 +194,4 @@ export const getFiltered = async (
     res.status(500).json({ message: "Failed to get questions", error });
   }
 };
+
