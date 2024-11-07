@@ -1,15 +1,16 @@
 import { Request, Response } from 'express'
-import Question from '../models/question'
-import { checkQuestionExists, getNextQuestionId } from '../utils/utils'
+import Question, { ITestCase } from '../models/question'
+import { checkQuestionExists, getNextQuestionId, removeDuplicateTestCases } from '../utils/utils'
 import logger from '../utils/logger'
 
 const addQuestion = async (req: Request, res: Response) => {
-    const { title, description, categories, difficulty } = req.body
+    const { title, description, categories, difficulty, testCases } = req.body
     const requiredFields: string[] = []
 
     if (!title) requiredFields.push('Title')
     if (!description) requiredFields.push('Description')
     if (!difficulty) requiredFields.push('Difficulty')
+    if (!testCases) requiredFields.push('Test cases')
 
     if (requiredFields.length > 0) {
         return res
@@ -26,12 +27,20 @@ const addQuestion = async (req: Request, res: Response) => {
 
     const questionId = await getNextQuestionId()
 
+    const testCasesArray: ITestCase[] = testCases.map((testCase: any) => ({
+        input: testCase.input,
+        expected: testCase.expected,
+    }))
+
+    const cleanedTestCases = removeDuplicateTestCases(testCasesArray)
+
     const newQuestion = new Question({
         questionId,
         title,
         description,
         categories,
         difficulty,
+        testCases: cleanedTestCases
     })
 
     try {

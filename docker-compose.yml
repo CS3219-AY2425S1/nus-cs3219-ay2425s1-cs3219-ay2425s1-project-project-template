@@ -62,7 +62,7 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - peerprep-network
-      
+
   matching_service:
     build:
       context: ./backend/matching-service
@@ -83,6 +83,41 @@ services:
     networks:
       - peerprep-network
 
+  collab_service:
+    build:
+      context: ./backend/collab-service
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+      - "5004:5004"
+    env_file:
+      - ./backend/collab-service/.env
+    volumes:
+      - ./backend/collab-service:/app
+      - collab-service-node-modules:/app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      - NODE_ENV=development
+    networks:
+      - peerprep-network
+
+  code_execution_service:
+    build:
+      context: ./backend/code-execution-service
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+    env_file:
+      - ./backend/code-execution-service/.env
+    volumes:
+      - ./backend/code-execution-service:/app
+      - code-execution-service-node-modules:/app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      - NODE_ENV=development
+    networks:
+      - peerprep-network
+
 networks:
   peerprep-network:
     driver: bridge
@@ -96,5 +131,9 @@ volumes:
     driver: local
   matching-service-node-modules:
     driver: local
+  collab-service-node-modules:
+    driver: local
   rabbitmq-data:
+    driver: local
+  code-execution-service-node-modules:
     driver: local

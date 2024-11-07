@@ -1,9 +1,6 @@
 import axios from 'axios'
-import dotenv from 'dotenv'
 import { TimedMatchRequest, MatchPartner } from '../models/types'
 import logger from '../utils/logger'
-
-dotenv.config({ path: './.env' })
 
 const performMatching = async (
     req: TimedMatchRequest,
@@ -17,7 +14,7 @@ const performMatching = async (
     for (const curr of activeRequests) {
         if (curr.userId === req.userId) continue
 
-        if (curr.difficulty === req.difficulty) {
+        if (curr.language == req.language && curr.difficulty === req.difficulty) {
             const commonCategories = req.categories.filter((category) =>
                 curr.categories.includes(category),
             )
@@ -54,10 +51,16 @@ const performMatching = async (
         const matchPartner: MatchPartner = {
             userId: bestMatch.userId,
             userName: bestMatch.userName,
-            questionId: res.data.questionId,
-            title: res.data.title,
-            difficulty: bestMatch.difficulty,
-            categories: res.data.categories
+            language: req.language,
+            question: {
+                questionId: res.data.questionId,
+                title: res.data.title,
+                description: res.data.description,
+                difficulty: res.data.difficulty,
+                categories: res.data.categories,
+                testCases: res.data.testCases
+            }
+            
         }
 
         logger.info(`Matched ${req.userName} with ${bestMatch.userName}`)
