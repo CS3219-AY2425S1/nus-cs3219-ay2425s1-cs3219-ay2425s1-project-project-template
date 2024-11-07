@@ -25,6 +25,7 @@ services:
       - ./peer-prep-user/user-service/.env
     volumes:
       - ./peer-prep-user/user-service:/app
+      - /app/node_modules
     command: sh -c "npm install && npm start"
     ports:
       - "3001:3001"

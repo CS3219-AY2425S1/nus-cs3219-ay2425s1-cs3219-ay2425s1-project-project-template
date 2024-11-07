@@ -60,17 +60,17 @@ export const getQuestion = async (
         //     `http://localhost:8080/questions?filterBy=question_categories&filterValues=Arrays`
         // );
 
-        console.log('Raw response data:', response.data);
+        // console.log('Raw response data:', response.data);
 
         const preDifficultyQuestions = response.data.data.data as Question[];
 
-        console.log('Questions fetched:', preDifficultyQuestions);
+        // console.log('Questions fetched:', preDifficultyQuestions);
 
         const validQuestions = preDifficultyQuestions.filter((question: Question) => 
             question.question_complexity.toLowerCase() === difficulty.toLowerCase() 
         );
 
-        console.log('Filtered questions by difficulty:', validQuestions);
+        // console.log('Filtered questions by difficulty:', validQuestions);
 
         // pick a random question from the filtered list 
         if (validQuestions.length === 0) {

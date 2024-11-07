@@ -34,7 +34,7 @@ const startConsume = async (onMessage: (message: Message) => void) => {
   }
 }
 
-export const updateUserService = (session: Session) => {
+export const updateUserService = (session: any) => {
   channel.assertQueue(ADD_SESSION_QUEUE,{durable: true})
   channel.sendToQueue(ADD_SESSION_QUEUE, Buffer.from(JSON.stringify(session)))
 }

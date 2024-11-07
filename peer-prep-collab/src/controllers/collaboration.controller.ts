@@ -1,6 +1,8 @@
 import { Request, Response, RequestHandler } from 'express';
 import { createCollaborationService, getSessionData } from '../services/collaboration.services';
 import { updateUserService } from '..';
+import SessionModel from '../models/session.schema';
+import { Query } from 'mongoose';
 
 export const initiateCollaboration = async (sessionId: string, difficulty: string, category: string, username1: string, username2: string) => {
     try {
@@ -11,7 +13,18 @@ export const initiateCollaboration = async (sessionId: string, difficulty: strin
             console.log('No suitable question found for specified difficulty and category');
             return null;
         }
-        updateUserService(session);
+
+        const newSession = new SessionModel({
+            matchedUsers: session.users,
+            question: session.question,
+            sessionId: session.sessionId
+        })
+        
+        newSession.save()
+            .then(entry => {
+                updateUserService({...session, sessionIdentifier: entry.id});
+            })
+        
         return session;
     } catch (error) {
         console.error('Error starting collaboration', error);
@@ -60,3 +73,20 @@ export const getCollaborationSession: RequestHandler = async (req: Request, res:
         return;
     }
 };
+
+export const getDocument: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.documentId
+    const doc = await SessionModel.findById({_id: id})
+    if (doc) {
+        res.status(200).json({
+            message: "Request successful",
+            code: doc.code
+        })
+    } else {
+        res.status(404).json({
+            message: "Could not find code",
+            code: ""
+        })
+    }
+
+}
