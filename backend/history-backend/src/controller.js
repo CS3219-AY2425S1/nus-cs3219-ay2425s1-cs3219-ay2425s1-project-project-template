@@ -36,7 +36,7 @@ export async function getSomeHistory(req, res) {
       data: histories,
     });
   } catch (error) {
-    console.err(error);
+    console.error(error);
     return res.status(500).json({ message: "Unknown error when getting history!" });
   }
 }
@@ -62,13 +62,28 @@ export async function addHistory(req, res) {
     });
 
   } catch (error) {
-    console.err(error);
+    console.error(error);
     return res.status(500).json({ message: "Unknown error when adding history!" });
   }
 }
 
 export async function deleteHistory(req, res) {
+  try {
+    const id = req.params.id;
+    if (!isValidObjectId(id))
+      return res.status(404).json({ message: `History ${id} not found` });
 
+    const history = await HistoryModel.findById(id);
+    if (!history)
+      return res.status(404).json({ message: `User ${id} not found` });
+
+    await HistoryModel.findByIdAndDelete(id);
+    return res.status(200).json({ message: `History ${id} successfully deleted` });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when getting history!" });
+  }
 }
 
 async function _getHistoryByRoomIdAndUser(roomId, user) {
@@ -81,7 +96,6 @@ async function _getHistoryByRoomIdAndUser(roomId, user) {
 }
 
 async function _updateHistory(id, newHistory) {
-
   return HistoryModel.findByIdAndUpdate(
     id,
     { $set: newHistory },

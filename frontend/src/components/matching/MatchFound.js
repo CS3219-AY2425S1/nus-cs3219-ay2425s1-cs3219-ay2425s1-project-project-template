@@ -5,6 +5,18 @@ import '../../styles/MatchPopup.css';
 import questionService from '../../services/question-service';
 import useAuth from '../../hooks/useAuth';
 
+const getCurrentDatetime = () => {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // getMonth() is zero-based
+  const year = now.getFullYear();
+  
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+  return `${day}/${month}/${year}:${hours}${minutes}`;
+}
+
 const generateRoomId = (difficulty, topic, language, matchedUser) => {
   const { user1, user2 } = matchedUser;
   const timestamp = new Date().getDate();
@@ -18,6 +30,7 @@ const MatchFound = ({ matchData, closePopup }) => {
     const navigate = useNavigate();
     const { difficulty, topic, language, matchedUser } = matchData;
     const roomId = generateRoomId(difficulty, topic, language, matchedUser);
+    const datetime = getCurrentDatetime();
 
     const handleStartSession = async () => {
         closePopup();
@@ -32,7 +45,8 @@ const MatchFound = ({ matchData, closePopup }) => {
                 question,
                 language,
                 matchedUser,
-                roomId
+                roomId,
+                datetime,
               }
             });
           } else {

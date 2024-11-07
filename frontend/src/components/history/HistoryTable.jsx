@@ -50,7 +50,7 @@ export default function HistoryTable() {
         updatedCurrentHistory[index] = {
           index: index + page * rowsPerPage + 1,
           question: await questionService.getQuestionById(each.question, cookies),
-          partner: await userService.getUserById(each.partner, cookies.token),
+          partner: each.partner,
           status: each.status,
           datetime: each.datetime,
           solution: each.solution,
@@ -136,7 +136,7 @@ export default function HistoryTable() {
                     </TableCell>
 
                     <TableCell style={{color: 'black', fontSize: 20, fontFamily: 'Poppins', fontWeight: '600', wordWrap: 'break-word'}}>
-                      {row.partner.username}
+                      {row.partner}
                     </TableCell>
 
                     <TableCell>

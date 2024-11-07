@@ -11,6 +11,7 @@ import QuestionContainer from "../components/collaboration/QuestionContainer";
 import QuitConfirmationPopup from "../components/collaboration/QuitConfirmationPopup";
 import PartnerQuitPopup from "../components/collaboration/PartnerQuitPopup";
 import TimeUpPopup from "../components/collaboration/TimeUpPopup";
+import historyService from "../services/history-service";
 import useAuth from "../hooks/useAuth";
 import { height } from "@mui/system";
 
@@ -20,7 +21,7 @@ const socketIoUrl = "http://localhost:8200";  // Socket.IO remains on port 8200
 const Collab = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { username } = useAuth();
+    const { username, userId, cookies } = useAuth();
 
     const ydoc = useRef(new Y.Doc()).current;
     const editorRef = useRef(null);
@@ -68,6 +69,16 @@ const Collab = () => {
         return () => {
             if (socketRef.current) {
                 socketRef.current.emit("user-left", roomId);
+                if (editorRef.current)
+                    historyService.updateUserHistory(userId, cookies.token, {
+                        roomId,
+                        question: question._id,
+                        user: userId,
+                        partner: partnerUsername,
+                        status: 'attempted',
+                        datetime: datetime,
+                        solution: editorRef.current.getValue(),
+                    });
                 socketRef.current.disconnect();
             }
         };
@@ -138,7 +149,7 @@ const Collab = () => {
 
     if (!location.state) { return null; }
 
-    const { question, language, matchedUser, roomId } = location.state;
+    const { question, language, matchedUser, roomId, datetime } = location.state;
     const partnerUsername = matchedUser.user1 === username ? matchedUser.user2 : matchedUser.user1;
 
     const handleSubmit = () => { console.log("Submit code"); };
