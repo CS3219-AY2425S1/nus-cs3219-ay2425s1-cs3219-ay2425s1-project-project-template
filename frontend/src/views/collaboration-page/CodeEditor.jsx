@@ -33,11 +33,18 @@ const CodeEditor = ({
         if (currentTheme === 'githubLight') setTheme(githubLight);
     }, [currentTheme])
 
+    const calculateMinHeight = () => {
+        const lines = 46; // Adjust this to your desired initial lines
+        const lineHeight = 18; // Approximate line height in pixels
+        return `${lines * lineHeight}px`; // Set the min-height based on the number of lines
+    }
+
     return (
         <CodeMirror
             value={currentCode}
             height="100%"
             theme={theme}
+            style={{ minHeight: calculateMinHeight() }}
             extensions={[
                 language,
                 EditorState.tabSize.of(4),
