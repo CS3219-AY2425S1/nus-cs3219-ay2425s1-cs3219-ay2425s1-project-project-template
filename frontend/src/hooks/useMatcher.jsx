@@ -12,7 +12,7 @@ const useMatcher = (userId) => {
 
     // Establish socket connection on component mount
     useEffect(() => {
-        const socketInstance = io('http://localhost/api/match');
+        const socketInstance = io('http://localhost:3000');
         setSocket(socketInstance);
 
         socketInstance.on('connect', () => {
