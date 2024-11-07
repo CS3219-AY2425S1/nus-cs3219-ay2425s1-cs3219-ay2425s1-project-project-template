@@ -1,5 +1,8 @@
 import matchService from '../services/matchService.js';
+import QueueModel from '../models/queue-model.js';
+
 const { addMatchRequest, cancelMatchRequest, processMatchQueue } = matchService;
+const { isUserInQueue } = QueueModel;
 
 /* Verify user's token */
 async function verifyUser(token) {
@@ -34,6 +37,9 @@ async function handleMatchRequest(req, res) {
         return res.status(401).json({ message: "Authentication failed" });
     }
     const { userId, topic, difficulty, socketId } = req.body;
+    if (await isUserInQueue(userId)) {
+        return res.status(400).json({ message: "User is already in the queue" });
+    }
 
     try {
         await addMatchRequest(userId, topic, difficulty, socketId);
@@ -51,6 +57,10 @@ async function cancelRequest(req, res) {
     }
     const { userId } = req.body;
 
+    console.log("Checking if user ", userId, " is in the queue", " ", await isUserInQueue(userId));
+    if (!await isUserInQueue(userId)) {
+        return res.status(400).json({ message: "User is not in the queue, no request to cancel" });
+    }
     try {
         await cancelMatchRequest(userId);
         res.status(200).json({ message: "Match request cancelled", userId });
