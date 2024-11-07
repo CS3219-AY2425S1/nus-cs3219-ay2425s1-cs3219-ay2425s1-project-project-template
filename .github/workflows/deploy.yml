@@ -1,9 +1,7 @@
 name: CI/CD - Build and Deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   ci:
@@ -74,11 +72,18 @@ jobs:
           kubectl apply -f k8s/user-service/
           kubectl apply -f k8s/question-service/
           kubectl apply -f k8s/frontend/
+          kubectl apply -f k8s/matching-service/
+          kubectl apply -f k8s/collaboration-service/
+          kubectl apply -f k8s/chat-service/
           
       - name: Force Restart Deployment
         run: |
           kubectl rollout restart deployment user-service
-          kubectl rollout restart deployment question-service
+          kubectl rollout restart deployment mongo-question
           kubectl rollout restart deployment frontend
+          kubectl rollout restart deployment matching-service
+          kubectl rollout restart deployment collaboration-service
+          kubectl rollout restart deployment chat-service
+          kubectl rollout restart deployment question-service
 
 
