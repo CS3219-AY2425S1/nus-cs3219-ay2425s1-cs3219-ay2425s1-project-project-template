@@ -10,11 +10,27 @@ function createSocket(io) {
         socket.on('joinRoom', ({ roomId }) => {
             console.log(`User ${socket.id} attempting to join room: ${roomId}`);
             socket.join(roomId);
-            const room = roomService.createRoom(roomId);
-            socket.emit('load_room_content', { 
-                messages: room.messages,
-            });
+            
+            // Get the number of clients currently in the room
+            const clients = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+        
+            // If there are now two clients, create the room and broadcast the content to all clients in the room
+            if (clients > 1) {
+                const room = roomService.createRoom(roomId);
+                
+                // Broadcast to everyone in the room including the joining client
+                io.to(roomId).emit('load_room_content', { 
+                    messages: room.messages,
+                });
+            } else if (roomService.getRoom(roomId)) {
+                // If the room already exists, broadcast the content to the joining client
+                const room = roomService.getRoom(roomId);
+                socket.emit('load_room_content', { 
+                    messages: room.messages,
+                });
+            }
         });
+        
 
         socket.on('chat message', ({ roomId, msg, username }) => {
             console.log(`User ${socket.id} editing document in room: ${roomId}`);

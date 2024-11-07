@@ -7,9 +7,10 @@ function Chat({ roomId }) {
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
     const [messages, setMessages] = useState([]);
     const [msg, setMsg] = useState('');
-    const [isOpen, setIsOpen] = useState(false); // For toggling popup visibility
+    const [isOpen, setIsOpen] = useState(false);
 
     const socketRef = useRef(null);
+    const messagesEndRef = useRef(null);
 
     useEffect(() => {
         const userId = cookies.userId;
@@ -20,17 +21,16 @@ function Chat({ roomId }) {
 
         socketRef.current.emit('joinRoom', { roomId });
 
-        const joinedState = localStorage.getItem(`chat-joined-${roomId}`) === 'true';
+        // const joinedState = localStorage.getItem(`chat-joined-${roomId}`) === 'true';
 
-        if (joinedState) {
-            console.log('Emitting joinRoom for chat service');
-            socketRef.current.emit('joinRoom', { roomId });
-            localStorage.setItem(`chat-joined-${roomId}`, 'true');
-            console.log('Emitting first_username');
-            socketRef.current.emit('first_username', { roomId, username: cookies.username });
-        }
+        // if (joinedState) {
+        //     console.log('Emitting joinRoom for chat service');
+        //     socketRef.current.emit('joinRoom', { roomId });
+        //     localStorage.setItem(`chat-joined-${roomId}`, 'true');
+        //     console.log('Emitting first_username');
+        //     socketRef.current.emit('first_username', { roomId, username: cookies.username });
+        // }
 
-        // Listen for incoming chat messages
         socketRef.current.on('chat message', (data) => {
             setMessages((prevMessages) => [...prevMessages, data.newMessage]);
             console.log('Received chat message:', data.newMessage);
@@ -41,12 +41,16 @@ function Chat({ roomId }) {
             console.log('load_room_content event received');
         });
 
-        // Clean up the socket listener on component unmount
         return () => {
             console.log('Disconnecting socket');
             socketRef.current.disconnect();
         };
     }, [cookies, roomId]);
+
+    useEffect(() => {
+        // Scroll to the last message when messages are updated
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -58,7 +62,7 @@ function Chat({ roomId }) {
     };
 
     const togglePopup = () => {
-        setIsOpen(!isOpen); // Toggle the visibility of the chat popup
+        setIsOpen(!isOpen);
     };
 
     return (
@@ -82,6 +86,7 @@ function Chat({ roomId }) {
                                 <small>{new Date(msg.timestamp).toLocaleString()}</small>
                             </li>
                         ))}
+                        <div ref={messagesEndRef} />
                     </ul>
                     <form onSubmit={handleSubmit} className={styles.chatForm}>
                         <input
