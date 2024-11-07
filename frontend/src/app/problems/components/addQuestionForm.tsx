@@ -107,8 +107,8 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
     const parsedValues = {
       ...values,
       testCases: values.testCases.map((testCase) => ({
-        input: JSON.parse(testCase.input),
-        expected: JSON.parse(testCase.expected),
+        input: testCase.input,
+        expected: testCase.expected,
       })),
     }
 
