@@ -30,6 +30,8 @@ export async function replaceProfileImage(user, newImage) {
     return DEFAULT_IMAGE;
   }
 
+  const { mimetype, buffer } = newImage;
+
   const newImageExtension = mimetype.split("/").pop();
   const newImageName = `${user.id}.${newImageExtension}`;
 
