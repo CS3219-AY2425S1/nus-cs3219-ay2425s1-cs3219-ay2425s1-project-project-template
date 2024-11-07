@@ -130,6 +130,15 @@ services:
     networks:
       - app-network
 
+  # ExecutionService
+  execution-service:
+    build: ./ExecutionService
+    container_name: ExecutionService
+    ports:
+      - "3010:3010"
+    networks:
+      - app-network
+
   # Frontend
   frontend:
     build: ./frontend

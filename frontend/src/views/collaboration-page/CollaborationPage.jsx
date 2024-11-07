@@ -12,17 +12,26 @@ import Chat from '../../components/Chat';
 import styles from './CollaborationPage.module.css';
 
 const CollaborationPage = () => {
+    const templateMap = {
+        'cpp': "#include <iostream>\n\n// YOUR FUNCTION BELOW\n\n// YOUR FUNCTION ABOVE\n\n\n// for testing\nint main() {\n  std::cout << /* put your function and parameters here */;\n}",
+        'java': "public class Solution {\n  // YOUR FUNCTION BELOW\n\n  // YOUR FUNCTION ABOVE\n\n  // for testing\n  public static void main(String args[]) {\n    System.out.println(/* put your function with parameters here */);\n  }\n}",
+        'javascript': "// YOUR FUNCTION BELOW\n\n// YOUR FUNCTION ABOVE\n\n\n// for testing\nconsole.log(/* put your function with parameters here */)",
+        'python': "# YOUR FUNCTION BELOW\n\n# YOUR FUNCTION ABOVE\n\n\n# for testing\nprint('''put your function with parameters here''')"
+    }
+
+    const [content, setContent] = useState(''); // actual content to be displayed
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
     const { roomId } = useParams();
     const [question, setQuestion] = useState(null);
     const [questionTitle, setQuestionTitle] = useState(null);
     const [questionContent, setQuestionContent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [content, setContent] = useState(''); // actual content to be displayed
     const [partnerUsername, setPartnerUsername] = useState('');
     const [isConnected, setIsConnected] = useState(false);
     const [language, setLanguage] = useState("javascript");
     const [theme, setTheme] = useState("githubLight");
+    const [executionResult, setExecutionResult] = useState('');
+
     const { handleHistoryUpdate, isLoading: isHistoryLoading, isError: isHistoryError } = useHistoryUpdate();
 
     const navigate = useNavigate();
@@ -60,7 +69,7 @@ const CollaborationPage = () => {
             setQuestion(data.question);
             setQuestionTitle(data.question["Question Title"]);
             setQuestionContent(data.question["Question Description"])
-            setContent(data.documentContent);
+            setContent(templateMap['javascript']); // data.documentContent
             setIsLoading(false);
             console.log('load_room_content event received');
         });
@@ -142,7 +151,7 @@ const CollaborationPage = () => {
         setLanguage(selectedLanguage);
 
         const savedSnippet = localStorage.getItem(`codeSnippet-${selectedLanguage}`) || '';
-        setContent(savedSnippet)
+        setContent(savedSnippet) 
 
         console.log('Language change: ', selectedLanguage);
         socketRef.current.emit('editLanguage', { roomId, language: selectedLanguage });
@@ -153,6 +162,21 @@ const CollaborationPage = () => {
         setTheme(newTheme.target.value);
     }
 
+    const executeCode = async () => {
+        try {
+          const response = await fetch('http://localhost:3010/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: content, language })
+          });
+          const result = await response.json();
+          setExecutionResult(result.output || result.error);
+        } catch (error) {
+          console.error("Execution error:", error);
+          setExecutionResult(String(error));
+        }
+    };
+      
     return (
         <div className={styles.CollaborationContainer}>
             {isLoading ? (
@@ -181,6 +205,10 @@ const CollaborationPage = () => {
                             currentCode={content}
                             setCurrentCode={handleEditorChange}
                         />
+
+                        {/* NEW CODE */}
+                        <button onClick={executeCode} className={styles.runCodeButton}>Run Code</button>
+                        <p className={styles.outputBox}><b>Output:</b> {executionResult}</p>
                     </div>
 
                     <div className={styles.questionAreaContainer}>
