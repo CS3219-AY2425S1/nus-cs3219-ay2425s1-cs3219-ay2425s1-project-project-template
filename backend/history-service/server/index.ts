@@ -2,8 +2,8 @@ import cors from "cors"
 import dotenv from "dotenv"
 import express from "express"
 import logger from "../utils/logger"
-import { connectToDatabase } from "./db"
 import { router as getMatchHistoryRoute } from "../get-match-history/getMatchHistoryRoute" 
+import { router as getSubmissionsRoute } from "../get-submissions/getSubmissionsRoute"
 
 dotenv.config({ path: './.env' })
 
@@ -12,6 +12,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use(getMatchHistoryRoute)
+app.use(getSubmissionsRoute)
 
 const port = process.env.PORT || 3000
 

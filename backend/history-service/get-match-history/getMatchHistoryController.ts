@@ -7,7 +7,6 @@ const getUserMatchHistory = async (req: GetUserMatchRequest, res: Response) => {
     const { userId } = req.params
 
     try {
-        console.log(`${process.env.MATCH_SERVICE_URL}/get-user-match-history/${userId}`)
         const response = await axios.get(`${process.env.MATCH_SERVICE_URL}/get-user-match-history/${userId}`)
         logger.info(`Successfully fetched past successful matches for user ${userId}`)
         return res.status(200).json(response.data)
