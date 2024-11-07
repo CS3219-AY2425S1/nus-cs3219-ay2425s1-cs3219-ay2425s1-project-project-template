@@ -20,16 +20,28 @@ spec:
           imagePullPolicy: Always
           resources:
             requests:
-              cpu: "500m"
-              memory: "512Mi"
+              memory: "128Mi"
+              cpu: "100m"
             limits:
-              cpu: "1"
-              memory: "1Gi"
+              memory: "256Mi"
+              cpu: "200m"
           ports:
             - containerPort: 8001
           envFrom:
             - secretRef:
                 name: api-gateway-config
+          livenessProbe:  # Add this block for liveness probe
+            httpGet:
+              path: /
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:  # Add this block for readiness probe
+            httpGet:
+              path: /
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
       dnsPolicy: ClusterFirst
 ---
 apiVersion: v1
@@ -37,7 +49,7 @@ kind: Service
 metadata:
   name: api-gateway
   annotations:
-    cloud.google.com/neg: '{"exposed_ports": {"8001":{}}}'
+    cloud.google.com/neg: '{"ingress": true}'
 spec:
   type: LoadBalancer
   ports:
@@ -64,20 +76,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
----
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  name: my-backendconfig
-spec:
-  timeoutSec: 45
-  connectionDraining:
-    drainingTimeoutSec: 0
-  healthCheck:
-    checkIntervalSec: 5
-    timeoutSec: 5
-    healthyThreshold: 1
-    unhealthyThreshold: 2
-    type: HTTP
-    requestPath: /healthz
-    port: 8080

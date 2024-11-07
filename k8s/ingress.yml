@@ -1,12 +1,21 @@
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: http-to-https
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-ingress
+  name: nginx-ingress-all
   annotations: 
-    kubernetes.io/ingress.global-static-ip-name: nginx-peerprep
-    networking.gke.io/managed-certificates: peerprep-fe-cs3219-g11-nginx
+    kubernetes.io/ingress.global-static-ip-name: nginx-api
+    networking.gke.io/managed-certificates: peerprep-fe-cs3219-g11-nginx-2
     kubernetes.io/ingress.class: "gce"
-    # networking.gke.io/v1.FrontendConfig: "http-to-https"
+    networking.gke.io/frontend-config: "http-to-https"
 spec:
   ingressClassName: "gce"
   rules:
