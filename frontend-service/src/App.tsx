@@ -123,7 +123,7 @@ function App() {
       />
       <Box pt="80px">
         <Routes>
-          {/* Only allow login/signup routes if the user is not authenticated */}
+          {/* Unauthenticated routes */}
           {!isAuthenticated ? (
             <>
               <Route
@@ -141,8 +141,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} /> // Redirect authenticated users
           )}
 
-          {/* Public or authenticated routes */}
-          <Route path="/" element={<HomePage />} />
+          {/* Public routes */}
           <Route path="/home" element={<Home />} />
           <Route
             path="/questions"
@@ -152,8 +151,10 @@ function App() {
           <Route path="/aboutus" element={<AboutUsPage />} />
           <Route path="/forgot-password" element={<ResetPasswordPage />} />
 
+          {/* Authenticated routes */}
           {isAuthenticated ? (
             <>
+              <Route path="/" element={<HomePage />} />
               <Route path="/match-me" element={<MatchingPage />} />
               <Route path="/editor" element={<CodeEditor />} />
               <Route path="/room" element={<RoomPage userId={userData?.id} />} />

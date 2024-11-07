@@ -71,7 +71,7 @@ const OldCodeEditor: React.FC<OldCodeEditorProps> = ({ roomId, thisUserId }) => 
       <Box width="400px" flexShrink={0} borderRight="1px solid #e2e8f0">
         {/* Display question details */}
         {assignedQuestionId ? (
-          <QuestionSideBar assignedQuestionId={assignedQuestionId.toString()} userId={thisUserId} roomId={roomId} />
+          <QuestionSideBar assignedQuestionId={assignedQuestionId.toString()} userId={thisUserId} roomId={roomId} isOld={true} />
         ) : (
           <Text color="red.500">Loading question...</Text>
         )}
