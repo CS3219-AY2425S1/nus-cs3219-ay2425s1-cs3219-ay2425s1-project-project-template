@@ -17,10 +17,15 @@ const MEMORY_LIMIT_KB = 100 * 1024; // 100 MB in KB
 // Code execution logic
 const executeCode = (req, res) => {
   try {
-    const { code, language, input } = req.body;
+    const { code, language } = req.body;
 
     if (!code || !language) {
       return res.status(400).json({ error: 'Code and language are required.' });
+    }
+
+    let { input } = req.body;
+    if (!input) {
+      input = '';
     }
 
     // Generate a unique directory for each execution
@@ -41,7 +46,7 @@ const executeCode = (req, res) => {
         filename = 'tempCode.js';
         filePath = path.join(uniqueDir, filename);
         inputFilePath = path.join(uniqueDir, 'input.txt');
-        execCommand = `ulimit -v ${MEMORY_LIMIT_KB*5}; node ${filePath} < ${inputFilePath}`; // breaks if we use 1-4 time the memory limit
+        execCommand = `ulimit -v ${MEMORY_LIMIT_KB * 5}; node ${filePath} < ${inputFilePath}`; // breaks if we use 1-4 time the memory limit
         break;
       case 'cpp':
         filename = 'tempCode.cpp';
@@ -63,7 +68,9 @@ const executeCode = (req, res) => {
       try {
         return execSync(command, { timeout, stdio: 'pipe' }).toString();
       } catch (error) {
-        throw new Error(error.code === 'ETIMEDOUT' ? errorMessage : error.stderr.toString());
+        throw new Error(
+          error.code === 'ETIMEDOUT' ? errorMessage : error.stderr.toString(),
+        );
       }
     };
 
@@ -71,33 +78,44 @@ const executeCode = (req, res) => {
     if (language === 'cpp') {
       try {
         // Compile
-        execWithTimeoutSync(compileCommand, COMPILATION_TIMEOUT_MS, 'Compilation timed out');
+        execWithTimeoutSync(
+          compileCommand,
+          COMPILATION_TIMEOUT_MS,
+          'Compilation timed out',
+        );
         // Execute
-        const output = execWithTimeoutSync(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out / Memory Error');
-        
+        const output = execWithTimeoutSync(
+          execCommand,
+          EXECUTION_TIMEOUT_MS,
+          'Execution timed out / Memory Error',
+        );
+
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output, is_error: false });
+        res.status(200).json({ output, isError: false });
       } catch (error) {
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output: error.message, is_error: true });
+        res.status(200).json({ output: error.message, isError: true });
       }
     } else {
       // For other languages, execute immediately
       try {
-        const output = execWithTimeoutSync(execCommand, EXECUTION_TIMEOUT_MS, 'Execution timed out / Memory Error');
-        
+        const output = execWithTimeoutSync(
+          execCommand,
+          EXECUTION_TIMEOUT_MS,
+          'Execution timed out / Memory Error',
+        );
+
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output, is_error: false });
+        res.status(200).json({ output, isError: false });
       } catch (error) {
         // Clean up generated files and directory after execution
         fs.rmSync(uniqueDir, { recursive: true });
-        res.status(200).json({ output: error.message, is_error: true });
+        res.status(200).json({ output: error.message, isError: true });
       }
     }
-
   } catch (error) {
     console.error('Server error:', error);
     res.status(500).json({ error: 'Unknown server error' });

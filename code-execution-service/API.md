@@ -73,8 +73,8 @@ Retrieve starter code and sample input for the specified programming language.
 
 ```json
 {
-    "code": "num1 = int(input())\nnum2 = int(input())\nsum_result = num1 + num2\nprint(f'The sum of {num1} and {num2} is {sum_result}')",
-    "input": "20\n30"
+  "code": "num1 = int(input())\nnum2 = int(input())\nsum_result = num1 + num2\nprint(f'The sum of {num1} and {num2} is {sum_result}')",
+  "input": "20\n30"
 }
 ```
 
@@ -116,9 +116,9 @@ Executes code in a specified programming language within a Docker container, opt
   - **Content**:
 
     ```json
-        {
-        "output": "The sum of 20 and 30 is 50\n",
-        "is_error": false
+    {
+      "output": "The sum of 20 and 30 is 50\n",
+      "isError": false
     }
     ```
 
@@ -178,15 +178,15 @@ Executes code in a specified programming language within a Docker container, opt
 
 ```json
 {
-    "output": "Traceback (most recent call last):\n  File \"/tempCode.py\", line 3, in <module>\n    sum_result = myMistake + num2\n                 ^^^^^^^^^\nNameError: name 'myMistake' is not defined\n",
-    "is_error": true
+  "output": "Traceback (most recent call last):\n  File \"/tempCode.py\", line 3, in <module>\n    sum_result = myMistake + num2\n                 ^^^^^^^^^\nNameError: name 'myMistake' is not defined\n",
+  "isError": true
 }
 ```
 
 ## Error Handling
 
 - If the provided language is unsupported, a `400` error with the message `"Unsupported language."` is returned.
-- Errors encountered during execution (e.g., syntax errors) are returned in the `200` normal response, with `is_error` set to `true`.
+- Errors encountered during execution (e.g., syntax errors) are returned in the `200` normal response, with `isError` set to `true`.
 - Any unknown errors are logged on the server and return a generic error message to the client.
 
 ## Important Notes

@@ -1,4 +1,4 @@
-import { AddQuestionInput, Question, UpdateQuestionInput } from '../types/Question';
+import { AddQuestionInput, Question, UpdateQuestionInput } from '../types/QuestionType';
 import { api } from './ApiClient';
 
 // Create

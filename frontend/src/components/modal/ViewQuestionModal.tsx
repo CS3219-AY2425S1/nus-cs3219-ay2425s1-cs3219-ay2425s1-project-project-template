@@ -8,7 +8,7 @@ import {
   TypographyStylesProvider,
 } from '@mantine/core';
 
-import { Question } from '../../types/Question';
+import { Question } from '../../types/QuestionType';
 import DifficultyBadge from '../badge/DifficultyBadge';
 
 interface ViewQuestionModalProps {

@@ -12,12 +12,12 @@ import {
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useEffect } from 'react';
 
-import { difficulties, topics } from '../../constants/Question';
+import { difficulties, useTopics } from '../../constants/Question';
 import {
   AddQuestionInput,
   Question,
   UpdateQuestionInput,
-} from '../../types/Question';
+} from '../../types/QuestionType';
 
 interface UpdateQuestionModalProps {
   isUpdateQuestionModalOpened: boolean;
@@ -36,6 +36,7 @@ function UpdateQuestionModal({
 }: UpdateQuestionModalProps) {
   const isAddQuestion = !questionToUpdate;
   const isUpdateQuestion = questionToUpdate;
+  const topics = useTopics();
 
   const form = useForm({
     mode: 'uncontrolled',

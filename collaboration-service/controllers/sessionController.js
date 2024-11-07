@@ -33,7 +33,8 @@ const joinSession = (socket, io) => {
         code: '',
         users: new Set([userId, matchedUserId]),
         activeConnections: 0,
-        questionId: questionId
+        questionId: questionId,
+        programmingLanguage: 'python',
       };
     } else if (
       !codeSessions[sessionId].users.has(userId) ||
@@ -63,11 +64,24 @@ const joinSession = (socket, io) => {
 
     // Send the current code state to the newly joined user
     socket.emit('load-code', codeSessions[sessionId].code);
+    
+    // Send the current programming language to the newly joined user
+    socket.emit('load-language', codeSessions[sessionId].programmingLanguage);
 
     // Listen for code changes in this session
     socket.on('edit-code', (newCode) => {
       codeSessions[sessionId].code = newCode;
       socket.to(sessionId).emit('code-updated', newCode);
+    });
+
+    // Listen for language changes in this session
+    socket.on('edit-language', (newLanguage) => {
+      codeSessions[sessionId].programmingLanguage = newLanguage;
+      socket.to(sessionId).emit('language-updated', newLanguage);
+    });
+
+    socket.on('codex-output', (output) => {
+      socket.to(sessionId).emit('codex-output', output);
     });
 
     // Notify other users in the session about the new user
@@ -90,7 +104,7 @@ const joinSession = (socket, io) => {
 
         codeSession.timeoutStart = timeoutStart;
 
-        setTimeout(() => {
+        setTimeout(async () => {
           if (codeSession && codeSession.timeoutStart == timeoutStart) {
             delete codeSessions[sessionId];
             if (
@@ -105,6 +119,23 @@ const joinSession = (socket, io) => {
             ) {
               delete sessionsForUser[matchedUserId];
             }
+
+            // make api call to history service to save the session
+            await fetch("http://nginx/api/history", {
+              method: 'POST',
+              headers: {
+                'Authorization': socket.handshake.auth.token,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userIdOne: userId,
+                userIdTwo: matchedUserId,
+                textWritten: codeSession.code,
+                questionId: codeSession.questionId,
+                programmingLanguage: codeSession.programmingLanguage,
+              }),
+            });
+
             console.log(`Session ${sessionId} deleted.`);
           }
         }, 360000); // 5 minutes

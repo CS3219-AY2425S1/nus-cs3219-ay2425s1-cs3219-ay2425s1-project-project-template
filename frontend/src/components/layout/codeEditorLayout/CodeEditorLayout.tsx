@@ -1,9 +1,10 @@
 import { Button, Group, Select, Space, Stack } from '@mantine/core';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { langs } from '@uiw/codemirror-extensions-langs';
-import { Extension } from '@uiw/react-codemirror';
+import { Extension, ViewUpdate } from '@uiw/react-codemirror';
 import { useState } from 'react';
 
+import { SupportedLanguage } from '../../../types/CodeExecutionType';
 import CodeEditor from '../../codeEditor/CodeEditor';
 import classes from './CodeEditorLayout.module.css';
 
@@ -11,33 +12,40 @@ interface CodeEditorLayoutProps {
   openLeaveSessionModal: () => void;
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
+  language: string;
+  handleLanguageChange: (language: SupportedLanguage) => void;
+  handleRunCode: () => void;
+  isRunningCode: boolean;
+  viewUpdateRef: React.MutableRefObject<ViewUpdate | null>;
 }
 
-type SupportedLanguage = Extract<keyof typeof langs, 'python' | 'java'>;
-
-const supportedLanguages: SupportedLanguage[] = ['python', 'java'];
+const supportedLanguages: SupportedLanguage[] = ['python', 'javascript', 'cpp'];
 
 function CodeEditorLayout({
   openLeaveSessionModal,
   code,
   setCode,
+  language,
+  handleLanguageChange,
+  isRunningCode,
+  handleRunCode,
+  viewUpdateRef,
 }: CodeEditorLayoutProps) {
-  const [language, setLanguage] = useState<SupportedLanguage>('python');
   const [extensions, setExtensions] = useState<Extension[]>([
     langs['python'](),
   ]);
 
-  const handleLanguageChange = (language: SupportedLanguage) => {
-    if (langs[language]) {
-      setExtensions([langs[language]()]);
-      setLanguage(language);
+  const handleLanguageSelect = (newLanguage: SupportedLanguage) => {
+    if (langs[newLanguage]) {
+      setExtensions([langs[newLanguage]()]);
+      handleLanguageChange(newLanguage);
     }
   };
 
   return (
     <Stack
       h="100%"
-      w="calc(100% - 510px)"
+      w="100%"
       gap={0}
       bg="slate.9"
       style={{ borderRadius: '4px' }}
@@ -54,7 +62,7 @@ function CodeEditorLayout({
           variant="unstyled"
           data={supportedLanguages}
           value={language}
-          onChange={(e) => handleLanguageChange(e as SupportedLanguage)}
+          onChange={(e) => handleLanguageSelect(e as SupportedLanguage)}
           allowDeselect={false}
           withCheckIcon={false}
           comboboxProps={{
@@ -68,7 +76,11 @@ function CodeEditorLayout({
             option: classes.option,
           }}
         />
-        <Button leftSection={<IconPlayerPlayFilled size={14} />}>
+        <Button
+          loading={isRunningCode}
+          leftSection={<IconPlayerPlayFilled size={14} />}
+          onClick={handleRunCode}
+        >
           Run Code
         </Button>
         <Space style={{ flexGrow: 1 }} />
@@ -77,7 +89,12 @@ function CodeEditorLayout({
         </Button>
       </Group>
 
-      <CodeEditor code={code} setCode={setCode} extensions={extensions} />
+      <CodeEditor
+        code={code}
+        setCode={setCode}
+        extensions={extensions}
+        viewUpdateRef={viewUpdateRef}
+      />
     </Stack>
   );
 }
