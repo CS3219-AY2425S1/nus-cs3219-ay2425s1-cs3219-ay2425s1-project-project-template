@@ -1,17 +1,23 @@
 import { Tabs } from '@mantine/core';
 import { useEffect, useState } from 'react';
 
-import { CodeOutput } from '../../types/CodeExecutionType';
+import { CodeOutput, TestResult } from '../../types/CodeExecutionType';
 import { TestCase } from '../../types/QuestionType';
 import OutputTab from './OutputTab';
 import TestCasesTab from './TestCasesTab';
+import TestResultsTab from './TestResultsTab';
 
 interface CodeOutputTabsProps {
   codeOutput?: CodeOutput;
   testCases?: TestCase[];
+  testResults?: TestResult[];
 }
 
-function CodeOutputTabs({ codeOutput, testCases }: CodeOutputTabsProps) {
+function CodeOutputTabs({
+  codeOutput,
+  testCases,
+  testResults,
+}: CodeOutputTabsProps) {
   const [activeTab, setActiveTab] = useState<string | null>(null);
 
   const showTestCases = testCases && testCases.length > 0;
@@ -20,10 +26,14 @@ function CodeOutputTabs({ codeOutput, testCases }: CodeOutputTabsProps) {
     if (activeTab) {
       return;
     }
+    if (testResults) {
+      setActiveTab('testResults');
+      return;
+    }
     if (codeOutput) {
       setActiveTab('output');
     }
-  }, [codeOutput]);
+  }, [codeOutput, testResults]);
 
   return (
     <Tabs
@@ -50,7 +60,7 @@ function CodeOutputTabs({ codeOutput, testCases }: CodeOutputTabsProps) {
             <TestCasesTab testCases={testCases} />
           </Tabs.Panel>
           <Tabs.Panel value="testResults" h="200px">
-            test results
+            <TestResultsTab testResults={testResults} />
           </Tabs.Panel>
         </>
       )}
