@@ -49,6 +49,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
 
   const toast = useToast(); // Initialize Chakra UI toast
   const previousUsersCount = useRef<number>(0);
+  const [activeUserCount, setActiveUserCount] = useState(0);
   const [assignedQuestionId, setAssignedQuestionId] = useState<number | null>(null)
 
   const usersRef = ref(FIREBASE_DB, `rooms/${roomId}/users`);
@@ -143,6 +144,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
         ? Object.entries(users).filter(([userId, status]) => status === true && userId !== thisUserId)
         : [];
       const userCount = activeUsers.length;
+
+      // Update the active user count
+      setActiveUserCount(userCount);
 
       // Update isReadOnly based on the presence of other users
       setIsReadOnly(userCount === 0);
@@ -269,9 +273,27 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   return (
     <Box display="flex" height="100vh">
       <Box width="500px" flexShrink={0} borderRight="1px solid #e2e8f0">
+        <Box
+          mt={4}
+          p={2}
+          border="1px solid #e2e8f0"
+          borderRadius="md"
+          bg={activeUserCount > 0 ? 'green.100' : 'orange.100'}
+        >
+          <Text fontSize="md" color={activeUserCount > 1 ? 'green.700' : 'orange.700'}>
+            {activeUserCount > 0 ? (
+              'Your partner is in the room.'
+            ) : (
+              <>
+                You are the only user in the room. <br />
+                <Text as="span" fontWeight="bold">The editor is now read-only.</Text>
+              </>
+            )}
+          </Text>
+        </Box>
         {/* display question details of assigned question */}
         {assignedQuestionId ? (
-          <QuestionSideBar assignedQuestionId={assignedQuestionId.toString()} userId={thisUserId} roomId={roomId} />
+          <QuestionSideBar assignedQuestionId={assignedQuestionId.toString()} userId={thisUserId} roomId={roomId} isOld={false} />
         ) : (
           <Text color="red.500">Loading question...</Text>
         )}
