@@ -79,4 +79,18 @@ const updateMatch = async (payload: any) => {
     }
 }
 
-export { parseBody, sendResponse, addMatch, updateMatch  }
+const getMatchesWithUser = async (userId: string) => {
+    try {
+        const successfulMatches = await SuccessfulMatch.find({ 
+            collaborators: { $in: [userId] }
+        }).sort({ createdAt: -1 })
+
+        logger.info(`Successfully fetched past successful matches for user ${userId}`)
+        return { status: 200, data: successfulMatches }
+    } catch (e) {
+        logger.error(`Error fetching past successful matches for user ${userId}`)
+        return { status: 500, message: 'Error fetching past successful matches' }
+    }
+}
+
+export { parseBody, sendResponse, addMatch, updateMatch, getMatchesWithUser  }
