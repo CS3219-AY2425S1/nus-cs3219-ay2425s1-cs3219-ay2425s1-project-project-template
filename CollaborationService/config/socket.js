@@ -35,8 +35,8 @@ function createSocket(io) {
             const room = getRoom(roomId);
             if (room) {
                 updateContent(roomId, content);
-                console.log(`Updated document content in room ${roomId}. Broadcasting to other users.`);
-                socket.to(roomId).emit('documentUpdate', { content });
+                console.log(`Updated document content in room ${roomId}. Broadcasting to all users in the room.`);
+                io.in(roomId).emit('documentUpdate', { content }); // Emits to all users in the room, including the sender
             } else {
                 console.error(`Failed to update document for room ${roomId} by user ${socket.id}. Room or content may be missing.`);
             }
@@ -66,19 +66,23 @@ function createSocket(io) {
             }
         });
 
-        socket.on('custom_disconnect', ({ roomId, username }) => {
+        socket.on('custom_disconnect', ({ roomId, username }, callback) => {
             console.log('User disconnected:', socket.id);
-
+        
             const userId = clientInstance.getUserIdBySocketId(socket.id);
-
+        
             if (userId) {
                 clientInstance.removeClient(userId);
                 console.log(`Removed client with userId: ${userId} after disconnect.`);
             } else {
                 console.error(`Could not find userId for disconnected socket: ${socket.id}`);
             }
-
+        
+            // Notify other users in the room about the partner's disconnect
             socket.to(roomId).emit('partner_disconnect', { username });
+        
+            // Call the callback function to acknowledge that the server has processed the disconnection
+            callback();
         });
         // partner username event
         socket.on('first_username', ({ roomId, username }) => {

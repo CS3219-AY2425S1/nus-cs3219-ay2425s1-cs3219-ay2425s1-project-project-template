@@ -33,12 +33,12 @@ const CollaborationPage = () => {
         socketRef.current = io('http://localhost:3002', { query: { userId } });
         console.log('Connecting to the collaboration service server socket');
 
-        const joinedState = localStorage.getItem(`joined-${roomId}`) === 'true';
+        //const joinedState = localStorage.getItem(`joined-${roomId}`) === 'true';
 
     
         console.log('Emitting joinRoom');
         socketRef.current.emit('joinRoom', { roomId });
-        localStorage.setItem(`joined-${roomId}`, 'true');
+        //localStorage.setItem(`joined-${roomId}`, 'true');
         console.log('Emitting first_username');
         socketRef.current.emit('first_username', { roomId, username: cookies.username });
         
@@ -124,22 +124,27 @@ const CollaborationPage = () => {
     };
 
     const handleEditorChange = (newContent) => {
-        setContent(newContent);
+        //setContent(newContent);
         console.log('Emitting editDocument with new content: ', newContent);
         socketRef.current.emit('editDocument', { roomId, content: newContent });
     };
 
     const handleLeave = () => {
         handleUpdateHistoryNow(language, content);
-
+        
         const username = cookies.username;
         console.log('Emitting custom_disconnect before navigating away');
         localStorage.clear();
-        socketRef.current.emit('custom_disconnect', { roomId, username });
-        navigate('/', { replace: true });
-        socketRef.current.disconnect();
+        
+        socketRef.current.emit('custom_disconnect', { roomId, username }, () => {
+            // Callback to ensure custom_disconnect is sent before disconnecting
+            console.log('custom_disconnect acknowledged by server. Now disconnecting and navigating away.');
+            navigate('/', { replace: true });
+            socketRef.current.disconnect();
+        });
     };
-
+    
+    
     const handleLanguageChange = (newLanguage) => {
         const selectedLanguage = newLanguage.target.value
         setLanguage(selectedLanguage);
