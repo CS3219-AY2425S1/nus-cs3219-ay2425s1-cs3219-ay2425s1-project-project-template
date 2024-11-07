@@ -10,7 +10,7 @@ interface CodeOutputProps {
 const CodeOutput:React.FC<CodeOutputProps> = ( { outputText, allPassed, handleRunCode, handleSubmitCode} ) => {
 
     return (
-        <div className="flex flex-col h-[200px] justify-between border border-2 border-purple-300 rounded-lg">
+        <div className="flex flex-col h-full justify-between border border-2 rounded-lg">
             {allPassed ? <p className="text-green-700">{outputText}</p> : <p className="text-rose-700">{outputText}</p>}
             <div className="flex justify-end gap-1">
                 <Button variant="secondary" onClick={handleRunCode}>Run Code</Button>
