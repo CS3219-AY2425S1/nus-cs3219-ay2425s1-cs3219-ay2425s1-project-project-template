@@ -73,7 +73,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   return (
-    <div className='h-full rounded-xl overflow-hidden border border-green-500'>
+    <div className='h-full rounded-xl overflow-hidden pt-1 bg-purple-300'>
       <Editor
         height="100%"
         width="100%"

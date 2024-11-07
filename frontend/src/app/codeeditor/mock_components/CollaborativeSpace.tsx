@@ -8,17 +8,13 @@ import CodeEditor from '@/app/codeeditor/mock_components/CodeEditor';
 import Chat from '@/app/codeeditor/mock_components/chat';
 import CodeOutput from '@/app/codeeditor/mock_components/CodeOutput';
 import Editor from '@monaco-editor/react'
+import { Badge } from "@/components/ui/badge"
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import {DUMMY_QUESTION} from '../models/dummies'
+import { CollaborativeSpaceProps } from '../models/types'
 
-interface CollaborativeSpaceProps {
-  initialCode?: string;
-  language?: string;
-  theme?: 'light' | 'vs-dark';
-  roomId: string;
-  userName: string;
-}
 
 const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   initialCode = '',
@@ -26,6 +22,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   theme = 'light',
   roomId,
   userName,
+  question = DUMMY_QUESTION
 }) => {
   const ydoc = useMemo(() => new Y.Doc(), [])
   const [editor, setEditor] = useState<any | null>(null)
@@ -95,73 +92,56 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
       }
     }
 
-  return (
-    <div className='flex w-full h-full'>
-      <div className='flex-col w-2/5 p-4'>
-        <div className='border rounded-xl h-full'>
-          <div>reverse a string</div>
-          <div>easy strings algorihtms</div>
-          <div>write a function that reverses stirng</div>
-          <div>test example 1:</div>
-          <div>bla bla</div>
-          <div>test example 2:</div>
-          <div>bla bla</div>
-          <div>any other info</div>
+    return (
+      <div className='flex w-full h-full'>
+        <div className='flex-col w-2/5 p-4'>
+          <div className='border rounded-lg h-full p-4'>
+  
+          {/* Question Title and Difficulty */}
+          <div className="mb-4">
+            <h4 className="text-2xl font-bold text-gray-900 mb-2">
+              Question {question.questionId}: {question.title}
+            </h4>
+            <div><Badge variant={question.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}>{question.difficulty}</Badge></div>
+          </div>
+  
+          {/* Categories */}
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+                {question.categories.map((c: string) => (
+                    c && <Badge variant="category" key={c}>{c}</Badge>
+                ))}
+            </div>
+          </div>
+  
+          {/* Description */}
+          <div className="text-gray-700 mt-auto">
+            {question.description}
+          </div>
+            
+          </div>
+        </div>
+        <div className='flex-col w-3/5'>
+          <div className='h-2/3 p-4 pb-0 pl-0'>
+            <CodeEditor
+              ydoc={ydoc}
+              provider={provider}
+              initialCode={initialCode}
+              language={language}
+              theme={theme}
+            />
+          </div>
+          <div className='h-1/4 pr-4 pt-2'>
+          <div>
+            <Button variant={isChatOpen ? "default" : "secondary"} onClick={()=>setIsChatOpen(true)}>Chat</Button>
+            <Button variant={isChatOpen ? "secondary" : "default"} onClick={()=>setIsChatOpen(false)}>Run Code</Button>
+          </div>
+            {isChatOpen 
+              ? <Chat ydoc={ydoc} provider={provider} userName={userName} />
+              : <CodeOutput outputText={output} handleRunCode={handleRunCode} handleSubmitCode={handleSubmitCode} />}
+          </div>
         </div>
       </div>
-      <div className='flex-col w-3/5'>
-        <div className='h-2/3 p-4 pb-0 pl-0'>
-          <CodeEditor
-            ydoc={ydoc}
-            provider={provider}
-            initialCode={initialCode}
-            language={language}
-            theme={theme}
-          />
-        </div>
-        <div className='h-1/4 pr-4 pt-2'>
-        <div>
-          <Button variant={isChatOpen ? "default" : "secondary"} onClick={()=>setIsChatOpen(true)}>Chat</Button>
-          <Button variant={isChatOpen ? "secondary" : "default"} onClick={()=>setIsChatOpen(false)}>Run Code</Button>
-        </div>
-          {isChatOpen 
-            ? <Chat ydoc={ydoc} provider={provider} userName={userName} />
-            : <CodeOutput outputText={output} handleRunCode={handleRunCode} handleSubmitCode={handleSubmitCode} />}
-        </div>
-      </div>
-    </div>
-
-
-
-
-
-
-
-
-    // <div className='flex flex-col h-screen w-full gap-2'>
-    //   <Button variant="destructive" className="flex justify-start ml-2 mt-4 w-fit" type="button" onClick={handleExitRoom}>Leave room</Button>
-    //   <div className="flex h-4/5 w-4/5 gap-4 pt-1 pl-1 mx-auto overflow-hidden">
-    //     <div className='w-3/5'>
-    //       <CodeEditor
-    //         ydoc={ydoc}
-    //         provider={provider}
-    //         initialCode={initialCode}
-    //         language={language}
-    //         theme={theme}
-    //       />
-    //     </div>
-    //     <div className='w-1/4'>
-    //       <Chat ydoc={ydoc} provider={provider} userName={userName} />
-    //     </div>
-    //   </div>
-    //   <div className='flex w-3/4 justify-end'>
-    //       <Button variant="secondary" type="button" onClick={handleRunCode}>Run Code</Button>
-    //       <Button variant="default" type="submit" onClick={handleSubmitCode}>Submit</Button>
-    //   </div>
-    //   {hasRunCode && <div>
-    //     the output that will be shown through testcases etc
-    //   </div>}
-    // </div>
-  );
-};
+    );
+  };
 export default CollaborativeSpace;
