@@ -28,7 +28,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   const ydoc = useMemo(() => new Y.Doc(), [])
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [output, setOutput] = useState(''); // To display output from running code
-  const [allTestCasesPassed, setAllTestCasesPassed] = useState(false);
+  const [greenOutputText, setGreenOutputText] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
   useEffect(() => {
     // websocket link updated 
@@ -64,14 +64,15 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
         const testCasesPassed:string = response.data.testCasesPassed;
         const testCasesTotal:string = response.data.testCasesTotal;
         if (testCasesPassed == testCasesTotal) {
-          setAllTestCasesPassed(true);
+          setGreenOutputText(true);
         } else {
-          setAllTestCasesPassed(false);
+          setGreenOutputText(false);
         }
         setOutput(`Test cases passed: ${testCasesPassed}/${testCasesTotal}`);
         console.log(response.data)
       } catch (error) {
         console.error('Error running code:', error);
+        setGreenOutputText(false);
         setOutput('An error occurred while running the code.');
       }
     };
@@ -87,8 +88,12 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
         });
         // Handle the response as needed
         console.log('Code submitted successfully:', response.data);
+        setGreenOutputText(true);
+        setOutput('Code has been successfully submitted to the server.')
       } catch (error) {
         console.error('Error submitting code:', error);
+        setGreenOutputText(false);
+        setOutput('An error occurred while trying to submit the code.');
       }
     }
 
@@ -160,7 +165,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
               <TabsContent value="run" className="h-full overflow-auto">
                 <CodeOutput
                   outputText={output}
-                  allPassed={allTestCasesPassed}
+                  allPassed={greenOutputText}
                   handleRunCode={handleRunCode}
                   handleSubmitCode={handleSubmitCode}
                 />
