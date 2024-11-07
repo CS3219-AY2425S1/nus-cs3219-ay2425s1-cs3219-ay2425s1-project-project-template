@@ -5,7 +5,6 @@ services:
     container_name: nginx
     restart: always
     volumes:
-      - ./nginx:/tmp
       - .env/.ssl_certs:/etc/cloudflare/live
       - react-build:/app/dist
     environment:
