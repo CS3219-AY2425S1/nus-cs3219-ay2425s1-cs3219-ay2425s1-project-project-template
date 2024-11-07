@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const server = new WebSocket.Server({ port: 8081 });
+const server = new WebSocket.Server({ port: process.env.PORT || 8081 });
 
 // Store the code for each session ID
 const sessionData = {};
@@ -89,4 +89,4 @@ function broadcastToSession(sessionID, message, excludeSocket = null) {
     });
 }
 
-console.log('WebSocket server is running on ws://localhost:8081');
+console.log(`WebSocket server is running on ws://localhost:${process.env.PORT || 8081}`);

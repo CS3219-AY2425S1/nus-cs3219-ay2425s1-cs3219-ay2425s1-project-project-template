@@ -1,12 +1,18 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { Observable } from "rxjs"
+import { baseUrlProduction } from "../../../constants"
 
 
 @Injectable({ providedIn: "root" })
 export class UserService {
+  // private baseUrl = "http://localhost:3001/users"
+  private baseUrl = this.isProduction() ? `${baseUrlProduction}/users` : "http://localhost:3001/users";
+
+  private isProduction(): boolean {
+    return window.location.hostname !== "localhost";
+  }
   
-  private baseUrl = "http://localhost:3001/users"
   constructor(private http: HttpClient) {}
 
   readonly userJson = sessionStorage.getItem("userData")
