@@ -236,19 +236,36 @@ router.post("/chat/:collabid/create_chatlog", [...createChatLogValidators], asyn
 })
 
 // Fetch chat logs for a specific collabID with pagination
-router.get("/chat/:collabid/get-chatlogs", [...getChatLogValidators], async (req: Request, res: Response) => {
+router.get("/chat/:collabid/get_chatlogs", [...getChatLogValidators], async (req: Request, res: Response) => {
   try {
     const { collabid } = req.params;
-    const page = parseInt(req.query.page as string, 10) || 1; 
-    const limit = parseInt(req.query.limit as string, 10) || 10; 
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const limit = parseInt(req.query.limit as string, 10) || 10;
 
     const skip = (page - 1) * limit;
 
     // Fetch chat logs for the specified collabID, with pagination and sorted by timestamp
     const chatLogs = await ChatLog.find({ collabid })
-      .sort({ timestampEpoch: -1 }) // Sort by timestamp in ascending order (oldest first)
+      .sort({ timestamp: -1 }) // Sort by timestamp in descending order (latest first)
       .skip(skip)
       .limit(limit);
+
+    // Convert each chat log's timestamp to a readable format
+    const formattedChatLogs = chatLogs.map(log => {
+      const date = new Date(log["timestampEpoch"]);
+      const formattedTimestamp = date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+      }).replace(',', ''); // Remove comma between date and time for cleaner look
+      
+      return {
+        ...log.toObject(),
+        timestampFormatted: formattedTimestamp, // Update timestamp with formatted value
+      };
+    });
 
     // Get total count of chat logs for the given collabID
     const totalLogs = await ChatLog.countDocuments({ collabid });
@@ -256,7 +273,7 @@ router.get("/chat/:collabid/get-chatlogs", [...getChatLogValidators], async (req
 
     res.status(200).json({
       message: "Chat logs fetched successfully",
-      chatLogs,
+      chatLogs: formattedChatLogs,
       pagination: {
         page,
         limit,
@@ -269,6 +286,5 @@ router.get("/chat/:collabid/get-chatlogs", [...getChatLogValidators], async (req
     res.status(500).send("Internal server error");
   }
 });
-
 
 export default router;
