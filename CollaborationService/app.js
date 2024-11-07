@@ -11,13 +11,13 @@ const app = express();
 const port = 3002;
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: '*', 
-        methods: ['GET', 'POST']
-    }
+    // cors: {
+    //     origin: 'http://localhost:5173', 
+    //     methods: ['GET', 'POST']
+    // }
 });
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 socket.createSocket(io);

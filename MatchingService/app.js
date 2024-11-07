@@ -11,10 +11,12 @@ const app = express();
 const port = 3000;
 const server = createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: '*', 
-        methods: ['GET', 'POST']
-    }
+    // cors: {
+    //     origin: 'http://localhost:5173', 
+    //     // origin: "*",
+    //     methods: ['GET', 'POST'],
+    //     preflightContinue: true
+    // }
 });
 
 io.on('connection', (socket) => {
@@ -25,9 +27,15 @@ io.on('connection', (socket) => {
     });
 });
 
-app.use(cors({origin: frontendURL, credentials: true}));
+// app.use(cors({origin: "http://localhost:5172", credentials: true, preflightContinue: true, methods: ['GET', 'POST', "OPTIONS"]}));
 app.use(json());
 app.use(cookieParser());
+app.use((req, res, next) => {
+    console.log('Origin:', req.headers.origin);
+    console.log('Access-Control-Request-Method:', req.headers['access-control-request-method']);
+    console.log('Access-Control-Request-Headers:', req.headers['access-control-request-headers']);
+    next();
+  });
 app.use('/matcher', matchRoutes);
 
 // Start the server
