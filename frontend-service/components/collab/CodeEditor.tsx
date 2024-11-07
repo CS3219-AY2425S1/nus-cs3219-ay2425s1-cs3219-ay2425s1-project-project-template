@@ -43,6 +43,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false); // New state
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'typing' | null>(null);
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
 
   const toast = useToast(); // Initialize Chakra UI toast
   const previousUsersCount = useRef<number>(0);
@@ -161,12 +163,33 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
     };
   }, [toast]);
 
+  useEffect(() => {
+    // Listen to Firebase database changes to confirm save status
+    const unsubscribe = onValue(codeRef, (snapshot) => {
+      const savedCode = snapshot.val();
+      if (savedCode === code) {
+        setSaveStatus('saved');
+        setLastSavedTime(new Date());
+      }
+    });
 
-  const handleEditorChange = (newValue: string | undefined) => {
+    return () => unsubscribe();
+  }, [code, codeLanguage, codeRef]);
+
+  const handleEditorChange = async (newValue: string | undefined) => {
     if (newValue !== undefined) {
       setCode(newValue);
-      set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), newValue);
+      setSaveStatus('saving');
+      await set(ref(FIREBASE_DB, `rooms/${roomId}/code/${codeLanguage}`), newValue);
+      setSaveStatus('saved');
+      setLastSavedTime(new Date());
     }
+  };
+
+  const formatTimeSinceLastSave = () => {
+    if (!lastSavedTime) return '';
+    const seconds = Math.floor((new Date().getTime() - lastSavedTime.getTime()) / 1000);
+    return `Last saved ${seconds} seconds ago`;
   };
 
   const handleLeaveRoom = async () => {
@@ -260,20 +283,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
         bg="gray.50"
       >
 
-        {/*
-        {question && (
-          <Box mb={4} p={4} bg="white" borderRadius="md" boxShadow="md">
-            <Text fontSize="xl" fontWeight="bold">{question.title}</Text>
-            <Text fontSize="sm" color="gray.600">Category: {question.category}</Text>
-            <Text fontSize="sm" color="gray.600">Difficulty: {question.difficulty}</Text>
-            <Text mt={2}>{question.description}</Text>
-          </Box>
-        )}
-          */}
-
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={3} p={2} borderBottom="1px solid #e2e8f0">
           <Text fontSize="lg" fontWeight="bold" color="gray.700">Code Editor</Text>
           <Box display="flex" alignItems="center">
+            <Box display="flex" alignItems="center">
+              {saveStatus === 'saved' && (
+                <Text color="green.500" fontSize="sm">Saved</Text>
+              )}
+              {saveStatus === 'saving' && (
+                <Text color="orange.500" fontSize="sm">Saving...</Text>
+              )}
+              {saveStatus === 'typing' && (
+                <Text color="gray.500" fontSize="sm">{formatTimeSinceLastSave()}</Text>
+              )}
+            </Box>
             <Select size="sm" width="150px" mr={3} value={codeLanguage} onChange={handleLanguageChange}>
               {Object.keys(languageType).map(lang => (
                 <option key={lang} value={lang}>{lang.charAt(0).toUpperCase() + lang.slice(1)}</option>
