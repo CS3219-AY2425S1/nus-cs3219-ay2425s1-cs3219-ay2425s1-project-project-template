@@ -195,7 +195,18 @@ const HomePage: React.FC = () => {
                       {question.questionTitle}
                     </Text>
                   </Td>
-                  <Td>{question.attemptDateTime}</Td>
+                  <Td>
+                    {new Date(question.attemptDateTime).toLocaleString('en-SG', {
+                      timeZone: 'Asia/Singapore',
+                      hour12: false, // or true if you want 12-hour format
+                      year: 'numeric',
+                      month: 'short',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    })}
+                  </Td>
                   <Td>
                     <Box
                       display="inline-block"

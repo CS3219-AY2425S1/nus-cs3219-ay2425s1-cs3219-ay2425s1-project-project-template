@@ -103,7 +103,7 @@ function formatTime(unixTime: number): string {
   const mmin = date.getMinutes().toString().padStart(2, "0");
   const ss = date.getSeconds().toString().padStart(2, "0");
 
-  const res = `${dd}-${mm}-${yyyy}, ${hh}:${mmin}:${ss}`;
+  const res = `${dd}-${mm}-${yyyy}, ${hh}:${mmin}:${ss} UTC`;
   return res;
 }
 
