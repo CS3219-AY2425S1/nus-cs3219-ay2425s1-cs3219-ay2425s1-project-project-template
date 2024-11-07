@@ -91,38 +91,42 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   }
 
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* Question Panel */}
-      <div className="w-2/5 p-4 overflow-hidden">
-        <div className="h-full border rounded-lg p-4 overflow-y-auto">
-          {/* Question Title and Difficulty */}
-          <div className="mb-4">
-            <h4 className="text-2xl font-bold text-gray-900 mb-2">
-              Question {question.questionId}: {question.title}
-            </h4>
-            <div><Badge variant={question.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}>{question.difficulty}</Badge></div>
-          </div>
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Top Row - Question and Code Editor */}
+      <div className="flex flex-grow overflow-hidden">
+        {/* Question Panel */}
+        <div className="w-2/5 p-4 overflow-hidden">
+          <div className="h-full border rounded-lg p-4 overflow-y-auto">
+            {/* Question Title and Difficulty */}
+            <div className="mb-4">
+              <h4 className="text-2xl font-bold text-gray-900 mb-2">
+                Question {question.questionId}: {question.title}
+              </h4>
+              <div>
+                <Badge variant={question.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard'}>
+                  {question.difficulty}
+                </Badge>
+              </div>
+            </div>
 
-          {/* Categories */}
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
-              {question.categories.map((c) => (
-                c && <Badge variant="category" key={c}>{c}</Badge>
-              ))}
+            {/* Categories */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-2">
+                {question.categories.map((c) => (
+                  c && <Badge variant="category" key={c}>{c}</Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="text-gray-700">
+              {question.description}
             </div>
           </div>
-
-          {/* Description */}
-          <div className="text-gray-700">
-            {question.description}
-          </div>
         </div>
-      </div>
 
-      {/* Code Editor and Output Panel */}
-      <div className="flex flex-col w-3/5 h-full overflow-hidden">
         {/* Code Editor */}
-        <div className="flex-grow p-4 pb-0 pl-0 overflow-hidden">
+        <div className="w-3/5 p-4 pl-0 overflow-hidden">
           <CodeEditor
             ydoc={ydoc}
             provider={provider}
@@ -131,9 +135,17 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
             theme={theme}
           />
         </div>
+      </div>
 
-        {/* Output/Chat Panel */}
-        <div className="h-1/3 p-4 overflow-hidden">
+      {/* Bottom Row - Video Call and Chat/Output */}
+      <div className="flex h-1/3 min-h-[250px]">
+        {/* Video Call Panel */}
+        <div className="flex w-2/5 px-4">
+          <VideoCall userName={userName} roomId={roomId} />
+        </div>
+
+        {/* Chat/Output Panel */}
+        <div className="w-3/5 px-4 pl-0">
           <Tabs defaultValue="chat" className="h-full flex flex-col">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="chat">Chat</TabsTrigger>

@@ -314,8 +314,8 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
     }, []);
 
     return (
-        <Card className='h-full'>
-            <CardHeader className="p-2">
+        <Card className='h-full flex flex-col'>
+            <CardHeader className="p-2 flex-shrink-0">
                 <CardTitle className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-2">
                         <span>Video Call ({connections.size + 1} connected)</span>
@@ -336,8 +336,8 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
                     </div>
                 </CardTitle>
             </CardHeader>
-            <CardContent className="p-2">
-                <div className='grid grid-cols-2 gap-2'>
+            <CardContent className="p-2 flex-grow flex flex-col">
+                <div className='grid grid-cols-2 gap-2 flex-grow overflow-auto'>
                     <div className="relative rounded-lg overflow-hidden bg-secondary aspect-video">
                         <video
                             ref={myVideo}
@@ -370,7 +370,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
                     ))}
                 </div>
 
-                <div className="flex justify-center gap-2 mt-2">
+                <div className="flex justify-center gap-2 mt-2 flex-shrink-0">
                     <Button
                         variant={isAudioEnabled ? "outline" : "destructive"}
                         size="sm"
