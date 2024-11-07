@@ -74,14 +74,14 @@ export const joinOldRoom = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Room does not exist." });
     }
 
-    const roomData = roomSnapshot.val() as Room;
+    // const roomData = roomSnapshot.val() as Room;
 
-    const updatedUsers = {
-      ...roomData.users,
-      [userId]: true,
-    };
+    // const updatedUsers = {
+    //   ...roomData.users,
+    //   [userId]: true,
+    // };
 
-    await update(roomRef, { users: updatedUsers });
+    // await update(roomRef, { users: updatedUsers });
 
     return res
       .status(200)

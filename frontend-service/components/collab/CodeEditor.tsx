@@ -280,7 +280,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
           borderRadius="md"
           bg={activeUserCount > 0 ? 'green.100' : 'orange.100'}
         >
-          <Text fontSize="md" color={activeUserCount > 1 ? 'green.700' : 'orange.700'}>
+          <Text fontSize="md" color={activeUserCount > 0 ? 'green.700' : 'orange.700'}>
             {activeUserCount > 0 ? (
               'Your partner is in the room.'
             ) : (

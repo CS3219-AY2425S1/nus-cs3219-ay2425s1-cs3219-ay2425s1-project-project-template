@@ -53,23 +53,6 @@ const OldRoomPage: React.FC<OldRoomPageProps> = ({ userId }) => {
     }
   };
 
-  // Listen for changes in the room's status in Firebase
-  // TODO: Remove this? Not necessary in old room
-  // useEffect(() => {
-  //   if (roomId) {
-  //     const statusRef = ref(FIREBASE_DB, `rooms/${roomId}/status`);
-  //     
-  //     const unsubscribe = onValue(statusRef, (snapshot) => {
-  //       const status = snapshot.val();
-  //       setRoomStatus(status === 'active' ? 'active' : 'inactive');
-  //     });
-
-  //     return () => {
-  //       unsubscribe();
-  //     };
-  //   }
-  // }, [roomId]);
-
   useEffect(() => {
     // Automatically try to join room when component mounts
     if (userId) {
