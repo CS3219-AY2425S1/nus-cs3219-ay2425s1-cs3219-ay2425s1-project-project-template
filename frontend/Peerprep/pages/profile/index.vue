@@ -49,7 +49,7 @@ const getUserDisplayName = async (user_id: string) => {  // This function might 
 
         if (!response.ok) {
             console.error(`Error fetching user data: ${response.status} ${response.statusText}`)
-            return "Unknown User";
+            return "Deleted User";
         }
         const data = await response.json();
 
@@ -70,6 +70,9 @@ const convertEpochToDateTime = (epochTime: number) => {
 }
 
 const capitalizeFirstLetter = (inputString: string) => {
+    if (!inputString) {
+        return '';
+    }
     return inputString.charAt(0).toUpperCase() + inputString.slice(1);
 };
 
@@ -92,7 +95,7 @@ const fetchAttemptList = async () => {
         }
 
         if (data) {
-            updateAttemptList(data);
+            await updateAttemptList(data);
         }
     } catch (e) {
         console.error("Error while fetching attempt history:", e);

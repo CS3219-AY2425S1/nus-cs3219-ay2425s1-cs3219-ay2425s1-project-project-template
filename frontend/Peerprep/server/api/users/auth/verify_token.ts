@@ -4,7 +4,8 @@ export default defineEventHandler(async (event) => {
   const response = await $fetch(`${endPoint}/auth/verify_token`, {
     method: "POST",
     headers: {
-      Authorization: getHeader(event, "authorization") || "",
+      "Content-Type": getHeader(event, "Content-Type") || "",
+      "Authorization": getHeader(event, "Authorization") || "",
     },
   });
 

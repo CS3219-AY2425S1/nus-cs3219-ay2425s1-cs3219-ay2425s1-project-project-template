@@ -44,15 +44,15 @@ def record_attempt():
 
 @history.route("/<uid>/history", methods=["GET"])
 def get_user_history(uid):
-    decoded_token, error, status_code = verify_token()
+    # decoded_token, error, status_code = verify_token()
 
-    if error:
-        return jsonify({"error": error}), status_code
+    # if error:
+    #     return jsonify({"error": error}), status_code
     
-    if decoded_token["user_id"] != uid:
-        return jsonify({
-            "error": "You are not authorized to view this user's history"
-            }), 403
+    # if decoded_token["user_id"] != uid:
+    #     return jsonify({
+    #         "error": "You are not authorized to view this user's history"
+    #         }), 403
     
     # Fetch User's History
     user_history_ref = firebase_db.collection('attempt_history').document(uid).collection('attempts')
@@ -71,3 +71,18 @@ def get_user_history(uid):
         })
         
     return jsonify(attempt_history), 200
+
+@history.route("/<uid>/history/<attempt_id>", methods=["GET"])
+def get_user_attempt_info(uid, attempt_id):
+    try:
+        # Reference to the user's attempt history
+        user_ref = firebase_db.collection('attempt_history').document(uid)        
+        attempt_ref = user_ref.collection('attempts').document(attempt_id)
+        
+        attempt = attempt_ref.get()
+        if not attempt.exists:
+            return jsonify({"error": "User ID or Attempt ID not found"}), 404
+        
+        return jsonify(attempt.to_dict()), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

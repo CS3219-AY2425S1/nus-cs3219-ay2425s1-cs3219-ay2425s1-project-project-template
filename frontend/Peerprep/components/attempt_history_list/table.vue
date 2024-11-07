@@ -3,6 +3,8 @@ import { getColumns } from '@/components/attempt_history_list/columns'; // Impor
 import {
     FlexRender,
     getCoreRowModel,
+    getFilteredRowModel,
+    getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table';
 
@@ -17,7 +19,6 @@ import {
 
 const props = defineProps<{
     data: TData[];
-    refreshData: () => void; // Received from the parent
 }>();
 
 const columns = getColumns(props.refreshData);
@@ -26,11 +27,18 @@ const table = useVueTable({
     get data() { return props.data },
     get columns() { return columns }, // Use dynamically created columns
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
 });
 </script>
 
 <template>
-    <div class="flex flex-col items-center justify-center gap-y-4">
+    <div class="flex flex-col items-left justify-center gap-y-4">
+        <div class="items-left expand">
+            <Input class="max-w-sm" placeholder="Filter Matched User..."
+                :model-value="table.getColumn('matchedUser')?.getFilterValue() as string"
+                @update:model-value=" table.getColumn('matchedUser')?.setFilterValue($event)" />
+        </div>
         <Table class="border rounded-md border-collapse">
             <TableHeader>
                 <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
@@ -45,7 +53,16 @@ const table = useVueTable({
                     <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
                         :data-state="row.getIsSelected() ? 'selected' : undefined">
                         <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="border">
-                            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                            <template v-if="cell.column.id === 'questionTitle'">
+                                <!-- Apply the RouterLink with custom styling -->
+                                <RouterLink :to="{ path: `/profile/attempt/${row.original.sessionId}` }"
+                                    class="text-blue-600 underline cursor-pointer">
+                                    {{ cell.getValue() }}
+                                </RouterLink>
+                            </template>
+                            <template v-else>
+                                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                            </template>
                         </TableCell>
                     </TableRow>
                 </template>

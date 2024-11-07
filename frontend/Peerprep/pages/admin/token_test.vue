@@ -22,7 +22,7 @@ const getUserToken = async () => {
 };
 
 const sendTokenToUserService = async () => {
-    const response = await fetch(`/api/auth/verify_token`, {
+    const response = await fetch('/api/users/auth/verify_token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -46,5 +46,9 @@ const sendTokenToUserService = async () => {
     <div>
         <Button v-if="token" @click="sendTokenToUserService">Test Token with User Service</Button>
         <p v-if="userServiceResponse">Response: {{ userServiceResponse }}</p>
+        
+        <router-link :to="{ path: '/profile/attempt/0504c421-0559-406e-94cd-253599507f46' }">
+            <Button>Navigate to Question Attempt Page</Button>
+        </router-link>
     </div>
 </template>
