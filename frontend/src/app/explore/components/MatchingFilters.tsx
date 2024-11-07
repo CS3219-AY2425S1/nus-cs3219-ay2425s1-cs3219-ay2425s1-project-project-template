@@ -117,7 +117,6 @@ const MatchingFilters = () => {
             // codespace logic
             const { roomId } = data;
             router.push(`/codeeditor/${roomId}`);
-            localStorage.setItem('language', data.language);
         });
 
         return () => {
@@ -152,7 +151,7 @@ const MatchingFilters = () => {
     }
 
     const handleAccept = (matchId: string) => {
-        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id, language: selectedLanguage });
+        socketRef.current?.emit('acceptMatch', { matchId, userId: user?.id });
         setMatchStatus('waiting');
     };
 

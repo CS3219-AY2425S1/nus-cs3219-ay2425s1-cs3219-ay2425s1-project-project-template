@@ -30,13 +30,8 @@ const sendMatchResult = async (
                     hasAccepted: false,
                 },
             },
-            question: {
-                questionId: partner.questionId,
-                title: partner.title,
-                difficulty: partner.difficulty,
-                language: partner.language,
-                categories: partner.categories,
-            },
+            question: partner.question,
+            language: partner.language,
         };
 
         activeMatches.set(matchId, matchSession);
@@ -49,6 +44,7 @@ const sendMatchResult = async (
                 userName: partner.userName,
             },
             question: matchSession.question,
+            language: matchSession.language,
         });
 
         io.to(partnerSockId).emit('matchFound', {
@@ -58,6 +54,7 @@ const sendMatchResult = async (
                 userName: req.userName,
             },
             question: matchSession.question,
+            language: matchSession.language,
         });
 
         logger.info(`Match partners sent to ${req.userId} and ${partner.userId}`);

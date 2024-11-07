@@ -22,8 +22,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   theme = 'light',
 }) => {
   const [editor, setEditor] = useState<any | null>(null)
-  const [collabLanguage, setCollabLanguage] = useState<string | undefined>(language.toLowerCase())
   const [collabProvider, setProvider] = useState<WebsocketProvider | null>(provider);
+  const [collabLanguage, setCollabLanguage] = useState<string | undefined>(language.toLowerCase())
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
   const awareness = collabProvider?.awareness

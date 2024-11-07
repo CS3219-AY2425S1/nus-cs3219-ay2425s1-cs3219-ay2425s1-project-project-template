@@ -51,11 +51,16 @@ const performMatching = async (
         const matchPartner: MatchPartner = {
             userId: bestMatch.userId,
             userName: bestMatch.userName,
-            questionId: res.data.questionId,
-            title: res.data.title,
             language: req.language,
-            difficulty: bestMatch.difficulty,
-            categories: res.data.categories
+            question: {
+                questionId: res.data.questionId,
+                title: res.data.title,
+                description: res.data.description,
+                difficulty: res.data.difficulty,
+                categories: res.data.categories,
+                testCases: res.data.testCases
+            }
+            
         }
 
         logger.info(`Matched ${req.userName} with ${bestMatch.userName}`)

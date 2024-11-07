@@ -4,16 +4,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco'
-import CodeEditor from '@/app/codeeditor/components/CodeEditor';
-import Chat from '@/app/codeeditor/components/chat';
-import CodeOutput from '@/app/codeeditor/components/CodeOutput';
+import CodeEditor from '@/app/codeeditor/mock_components/CodeEditor';
+import Chat from '@/app/codeeditor/mock_components/chat';
+import CodeOutput from '@/app/codeeditor/mock_components/CodeOutput';
 import Editor from '@monaco-editor/react'
-import VideoCall from '@/app/codeeditor/components/VideoCall';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"
+import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { CollaborativeSpaceProps } from '../models/types'
 import {DUMMY_QUESTION} from '../models/dummies'
+import { CollaborativeSpaceProps } from '../models/types'
+
 
 const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   initialCode = '',
@@ -21,13 +22,16 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   theme = 'light',
   roomId,
   userName,
-  question = DUMMY_QUESTION,
-  matchId = ''
+  question = DUMMY_QUESTION
 }) => {
   const ydoc = useMemo(() => new Y.Doc(), [])
+  const [editor, setEditor] = useState<any | null>(null)
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
+  const [binding, setBinding] = useState<MonacoBinding | null>(null);
+  const router = useRouter(); // For navigation
+  const [codeValue, setCodeValue] = useState(initialCode); // To store code from editor
   const [output, setOutput] = useState(''); // To display output from running code
-  const [allTestCasesPassed, setAllTestCasesPassed] = useState(false);
+  const [hasRunCode, setHasRunCode] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
   useEffect(() => {
     // websocket link updated 
@@ -51,22 +55,21 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   }
 
     // Function to handle exit room
+    const handleExitRoom = () => {
+      provider?.destroy();
+      ydoc?.destroy();
+      router.push('/explore');
+    };
   
     // Function to handle running code
     const handleRunCode = async () => {
+      setHasRunCode(true);
       try {
-        const response = await axios.post('http://localhost:5005/execute-code', {
-          questionId: question.questionId,
-          code: ydoc.getText('monaco'),
+        const response = await axios.post('/api/run-code', {
+          code: codeValue,
           language,
         });
-        const testCasesPassed:string = response.data.testCasesPassed;
-        const testCasesTotal:string = response.data.testCasesTotal;
-        if (testCasesPassed == testCasesTotal) {
-          setAllTestCasesPassed(true);
-        }
-        setOutput(`Test cases passed: ${testCasesPassed}/${testCasesTotal}`);
-        console.log(response.data)
+        setOutput(response.data.output);
       } catch (error) {
         console.error('Error running code:', error);
         setOutput('An error occurred while running the code.');
@@ -76,11 +79,11 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     // Function to handle submitting code
     const handleSubmitCode = async () => {
       try {
-        const response = await axios.post('http://localhost:5005/submit-code', {
-          questionId: question.questionId,
-          matchId: matchId, 
-          code: ydoc.getText('monaco'),
+        const response = await axios.post('/api/submit-code', {
+          code: codeValue,
           language,
+          roomId,
+          userName,
         });
         // Handle the response as needed
         console.log('Code submitted successfully:', response.data);
@@ -135,7 +138,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
           </div>
             {isChatOpen 
               ? <Chat ydoc={ydoc} provider={provider} userName={userName} />
-              : <CodeOutput outputText={output} allPassed={allTestCasesPassed} handleRunCode={handleRunCode} handleSubmitCode={handleSubmitCode} />}
+              : <CodeOutput outputText={output} handleRunCode={handleRunCode} handleSubmitCode={handleSubmitCode} />}
           </div>
         </div>
       </div>

@@ -30,6 +30,18 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
+
+const singleQuoteStringSchema = z
+  .string()
+  .min(1, { message: "Input is required." }) // Use min() first
+  .refine(
+    (val) => !val.includes('"'), // Check that the string does not contain double quotes
+    {
+      message: 'String must not contain double quotation marks ("). Use single quotation marks (\') instead.',
+    }
+  );
+
+  
 const formSchema = z.object({
   title: z.string().min(1, {
     message: "Title must not be blank.",
@@ -43,8 +55,8 @@ const formSchema = z.object({
   }),
   testCases: z.array(
     z.object({
-      input: z.string().min(1, { message: "Input is required." }),
-      expected: z.string().min(1, { message: "Expected Output is required." }),
+      input: singleQuoteStringSchema,
+      expected: singleQuoteStringSchema,
     })
   ).min(1, { message: "At least one test case is required." })
 })
@@ -95,8 +107,8 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
     const parsedValues = {
       ...values,
       testCases: values.testCases.map((testCase) => ({
-        input: JSON.parse(testCase.input),
-        expected: JSON.parse(testCase.expected),
+        input: testCase.input,
+        expected: testCase.expected,
       })),
     }
 
