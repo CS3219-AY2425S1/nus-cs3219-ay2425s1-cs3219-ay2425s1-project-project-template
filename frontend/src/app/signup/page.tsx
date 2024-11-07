@@ -20,8 +20,8 @@ const SignUp: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // If already authenticated, redirect to dashboard
-      router.push('/dashboard');
+      // If already authenticated, redirect to explore
+      router.push('/explore');
     }
   }, [isAuthenticated, router]);
 
