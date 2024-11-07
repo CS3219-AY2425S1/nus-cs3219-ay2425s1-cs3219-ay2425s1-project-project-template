@@ -105,19 +105,6 @@ const HomePage: React.FC = () => {
     }
   }, [questions, questionsLoading]);
 
-
-  const formatDateTime = (dateTimeString: string) => {
-    const date = new Date(dateTimeString);
-    const day = date.getUTCDate().toString().padStart(2, "0");
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-    const year = date.getUTCFullYear();
-    let hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-    const period = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
-    return `${day}-${month}-${year}, ${hours}:${minutes}${period}`;
-  };
-
   // Pagination
   const filteredHistory = history
     .filter((question) =>
@@ -208,7 +195,7 @@ const HomePage: React.FC = () => {
                       {question.questionTitle}
                     </Text>
                   </Td>
-                  <Td>{formatDateTime(question.attemptDateTime)}</Td>
+                  <Td>{question.attemptDateTime}</Td>
                   <Td>
                     <Box
                       display="inline-block"

@@ -50,14 +50,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
     // Listen to changes in the users list in the room
     const unsubscribe = onValue(userRef, async (snapshot) => {
       const users = snapshot.val();
-      
+
       // Find the other user's ID by filtering out the current user's ID
       const otherUserId = Object.keys(users || {}).find((id) => id !== userId);
 
       if (otherUserId) {
         try {
           // Fetch the username using the /id-to-username/:id endpoint
-          const response = await axios.get(`http://localhost:3001/users/id-to-username/${otherUserId}`);
+          const response = await axios.get(
+            `http://localhost:3001/users/id-to-username/${otherUserId}`
+          );
           const username = response.data.username;
 
           // Update the state with the other user's username
@@ -74,11 +76,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
   }, [roomId, userId]);
 
   const sendMessage = () => {
-    if (!socket || !userId || !roomId || !message.trim()) return; // Prevent empty messages
+    if (!socket || !userId || !roomId || !message.trim()) return; // Check if message is not empty or whitespace
 
     const messageData = {
       roomId,
-      message: message.trim(), // Trim the message to remove extra spaces
+      message: message.trim(), // Trim any extra whitespace
       author: userId,
       time: new Date().toISOString(),
     };
@@ -101,7 +103,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ userId, roomId }) => {
           p={4}
           borderRadius="md"
           overflowY="auto"
-          height="650px"
+          height="600px"
           width="100%"
         >
           <ScrollableFeed>
