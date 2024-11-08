@@ -12,19 +12,33 @@ import { FolderClock as HistoryIcon } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
     const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
-    const [pastMatches, setPastMatches] = useState([]);
+    const [pastMatches, setPastMatches] = useState<PastMatch[]>([]);
     const [totalNumberOfMatches, setTotalNumberOfMatches] = useState(0);
     const [skills, setSkills] = useState([]);
+    const [isLoadingMatches, setIsLoadingMatches] = useState(false);
 
     const fetchPastMatches = async () => {
+        try {
+            setIsLoadingMatches(true)
+            const response = await fetch(`http://localhost:5006/history/${user?.id}`)
+            if (!response.ok) {
+                throw new Error('Failed to fetch past successful matches')
+            }
+            const { data } = await response.json()
+            setPastMatches(data)
+        } catch (err) {
+            console.log("Error", err)
+        } finally {
+            setIsLoadingMatches(false);
+        }
     }
 
     useEffect(() => {
         fetchPastMatches();
     }, []);
 
-    if (!user) {
-        // Optionally, show a loading state while fetching user data
+    if (!user || isLoadingMatches) {
+        // Optionally, show a loading state while fetching user data and match history
         return (
             <div className="flex flex-grow items-center justify-center min-h-screen">
                 <p>Loading profile...</p>

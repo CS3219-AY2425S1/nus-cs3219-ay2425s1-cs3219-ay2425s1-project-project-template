@@ -11,7 +11,7 @@ import { ArchiveX } from 'lucide-react';
 import Link from 'next/link';
 
 interface HistoryTableProps {
-  matches: any[]
+  matches: PastMatch[]
 }
 
 const HistoryTable = (props: HistoryTableProps) => {
@@ -35,9 +35,9 @@ const HistoryTable = (props: HistoryTableProps) => {
         <TableBody>
           {matches.map((match: any, index: number) => (
             <TableRow key={index} className="h-20 hover:bg-transparent">
-              <TableCell><Link href={`/profile/history/${match.id}`}>Question</Link></TableCell>
-              <TableCell>Partner</TableCell>
-              <TableCell>Date</TableCell>
+              <TableCell><Link href={`/profile/history/${match.matchId}`}>{match.questionId}</Link></TableCell>
+              <TableCell>{match.collaborator}</TableCell>
+              <TableCell>{match.createdAt}</TableCell>
             </TableRow>
           ))}
         </TableBody>
