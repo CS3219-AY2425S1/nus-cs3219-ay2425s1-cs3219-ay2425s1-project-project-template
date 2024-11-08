@@ -169,7 +169,7 @@ const CollaborationPage = () => {
         setTheme(newTheme.target.value);
     }
 
-    const executeCode = async () => {
+    const handleExecuteCode = async () => {
         try {
           const response = await fetch('http://localhost:3010/execute', {
             method: 'POST',
@@ -182,6 +182,11 @@ const CollaborationPage = () => {
           console.error("Execution error:", error);
           setExecutionResult(String(error));
         }
+    };
+
+    const handleResetCode = async () => {
+        setContent(templateMap[String(language)]);
+        socketRef.current.emit('editDocument', { roomId, content: templateMap[String(language)] });
     };
       
     return (
@@ -213,7 +218,10 @@ const CollaborationPage = () => {
                             setCurrentCode={handleEditorChange}
                         />
 
-                        <button onClick={executeCode} className={styles.runCodeButton}>Run Code</button>
+                        <div className={styles.codeButtons}>
+                            <button onClick={handleExecuteCode} className={styles.runCodeButton}>Run Code</button>
+                            <button onClick={handleResetCode} className={styles.resetButton}>Reset</button>
+                        </div>
                         <p className={styles.outputBox}><b>Output:</b> {executionResult}</p>
                     </div>
 
