@@ -25,7 +25,7 @@ const SubmissionList = ({ submissions }: { submissions: Submission[] }) => {
                     </div>
                 )}
                 {submissions.map((submission) => (
-                    <Card key={submission.createdAt} className='h-fit w-full' onClick={() => setSelectedSubmission(submission)}>
+                    <Card key={submission.createdAt} className='h-fit w-full hover:cursor-pointer' onClick={() => setSelectedSubmission(submission)}>
                         <CardContent className="py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-6">
