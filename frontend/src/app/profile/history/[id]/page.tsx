@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/context/authContext';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,7 @@ const SubmissionList = ({ submissions }: { submissions: Submission[] }) => {
     };
 
     return (
-        <div className="flex flex-grow justify-center space-y-4">
+        <div className="flex flex-col flex-grow space-y-4">
             {submissions.length === 0 && (
                 <div className="flex flex-grow justify-center items-center">
                     No submissions made.
@@ -60,10 +61,27 @@ interface PageProps {
 }
 
 export default function MatchDetailsPage({ params }: PageProps) {
+    const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
     const [submissions, setSubmissions] = useState<Submission[]>([])
     const [match, setMatch] = useState<PastMatch>()
+    const [question, setQuestion] = useState<Question>()
+    const [peer, setPeer] = useState()
     const [isLoading, setIsLoading] = useState(false)
-        ;
+
+    const fetchQuestionData = async (questionId: string) => {
+        try {
+            const response = await fetch(`http://localhost:5001/get-questions?questionId=${questionId}`, {
+                method: 'GET',
+            });
+            const data = await response.json()
+            console.log("Question:", data)
+            setQuestion(data[0]);
+        } catch (err) {
+            console.log("Error", err)
+            return {};
+        }
+    }
+
     const fetchData = async () => {
         try {
             setIsLoading(true)
@@ -97,8 +115,26 @@ export default function MatchDetailsPage({ params }: PageProps) {
             const submissions = await responseSubmission.json()
             console.log("Submissions fetched", submissions)
 
+            // const peerId = match.data.collaborators.find((collaborator: { id: string }) => user && collaborator.id !== user.id)?.id || ''
+            // const responsePeer = await fetch(`http://localhost:5006/collaborators/${peerId}`,
+            //     {
+            //         method: 'GET',
+            //         next: { revalidate: 60 },
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         }
+            //     }
+            // )
+            // if (!responsePeer.ok) {
+            //     throw new Error('Failed to fetch peer')
+            // }
+            // const peer = await responsePeer.json()
+            // console.log("Peer fetched")
+
+            await fetchQuestionData(match.data.questionId)
             setMatch(match.data)
             setSubmissions(submissions)
+            // setPeer(peer)
         } catch (err) {
             console.log("Error", err)
         } finally {
@@ -138,7 +174,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
                     <h2 className="text-xl font-semibold mb-4">Match Details</h2>
                     <Card className="mb-6">
                         <CardHeader>
-                            <CardTitle className="text-lg font-bold mb-2">Question ID: {match?.questionId}</CardTitle>
+                            <CardTitle className="text-lg font-bold mb-2">{match?.questionId}. {question?.title || 'No title available'}</CardTitle>
                             <div className="flex flex-col gap-2 mt-2">
                                 <div className="flex items-center gap-2">
                                     <User className="w-4 h-4" />

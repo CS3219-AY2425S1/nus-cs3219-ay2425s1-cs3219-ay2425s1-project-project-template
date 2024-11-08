@@ -1,13 +1,15 @@
 declare type Difficulty = "easy" | "medium" | "hard";
 
+declare interface Question {
+    questionId: number;
+    title: string;
+    description?: string;
+    categories: string[];
+    difficulty: Difficulty;
+}
+
 declare interface QuestionProps {
-    question: {
-        questionId: number;
-        title: string;
-        description?: string;
-        categories: string[];
-        difficulty: Difficulty;
-    };
+    question: Question;
 }
 
 declare interface PastMatch {
