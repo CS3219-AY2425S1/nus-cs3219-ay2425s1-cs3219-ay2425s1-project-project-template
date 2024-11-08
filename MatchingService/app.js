@@ -10,7 +10,16 @@ const frontendURL = process.env.FRONTEND_URL || "http://localhost:8080";
 const app = express();
 const port = 3000;
 const server = createServer(app);
-const io = new Server(server);
+
+const io = process.env.FRONTEND_URL
+    ? new Server(server, {
+        cors: {
+            origin: frontendURL,  
+            methods: ['GET', 'POST'],
+            credentials: true     
+        }
+      })
+    : new Server(server);
 
 io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`);
@@ -19,6 +28,13 @@ io.on('connection', (socket) => {
         console.log(`Client disconnected: ${socket.id}`);
     });
 });
+
+if (process.env.FRONTEND_URL) {
+    app.use(cors({
+        origin: frontendURL, 
+        credentials: true     
+    }));
+}
 
 app.use(json());
 app.use(cookieParser());
