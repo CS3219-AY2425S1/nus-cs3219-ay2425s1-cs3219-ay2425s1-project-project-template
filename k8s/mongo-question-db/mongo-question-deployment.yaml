@@ -19,9 +19,15 @@ spec:
         - containerPort: 27017
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
-          value: root
+          valueFrom:
+            secretKeyRef:
+              name: mongo-question-secret
+              key: MONGO_INITDB_ROOT_USERNAME
         - name: MONGO_INITDB_ROOT_PASSWORD
-          value: example
+          valueFrom:
+            secretKeyRef:
+              name: mongo-user-secret
+              key: MONGO_INITDB_ROOT_PASSWORD
         volumeMounts:
         - name: mongo-storage
           mountPath: /data/db

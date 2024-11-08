@@ -20,5 +20,7 @@ spec:
         - containerPort: 3000
         env:
         - name: MONGO_URI
-          value: mongodb://root:example@mongo-question-service:27017/
-
+          valueFrom:
+            secretKeyRef:
+              name: question-service-secret
+              key: MONGO_URI

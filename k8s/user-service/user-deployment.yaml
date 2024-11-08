@@ -22,8 +22,14 @@ spec:
         - name: PRODUCTION
           value: "true"
         - name: DB_LOCAL_URI
-          value: mongodb://root:example@mongo-user-service:27017
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secret
+              key: DB_LOCAL_URI
         - name: ENV
           value: DEV
         - name: JWT_SECRET
-          value: you-can-replace-this-with-your-own-secret
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secret
+              key: JWT_SECRET
