@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = 'http://localhost/api/users';
 
 const useProfile = (userId) => {
     const [cookies] = useCookies(['accessToken']);
