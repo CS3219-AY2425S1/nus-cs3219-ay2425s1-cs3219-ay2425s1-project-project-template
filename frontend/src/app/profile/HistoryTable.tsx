@@ -35,9 +35,9 @@ const HistoryTable = (props: HistoryTableProps) => {
         <TableBody>
           {matches.map((match: any, index: number) => (
             <TableRow key={index} className="h-20 hover:bg-transparent">
-              <TableCell><Link href={`/profile/history/${match.matchId}`}>{match.questionId}</Link></TableCell>
+              <TableCell><Link key={match.matchId} href={`/profile/history/${match.matchId}`}>{match.questionId}</Link></TableCell>
               <TableCell>{match.collaborator}</TableCell>
-              <TableCell>{match.createdAt}</TableCell>
+              <TableCell>{new Date(match?.createdAt).toLocaleString()}</TableCell>
             </TableRow>
           ))}
         </TableBody>

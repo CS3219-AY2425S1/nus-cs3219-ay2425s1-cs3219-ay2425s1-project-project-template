@@ -26,6 +26,7 @@ const ProfilePage: React.FC = () => {
             }
             const { data } = await response.json()
             setPastMatches(data)
+            console.log(data)
         } catch (err) {
             console.log("Error", err)
         } finally {
