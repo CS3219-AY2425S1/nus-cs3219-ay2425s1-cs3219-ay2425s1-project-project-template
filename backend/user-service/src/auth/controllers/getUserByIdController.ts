@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import logger from '../../utils/logger';
-import User from '../../models/user';
+import { findUserById } from '../db_utils/findUserById';
 
 const getUserById = async (req: Request, res: Response) => {
   const { userId } = req.params;
@@ -11,17 +11,12 @@ const getUserById = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      logger.error('User not found');
-      return res.status(404).json({ message: 'User not found' });
-    }
+    const user = await findUserById(userId);
 
     res.status(200).json({ user });
   } catch (error: any) {
     logger.error('Error fetching user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(404).json({ message: 'User not found' });
   }
 };
 
