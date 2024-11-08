@@ -25,14 +25,13 @@ const (
 type ProgrammingLanguageEnum string
 
 const (
-	Go         ProgrammingLanguageEnum = "Go"
-	Python     ProgrammingLanguageEnum = "Python"
-	Java       ProgrammingLanguageEnum = "Java"
-	Cpp        ProgrammingLanguageEnum = "C++"
-	JavaScript ProgrammingLanguageEnum = "JavaScript"
-	Ruby       ProgrammingLanguageEnum = "Ruby"
-	Swift      ProgrammingLanguageEnum = "Swift"
-	CSharp     ProgrammingLanguageEnum = "C#"
+	Go         ProgrammingLanguageEnum = "go"
+	Python     ProgrammingLanguageEnum = "python"
+	Java       ProgrammingLanguageEnum = "java"
+	Cpp        ProgrammingLanguageEnum = "c++"
+	JavaScript ProgrammingLanguageEnum = "js"
+	Ruby       ProgrammingLanguageEnum = "ruby"
+	CSharp     ProgrammingLanguageEnum = "c#"
 )
 
 // MatchingInfo struct includes user matching criteria
