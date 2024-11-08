@@ -7,7 +7,7 @@ const getCollaborator = async (req: GetUserMatchRequest, res: Response) => {
     const { userId } = req.params
 
     try {
-        const response = await axios.get(`${process.env.USER_SERVICE_URL}/api/get-user/${userId}`)
+        const response = await axios.get(`${process.env.USER_SERVICE_URL}/api/users/get-user/${userId}`)
         logger.info(`Retrieved user ${userId} details`)
         return res.status(200).json({ user: response.data.user })
     } catch {
