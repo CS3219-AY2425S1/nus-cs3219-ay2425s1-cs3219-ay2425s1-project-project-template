@@ -25,14 +25,13 @@ const (
 type ProgrammingLanguageEnum string
 
 const (
-	Go         ProgrammingLanguageEnum = "Go"
-	Python     ProgrammingLanguageEnum = "Python"
-	Java       ProgrammingLanguageEnum = "Java"
-	Cpp        ProgrammingLanguageEnum = "C++"
-	JavaScript ProgrammingLanguageEnum = "JavaScript"
-	Ruby       ProgrammingLanguageEnum = "Ruby"
-	Swift      ProgrammingLanguageEnum = "Swift"
-	CSharp     ProgrammingLanguageEnum = "C#"
+	Go         ProgrammingLanguageEnum = "go"
+	Python     ProgrammingLanguageEnum = "python"
+	Java       ProgrammingLanguageEnum = "java"
+	Cpp        ProgrammingLanguageEnum = "c++"
+	JavaScript ProgrammingLanguageEnum = "js"
+	Ruby       ProgrammingLanguageEnum = "ruby"
+	CSharp     ProgrammingLanguageEnum = "c#"
 )
 
 // MatchingInfo struct includes user matching criteria
@@ -69,7 +68,7 @@ type MatchResult struct {
 	UserTwo     string                  `bson:"userTwo"`
 	UsernameTwo string 					`bson:"usernameTwo`
 	RoomID      string                  `bson:"room_id"`
-	ProgrammingLanguages []ProgrammingLanguageEnum `bson:"programming_languages"`
+	ProgrammingLanguages ProgrammingLanguageEnum `bson:"programming_languages"`
 	Complexity  []QuestionComplexityEnum`bson:"complexity"`
 	Categories  []string               	`bson:"categories"`
 	Question    Question             	`bson:"question"` 

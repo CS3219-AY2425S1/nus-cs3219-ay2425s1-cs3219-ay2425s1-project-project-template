@@ -18,7 +18,6 @@ var MatchingCollection *mongo.Collection
 
 // ConnectToMongo initializes the MongoDB connection and collection
 func ConnectToMongo() {
-	// Load environment variables from .env file
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
@@ -78,7 +77,7 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Create queries for difficulty levels and topics
+	// Base filter criteria for finding a match
 	filter := bson.M{
 		"status": models.Pending,
 		"user_id": bson.M{
@@ -90,6 +89,13 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 		"categories": bson.M{
 			"$in": matchingInfo.Categories,
 		},
+	}
+
+	if !matchingInfo.GeneralizeLanguages {
+		filter["$or"] = []bson.M{
+			{"programming_languages": bson.M{"$in": matchingInfo.ProgrammingLanguages}},
+			{"generalize_languages": true},
+		}
 	}
 
 	// Try to find a matching user
@@ -230,27 +236,27 @@ func CancelUserMatch(userID string) error {
 	// Update the user's status to 'Cancelled' if they are currently 'Pending'
 	filter := bson.M{
 		"user_id": userID,
-		"status":  models.Pending, // Only cancel if the user is still in 'Pending' state
+		"status":  models.Pending, 
 	}
 	update := bson.M{
 		"$set": bson.M{"status": models.Cancelled},
 	}
 
-	// Perform the update in MongoDB
+	// perform the update in MongoDB
 	result, err := MatchingCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Printf("Error updating status to 'Cancelled' for user_id: %s, error: %v", userID, err)
 		return err
 	}
 
-	// Check if a document was actually updated (i.e., if the user was in 'Pending' status)
+	// check if a document was actually updated (i.e., if the user was in 'Pending' status)
 	if result.ModifiedCount == 0 {
 		log.Printf("No pending match found for user_id: %s, unable to cancel", userID)
 		return nil
 	}
 
 	log.Printf("User %s has been successfully marked as 'Cancelled'", userID)
-	// Delete the user from MongoDB after status change
+	// delete the user from MongoDB after status change
 	err = deleteUserFromDB(userID)
 	if err != nil {
 		log.Printf("Error deleting user with user_id %s: %v", userID, err)

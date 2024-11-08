@@ -28,9 +28,8 @@ export const checkAuthorisedUser = async (req: Request, res: Response): Promise<
   }
 };
 
-
-// GetQuestionHandler retrieves the question for a match based on the roomId
-export const getQuestionHandler = async (req: Request, res: Response): Promise<void> => {
+// GetInfoHandler retrieves the room info  for a match based on the roomId
+export const getInfoHandler = async (req: Request, res: Response): Promise<void> => {
   res.setHeader("Content-Type", "application/json");
 
   const roomId = req.query.roomId as string;
@@ -53,7 +52,14 @@ export const getQuestionHandler = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    // Send the question as a JSON response
+    if (match.status === "open") {
+      res.cookie('roomId', roomId, {
+        // httpOnly: true, 
+        maxAge: 24 * 60 * 60 * 1000 
+      });
+    }
+
+    // Send the match information as a JSON response
     res.json(match);
   } catch (error) {
     console.error("Error finding match:", error);
@@ -114,6 +120,11 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
   res.setHeader("Content-Type", "application/json");
   const { roomId, code, language } = req.body;
   console.log(roomId + code + language);
+
+  res.clearCookie("roomId", {
+    // httpOnly: true,
+  });
+  
   try {
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
     if (existingSession) {
@@ -139,12 +150,26 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
     });
 
     await newSession.save();
-    res.status(201).json({ message: "Code saved successfully", session: newSession });
+
+    // Update the match status to 'closed'
+    match.status = "closed";
+    await match.save();
+
+    res.status(200).json({ message: "Code saved successfully, match closed", session: newSession });
   } catch (error) {
     console.error("Error saving code:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const clearRoomIdCookie = async (req: Request, res: Response): Promise<void> => {
+  res.clearCookie("roomId", {
+    // httpOnly: true,
+  });
+
+  res.json({ message: "RoomId cookie has been cleared" });
+};
+
 
 // GetSessionHandler retrieves a session based on the roomId
 export const getSessionHandler = async (req: Request, res: Response): Promise<void> => {

@@ -11,7 +11,6 @@ import (
 var clients = make(map[string]*websocket.Conn) // Map to hold WebSocket clients by their socket_id
 var broadcast = make(chan MatchMessage)        // Channel for broadcasting messages
 
-// MatchMessage represents the message to be sent to the frontend
 type MatchMessage struct {
 	User1 string `json:"user1"`
 	User2 string `json:"user2"`
@@ -22,7 +21,7 @@ type MatchMessage struct {
 // WebSocket upgrader (to upgrade HTTP connections to WebSockets)
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow connections from any origin
+		return true 
 	},
 }
 
@@ -67,7 +66,6 @@ func BroadcastMatch(msg MatchMessage) {
 // HandleMessages listens for new messages and broadcasts them to all clients
 func HandleMessages() {
 	for {
-		// Get the next message from the broadcast channel
 		msg := <-broadcast
 
 		// Send the message to the two matched clients

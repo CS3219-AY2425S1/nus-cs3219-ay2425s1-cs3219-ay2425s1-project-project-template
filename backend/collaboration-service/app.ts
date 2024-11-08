@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import { startRabbitMQ } from "./consumer";
 import { authenticateAccessToken } from "./utils/jwt";
 import mongoose from "mongoose";
-import { checkAuthorisedUser, getQuestionHandler, getHistoryHandler, saveCodeHandler, getSessionHandler } from "./controllers/controller";
+import { checkAuthorisedUser, getInfoHandler, getHistoryHandler, saveCodeHandler, getSessionHandler, clearRoomIdCookie} from "./controllers/controller";
 import { verifyAccessToken } from "./middleware/middleware";
 import axios from "axios";
 
@@ -62,21 +62,22 @@ const io = new Server(httpServer, {
 });
 
 app.get("/check-authorization", verifyAccessToken, checkAuthorisedUser);
-app.get("/get-question", verifyAccessToken, getQuestionHandler);
+app.get("/get-info", verifyAccessToken, getInfoHandler);
 app.get("/get-history", verifyAccessToken, getHistoryHandler);
 app.get("/get-session", verifyAccessToken, getSessionHandler);
 app.post("/save-code", saveCodeHandler);
+app.post("/clear-cookie", clearRoomIdCookie);
 
 // POST endpoint to submit code for execution
 app.post("/code-execute", async (req: Request, res: Response) => {
   try {
-    const { source_code, language_id } = req.body; // Extract language_id from the request body
+    const { source_code, language_id } = req.body; 
     const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
     const response = await axios.post(
       url,
       { source_code, language_id },
       {
-        params: { base64_encoded: "false", fields: "*" }, // Set base64_encoded to "false" for plain text output
+        params: { base64_encoded: "false", fields: "*" }, 
         headers: {
           "Content-Type": "application/json",
           "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST!,
@@ -154,18 +155,11 @@ io.on("connection", (socket) => {
       });
 
       // User-agreed-end event
-      socket.on("user-agreed-end", (roomId: string, userId: string) => {
-        usersAgreedEnd[roomId] = usersAgreedEnd[roomId] || {};
-        usersAgreedEnd[roomId][userId] = true;
-        console.log(userId + " agreed end")
-        if (Object.keys(usersAgreedEnd[roomId]).length === 2) {
-          console.log( "both agreed end")
-          io.to(roomId).emit("both-users-agreed-end", roomId);
-          usersAgreedEnd[roomId] = {};
-        } else {
-          io.to(roomId).emit("waiting-for-other-user-end", roomId);
+      socket.on("user-end", (roomId: string, userId: string) => {
+        console.log(userId + " ended")
+        io.to(roomId).emit("other-user-end", roomId);
         }
-      });
+      );
 
       // Handle disconnect
       socket.on("disconnect", () => {

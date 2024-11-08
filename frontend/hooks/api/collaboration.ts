@@ -4,12 +4,12 @@ import { AxiosError, AxiosResponse } from "axios";
 import axios from "@/utils/axios";
 import { SaveCodeVariables } from "@/utils/collaboration";
 
-export const useGetMatchedQuestion = (roomId: string) => {
+export const useGetInfo = (roomId: string) => {
   return useQuery({
     queryKey: [roomId],
     queryFn: async () => {
       const response = await axios.get(
-        `/collaboration-service/get-question?roomId=${roomId}`,
+        `/collaboration-service/get-info?roomId=${roomId}`,
       );
 
       return response.data;
@@ -36,6 +36,14 @@ export const useSaveCode = () => {
   return useMutation<AxiosResponse, AxiosError, SaveCodeVariables>({
     mutationFn: async (savedCode: SaveCodeVariables) => {
       return axios.post(`/collaboration-service/save-code`, savedCode);
+    },
+  });
+};
+
+export const useClearCookie = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return axios.post(`/collaboration-service/clear-cookie`);
     },
   });
 };

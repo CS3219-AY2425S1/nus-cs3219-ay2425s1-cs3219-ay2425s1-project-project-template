@@ -38,6 +38,7 @@ export function startRabbitMQ(io: Server) {
             categories: matchResult.Categories,
             programming_language: matchResult.ProgrammingLanguages,
             question: {} as Question,
+            status: 'open',
           };
           console.log(matchInfo.programming_language)
 
