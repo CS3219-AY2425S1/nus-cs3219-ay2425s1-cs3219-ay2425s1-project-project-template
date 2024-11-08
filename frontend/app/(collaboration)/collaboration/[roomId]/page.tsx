@@ -21,6 +21,7 @@ import { useUser } from "@/hooks/users";
 import CodeEditor from "@/components/collaboration/CodeEditor";
 import VoiceChat from "@/components/collaboration/VoiceChat";
 import {
+  useClearCookie,
   useGetInfo,
   useGetIsAuthorisedUser,
   useSaveCode,
@@ -48,6 +49,7 @@ export default function Page() {
     examples: "",
     constraints: "",
   });
+  const [roomClosed, setRoomClosed] = useState<boolean>(false);
 
   const { data: roomInfo, isPending: isQuestionPending } = useGetInfo(
     roomId as string,
@@ -61,6 +63,8 @@ export default function Page() {
 
   const { mutate: saveCode } = useSaveCode();
 
+  const { mutate: clearCookie } = useClearCookie();
+
   const handleCodeChange = (newCode: string) => {
     code.current = newCode;
   };
@@ -70,11 +74,12 @@ export default function Page() {
       { ...savedCode },
       {
         onSuccess: () => {
-          socket?.emit("user-end", roomId, user?.id);
+          socket?.emit("user-end", roomId, user?.username);
           router.push("/match");
         },
         onError: (error) => {
           console.error("Error saving code:", error);
+          socket?.emit("user-end", roomId, user?.username);
           router.push("/match");
         },
       },
@@ -90,6 +95,15 @@ export default function Page() {
       language: language.current,
     });
   };
+
+  useEffect(() => {
+    if (!isQuestionPending && roomInfo) {
+      if (roomInfo.status === "closed") {
+        setRoomClosed(true);
+        setOtherUser("");
+      }
+    }
+  }, [roomInfo]);
 
   useEffect(() => {
     if (!isAuthorisationPending && !isAuthorisedUser?.authorised) {
@@ -137,16 +151,18 @@ export default function Page() {
       });
 
       // Setup socket listeners
-      const handleUserDisconnect = () => {
-        toast.info(
-          `User ${otherUser} disconnected, you can wait or exit the session.`,
-          {
-            position: "top-left",
-            autoClose: 2000,
-            hideProgressBar: false,
-          },
-        );
-        setOtherUser("");
+      const handleUserDisconnect = (username: string) => {
+        if (!otherUserEnd) {
+          toast.info(
+            `User ${username} disconnected. You can exit the session if the other user does not rejoin.`,
+            {
+              position: "top-left",
+              autoClose: 3000,
+              hideProgressBar: false,
+            },
+          );
+          setOtherUser("");
+        }
       };
 
       const handleOtherUserEnd = () => {
@@ -162,7 +178,7 @@ export default function Page() {
         socket.off("other-user-end", handleOtherUserEnd);
       };
     }
-  }, [socket, roomId, user]);
+  }, [socket, roomId, user, otherUserEnd]);
 
   const isAvatarActive = (otherUser: string) => {
     return otherUser ? "success" : "default";
@@ -185,7 +201,7 @@ export default function Page() {
             {/* Editor Section */}
             <div className="flex-[2_2_0%] p-2 border-r border-gray-700">
               <CodeEditor
-                language={language.current || "javaScript"}
+                language={language.current || "js"}
                 roomId={roomId as string}
                 setOutput={setOutput}
                 userEmail={user?.email || "unknown user"}
@@ -277,6 +293,39 @@ export default function Page() {
                       color="primary"
                       onPress={() => {
                         handleEndSession();
+                        router.push("/match");
+                      }}
+                    >
+                      Back to match
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+
+          <Modal
+            hideCloseButton={true}
+            isDismissable={false}
+            isOpen={roomClosed}
+          >
+            <ModalContent>
+              {() => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    The room is already closed.
+                  </ModalHeader>
+                  <ModalBody>
+                    <p>
+                      The session ended as the other user exited and this room
+                      is no longer open. Please match again!
+                    </p>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      color="primary"
+                      onPress={() => {
+                        clearCookie();
                         router.push("/match");
                       }}
                     >

@@ -28,7 +28,6 @@ export const checkAuthorisedUser = async (req: Request, res: Response): Promise<
   }
 };
 
-
 // GetInfoHandler retrieves the room info  for a match based on the roomId
 export const getInfoHandler = async (req: Request, res: Response): Promise<void> => {
   res.setHeader("Content-Type", "application/json");
@@ -53,11 +52,12 @@ export const getInfoHandler = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Set the roomId as a cookie in the user's browser
-    res.cookie('roomId', roomId, {
-      httpOnly: true, 
-      maxAge: 24 * 60 * 60 * 1000 
-    });
+    if (match.status === "open") {
+      res.cookie('roomId', roomId, {
+        // httpOnly: true, 
+        maxAge: 24 * 60 * 60 * 1000 
+      });
+    }
 
     // Send the match information as a JSON response
     res.json(match);
@@ -120,6 +120,10 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
   res.setHeader("Content-Type", "application/json");
   const { roomId, code, language } = req.body;
   console.log(roomId + code + language);
+
+  res.clearCookie("roomId", {
+    // httpOnly: true,
+  });
   
   try {
     const existingSession = await SessionModel.findOne({ room_id: roomId }).exec();
@@ -160,8 +164,10 @@ export const saveCodeHandler = async (req: Request, res: Response): Promise<void
 
 export const clearRoomIdCookie = async (req: Request, res: Response): Promise<void> => {
   res.clearCookie("roomId", {
-    httpOnly: true,
+    // httpOnly: true,
   });
+
+  res.json({ message: "RoomId cookie has been cleared" });
 };
 
 

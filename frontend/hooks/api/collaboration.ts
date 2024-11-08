@@ -39,3 +39,11 @@ export const useSaveCode = () => {
     },
   });
 };
+
+export const useClearCookie = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return axios.post(`/collaboration-service/clear-cookie`);
+    },
+  });
+};
