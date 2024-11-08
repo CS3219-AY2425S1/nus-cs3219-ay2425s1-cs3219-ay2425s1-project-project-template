@@ -68,6 +68,41 @@ jobs:
       - name: Set kubectl context
         run: kubectl config set-context $(kubectl config current-context) --namespace=default
 
+      - name: Create Mongo-User Secret in Kubernetes
+        env:
+          MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+        run: |
+          kubectl create secret generic mongo-user-secret \
+            --from-literal=MONGO_INITDB_ROOT_USERNAME=$MONGO_ROOT_USERNAME \
+            --from-literal=MONGO_INITDB_ROOT_PASSWORD=$MONGO_ROOT_PASSWORD \
+            --namespace default --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Mongo-Question Secret in Kubernetes
+        env:
+          MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+        run: |
+          kubectl create secret generic mongo-question-secret \
+            --from-literal=MONGO_INITDB_ROOT_USERNAME=$MONGO_ROOT_USERNAME \
+            --from-literal=MONGO_INITDB_ROOT_PASSWORD=$MONGO_ROOT_PASSWORD \
+            --namespace default --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Secrets for question-service and user-service in Kubernetes
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DB_LOCAL_URI: ${{ secrets.DB_LOCAL_URI }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          kubectl create secret generic user-service-secret \
+            --from-literal=JWT_SECRET=$JWT_SECRET \
+            --from-literal=DB_LOCAL_URI=$DB_LOCAL_URI \
+            --namespace default --dry-run=client -o yaml | kubectl apply -f -
+          
+          kubectl create secret generic question-service-secret \
+            --from-literal=MONGO_URI=$MONGO_URI \
+            --namespace default --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy to GKE
         run: |
           kubectl apply -f k8s/mongo-user-db/
