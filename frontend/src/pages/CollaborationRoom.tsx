@@ -41,8 +41,6 @@ const CollaborativeEditor: React.FC = () => {
   const { question, questionMetadata } = location.state;
   const [code, setCode] = useState<string>("");
 
-  console.log(questionMetadata);
-
   const testCases = questionMetadata[0]?.testCases;
   const testTemplateCode = questionMetadata[0]?.testTemplateCode;
 

@@ -70,8 +70,6 @@ export async function executeCodeWithTestCases(
     throw new Error("Unsupported language");
   }
 
-  console.log(testCases);
-
   try {
     if (language === "python") {
       if (!testTemplateCode?.python) {
