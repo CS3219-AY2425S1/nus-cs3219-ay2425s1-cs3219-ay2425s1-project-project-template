@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { CollaborativeSpaceProps } from '../models/types'
 import { DUMMY_QUESTION } from '../models/dummies'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useToast } from '@/hooks/use-toast';
 
 const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   initialCode = '',
@@ -25,11 +26,14 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   question = DUMMY_QUESTION,
   matchId = ''
 }) => {
+
   const ydoc = useMemo(() => new Y.Doc(), [])
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [output, setOutput] = useState(''); // To display output from running code
   const [allTestCasesPassed, setAllTestCasesPassed] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
+  const { toast } = useToast();
+
   useEffect(() => {
     // websocket link updated 
     const provider = new WebsocketProvider('ws://localhost:5004', roomId, ydoc);
@@ -86,7 +90,11 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
           language,
         });
         // Handle the response as needed
-        console.log('Code submitted successfully:', response.data);
+        console.log('Code submitted successfully:', response.data);           
+        toast({
+          title: "Code submitted",
+          description: "You have successfully uploaded your code",
+      });
       } catch (error) {
         console.error('Error submitting code:', error);
       }
