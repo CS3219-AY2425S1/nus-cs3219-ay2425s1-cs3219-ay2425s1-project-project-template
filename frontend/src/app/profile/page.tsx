@@ -17,6 +17,22 @@ const ProfilePage: React.FC = () => {
     const [skills, setSkills] = useState([]);
     const [isLoadingMatches, setIsLoadingMatches] = useState(false);
 
+    const fetchQuestionData = async (questionId: string) => {
+        try {
+            const response = await fetch(`http://localhost:5001/get-questions?questionId=${questionId}`, {
+                method: 'GET',
+            });
+            const data = await response.json()
+            if (response.ok) {
+                return data[0]?.title || '';
+            }
+            return '';
+        } catch (err) {
+            console.log("Error", err)
+            return '';
+        }
+    }
+
     const fetchPastMatches = async () => {
         try {
             setIsLoadingMatches(true)
@@ -25,8 +41,16 @@ const ProfilePage: React.FC = () => {
                 throw new Error('Failed to fetch past successful matches')
             }
             const { data } = await response.json()
-            setPastMatches(data)
-            console.log(data)
+
+            const matchesWithTitles = await Promise.all(
+                data.map(async (match: any) => {
+                    const questionTitle = await fetchQuestionData(match.questionId)
+                    return { ...match, questionTitle }
+                })
+            );
+
+            setPastMatches(matchesWithTitles)
+            console.log(matchesWithTitles)
         } catch (err) {
             console.log("Error", err)
         } finally {
