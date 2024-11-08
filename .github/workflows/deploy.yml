@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - kubernetes-config
+  workflow_dispatch:
 
 jobs:
   ci:
