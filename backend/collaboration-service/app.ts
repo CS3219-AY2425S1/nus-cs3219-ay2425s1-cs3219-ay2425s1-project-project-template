@@ -71,13 +71,13 @@ app.post("/clear-cookie", clearRoomIdCookie);
 // POST endpoint to submit code for execution
 app.post("/code-execute", async (req: Request, res: Response) => {
   try {
-    const { source_code, language_id } = req.body; // Extract language_id from the request body
+    const { source_code, language_id } = req.body; 
     const url = `https://${process.env.REACT_APP_RAPID_API_HOST}/submissions`;
     const response = await axios.post(
       url,
       { source_code, language_id },
       {
-        params: { base64_encoded: "false", fields: "*" }, // Set base64_encoded to "false" for plain text output
+        params: { base64_encoded: "false", fields: "*" }, 
         headers: {
           "Content-Type": "application/json",
           "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST!,

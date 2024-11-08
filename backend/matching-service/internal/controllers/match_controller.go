@@ -24,7 +24,6 @@ func AddUserHandler(c *gin.Context) {
 	matchingInfo.Status = models.Pending
 	matchingInfo.RoomID = uuid.New().String()
 
-	//Clearing not pending records from db
 	services.DeleteUnusedFromDB()
 
 	// Insert matching info into MongoDB
@@ -43,7 +42,7 @@ func AddUserHandler(c *gin.Context) {
 func CancelMatchHandler(c *gin.Context) {
 	userID := c.Param("userID")
 
-	// Update the user's status to 'Cancelled' in MongoDB
+	// update the user's status to 'Cancelled' in MongoDB
 	err := services.CancelUserMatch(userID)
 	if err != nil {
 		log.Printf("Error canceling match for user_id: %s, error: %v", userID, err)
@@ -60,12 +59,10 @@ func findIntersection(a, b []string) []string {
 	set := make(map[string]bool)
 	intersection := []string{}
 
-	// Add all elements of the first slice to the set
 	for _, item := range a {
-		set[item] = true
+		set[item] 
+		= true
 	}
-
-	// Check elements of the second slice for intersection
 	for _, item := range b {
 		if set[item] {
 			intersection = append(intersection, item)
@@ -80,12 +77,10 @@ func findComplexityIntersection(a, b []models.QuestionComplexityEnum) []models.Q
 	set := make(map[models.QuestionComplexityEnum]bool)
 	intersection := []models.QuestionComplexityEnum{}
 
-	// Add all elements of the first slice to the set
 	for _, item := range a {
 		set[item] = true
 	}
 
-	// Check elements of the second slice for intersection
 	for _, item := range b {
 		if set[item] {
 			intersection = append(intersection, item)
@@ -99,7 +94,7 @@ func findComplexityIntersection(a, b []models.QuestionComplexityEnum) []models.Q
 func startMatchingProcess(matchingInfo models.MatchingInfo) {
 	matchChan := make(chan *models.MatchingInfo)
 
-	// Start a goroutine to attempt matching the user
+	// start a goroutine to attempt matching the user
 	go func() {
 		result, err := services.FindMatch(matchingInfo)
 		if err != nil || result == nil {
@@ -107,30 +102,28 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			return
 		}
 
-		// Only check programming languages if generalize_languages is false
+		// only check programming languages if generalize_languages is false
 		if !matchingInfo.GeneralizeLanguages {
-			// Language matching logic integrated directly here
 
 			// If either user has selected "any" language, allow the other user's language
-			if len(matchingInfo.ProgrammingLanguages) == 0 {
-				// Use the specific language(s) from the matched user if "any" is selected by current user
-				matchingInfo.ProgrammingLanguages = result.ProgrammingLanguages
-				matchChan <- result
-				return
-			} else if len(result.ProgrammingLanguages) == 0 {
-				// Use the specific language(s) from the current user if "any" is selected by matched user
-				result.ProgrammingLanguages = matchingInfo.ProgrammingLanguages
-				matchChan <- result
-				return
-			} else if len(result.ProgrammingLanguages) == 0 && len(matchingInfo.ProgrammingLanguages) == 0 {
-				// Set the specific language to Javascript
+			if len(result.ProgrammingLanguages) == 0 && len(matchingInfo.ProgrammingLanguages) == 0 {
+				// default language JavaScript
 				result.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
 				matchingInfo.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
 				matchChan <- result
 				return
+			} else if len(matchingInfo.ProgrammingLanguages) == 0 {
+				matchingInfo.ProgrammingLanguages = result.ProgrammingLanguages
+				matchChan <- result
+				return
+			} else if len(result.ProgrammingLanguages) == 0 {
+				result.ProgrammingLanguages = matchingInfo.ProgrammingLanguages
+				matchChan <- result
+				return
 			}
+			
 
-			// Check for specific language match if both users have specific selections
+			// check for specific language match if both users have specific selections
 			languageMatched := false
 			for _, lang1 := range matchingInfo.ProgrammingLanguages {
 				for _, lang2 := range result.ProgrammingLanguages {
@@ -156,13 +149,13 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 
 	}()
 
-	// Set up a 30-second timeout
+	// set up a 30-second timeout
 	select {
 	case matchedUser := <-matchChan:
 		if matchedUser != nil {
 			log.Printf("Found a match for user_id: %s", matchingInfo.UserID)
 
-			// Check if both users are still Pending before proceeding
+			// check if both users are still Pending before proceeding
 			user1Status, err := services.GetUserStatus(matchingInfo.UserID)
 			if err != nil {
 				log.Printf("Error retrieving status for user_id: %s", matchingInfo.UserID)
@@ -180,43 +173,41 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				return
 			}
 
-			// Cancel the timeout for both users
+			// cancel the timeout for both users
 			if timer, ok := utils.Store[matchingInfo.UserID]; ok {
-				timer.Stop() // Stop the timer for user 1
+				timer.Stop()
 				delete(utils.Store, matchingInfo.UserID)
 			}
 
 			if timer, ok := utils.Store[matchedUser.UserID]; ok {
-				timer.Stop() // Stop the timer for user 2
+				timer.Stop() 
 				delete(utils.Store, matchedUser.UserID)
 			}
 
-			// Use the room_id of the first user (initiator) and set it for both users
 			roomID := matchingInfo.RoomID
 
-			// Update the status and room_id of both users in MongoDB (only after the match is confirmed)
+			// i[date the status and room_id of both users in MongoDB (only after the match is confirmed)
 			err = services.UpdateMatchStatusAndRoomID(matchingInfo.UserID, matchedUser.UserID, roomID)
 			if err != nil {
 				log.Printf("Error updating status for user_id: %s and user_id: %s", matchingInfo.UserID, matchedUser.UserID)
 			}
 
-			// Find the intersection of complexities and categories
+			// dind the intersection of complexities and categories
 			complexityIntersection := findComplexityIntersection(matchingInfo.DifficultyLevel, matchedUser.DifficultyLevel)
 			categoriesIntersection := findIntersection(matchingInfo.Categories, matchedUser.Categories)
 
-			// Prepare the match result
 			matchResult := models.MatchResult{
 				UserOneSocketID: matchingInfo.SocketID,
 				UserTwoSocketID: matchedUser.SocketID,
-				UserOne:         matchingInfo.UserID,    // Set UserOne as the ID of the first user
+				UserOne:         matchingInfo.UserID,   
 				UsernameOne:     matchingInfo.Username,
-				UserTwo:         matchedUser.UserID,     // Set UserTwo as the ID of the matched user
+				UserTwo:         matchedUser.UserID,   
 				UsernameTwo:     matchedUser.Username,
-				RoomID:          roomID,                 // Use the roomID generated for this match
+				RoomID:          roomID,                
 				ProgrammingLanguages: matchedUser.ProgrammingLanguages,
-				Complexity:      complexityIntersection, // Pass the intersection of complexities
-				Categories:      categoriesIntersection, // Pass the intersection of categories
-				Question:        models.Question{},      // Initially, Question will be empty
+				Complexity:      complexityIntersection, 
+				Categories:      categoriesIntersection, 
+				Question:        models.Question{},      
 			}
 
 			// Publish the match result to RabbitMQ
@@ -236,7 +227,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			log.Printf("User %s and User %s have been matched and published to RabbitMQ", matchingInfo.UserID, matchedUser.UserID)
 
 		} else {
-			// No match was found within the matchChan logic
+			// no match was found within the matchChan logic
 			log.Printf("No match found for user_id: %s within matchChan logic", matchingInfo.UserID)
 
 			time.Sleep(30 * time.Second) // Give the match process time to continue
@@ -244,7 +235,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			log.Printf("User %s has been marked as Timeout", matchingInfo.UserID)
 		}
 	case <-time.After(30 * time.Second):
-		// Timeout after 30 seconds, no match was found
+		// timeout after 30 seconds, no match was found
 		log.Printf("Timeout occurred for user_id: %s, no match found", matchingInfo.UserID)
 		services.MarkAsTimeout(matchingInfo)
 		log.Printf("User %s has been marked as Timeout (Timeout elapsed)", matchingInfo.UserID)
