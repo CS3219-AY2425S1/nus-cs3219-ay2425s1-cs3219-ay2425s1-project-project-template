@@ -18,7 +18,7 @@ function TestResultsTab({ testResults }: TestResultsTabProps) {
           </Title>
         ) : (
           <Title order={3} c="red.5">
-            Wrong Answer
+            {testResult.isError ? 'Error' : 'Wrong Answer'}
           </Title>
         )}
         <Title order={5}>Input</Title>

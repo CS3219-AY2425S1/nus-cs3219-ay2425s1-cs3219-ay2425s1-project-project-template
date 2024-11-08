@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { CodeOutput, TestResult } from '../../types/CodeExecutionType';
 import { TestCase } from '../../types/QuestionType';
+import CustomInputTab from './CutomInputTab';
 import OutputTab from './OutputTab';
 import TestCasesTab from './TestCasesTab';
 import TestResultsTab from './TestResultsTab';
@@ -12,6 +13,9 @@ interface CodeOutputTabsProps {
   codeOutput?: CodeOutput;
   testCases?: TestCase[];
   testResults?: TestResult[];
+  customCodeOutput?: CodeOutput;
+  customCodeInput: string;
+  setCustomCodeInput: React.Dispatch<React.SetStateAction<string>>;
   isRunningCode: boolean;
 }
 
@@ -19,6 +23,9 @@ function CodeOutputTabs({
   codeOutput,
   testCases,
   testResults,
+  customCodeOutput,
+  customCodeInput,
+  setCustomCodeInput,
   isRunningCode,
 }: CodeOutputTabsProps) {
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -30,6 +37,10 @@ function CodeOutputTabs({
     isOutputIndicatorShowed,
     { open: showOutputIndicator, close: hideOutputIndicator },
   ] = useDisclosure(false);
+  const [
+    isCustomOutputIndicatorShowed,
+    { open: showCustomOutputIndicator, close: hideCustomOutputIndicator },
+  ] = useDisclosure(false);
 
   const showTestCases = testCases && testCases.length > 0;
 
@@ -40,6 +51,9 @@ function CodeOutputTabs({
         break;
       case 'output':
         hideOutputIndicator();
+        break;
+      case 'custom':
+        hideCustomOutputIndicator();
         break;
       default:
         break;
@@ -57,6 +71,12 @@ function CodeOutputTabs({
       showOutputIndicator();
     }
   }, [codeOutput]);
+
+  useEffect(() => {
+    if (customCodeOutput && activeTab !== 'custom') {
+      showCustomOutputIndicator();
+    }
+  }, [customCodeOutput]);
 
   return (
     <Tabs
@@ -85,6 +105,12 @@ function CodeOutputTabs({
         >
           <Tabs.Tab value="output">Output</Tabs.Tab>
         </Indicator>
+        <Indicator
+          disabled={!isCustomOutputIndicatorShowed}
+          processing={isRunningCode}
+        >
+          <Tabs.Tab value="custom">Custom</Tabs.Tab>
+        </Indicator>
       </Tabs.List>
 
       {showTestCases && (
@@ -99,6 +125,13 @@ function CodeOutputTabs({
       )}
       <Tabs.Panel value="output" h="200px">
         <OutputTab codeOutput={codeOutput} />
+      </Tabs.Panel>
+      <Tabs.Panel value="custom" h="200px">
+        <CustomInputTab
+          inputValue={customCodeInput}
+          setInput={setCustomCodeInput}
+          codeOutput={customCodeOutput}
+        />
       </Tabs.Panel>
     </Tabs>
   );

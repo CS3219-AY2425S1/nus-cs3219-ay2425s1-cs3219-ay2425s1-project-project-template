@@ -35,6 +35,10 @@ function Room() {
   const [codeOutput, setCodeOutput] = useState<CodeOutput | undefined>(
     undefined,
   );
+  const [customCodeInput, setCustomCodeInput] = useState('');
+  const [customCodeOutput, setCustomCodeOutput] = useState<
+    CodeOutput | undefined
+  >(undefined);
   const [testResults, setTestResults] = useState<TestResult[] | undefined>(
     undefined,
   );
@@ -269,6 +273,11 @@ function Room() {
       code,
       language,
     };
+    const customCodeExecutionInput: CodeExecutionInput = {
+      code,
+      language,
+      input: customCodeInput,
+    };
     const newTestResults: TestResult[] = Array(
       question?.testCases?.length || 0,
     ).fill(null);
@@ -277,6 +286,9 @@ function Room() {
       executeCode(codeExecutionInput).then((codeOutput: CodeOutput) => {
         setCodeOutput(codeOutput);
         collaborationSocketRef.current?.emit('codex-output', codeOutput);
+      }),
+      executeCode(customCodeExecutionInput).then((codeOutput: CodeOutput) => {
+        setCustomCodeOutput(codeOutput);
       }),
       ...(question?.testCases?.map(async (testCase: TestCase, i: number) => {
         const testCaseExecutionInput: CodeExecutionInput = {
@@ -436,6 +448,9 @@ function Room() {
             codeOutput={codeOutput}
             testCases={question?.testCases}
             testResults={testResults}
+            customCodeOutput={customCodeOutput}
+            customCodeInput={customCodeInput}
+            setCustomCodeInput={setCustomCodeInput}
             isRunningCode={isRunningCode}
           />
         </Stack>
