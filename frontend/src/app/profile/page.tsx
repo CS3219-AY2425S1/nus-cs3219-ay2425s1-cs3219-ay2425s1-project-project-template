@@ -7,7 +7,7 @@ import { useAuth } from '@/context/authContext';
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator";
 import { difficulties } from '@/utils/constant';
-import HistoryTable from '@/app/profile/HistoryTable';
+import HistoryTable from '@/app/profile/components/HistoryTable';
 import { FolderClock as HistoryIcon } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {

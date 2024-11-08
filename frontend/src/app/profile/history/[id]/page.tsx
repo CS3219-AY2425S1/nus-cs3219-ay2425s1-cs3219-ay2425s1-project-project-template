@@ -7,50 +7,62 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Clock, User, Code } from 'lucide-react';
 import { convertSolvedStatus } from '@/utils/constant'
+import CodeViewDialog from '@/app/profile/components/CodeViewDialog'
 
 const SubmissionList = ({ submissions }: { submissions: Submission[] }) => {
+    const [selectedSubmission, setSelectedSubmission] = useState<Submission | undefined>(undefined)
     const statusColors = {
         accepted: 'bg-green-400',
         failed: 'bg-red-500'
     };
 
     return (
-        <div className="flex flex-col flex-grow space-y-4">
-            {submissions.length === 0 && (
-                <div className="flex flex-grow justify-center items-center">
-                    No submissions made.
-                </div>
-            )}
-            {submissions.map((submission) => (
-                <Card key={submission.createdAt} className='h-fit w-full'>
-                    <CardContent className="py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-6">
-                                <Badge className={`${statusColors[convertSolvedStatus(submission.solved)]} text-xs text-white`}>
-                                    {convertSolvedStatus(submission.solved).toUpperCase()}
-                                </Badge>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-gray-500">{submission.testCasesPassed} / {submission.testCasesPassed}</span>
-                                    <span className="text-sm text-gray-500">test cases passed</span>
+        <>
+            <div className="flex flex-col flex-grow space-y-4">
+                {submissions.length === 0 && (
+                    <div className="flex flex-grow justify-center items-center">
+                        No submissions made.
+                    </div>
+                )}
+                {submissions.map((submission) => (
+                    <Card key={submission.createdAt} className='h-fit w-full' onClick={() => setSelectedSubmission(submission)}>
+                        <CardContent className="py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-6">
+                                    <Badge className={`${statusColors[convertSolvedStatus(submission.solved)]} text-xs text-white`}>
+                                        {convertSolvedStatus(submission.solved).toUpperCase()}
+                                    </Badge>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-semibold text-gray-500">{submission.testCasesPassed} / {submission.testCasesPassed}</span>
+                                        <span className="text-sm text-gray-500">test cases passed</span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="flex items-center gap-2">
+                                        <Code className="w-4 h-4" />
+                                        <span className='text-sm'>{submission.language}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-4 h-4" />
+                                        <span className="text-sm text-gray-600">
+                                            {new Date(submission.createdAt).toLocaleString()}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex gap-6">
-                                <div className="flex items-center gap-2">
-                                    <Code className="w-4 h-4" />
-                                    <span className='text-sm'>{submission.language}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4" />
-                                    <span className="text-sm text-gray-600">
-                                        {new Date(submission.createdAt).toLocaleString()}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+            <CodeViewDialog
+                isOpen={!!selectedSubmission}
+                onClose={() => setSelectedSubmission(undefined)}
+                code={selectedSubmission?.code || ''}
+                language={selectedSubmission?.language || 'javascript'}
+                timestamp={selectedSubmission?.createdAt || ''}
+            />
+        </>
+
     );
 };
 
