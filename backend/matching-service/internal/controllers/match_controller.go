@@ -60,8 +60,7 @@ func findIntersection(a, b []string) []string {
 	intersection := []string{}
 
 	for _, item := range a {
-		set[item] 
-		= true
+		set[item] = true
 	}
 	for _, item := range b {
 		if set[item] {
