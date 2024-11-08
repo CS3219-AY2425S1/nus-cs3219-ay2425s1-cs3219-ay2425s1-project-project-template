@@ -8,6 +8,7 @@ import {
   fetchQuestionByTitle as fetchQuestionByTitleService,
   fetchAllTopics as fetchAllTopicsService,
   fetchRandomQuestionByTopic as fetchRandomQuestionByTopicService,
+  fetchQuestionMetadata as fetchQuestionMetadataService,
   fetchFilteredQuestionsService,
 } from '../service/question-service';
 
@@ -122,6 +123,21 @@ export async function fetchRandomQuestionByTopic(req: Request, res: Response) {
         handleError(error, res);
     }
 }
+
+export async function fetchQuestionMetadata(req: Request, res: Response) {
+    try {
+        const { questionTitle } = req.query;
+        const questionMetadata = await fetchQuestionMetadataService(questionTitle as string);
+        if (questionMetadata) {
+            res.status(200).json(questionMetadata);
+        } else {
+            res.status(404).json({ message: 'Question metadata not found' });
+        }
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
 export async function fetchQuestionByTopicAndDifficulty(req: Request, res: Response) {
     try {
         const { complexity, category } = req.query;

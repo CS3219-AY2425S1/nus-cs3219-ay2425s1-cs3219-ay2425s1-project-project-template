@@ -10,7 +10,7 @@ import { MatchDataResponse } from "../@types/match";
 import humanImage from "../assets/human.png";
 import LabelValue from "../components/LabelValue";
 import { useNavigate } from "react-router-dom";
-import { Question } from "../@types/question";
+import { Question, QuestionMetadata } from "../@types/question";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_WS_URL;
 
@@ -28,6 +28,7 @@ const MatchSelection = () => {
   const socketRef = useRef<any>(null);
   const navigate = useNavigate();
   const [question, setQuestion] = useState<Question | null>(null);
+  const [questionMetadata, setQuestionMetadata] = useState<QuestionMetadata | null>(null);
   const [noQuestionsAvailable, setNoQuestionsAvailable] = useState<boolean>(false);
 
   useEffect(() => {
@@ -109,6 +110,7 @@ const MatchSelection = () => {
       setNoMatchFound(false);
       setRoomId(matchData.roomId);
       setQuestion(matchData.question);
+      setQuestionMetadata(matchData.questionMetadata);
 
       // setTimeout(async() => navigate(`/collaboration/${matchData.roomId}`), 5000)
       socketRef.current.disconnect();
@@ -162,6 +164,7 @@ const MatchSelection = () => {
           navigate(`/collaboration/${roomId}`, {
         state: {
           question: question,
+          questionMetadata: questionMetadata
         },
       });
     console.log("Room Joined");

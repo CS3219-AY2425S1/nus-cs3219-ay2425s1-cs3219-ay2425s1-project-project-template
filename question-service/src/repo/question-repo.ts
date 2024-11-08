@@ -1,4 +1,5 @@
 import questionModel from "../model/question-model";
+import questionMetadataModel from "../model/question-metadata-model";
 import "dotenv/config";
 import { connect } from "mongoose";
 
@@ -108,4 +109,16 @@ export async function getQuestionsByTopic(topic: string, complexity: string) {
         console.error("Error fetching questions:", error);
         throw new Error("Unable to fetch questions.");
       }
+}
+
+export async function getQuestionMetadata(questionTitle: string) {
+    try {
+        const questionMetadata = await questionMetadataModel.find({ 
+            questionTitle: questionTitle
+        });
+        return questionMetadata
+    } catch (error) {
+        console.error("Error fetching question metadata:", error);
+        throw new Error("Unable to fetch question metadata");
+    }
 }

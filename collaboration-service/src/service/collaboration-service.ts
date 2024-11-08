@@ -1,22 +1,35 @@
 import { Socket } from "socket.io";
 import Redis from "ioredis";
-import { executeCode } from "./code-execution-service";
-import axios from 'axios';
+import {
+  executeCodeWithTestCases,
+  executeCode,
+} from "./code-execution-service";
+import axios from "axios";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
-const QUESTION_SERVICE_URL = process.env.QUESTION_SERVICE_URL || "http://localhost:3002";
+const QUESTION_SERVICE_URL =
+  process.env.QUESTION_SERVICE_URL || "http://localhost:3002";
 const redis = new Redis(REDIS_URL);
 
 // Map to track users in each collaboration room
 const roomUsers: { [roomId: string]: string[] } = {};
 
 // Map to store socket IDs to user information
-const socketUserInfo: { [socketId: string]: { userName: string; userId: string; questionId: string; token: string } } = {};
+const socketUserInfo: {
+  [socketId: string]: {
+    userName: string;
+    userId: string;
+    questionId: string;
+    token: string;
+  };
+} = {};
 
 // Map to track all users who have ever been in each collaboration room
 const roomUserHistory: { [roomId: string]: Set<string> } = {};
 const sessionStartTime: { [socketId: string]: number } = {}; // Stores the start time in milliseconds
-export async function joinCollaborationRoom(socket: Socket, {
+export async function joinCollaborationRoom(
+  socket: Socket,
+  {
     roomId,
     userName,
     userId,
@@ -54,7 +67,7 @@ export async function joinCollaborationRoom(socket: Socket, {
 
   console.log(`Current users in room ${roomId}:`, roomUsers[roomId]);
 
-  const existingCode = await redis.get(`collab:${roomId}:code`) || "";
+  const existingCode = (await redis.get(`collab:${roomId}:code`)) || "";
 
   const existingOutput = await redis.get(`collab:${roomId}:output`);
 
@@ -73,19 +86,31 @@ export async function joinCollaborationRoom(socket: Socket, {
   callback({ success: true });
 }
 
-
-export async function handleCodeUpdates(socket: Socket, { roomId, code }: { roomId: string; code: string }) {
+export async function handleCodeUpdates(
+  socket: Socket,
+  { roomId, code }: { roomId: string; code: string }
+) {
   await redis.set(`collab:${roomId}:code`, code, "EX", 3600);
   socket.to(roomId).emit("code_update", { code });
 }
-export async function handleSendMessage(socket: Socket, { roomId, userName, message }: {roomId: string; userName: string; message: string}) {
+export async function handleSendMessage(
+  socket: Socket,
+  {
+    roomId,
+    userName,
+    message,
+  }: { roomId: string; userName: string; message: string }
+) {
   const chatMessage = { userName, message, timestamp: Date.now() };
   console.log(`User ${userName} sent a message in room ${roomId}`);
   await redis.rpush(`chat:${roomId}`, JSON.stringify(chatMessage));
-  socket.to(roomId).emit("receive_message", chatMessage);  
+  socket.to(roomId).emit("receive_message", chatMessage);
 }
 
-export async function handleLeaveRoom(socket: Socket, { roomId, codeContent }: { roomId: string, codeContent: string }) {
+export async function handleLeaveRoom(
+  socket: Socket,
+  { roomId, codeContent }: { roomId: string; codeContent: string }
+) {
   socket.leave(roomId);
 
   const userInfo = socketUserInfo[socket.id];
@@ -94,7 +119,10 @@ export async function handleLeaveRoom(socket: Socket, { roomId, codeContent }: {
     return;
   }
   const { userName, userId, questionId, token } = userInfo;
-  console.log(`User ${userName} left room ${roomId} with final code content:`, codeContent);
+  console.log(
+    `User ${userName} left room ${roomId} with final code content:`,
+    codeContent
+  );
 
   // Calculate time taken in seconds
   const endTime = Date.now();
@@ -129,7 +157,7 @@ export async function handleLeaveRoom(socket: Socket, { roomId, codeContent }: {
   let peerUserName: string | undefined;
 
   if (peerUserNames.length > 0) {
-    peerUserName = peerUserNames[0]; 
+    peerUserName = peerUserNames[0];
   } else {
     peerUserName = undefined;
   }
@@ -161,7 +189,6 @@ export async function handleLeaveRoom(socket: Socket, { roomId, codeContent }: {
       `Error sending attempt data to question-service:`,
       error.message
     );
-    
   }
 
   // Notify the remaining user
@@ -177,12 +204,44 @@ export async function handleLeaveRoom(socket: Socket, { roomId, codeContent }: {
   }
 }
 
-export async function handleRunCode(socket: Socket, { roomId, code, language }: { roomId: string; code: string; language: string }) {
+interface TestTemplateCode {
+  python: string;
+  java: string;
+  javascript: string;
+}
+
+export async function handleRunCode(
+  socket: Socket,
+  {
+    roomId,
+    code,
+    language,
+    testCases,
+    testTemplateCode,
+  }: {
+    roomId: string;
+    code: string;
+    language: string;
+    testCases: Array<{ input: any[]; output: any[] }> | null;
+    testTemplateCode: TestTemplateCode | null;
+  }
+) {
   socket.to(roomId).emit("code_execution_started");
   socket.emit("code_execution_started");
 
   try {
-    const output = await executeCode(code, language);
+    let output;
+
+    if (!testCases || !testTemplateCode) {
+      output = await executeCode(code, language);
+    } else {
+      output = await executeCodeWithTestCases(
+        code,
+        language,
+        testCases,
+        testTemplateCode
+      );
+    }
 
     await redis.set(`collab:${roomId}:output`, output, "EX", 3600);
 
@@ -199,7 +258,10 @@ export async function handleRunCode(socket: Socket, { roomId, code, language }: 
   }
 }
 
-export async function changeLanguage(socket: Socket, { roomId, newLanguage }: { roomId: string; newLanguage: string }) {
+export async function changeLanguage(
+  socket: Socket,
+  { roomId, newLanguage }: { roomId: string; newLanguage: string }
+) {
   await redis.set(`collab:${roomId}:language`, newLanguage, "EX", 3600);
   socket.to(roomId).emit("change_language", { newLanguage });
 }

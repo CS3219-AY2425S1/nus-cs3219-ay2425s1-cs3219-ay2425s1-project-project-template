@@ -9,6 +9,7 @@ import {
   fetchAllTopics,
   fetchRandomQuestionByTopic,
   fetchQuestionByTopicAndDifficulty,
+  fetchQuestionMetadata
 } from '../controller/question-controller';  // Import your controller methods
 import { authenticateJWT, isAdmin } from '../middleware/auth-middleware';  // Import the middleware
 
@@ -41,7 +42,6 @@ router.delete('/questions/:id', authenticateJWT, isAdmin, removeQuestionById);
 
 router.get('/question', fetchRandomQuestionByTopic)
 
-
-
+router.get('/question-metadata', fetchQuestionMetadata)
 
 export default router;
