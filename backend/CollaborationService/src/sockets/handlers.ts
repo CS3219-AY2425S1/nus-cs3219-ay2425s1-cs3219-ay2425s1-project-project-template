@@ -26,8 +26,8 @@ export const initialiseCollaborationSockets = (io : Server) => {
             socket.to(roomID).emit("sync-code", edittedCode);
         })
 
-        socket.on("console-change", (roomId: string, qid: Number, consoleContent: Array<string>) => {
-            socket.nsp.to(roomId).emit("sync-console", qid, consoleContent);
+        socket.on("console-change", (roomId: string, consoleContent: string, error: boolean) => {
+            socket.nsp.to(roomId).emit("sync-console", consoleContent, error);
         })
 
         socket.on("console-load", (roomId: string, isLoading: boolean) => {

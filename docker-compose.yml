@@ -108,8 +108,8 @@ services:
 
   code-execution-service:
     build:
-      target: ${BUILD_ENV}
       context: ./backend/CodeExecutionService
+      target: ${BUILD_ENV}
     ports:
       - ${CODE_EXECUTION_SVC_PORT}:${CODE_EXECUTION_SVC_PORT}
     environment:
@@ -117,7 +117,7 @@ services:
       - CODE_EXECUTION_SVC_PORT=${CODE_EXECUTION_SVC_PORT}
     volumes:
       - ./backend/CodeExecutionService:/app
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /app/node_modules
   
   history-service:
     build:

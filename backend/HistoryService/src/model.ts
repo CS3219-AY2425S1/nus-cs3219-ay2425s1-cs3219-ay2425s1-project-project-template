@@ -15,7 +15,23 @@ const historySchema = new Schema({
     type: Number,
     required: true,
   },
-})
+  language: {
+    type: String,
+    required: true,
+  },
+  code: {
+    type: String,
+    required: true,
+  },
+  output: {
+    type: String,
+    required: true,
+  },
+  error: {
+    type: Boolean,
+    default: false
+  }
+});
 historySchema.index({ userId: 1, timestamp: 1 }, { unique: true });
 
 type Attempt = InferSchemaType<typeof historySchema>;
