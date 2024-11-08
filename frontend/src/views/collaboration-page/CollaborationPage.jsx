@@ -19,7 +19,7 @@ const CollaborationPage = () => {
         'python': "# YOUR FUNCTION BELOW\n\n# YOUR FUNCTION ABOVE\n\n\n# for testing\nprint('''put your function with parameters here''')"
     }
 
-    const [content, setContent] = useState(''); // actual content to be displayed
+    const [content, setContent] = useState(templateMap['javascript']); // actual content to be displayed
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
     const { roomId } = useParams();
     const [question, setQuestion] = useState(null);
@@ -158,8 +158,7 @@ const CollaborationPage = () => {
         const selectedLanguage = newLanguage.target.value
         setLanguage(selectedLanguage);
 
-        const savedSnippet = localStorage.getItem(`codeSnippet-${selectedLanguage}`) || '';
-        setContent(savedSnippet) 
+        const savedSnippet = localStorage.getItem(`codeSnippet-${selectedLanguage}`) || templateMap[String(selectedLanguage)];
 
         console.log('Language change: ', selectedLanguage);
         socketRef.current.emit('editLanguage', { roomId, language: selectedLanguage });
@@ -214,7 +213,6 @@ const CollaborationPage = () => {
                             setCurrentCode={handleEditorChange}
                         />
 
-                        {/* NEW CODE */}
                         <button onClick={executeCode} className={styles.runCodeButton}>Run Code</button>
                         <p className={styles.outputBox}><b>Output:</b> {executionResult}</p>
                     </div>
