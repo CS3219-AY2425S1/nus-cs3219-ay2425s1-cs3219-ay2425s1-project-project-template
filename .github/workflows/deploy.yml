@@ -1,7 +1,9 @@
 name: CI/CD - Build and Deploy
 
 on:
-  workflow_dispatch
+  push:
+    branches:
+      - kubernetes-config
 
 jobs:
   ci:
