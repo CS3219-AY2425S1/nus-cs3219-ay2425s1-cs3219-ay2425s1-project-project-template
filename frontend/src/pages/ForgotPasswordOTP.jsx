@@ -16,7 +16,7 @@ const ForgotPasswordOTP = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3001/auth/forgot-password/confirm-otp",
+        "http://localhost:3001/auth/forget-password/confirm-otp",
         {
           email,
           otp,
@@ -39,7 +39,7 @@ const ForgotPasswordOTP = () => {
     setIsResending(true);
     try {
       const response = await axios.post(
-        "http://localhost:3001/auth/forgot-password/resend-otp",
+        "http://localhost:3001/auth/forget-password/resend-otp",
         {
           email,
         }
