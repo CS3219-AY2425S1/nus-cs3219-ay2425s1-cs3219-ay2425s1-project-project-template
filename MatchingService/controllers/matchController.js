@@ -4,7 +4,7 @@ import QueueModel from '../models/queue-model.js';
 const { addMatchRequest, cancelMatchRequest, processMatchQueue } = matchService;
 const { isUserInQueue } = QueueModel;
 
-const VITE_USER_SERVICE_API = 'http://user-service:3001' || 'http://localhost:3001';
+const VITE_USER_SERVICE_API = process.env.USER_SERVICE_URL || 'http://user-service:3001';
 
 /* Verify user's token */
 async function verifyUser(token) {
@@ -36,9 +36,13 @@ async function verifyUser(token) {
 async function handleMatchRequest(req, res) {
     console.log("Cookies:", req.cookies);
     const token = req.cookies.accessToken;
-    // if (!await verifyUser(token)) {
-    //     return res.status(401).json({ message: "Authentication failed" });
-    // }
+
+    if (!process.env.USER_SERVICE_URL) {
+        if (!await verifyUser(token)) {
+            return res.status(401).json({ message: "Authentication failed" });
+        }
+    }
+
     const { userId, topic, difficulty, socketId } = req.body;
     if (await isUserInQueue(userId)) {
         return res.status(400).json({ message: "User is already in the queue" });
@@ -55,9 +59,12 @@ async function handleMatchRequest(req, res) {
 
 async function cancelRequest(req, res) {
     const token = req.cookies.accessToken;
-    // if (!await verifyUser(token)) {
-    //     return res.status(401).json({ message: "Authentication failed" });
-    // }
+    if (!process.env.USER_SERVICE_URL) {
+        if (!await verifyUser(token)) {
+            return res.status(401).json({ message: "Authentication failed" });
+        }
+    }
+
     const { userId } = req.body;
 
     console.log("Checking if user ", userId, " is in the queue", " ", await isUserInQueue(userId));

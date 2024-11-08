@@ -21,3 +21,5 @@ spec:
         env:
         - name: FRONTEND_URL 
           value: "http://34.101.228.125"
+        - name: USER_SERVICE_URL
+          value: "http://user-service:3001"
