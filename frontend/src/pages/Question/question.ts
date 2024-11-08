@@ -4,6 +4,7 @@ export interface Question {
   description: string;
   complexity: string;
   categories: string[];
+  attempted: string;
 };
 
 export const complexities = ["Easy", "Medium", "Hard"];
