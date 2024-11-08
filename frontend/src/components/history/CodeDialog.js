@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ReactMarkdown from 'react-markdown';
 import Monaco from "@monaco-editor/react";
 
-const CodeDialog = ({ open, onClose, question, solution }) => {
+const CodeDialog = ({ open, onClose, question, solution, language }) => {
   if (!question) return null;
 
   return (
@@ -100,7 +100,7 @@ const CodeDialog = ({ open, onClose, question, solution }) => {
         <Monaco
           height="100%"
           width="50%"
-          language="python"
+          language={language || 'python'} // default to python
           theme="vs-dark"
           value={solution}
           options={{

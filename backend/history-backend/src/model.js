@@ -30,7 +30,12 @@ const HistoryModelSchema = new Schema({
     type: String,
     required: true,
     default: '',
-  }
+  },
+  language: {
+    type: String,
+    required: true,
+    default: 'python',
+  },
 });
 
 export default mongoose.model("history", HistoryModelSchema);
