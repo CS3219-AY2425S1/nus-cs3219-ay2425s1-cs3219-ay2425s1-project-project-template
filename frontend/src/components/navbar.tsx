@@ -5,9 +5,19 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/authContext';
 import classnames from 'classnames'
 import { CodeXml } from 'lucide-react';
-
+import { useRouter } from 'next/navigation';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const Navbar: React.FC = () => {
+    const router = useRouter();
     const currentPath = usePathname();
 
     // Routes for those who are logged in
@@ -24,8 +34,31 @@ const Navbar: React.FC = () => {
         { label: 'Login', href: '/login' },
     ];
 
-    
+    const navigateToProfile = () => {
+        router.push('/profile')
+    }
+
     const { isAuthenticated, refreshAuth } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/users/logout`, {
+                method: 'POST',
+                credentials: 'include', // Include cookies
+            });
+
+            if (response.ok) {
+                // refresh authentication status
+                await refreshAuth();
+                // redirect to home page
+                router.push('/');
+            } else {
+                console.error('Failed to log out.');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     return (
         <nav className="bg-violet-800 w-full p-2 top-0">
@@ -63,9 +96,27 @@ const Navbar: React.FC = () => {
                                 Practice
                                 {/* button to call API and brings out matching component*/}
                             </button>
-                            <Link href="/profile">
-                                <div className="w-10 h-10 rounded-full bg-white mx-4 cursor-pointer hover:bg-gray-200 transition-colors"></div>
-                            </Link>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <div className="w-10 h-10 rounded-full bg-white mx-4 cursor-pointer hover:bg-gray-200 transition-colors"></div>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56">
+                                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem className="cursor-pointer" onSelect={navigateToProfile}>
+                                            Profile
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer" onSelect={navigateToProfile}>
+                                            History
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>
+                                        Log out
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </>
                     ) : (
                         <>

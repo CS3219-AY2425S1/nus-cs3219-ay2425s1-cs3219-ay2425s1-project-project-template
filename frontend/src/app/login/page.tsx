@@ -15,8 +15,8 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // If already authenticated, redirect to dashboard
-      router.push('/dashboard');
+      // If already authenticated, redirect to explore
+      router.push('/explore');
     }
   }, [isAuthenticated, router]);
 
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
 
       if (response.ok) {
         await refreshAuth(); 
-        router.push('/dashboard'); // redirect to dashboard
+        router.push('/explore'); // redirect to explore
       } else {
         setError(data.message || 'Login failed. Please try again.');
       }

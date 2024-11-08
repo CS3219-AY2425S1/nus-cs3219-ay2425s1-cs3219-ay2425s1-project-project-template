@@ -117,6 +117,23 @@ services:
       - NODE_ENV=development
     networks:
       - peerprep-network
+  
+  history_service:
+    build:
+      context: ./backend/history-service
+      dockerfile: Dockerfile
+    ports:
+      - "5006:5006"
+    env_file:
+      - ./backend/history-service/.env
+    volumes:
+      - ./backend/history-service:/app
+      - history-service-node-modules:/app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      - NODE_ENV=development
+    networks:
+      - peerprep-network
 
 networks:
   peerprep-network:
@@ -136,4 +153,6 @@ volumes:
   rabbitmq-data:
     driver: local
   code-execution-service-node-modules:
+    driver: local
+  history-service-node-modules:
     driver: local

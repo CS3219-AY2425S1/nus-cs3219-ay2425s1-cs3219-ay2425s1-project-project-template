@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import QuestionTable from "../problems/components/QuestionTable";
 import MatchingFilters from "./components/MatchingFilters";
+import { Notebook } from 'lucide-react';
 
 export default function ExplorePage() {
     const [questions, setQuestions] = useState([]);
@@ -26,14 +27,18 @@ export default function ExplorePage() {
     return (
         <section className="flex flex-grow justify-center">
             <div className="flex-col h-full py-12 w-5/6 2xl:w-3/5 space-y-8">
-                <div className="border-2 rounded-lg">
+                <div className="shadow-lg rounded-lg">
                     <MatchingFilters />
                 </div>
                 <div className="flex flex-grow gap-8">
-                    <div className="w-2/3 border-2 rounded-lg space-y-4">
+                    <div className="w-2/3 shadow-lg rounded-lg space-y-4 p-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Notebook size={20} />
+                            <h2 className="text-md font-semibold">Questions</h2>
+                        </div>
                         <QuestionTable questions={questions} isAdmin={false}/>
                     </div>
-                    <div className="flex-1 border-2 rounded-lg">Suggested</div>
+                    <div className="flex-1 shadow-lg rounded-lg">Suggested</div>
                 </div>
             </div>
         </section>

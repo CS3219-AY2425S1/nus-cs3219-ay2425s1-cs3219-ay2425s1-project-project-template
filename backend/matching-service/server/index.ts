@@ -6,7 +6,7 @@ import { connectToDatabase } from './db'
 import { sendMatchingRequest } from '../producer/producer'
 import { activeMatches, startConsumer } from '../consumer/consumer'
 import logger from '../utils/logger'
-import { parseBody, sendResponse, addMatch, updateMatch } from '../utils/utils'
+import { parseBody, sendResponse, addMatch, updateMatch, getMatch, getMatchesWithUser } from '../utils/utils'
 
 dotenv.config({ path: './.env' })
 
@@ -21,6 +21,32 @@ const httpServer = createServer(async (req, res) => {
             sendResponse(res, status, { message: message })
         } catch (e) {
             sendResponse(res, 500, { message: 'Error updating match' })
+        }
+    } else if (req.method == 'GET' && req.url?.startsWith('/get-user-match-history')) {
+        try {
+            const userId = req.url.split('/')[2]
+            const { status, data, message } = await getMatchesWithUser(userId)
+
+            if (status == 200) {
+                sendResponse(res, status, { data })
+            } else {
+                sendResponse(res, status, { message })
+            }
+        } catch (e) {
+            sendResponse(res, 500, { message: 'Error fetching past successful matches' })
+        }
+    } else if (req.method == 'GET' && req.url?.startsWith('/get-user-match')) {
+        try {
+            const matchId = req.url.split('/')[2]
+            const { status, data, message } = await getMatch(matchId)
+            
+            if (status == 200) {
+                sendResponse(res, status, { data })
+            } else {
+                sendResponse(res, status, { message })
+            }
+        } catch (e) {
+            sendResponse(res, 500, { message: 'Error creating room' })
         }
     }
 })

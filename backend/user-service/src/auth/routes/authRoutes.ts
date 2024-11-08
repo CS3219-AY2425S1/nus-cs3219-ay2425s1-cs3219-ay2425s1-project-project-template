@@ -6,6 +6,8 @@ import { authStatusController } from '../controllers/checkAuthStatusController';
 import { getUserProfile } from '../controllers/getUserProfileController';
 import { authenticateAdmin } from '../../middleware/authAdminMiddleware';
 import { checkAdminController } from '../controllers/checkAdminController';
+import { getUserById } from '../controllers/getUserByIdController';
+
 const router = express.Router();
 
 /**
@@ -25,6 +27,8 @@ router.post('/logout', authenticate, (req: AuthenticatedRequest, res: express.Re
     });
     res.status(200).json({ message: 'Logged out successfully.' });
 });
+
+router.get('/get-user/:userId', getUserById);
 
 // GET /api/users/status
 // Checks whether the user is signed in (whether the cookie is valid/present)
