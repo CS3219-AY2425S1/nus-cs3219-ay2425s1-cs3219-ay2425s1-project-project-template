@@ -1,6 +1,4 @@
 import { Socket } from 'socket.io';
-import Redis from "ioredis";
-import axios from "axios";
 import { executeCode, executeCodeWithTestCases } from './code-execution-service';
 import {
   JoinCollabData,
