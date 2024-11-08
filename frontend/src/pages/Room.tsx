@@ -90,13 +90,6 @@ function Room() {
     requestMediaPermissions();
   }, []);
 
-  // useEffect(() => {
-  //   if (!loading && communicationSocketRef.current !== null) {
-  //     console.log('Emitting ready-to-call');
-  //     communicationSocketRef.current.emit('ready-to-call');
-  //   }
-  // }, [loading, communicationSocketRef.current]);
-
   useEffect(() => {
     if (loading || !sessionData) {
       return;
@@ -357,14 +350,10 @@ function Room() {
   };
 
   const handleReadyToCall = async (user: string) => {
-    if (
-      peerConnectionRef.current &&
-      communicationSocketRef.current &&
-      user !== userId
-    ) {
+    if (peerConnectionRef.current && user !== userId) {
       const offer = await peerConnectionRef.current.createOffer();
       await peerConnectionRef.current.setLocalDescription(offer);
-      communicationSocketRef.current.emit('offer', offer);
+      communicationSocketRef.current?.emit('offer', offer);
     }
   };
 
@@ -391,7 +380,18 @@ function Room() {
 
   const handleUserLeft = () => {
     setRemoteStream(null); // Reset the remote video
+    resetPeerConnection(); // Reset the peer connection
   };
+
+  const resetPeerConnection = () => {
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.onicecandidate = null;
+      peerConnectionRef.current.ontrack = null;
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    setupPeerConnection();  // Re-setup a new peer connection
+  };  
 
   const handleCloseModal = () => {
     closeModal();
