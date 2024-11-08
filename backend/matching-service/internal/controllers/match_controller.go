@@ -170,7 +170,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				UserTwo:         matchedUser.UserID,   
 				UsernameTwo:     matchedUser.Username,
 				RoomID:          roomID,                
-				ProgrammingLanguages: matchedUser.ProgrammingLanguages,
+				ProgrammingLanguages: matchedUser.ProgrammingLanguages[0],
 				Complexity:      complexityIntersection, 
 				Categories:      categoriesIntersection, 
 				Question:        models.Question{},      
