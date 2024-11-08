@@ -77,7 +77,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
     const [submissions, setSubmissions] = useState<Submission[]>([])
     const [match, setMatch] = useState<PastMatch>()
     const [question, setQuestion] = useState<Question>()
-    const [peer, setPeer] = useState()
+    const [peerName, setPeerName] = useState()
     const [isLoading, setIsLoading] = useState(false)
 
     const fetchQuestionData = async (questionId: string) => {
@@ -127,26 +127,27 @@ export default function MatchDetailsPage({ params }: PageProps) {
             const submissions = await responseSubmission.json()
             console.log("Submissions fetched", submissions)
 
-            // const peerId = match.data.collaborators.find((collaborator: { id: string }) => user && collaborator.id !== user.id)?.id || ''
-            // const responsePeer = await fetch(`http://localhost:5006/collaborators/${peerId}`,
-            //     {
-            //         method: 'GET',
-            //         next: { revalidate: 60 },
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         }
-            //     }
-            // )
-            // if (!responsePeer.ok) {
-            //     throw new Error('Failed to fetch peer')
-            // }
-            // const peer = await responsePeer.json()
-            // console.log("Peer fetched")
-
             await fetchQuestionData(match.data.questionId)
             setMatch(match.data)
             setSubmissions(submissions)
-            // setPeer(peer)
+
+            const peerId = match.data.collaborators[0] != user?.id? match.data.collaborators[0] : match.data.collaborators[1]
+            const responsePeer = await fetch(`http://localhost:5006/collaborators/${peerId}`,
+                {
+                    method: 'GET',
+                    next: { revalidate: 60 },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            )
+            if (!responsePeer.ok) {
+                throw new Error('Failed to fetch peer')
+            }
+            const peer = await responsePeer.json()
+            console.log(`Peer fetched: ${peer.user}`)
+
+            setPeerName(peer.user.name)
         } catch (err) {
             console.log("Error", err)
         } finally {
@@ -190,7 +191,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
                             <div className="flex flex-col gap-2 mt-2">
                                 <div className="flex items-center gap-2">
                                     <User className="w-4 h-4" />
-                                    <span className="text-sm text-gray-600">Collaborator: {match?.collaborators}</span>
+                                    <span className="text-sm text-gray-600">Collaborator: {peerName}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Clock className="w-4 h-4" />
