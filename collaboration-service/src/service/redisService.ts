@@ -10,7 +10,7 @@ export class RedisService {
   }
 
   async getCode(roomId: string): Promise<string> {
-    return (await this.redisClient.get(`collab:${roomId}:code`)) || '';
+    return (await this.redisClient.get(`collab:${roomId}:code`)) || "";
   }
 
   async setCode(roomId: string, code: string): Promise<void> {

@@ -38,12 +38,21 @@ export interface UserInfo {
     codeContent: string;
   }
   
+  interface TestTemplateCode {
+    python: string;
+    java: string;
+    javascript: string;
+  }
+
   export interface RunCodeData {
     roomId: string;
     code: string;
     language: string;
+    testCases: Array<{ input: any[]; output: any[] }> | null;
+    testTemplateCode: TestTemplateCode | null;
   }
-  
+
+
   export interface ChangeLanguageData {
     roomId: string;
     newLanguage: string;

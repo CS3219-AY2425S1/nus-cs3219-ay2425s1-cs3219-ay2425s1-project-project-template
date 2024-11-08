@@ -1,49 +1,7 @@
-import { Socket } from "socket.io";
-import Redis from "ioredis";
-import {
-  executeCodeWithTestCases,
-  executeCode,
-} from "./code-execution-service";
-import axios from "axios";
-
-const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
-const QUESTION_SERVICE_URL =
-  process.env.QUESTION_SERVICE_URL || "http://localhost:3002";
-const redis = new Redis(REDIS_URL);
-
-// Map to track users in each collaboration room
-const roomUsers: { [roomId: string]: string[] } = {};
-
-// Map to store socket IDs to user information
-const socketUserInfo: {
-  [socketId: string]: {
-    userName: string;
-    userId: string;
-    questionId: string;
-    token: string;
-  };
-} = {};
-
-// Map to track all users who have ever been in each collaboration room
-const roomUserHistory: { [roomId: string]: Set<string> } = {};
-const sessionStartTime: { [socketId: string]: number } = {}; // Stores the start time in milliseconds
-export async function joinCollaborationRoom(
-  socket: Socket,
-  {
-    roomId,
-    userName,
-    userId,
-    questionId,
-    token,
-  }: {
-    roomId: string;
-    userName: string;
-    userId: string;
-    questionId: string;
-    token: string;
-  },
 import { Socket } from 'socket.io';
-import { executeCode } from './code-execution-service';
+import Redis from "ioredis";
+import axios from "axios";
+import { executeCode, executeCodeWithTestCases } from './code-execution-service';
 import {
   JoinCollabData,
   CodeUpdateData,
@@ -59,6 +17,8 @@ import { sendAttemptData } from './attemptService';
 
 const redisService = new RedisService();
 const stateManager = new StateManager();
+const QUESTION_SERVICE_URL = process.env.QUESTION_SERVICE_URL || "http://localhost:3002";
+
 
 export async function joinCollaborationRoom(
   socket: Socket,
@@ -185,30 +145,10 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
   stateManager.removeUserFromRoom(socket.id, roomId);
 }
 
-interface TestTemplateCode {
-  python: string;
-  java: string;
-  javascript: string;
-}
-
-export async function handleRunCode(
-  socket: Socket,
-  {
-    roomId,
-    code,
-    language,
-    testCases,
-    testTemplateCode,
-  }: {
-    roomId: string;
-    code: string;
-    language: string;
-    testCases: Array<{ input: any[]; output: any[] }> | null;
-    testTemplateCode: TestTemplateCode | null;
-  }
-) {
-  socket.to(roomId).emit("code_execution_started");
-  socket.emit("code_execution_started");
+export async function handleRunCode(socket: Socket, data: RunCodeData) {
+  const { roomId, code, language, testCases, testTemplateCode } = data;
+  socket.to(roomId).emit('code_execution_started');
+  socket.emit('code_execution_started');
 
   try {
     let output;
@@ -224,8 +164,7 @@ export async function handleRunCode(
       );
     }
 
-    await redis.set(`collab:${roomId}:output`, output, "EX", 3600);
-
+    await redisService.setOutput(roomId, output);
     socket.to(roomId).emit("code_result", { output });
     socket.emit("code_result", { output });
   } catch (error) {
@@ -239,10 +178,8 @@ export async function handleRunCode(
   }
 }
 
-export async function changeLanguage(
-  socket: Socket,
-  { roomId, newLanguage }: { roomId: string; newLanguage: string }
-) {
-  await redis.set(`collab:${roomId}:language`, newLanguage, "EX", 3600);
-  socket.to(roomId).emit("change_language", { newLanguage });
+export async function changeLanguage(socket: Socket, data: ChangeLanguageData) {
+  const { roomId, newLanguage } = data;
+  await redisService.setLanguage(roomId, newLanguage);
+  socket.to(roomId).emit('change_language', { newLanguage });
 }
