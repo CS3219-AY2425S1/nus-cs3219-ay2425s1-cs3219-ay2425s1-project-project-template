@@ -13,3 +13,18 @@ export interface CreateQuestionFormData {
   categories: string[];
   categoryInput: string;
 }
+
+export interface QuestionMetadata {
+  questionId: string;
+  templateCode: {
+    python: string;
+    java: string;
+    javascript: string;
+    c: string;
+    cpp: string;
+  };
+  testCases: Array<{
+    input: any;
+    output: any;
+  }>;
+}

@@ -1,4 +1,4 @@
-import { saveQuestion, getQuestions, getQuestionById, updateQuestionById, deleteQuestionById, getQuestionByTitle, getTotalQuestions, getAllTopics, getQuestionsByTopic } from '../repo/question-repo';
+import { saveQuestion, getQuestions, getQuestionById, updateQuestionById, deleteQuestionById, getQuestionByTitle, getTotalQuestions, getAllTopics, getQuestionsByTopic, getQuestionMetadata } from '../repo/question-repo';
 
 export async function createQuestion(questionData: any) {
     if (!questionData.title || !questionData.description) {
@@ -111,4 +111,7 @@ export async function fetchRandomQuestionByTopic(topic: string, complexity: stri
     return randomQuestion;
 }
 
-
+export async function fetchQuestionMetadata(questionTitle: string) {
+    const questionMetadata = await getQuestionMetadata(questionTitle);
+    return questionMetadata;
+}

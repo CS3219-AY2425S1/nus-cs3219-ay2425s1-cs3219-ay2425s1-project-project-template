@@ -7,7 +7,8 @@ import {
   removeQuestionById as removeQuestionByIdService,
   fetchQuestionByTitle as fetchQuestionByTitleService,
   fetchAllTopics as fetchAllTopicsService,
-  fetchRandomQuestionByTopic as fetchRandomQuestionByTopicService
+  fetchRandomQuestionByTopic as fetchRandomQuestionByTopicService,
+  fetchQuestionMetadata as fetchQuestionMetadataService
 } from '../service/question-service';
 
 // Helper function to handle and format errors properly
@@ -114,6 +115,20 @@ export async function fetchRandomQuestionByTopic(req: Request, res: Response) {
             res.status(200).json(question);
         } else {
             res.status(404).json({ message: 'Question not found' });
+        }
+    } catch (error) {
+        handleError(error, res);
+    }
+}
+
+export async function fetchQuestionMetadata(req: Request, res: Response) {
+    try {
+        const { questionTitle } = req.query;
+        const questionMetadata = await fetchQuestionMetadataService(questionTitle as string);
+        if (questionMetadata) {
+            res.status(200).json(questionMetadata);
+        } else {
+            res.status(404).json({ message: 'Question metadata not found' });
         }
     } catch (error) {
         handleError(error, res);
