@@ -43,7 +43,7 @@ const VideoPanel = () => {
         audio: true,
       })
       .then((stream) => {
-        if (peerInstance) {
+        if (peerInstance && partnerId) {
           const call = peerInstance?.call(partnerId, stream);
           setCallInstance(call);
           setIsCalling(true); // Set isCalling as true since it is the initiator
