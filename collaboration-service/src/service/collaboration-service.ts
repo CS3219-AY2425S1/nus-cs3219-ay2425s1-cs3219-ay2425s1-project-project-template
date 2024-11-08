@@ -17,7 +17,6 @@ import { sendAttemptData } from './attemptService';
 
 const redisService = new RedisService();
 const stateManager = new StateManager();
-const QUESTION_SERVICE_URL = process.env.QUESTION_SERVICE_URL || "http://localhost:3002";
 
 
 export async function joinCollaborationRoom(
