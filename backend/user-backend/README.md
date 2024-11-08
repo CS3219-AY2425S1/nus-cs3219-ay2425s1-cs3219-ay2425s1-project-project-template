@@ -245,30 +245,6 @@
     | 404 (Not Found)             | User with the specified ID not found                    |
     | 500 (Internal Server Error) | Database or server error                                |
 
-
-### Resend email verification
-
-- This endpoint allows one to resend an email with a JWT token to activate the user's account.
-- HTTP Method: `POST`
-- Endpoint: http://localhost:3001/resend-verification
-- Body
-  - Required: one `email` (string)
-
-    ```json
-    {
-      "email": "example@gmail.com"
-    }
-    ```
- 
-- Responses:
-
-    | Response Code               | Explanation                             |
-    |-----------------------------|-----------------------------------------|
-    | 200 (OK)                    | Email successfully sent, or account already registered |
-    | 400 (Bad Request)           | Missing field for email                 |
-    | 404 (Account not found)     | Account associated with email not found |
-    | 500 (Internal Server Error) | Database or server error                |
-
 ### Login
 
 - This endpoint allows a user to authenticate with an email and password and returns a JWT access token. The token is valid for 1 day and can be used subsequently to access protected resources. For example usage, refer to the [Authorization header section in the Get User endpoint](#auth-header).
@@ -318,25 +294,131 @@
 
 ### Verify Email
 
-- This endpoint allows one to use a JWT token to verify an account's email associated with the token.
+- This endpoint allows one to use a JWT token to verify an account's email associated with the token. Upon successful verification, the respective account will either be activated (for new accounts) or updated with the new email address.
 - HTTP Method: `POST`
 - Endpoint: http://localhost:3001/auth/verify-email
-- Body
-  - Required: one `jwt verification token` (string)
-
-    ```json
-    {
-      "token": "abcdefghijk..."
-    }
-    ```
+- Headers
+  - Required: `Authorization: Bearer <JWT_VERIFICATION_TOKEN>`
+- Body: not required
  
 - Responses:
 
     | Response Code               | Explanation                             |
     |-----------------------------|-----------------------------------------|
     | 200 (OK)                    | Token verified, account activated       |
-    | 400 (Bad Request)           | Missing field for token                 |
-    | 401 (Unauthorized)          | Expired JWT token                       |
-    | 403 (Forbidden)             | Invalid JWT token or already used       |
+    | 400 (Bad Request)           | Missing token                           |
+    | 401 (Unauthorized)          | Expired token                           |
+    | 403 (Forbidden)             | Invalid token or already used           |
     | 404 (Account not found)     | Account associated with token not found |
     | 500 (Internal Server Error) | Database or server error                |
+
+### Verify Password Change
+
+- This endpoint allows one to use a JWT token to verify an account's password change. Upon successful verification, the account's password will be successfully updated.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/verify-password
+- Headers
+  - Required: `Authorization: Bearer <JWT_VERIFICATION_TOKEN>`
+- Body: not required
+ 
+- Responses:
+
+    | Response Code               | Explanation                             |
+    |-----------------------------|-----------------------------------------|
+    | 200 (OK)                    | Token verified                          |
+    | 400 (Bad Request)           | Missing token                           |
+    | 401 (Unauthorized)          | Expired token                           |
+    | 403 (Forbidden)             | Invalid token or already used           |
+    | 404 (Account not found)     | Account associated with token not found |
+    | 500 (Internal Server Error) | Database or server error                |
+
+### Resend email verification
+
+- This endpoint allows one to resend an email verification link.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/resend-verification
+- Body
+  - Required: one `email` (string)
+
+    ```json
+    {
+      "email": "example@gmail.com"
+    }
+    ```
+ 
+- Responses:
+    | 200 (OK)                    | Email successfully sent                 |
+    | 400 (Bad Request)           | Missing field for email                 |
+    | 404 (Account not found)     | Account associated with email not found |
+    | 500 (Internal Server Error) | Database or server error                |
+
+### Forget Password
+
+- This endpoint allows one to change password for an account without account authorization. Verification will be sent to the requested email before the password is successfully updated.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/forget-password
+- Body
+  - Required: one `email` (string) and one `password` (string)
+
+    ```json
+    {
+      "emai": "example@gmail.com",
+      "password": "abcd12345"
+    }
+    ```
+ 
+- Responses:
+    | Response Code               | Explanation                             |
+    |-----------------------------|-----------------------------------------|
+    | 200 (OK)                    | Verification sent                       |
+    | 400 (Bad Request)           | Missing fields or invalid password      |
+    | 404 (Account not found)     | Account associated with email not found |
+    | 500 (Internal Server Error) | Database or server error                |
+
+### Verify password change OTP
+
+- This endpoint allows one to verify the OTP for password change for account corresponding to the provided email.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/forget-password/confirm-otp
+- Body
+  - Required: one `email` (string) and one `otp` (string)
+
+    ```json
+    {
+      "emai": "example@gmail.com",
+      "otp": "169420"
+    }
+    ```
+ 
+- Responses:
+    | Response Code               | Explanation                             |
+    |-----------------------------|-----------------------------------------|
+    | 200 (OK)                    | Verification sent                       |
+    | 400 (Bad Request)           | Missing required field(s)               |
+    | 401 (Unauthorized)          | Expired OTP                             |
+    | 403 (Forbidden)             | Incorrect OTP                           |
+    | 404 (Account not found)     | Account associated with email not found |
+    | 500 (Internal Server Error) | Database or server error                |
+
+### Resend OTP for password change
+
+- This endpoint allows one to request for a new OTP for password change.
+- HTTP Method: `POST`
+- Endpoint: http://localhost:3001/auth/forget-password/resend-otp
+- Body
+  - Required: one `email` (string)
+
+    ```json
+    {
+      "emai": "example@gmail.com",
+    }
+    ```
+ 
+- Responses:
+    | Response Code               | Explanation                                    |
+    |-----------------------------|------------------------------------------------|
+    | 200 (OK)                    | Verification sent                              |
+    | 400 (Bad Request)           | Missing email field                            |
+    | 404 (Not found)             | Account with specified email not found         |
+    | 405 (Not allowed)           | No OTP was sent initially, or was already used |
+    | 500 (Internal Server Error) | Database or server error                       |

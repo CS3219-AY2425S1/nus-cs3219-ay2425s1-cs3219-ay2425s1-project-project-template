@@ -17,6 +17,7 @@ const StartSession = ({ username }) => {
   const [countdown, setCountdown] = useState(30);
   const [matchFound, setMatchFound] = useState(false);
   const [matchedUser, setMatchedUser] = useState(null);
+  const [roomId, setRoomId] = useState(null);
   const [noMatchFound, setNoMatchFound] = useState(false);
   const [noQuestionFound, setNoQuestionFound] = useState(false);
   const { cookies } = useAuth();
@@ -130,6 +131,7 @@ const StartSession = ({ username }) => {
         if (data.matchFound && (data.user1 === username || data.user2 === username)) {
             setMatchFound(true);
             setMatchedUser({ user1: data.user1, user2: data.user2 });
+            setRoomId(data.roomId);
             setShowPopup(true); // Show the popup for matched users
             setNoMatchFound(false);
         }
@@ -170,7 +172,7 @@ const StartSession = ({ username }) => {
           <label>Language</label>
           <select value={language} onChange={(e) => setLanguage(e.target.value)}>
             <option value="python">Python</option>
-            <option value="javaScript">JavaScript</option>
+            <option value="javascript">Javascript</option>
             <option value="java">Java</option>
           </select>
         </div>
@@ -187,7 +189,7 @@ const StartSession = ({ username }) => {
         <MatchNotFound closePopup={normalClosePopup} />
       )}
       {matchFound && matchedUser && (
-        <MatchFound matchData={{matchedUser, difficulty, topic, language}} closePopup={normalClosePopup} />
+        <MatchFound matchData={{matchedUser, difficulty, topic, language, roomId}} closePopup={normalClosePopup} />
       )}
     </div>
   );

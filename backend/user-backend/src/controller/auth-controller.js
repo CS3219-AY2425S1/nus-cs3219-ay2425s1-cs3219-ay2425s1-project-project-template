@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   findUserById as _findUserById,
+  findUserByEmail as _findUserByEmail,
   findUserByAllEmails as _findUserByAllEmails,
   updateUserVerifyStatusById as _updateUserVerifyStatusById,
   updateUserEmailById as _updateUserEmailById,
@@ -12,8 +13,13 @@ import {
   deleteTempEmailById as _deleteTempEmailById,
   deleteOtpAndTempPasswordById as _deleteOtpAndTempPasswordById,
 } from "../model/repository.js";
-import { formatFullUserResponse } from "./user-controller.js";
-import { sendVerificationEmail, validatePassword, generateSecureOTP, sendOtpEmail, hashPassword } from "./controller-utils.js";
+import {
+  hashPassword,
+  formatFullUserResponse,
+  sendEmailVerification,
+  sendOtpEmail,
+  validatePassword
+} from "./controller-utils.js";
 
 export async function handleLogin(req, res) {
   const { username, email, password } = req.body;
@@ -56,36 +62,18 @@ export async function handleLogin(req, res) {
 
 export async function handleVerifyToken(req, res) {
   try {
-    const verifiedUser = req.user;
-    return res.status(200).json({ message: "Token verified", data: verifiedUser });
+    return res.status(200).json({ message: "Token verified", data: req.user });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
 }
 
-export async function handleVerifyEmailToken(req, res) {
-  const { token } = req.body;
-  if (!token) {
-    return res.status(400).json({ message: "'token' field missing"});
-  }
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.JWT_EMAIL_VERIFICATION);
-  } catch (err) {
-    return err.name === 'TokenExpiredError'
-      ? res.status(401).json({ message: `Expired token`})
-      : res.status(403).json({ message: `Invalid token`});
-  }
-
-  const {id, email} = decoded;
+export async function handleVerifyEmail(req, res) {
+  const {id, email} = req;
   try {
     const user = await _findUserById(id);
-
-    if (!user) {
-      return res.status(404).json({ message: "User does not exist"});
-    }
-
+    if (!user)
+      return res.status(404).json({ message: "User does not exist" });
     if (!user.isVerified) // New account
       await _updateUserVerifyStatusById(user.id, true);
     else if (email !== user.email) { // Update email
@@ -96,10 +84,7 @@ export async function handleVerifyEmailToken(req, res) {
       await _deleteTempEmailById(user.id);
     }
 
-    return res.status(200).json({
-      message: "Successfully verified.",
-      username: user.username,
-    });
+    return res.status(200).json({ message: "Successfully updated." });
 
   } catch (err) {
     console.log(err);
@@ -109,9 +94,8 @@ export async function handleVerifyEmailToken(req, res) {
 
 export async function handleResendVerification(req, res) {
   const {email} = req.body;
-  if (!email) {
+  if (!email)
     return res.status(400).json({ message: `Email is missing`});
-  }
 
   const user = await _findUserByAllEmails(email);
   if (!user)
@@ -120,14 +104,14 @@ export async function handleResendVerification(req, res) {
     return res.status(200).json({ message: "User is already verified" });
   
   try {
-    sendVerificationEmail(user);
+    await sendEmailVerification(user);
     return res.status(200).json({ message: "Verification link sent to email" });
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Unknown error when sending email!" });
   }
 }
-
 
 export async function handleForgetPassword(req, res) {
   const { email, password } = req.body;
@@ -152,7 +136,6 @@ export async function handleForgetPassword(req, res) {
     console.log(error);
     return res.status(500).json({ message: "Unknown error when sending OTP" });
   }
-  
 }
 
 export async function handleResendOtp(req, res) {
@@ -199,6 +182,7 @@ export async function handleVerifyOtp(req, res) {
     await _updateUserPasswordById(user.id, user.tempPassword);
     await _deleteOtpAndTempPasswordById(user.id);
     return res.status(200).json({ message: 'Password successfully updated' });
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Unknown error when verifying OTP" });

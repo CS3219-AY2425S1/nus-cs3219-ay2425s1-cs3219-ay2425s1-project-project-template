@@ -5,10 +5,13 @@ import {
   createUser,
   deleteUser,
   getAllUsers,
-  getUser,
+  getUserById,
+  getUserByUsername,
   updateUser,
   updateUserPrivilege,
-  updateUserProfileImage
+  updateUserProfileImage,
+  addHistory,
+  deleteHistory,
 } from "../controller/user-controller.js";
 import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
 
@@ -37,7 +40,10 @@ router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivi
 router.post("/", createUser);
 
 // Get a user
-router.get("/:id", verifyAccessToken, getUser);
+router.get("/:id", verifyAccessToken, getUserById);
+
+// Get a user using their username
+router.get("/username/:username", verifyAccessToken, getUserByUsername);
 
 // Update a user
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
@@ -47,5 +53,11 @@ router.patch("/:id/profileImage", imageUpload.single('profileImage'), verifyAcce
 
 // Delete a user
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
+
+// Add a question to user history
+router.post("/:id/history", verifyAccessToken, verifyIsOwnerOrAdmin, addHistory);
+
+// Delete a question from user history
+router.delete("/:id/history", verifyAccessToken, verifyIsOwnerOrAdmin, deleteHistory);
 
 export default router;

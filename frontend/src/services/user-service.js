@@ -1,3 +1,7 @@
+import axios from 'axios';
+
+const BASE_URL = 'http://localhost:3001';
+
 export const validateUsername = (username) => {
   return username.trim() === ''
     ? "Username cannot be empty."
@@ -21,4 +25,36 @@ export const validatePassword = (password, confirmPassword) => {
     ? "Invalid password. Please ensure that it is between 8 and 20 non-space characters, " +
       "and contains at least one alphabet and one digit."
     : "";
+}
+
+
+export const getUserById = async (userId, token) => {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+  
+    return data.data;
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+  
+}
+
+export const addUserHistory = async (userId, token, historyId) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/users/${userId}/history`,
+      { historyId },
+      {
+        headers: {Authorization: `Bearer ${token}`},
+        withCredentials: true,
+      },
+    );
+  } catch (error) {
+    console.error(error);
+  }
 }

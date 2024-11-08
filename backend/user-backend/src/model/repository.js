@@ -59,6 +59,8 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
+// ======================= UPDATES ================================ //
+
 export async function updateUserById(userId, updatedValues) {
   return UserModel.findByIdAndUpdate(
     userId,
@@ -95,10 +97,12 @@ export async function updateUserOtpById(userId, otp) {
   return await updateUserById(userId, { otp });
 }
 
-export async function deleteTempEmailById(userId) {
+// =======================  ADDS   ================================ //
+
+export async function addHistoryById(userId, historyId) {
   return UserModel.findByIdAndUpdate(
     userId,
-    { $unset: {tempEmail: ''} },
+    { $addToSet: { history: historyId }},
     { new: true },  // return the updated user
   ); 
 }
@@ -111,6 +115,32 @@ export async function deleteOtpAndTempPasswordById(userId) {
   ); 
 }
 
+// ======================= DELETES ================================ //
+
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
+}
+
+export async function deleteTempEmailById(userId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $unset: {tempEmail: ''} },
+    { new: true },  // return the updated user
+  ); 
+}
+
+export async function deleteTempPasswordById(userId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $unset: {tempPassword: ''} },
+    { new: true },  // return the updated user
+  ); 
+}
+
+export async function deleteHistoryById(userId, historyId) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $pull: { history: historyId }},
+    { new: true },  // return the updated user
+  );
 }

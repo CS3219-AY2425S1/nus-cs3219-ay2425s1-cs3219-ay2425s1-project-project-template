@@ -1,7 +1,15 @@
 import express from "express";
-
-import { handleLogin, handleVerifyToken, handleVerifyEmailToken, handleResendVerification, handleForgetPassword, handleVerifyOtp, handleResendOtp } from "../controller/auth-controller.js";
-import { verifyAccessToken } from "../middleware/basic-access-control.js";
+import { 
+  handleLogin,
+  handleVerifyToken,
+  handleVerifyEmail,
+  handleResendVerification,
+  handleForgetPassword,
+  handleVerifyPassword,
+  handleVerifyOtp,
+  handleResendOtp,
+} from "../controller/auth-controller.js";
+import { verifyAccessToken, verifyEmailToken, verifyPasswordToken } from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
@@ -9,16 +17,16 @@ router.post("/login", handleLogin);
 
 router.get("/verify-token", verifyAccessToken, handleVerifyToken);
 
-// Verify token for associated account
-router.post("/verify-email", handleVerifyEmailToken);
+router.post("/verify-email", verifyEmailToken, handleVerifyEmail);
 
-// Send verification link to a user
+router.post("/verify-password", verifyPasswordToken, handleVerifyPassword);
+
 router.post("/resend-verification", handleResendVerification);
 
-router.post("/forgot-password", handleForgetPassword);
+router.post("/forget-password", handleForgetPassword);
 
-router.post("/forgot-password/confirm-otp", handleVerifyOtp);
+router.post("/forget-password/confirm-otp", handleVerifyOtp);
 
-router.post('/forgot-password/resend-otp', handleResendOtp);
+router.post('/forget-password/resend-otp', handleResendOtp);
 
 export default router;

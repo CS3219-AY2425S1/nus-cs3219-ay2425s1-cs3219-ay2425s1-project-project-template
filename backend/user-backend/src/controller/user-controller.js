@@ -1,12 +1,13 @@
 import { isValidObjectId } from "mongoose";
 import { DEFAULT_IMAGE } from "../model/user-model.js";
 import {
-  getImageSignedUrl,
   hashPassword,
+  formatFullUserResponse,
+  formatPartialUserResponse,
   replaceProfileImage,
   validateEmail,
   validatePassword,
-  sendVerificationEmail,
+  sendEmailVerification,
 } from "./controller-utils.js";
 import {
   createUser as _createUser,
@@ -20,6 +21,8 @@ import {
   updateUserById as _updateUserById,
   updateUserImageById as _updateUserImageById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  addHistoryById as _addHistoryById,
+  deleteHistoryById as _deleteHistoryById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -45,8 +48,7 @@ export async function createUser(req, res) {
       const hashedPassword = hashPassword(password);
       const createdUser = await _createUser(username, email, hashedPassword);
 
-      sendVerificationEmail(createdUser);
-
+      sendEmailVerification(createdUser);
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
         data: await formatFullUserResponse(createdUser),
@@ -61,7 +63,7 @@ export async function createUser(req, res) {
   }
 }
 
-export async function getUser(req, res) {
+export async function getUserById(req, res) {
   try {
     const userId = req.params.id;
     if (!isValidObjectId(userId)) {
@@ -76,6 +78,28 @@ export async function getUser(req, res) {
     return res.status(200).json({
       message: `Found user`,
       data: await (req.user.isAdmin || req.user.id === userId 
+        ? formatFullUserResponse(user)
+        : formatPartialUserResponse(user))
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when getting user!" });
+  }
+}
+
+export async function getUserByUsername(req, res) {
+  try {
+    const username = req.params.username;
+
+    const user = await _findUserByUsername(username);
+    if (!user) {
+      return res.status(404).json({ message: `User ${username} not found` });
+    }
+
+    return res.status(200).json({
+      message: `Found user`,
+      data: await (req.user.isAdmin || req.user.username === username 
         ? formatFullUserResponse(user)
         : formatPartialUserResponse(user))
     });
@@ -141,7 +165,7 @@ export async function updateUser(req, res) {
         password: hashedPassword
       });
 
-      if (email) sendVerificationEmail(updatedUser);
+      if (email) sendEmailVerification(updatedUser);
 
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
@@ -238,21 +262,50 @@ export async function deleteUser(req, res) {
   }
 }
 
-export async function formatPartialUserResponse(user) {
-  return {
-    username: user.username,
-    profileImage: await getImageSignedUrl(user),
-    createdAt: user.createdAt,
-  };
+export async function addHistory(req, res) {
+  const userId = req.params.id;
+  const { historyId } = req.body;
+
+  if (!historyId)
+    return res.status(400).json({ message: "Missing history id field" });
+
+  try {
+    if (!isValidObjectId(userId))
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    const user = await _findUserById(userId);
+    if (!user)
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    await _addHistoryById(user.id, historyId);
+    return res.status(200).json({ message: "Successfully added question history" });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when adding question history!" });
+  }
 }
 
-export async function formatFullUserResponse(user) {
-  return {
-    username: user.username,
-    email: user.email,
-    profileImage: await getImageSignedUrl(user),
-    isAdmin: user.isAdmin,
-    isVerified: user.isVerified,
-    createdAt: user.createdAt,
-  };
+export async function deleteHistory(req, res) {
+  const userId = req.params.id;
+  const { historyId } = req.body;
+
+  if (!historyId)
+    return res.status(400).json({ message: "Missing history id field" });
+
+  try {
+    if (!isValidObjectId(userId))
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    const user = await _findUserById(userId);
+    if (!user)
+      return res.status(404).json({ message: `User ${userId} not found` });
+
+    await _deleteHistoryById(user.id, historyId);
+    return res.status(200).json({ message: "Successfully deleted question history" });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Unknown error when deleting question history!" });
+  }
 }

@@ -24,6 +24,27 @@ export function hashPassword(password) {
   return password;
 }
 
+export async function formatPartialUserResponse(user) {
+  return {
+    username: user.username,
+    profileImage: await getImageSignedUrl(user),
+    createdAt: user.createdAt,
+  };
+}
+
+export async function formatFullUserResponse(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    profileImage: await getImageSignedUrl(user),
+    history: user.history,
+    isAdmin: user.isAdmin,
+    isVerified: user.isVerified,
+    createdAt: user.createdAt,
+  };
+}
+
 export async function replaceProfileImage(user, newImage) {
   if (user.profileImage !== DEFAULT_IMAGE) {
     await bucket.file(`${user.id}.${user.profileImage}`).delete();
@@ -73,7 +94,7 @@ export function validatePassword(password) {
   return re.test(password);
 }
 
-async function sendEmail(toEmail, subject, body) {
+async function sendEmail(email, subject, body) {
   const sender = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -84,16 +105,17 @@ async function sendEmail(toEmail, subject, body) {
 
   const options = {
     from: process.env.PEERPREP_EMAIL,
-    to: toEmail,
-    subject,
+    to: email,
+    subject: subject,
     html: body,
   };
 
   await sender.sendMail(options);
 }
 
-export async function sendVerificationEmail(user) {
-  const token = generateVerificationToken(user.id, user.tempEmail || user.email);
+export async function sendEmailVerification(user) {
+  const email = user.tempEmail || user.email;
+  const token = generateEmailVerificationToken(user.id, email);
 
   const verification_path = `/verify-email?token=${token}`;
   const verification_link = `${process.env.FRONTEND_URL}${verification_path}`;
@@ -106,10 +128,10 @@ export async function sendVerificationEmail(user) {
     </p>
   `;
 
-  await sendEmail(user.tempEmail || user.email, subject, body);
+  await sendEmail(email, subject, body);
 }
 
-function generateVerificationToken(userId, userEmail) {
+function generateEmailVerificationToken(userId, userEmail) {
   const payload = {
     id: userId,
     email: userEmail,
@@ -118,7 +140,7 @@ function generateVerificationToken(userId, userEmail) {
   return jwt.sign(
     payload,
     process.env.JWT_EMAIL_VERIFICATION,
-    { expiresIn: '1d'}
+    { expiresIn: '1h'}
   );
 }
 

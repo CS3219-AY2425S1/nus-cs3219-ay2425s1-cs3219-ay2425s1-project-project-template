@@ -59,19 +59,21 @@ wss.on('connection', (ws, req) => {
 });
 
 // WebSocket to notify matched users
-function notifyMatch(user1, user2) {
+function notifyMatch(user1, user2, roomId) {
     if (clients[user1.username]) {
         clients[user1.username].send(JSON.stringify({
             matchFound: true,
             user1: user1.username,
-            user2: user2.username
+            user2: user2.username,
+            roomId: roomId
         }));
     }
     if (clients[user2.username]) {
         clients[user2.username].send(JSON.stringify({
             matchFound: true,
             user1: user1.username,
-            user2: user2.username
+            user2: user2.username,
+            roomId: roomId
         }));
     }
 }

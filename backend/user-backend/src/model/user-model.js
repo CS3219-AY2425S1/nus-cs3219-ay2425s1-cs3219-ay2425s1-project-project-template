@@ -48,7 +48,12 @@ const UserModelSchema = new Schema({
   otp: {
     type: String,
     required: false,
-  }
+  },
+  history: {
+    type: [String],
+    required: true,
+    default: [],
+  },
 });
 
 export default mongoose.model("users", UserModelSchema);
