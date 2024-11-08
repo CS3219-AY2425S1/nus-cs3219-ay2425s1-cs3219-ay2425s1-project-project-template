@@ -12,11 +12,6 @@ const TestCaseSchema = new Schema(
       type: String,
       required: true,
     },
-    isHidden: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
   },
   { _id: false },
 ); // Disable the automatic creation of an _id for each subdocument

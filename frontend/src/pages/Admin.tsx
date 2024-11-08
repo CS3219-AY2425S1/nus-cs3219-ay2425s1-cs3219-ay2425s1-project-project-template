@@ -21,7 +21,7 @@ import ConfirmationModal from '../components/modal/ConfirmationModal';
 import UpdateQuestionModal from '../components/modal/UpdateQuestionModal';
 import ViewQuestionModal from '../components/modal/ViewQuestionModal';
 import config from '../config';
-import { difficulties, useTopics } from '../constants/Question';
+import { difficulties, topics } from '../constants/Question';
 import {
   AddQuestionInput,
   Question,
@@ -58,7 +58,6 @@ function QuestionEditor() {
   );
   const [filterDifficulty, setFilterDifficulty] = useState<string | null>(null);
   const [filterTopic, setFilterTopic] = useState<string[]>([]);
-  const topics = useTopics();
   // const [newImageFiles, setImageFiles] = useState<File[]>([]);
   // const [newImageNames, setImageNames] = useState<string[]>([]);
   // const [imageSrc, setImageSrc] = useState('');
