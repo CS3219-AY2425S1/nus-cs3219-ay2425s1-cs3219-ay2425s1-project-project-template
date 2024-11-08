@@ -130,6 +130,7 @@ services:
       - "443:443"
       - "3000:3000"
       - "3002:3002"
+      - "3003:3003"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -137,6 +138,7 @@ services:
       - user-service
       - matching-service
       - collaboration-service
+      - chat-service
     networks:
       - app-network
 
@@ -145,7 +147,7 @@ services:
     build: ./ChatService
     container_name: ChatService
     ports:
-      - "3003:3003"
+      - "3003"
     networks:
       - app-network
 

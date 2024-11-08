@@ -121,6 +121,15 @@ services:
     networks:
       - app-network
 
+  # ChatService
+  chat-service:
+    build: ./ChatService
+    container_name: ChatService
+    ports:
+      - "3003"
+    networks:
+      - app-network
+
   # NGINX Reverse Proxy
   nginx:
     image: nginx:alpine

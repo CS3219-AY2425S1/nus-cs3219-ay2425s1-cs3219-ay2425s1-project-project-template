@@ -13,7 +13,7 @@ const useHistoryUpdate = () => {
         setLoading(true);
         setError(false);
         try {
-            const response = await fetch(`http://localhost:3001/users/${userId}/history`, {
+            const response = await fetch(`http://localhost/api/users/users/${userId}/history`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
