@@ -48,24 +48,7 @@ const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
     isFetching,
     isLoading,
   } = useGetQuestions();
-
-  // Sample data to populate the table
-  const sampleQuestions: Question[] = [
-    {
-      qid: 1,
-      title: "Sort Array",
-      complexity: "Easy",
-      categories: ["Array"],
-      description: "Sample Description for Sort Array",
-    },
-    {
-      qid: 2,
-      title: "Reverse String",
-      complexity: "Medium",
-      categories: ["Strings"],
-      description: "Sample Description for Reverse String",
-    },
-  ];
+  
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
       {

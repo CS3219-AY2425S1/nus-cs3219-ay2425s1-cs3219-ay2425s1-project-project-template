@@ -22,6 +22,7 @@ import {
   TextField,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
+import DoneIcon from '@mui/icons-material/Done';
 import {
   QueryClient,
   QueryClientProvider,
@@ -38,6 +39,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { type Question, categories, complexities, validateQuestion } from "./question";
+import { type Attempt } from "../History/history";
 
 const Table = () => {
   const { user } = useContext(AuthContext);
@@ -199,6 +201,20 @@ const Table = () => {
           },
         },
       },
+      {
+        accessorKey: "attempted",
+        header: "Attempted",
+        size: 120,
+        columnDefType: "display",
+        enableColumnActions: true,
+        enableColumnFilter: true,
+        enableHiding: true,
+        enableSorting: true,
+        filterVariant: "checkbox",
+        Cell: ({ cell }) => {
+          return cell.getValue<string>() === "true" ? <DoneIcon color="success" /> : null;
+        },
+      }
     ],
     [isEditing, validationErrors]
   );
@@ -225,6 +241,99 @@ const Table = () => {
   //call DELETE hook
   const { mutateAsync: deleteQuestion, isPending: isDeletingQuestion } =
     useDeleteQuestion();
+  
+  //CREATE hook (post new question to api)
+  function useCreateQuestion() {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: async (question: Question) => {
+        return await axios.post(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, question);
+      },
+
+      //client side optimistic update
+      onMutate: async (newQuestionInfo: Question) => {
+        queryClient.setQueryData(
+          ["questions"],
+          (prevQuestions: Array<Question>) => {
+            return prevQuestions ? [...prevQuestions, newQuestionInfo] as Question[] : undefined;
+          }
+        );
+      },
+      onSettled: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
+    });
+  }
+
+  //READ hook (get questions from api)
+  function useGetQuestions() {
+    return useQuery<Question[]>({
+      queryKey: ["questions"],
+      queryFn: async () => {
+        const hSet = new Set();
+        const history = (await axios.get(`${process.env.REACT_APP_HISTORY_SVC_PORT}/api/history/${user.id}`)).data;
+        history.forEach((item: Attempt) => {
+          if (!item.error) {
+            hSet.add(item.qid);
+          }
+        });
+
+        const questions = (await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
+        questions.forEach((item: Question) => item.attempted = hSet.has(item.qid) ? "true" : "false");
+
+        return questions;
+      },
+      refetchOnWindowFocus: false,
+    });
+  }
+
+  //UPDATE hook (put question in api)
+  function useUpdateQuestion() {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: async (question: Question) => {
+        const { qid, ...noIdQuestion } = question;
+        return await axios.patch(
+          `${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`,
+          noIdQuestion
+        );
+      },
+      
+      //client side optimistic update
+      onMutate: (newQuestionInfo: Question) => {
+        queryClient.setQueryData(["questions"], (prevQuestions: any) => {
+          if (!Array.isArray(prevQuestions)) return [newQuestionInfo];
+          return prevQuestions.map((prevQuestion: Question) =>
+            prevQuestion.qid === newQuestionInfo.qid
+              ? newQuestionInfo
+              : prevQuestion
+          );
+        });
+      },
+      onSettled: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
+    });
+  }
+
+  //DELETE hook (delete question in api)
+  function useDeleteQuestion() {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: async (questionId: string) => {
+        //send api update request here
+        const qid = +questionId;
+        return await axios.delete(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`);
+      },
+
+      //client side optimistic update
+      onMutate: (questionId: string) => {
+        queryClient.setQueryData(["questions"], (prevQuestions: any) => {
+          if (!Array.isArray(prevQuestions)) return [];
+          return prevQuestions.filter(
+            (question: Question) => String(question.qid) !== questionId
+          );
+        });
+      },
+      onSettled: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
+    });
+  }
 
   //CREATE action
   const handleCreateQuestion: MRT_TableOptions<Question>["onCreatingRowSave"] =
@@ -417,92 +526,10 @@ const Table = () => {
   );
 };
 
-//CREATE hook (post new question to api)
-function useCreateQuestion() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (question: Question) => {
-      return await axios.post(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question`, question);
-    },
-
-    //client side optimistic update
-    onMutate: async (newQuestionInfo: Question) => {
-      queryClient.setQueryData(
-        ["questions"],
-        (prevQuestions: Array<Question>) => {
-          return prevQuestions ? [...prevQuestions, newQuestionInfo] as Question[] : undefined;
-        }
-      );
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
-  });
-}
-
-//READ hook (get questions from api)
-function useGetQuestions() {
-  return useQuery<Question[]>({
-    queryKey: ["questions"],
-    queryFn: async () => {
-      return (await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/`)).data;
-    },
-    refetchOnWindowFocus: false,
-  });
-}
-
-//UPDATE hook (put question in api)
-function useUpdateQuestion() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (question: Question) => {
-      const { qid, ...noIdQuestion } = question;
-      return await axios.patch(
-        `${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`,
-        noIdQuestion
-      );
-    },
-    
-    //client side optimistic update
-    onMutate: (newQuestionInfo: Question) => {
-      queryClient.setQueryData(["questions"], (prevQuestions: any) => {
-        if (!Array.isArray(prevQuestions)) return [newQuestionInfo];
-        return prevQuestions.map((prevQuestion: Question) =>
-          prevQuestion.qid === newQuestionInfo.qid
-            ? newQuestionInfo
-            : prevQuestion
-        );
-      });
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
-  });
-}
-
-//DELETE hook (delete question in api)
-function useDeleteQuestion() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (questionId: string) => {
-      //send api update request here
-      const qid = +questionId;
-      return await axios.delete(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/${qid}`);
-    },
-
-    //client side optimistic update
-    onMutate: (questionId: string) => {
-      queryClient.setQueryData(["questions"], (prevQuestions: any) => {
-        if (!Array.isArray(prevQuestions)) return [];
-        return prevQuestions.filter(
-          (question: Question) => String(question.qid) !== questionId
-        );
-      });
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["questions"] }),
-  });
-}
-
 const queryClient = new QueryClient();
 
 const DataTable = () => (
-  <Box sx={{ margin: "50px", width: "90vw", "maxWidth": "1067px" }}>
+  <Box sx={{ margin: "50px", maxWidth: "90vw" }}>
     <QueryClientProvider client={queryClient}>
       <Table />
     </QueryClientProvider>

@@ -8,7 +8,7 @@ import Output from './console';
 import { useSocket } from '../../contexts/SocketContext';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const MONACOLANGUAGES: Record<string, string> = {
+export const MONACOLANGUAGES: Record<string, string> = {
     "C++": "cpp",
     "Java": "java",
     "Python 3": "python",
@@ -69,9 +69,8 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
                 <LanguageSelector language={language} onSelect={onSelect} />
                 <Editor
                     options={{
-                        minimap: {
-                            enabled: false,
-                        },
+                        minimap: { enabled: false },
+                        scrollBeyondLastLine: false,
                     }}
                     height="100vh"
                     width="100%"
