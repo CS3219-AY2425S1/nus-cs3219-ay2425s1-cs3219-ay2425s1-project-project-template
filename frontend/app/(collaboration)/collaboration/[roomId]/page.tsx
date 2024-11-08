@@ -87,6 +87,7 @@ export default function Page() {
   };
 
   const handleEndSession = (): void => {
+    socket?.off("user-join");
     socket?.off("other-user-end");
 
     saveCodeAndEndSession({
@@ -130,7 +131,7 @@ export default function Page() {
         constraints: matchedQuestion?.constraints || "",
       });
 
-      language.current = roomInfo["programming_language"]?.[0] || "";
+      language.current = roomInfo["programming_language"] || "";
     }
   }, [isQuestionPending, roomInfo, user]);
 
