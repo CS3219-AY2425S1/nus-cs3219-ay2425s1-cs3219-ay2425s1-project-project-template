@@ -26,7 +26,6 @@ import { Question, TestCase } from '../types/QuestionType';
 
 function Room() {
   const [loading, setLoading] = useState(true);
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
@@ -72,6 +71,7 @@ function Room() {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
   };
 
+
   useEffect(() => {
     const requestMediaPermissions = async () => {
       try {
@@ -80,7 +80,6 @@ function Room() {
           video: true,
         });
         setLocalStream(stream);
-        setPermissionsGranted(true);
         setLoading(false);
       } catch (error) {
         console.error('Permissions not granted:', error);
@@ -91,15 +90,15 @@ function Room() {
     requestMediaPermissions();
   }, []);
 
-  useEffect(() => {
-    if (!loading && communicationSocketRef.current !== null) {
-      console.log('Emitting ready-to-call');
-      communicationSocketRef.current.emit('ready-to-call');
-    }
-  }, [loading, communicationSocketRef.current]);
+  // useEffect(() => {
+  //   if (!loading && communicationSocketRef.current !== null) {
+  //     console.log('Emitting ready-to-call');
+  //     communicationSocketRef.current.emit('ready-to-call');
+  //   }
+  // }, [loading, communicationSocketRef.current]);
 
   useEffect(() => {
-    if (!permissionsGranted || !sessionData) {
+    if (loading || !sessionData) {
       return;
     }
 
@@ -118,7 +117,7 @@ function Room() {
         },
       );
     }
-  }, [permissionsGranted, sessionData]);
+  }, [sessionData, loading]);
 
   // Connect Collaboration Socket
   const connectCollaborationSocket = (
@@ -227,6 +226,10 @@ function Room() {
     communicationSocketRef.current.on('connect', () => {
       communicationSocketRef.current?.emit('joinRoom', roomId);
     });
+
+    communicationSocketRef.current.on('roomJoined', () => {
+      communicationSocketRef.current?.emit('ready-to-call');
+    }); 
 
     communicationSocketRef.current.on(
       'loadPreviousMessages',
