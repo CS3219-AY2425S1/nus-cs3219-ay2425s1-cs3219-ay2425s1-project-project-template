@@ -46,7 +46,7 @@ const CodeViewDialog: React.FC<CodeViewDialogProps> = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogContent className="max-w-4xl max-h-[80vh] pt-10">
                 <DialogHeader className="flex flex-row items-center justify-between">
                     <DialogTitle>Code Submission</DialogTitle>
                     <div className="flex items-center gap-4">
