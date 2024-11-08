@@ -42,13 +42,13 @@ export async function getSomeHistory(req, res) {
 }
 
 export async function addHistory(req, res) {
-  const { roomId, question, user, partner, status, datetime, solution } = req.body;
+  const { roomId, question, user, partner, status, datetime, solution, language } = req.body;
 
   if (!(roomId && question && user && partner && status && datetime))
     return res.status(400).json({ message: "Missing one or more of the required fields" });
 
   try {
-    let newHistory = { roomId, question, user, partner, status, datetime, solution };
+    let newHistory = { roomId, question, user, partner, status, datetime, solution, language };
 
     const existingHistory = await _getHistoryByRoomIdAndUser(roomId, user);
     if (existingHistory)

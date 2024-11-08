@@ -71,9 +71,9 @@ export default function HistoryTable() {
     setOpen(true);
   };
 
-  const handleSolutionClick = (question, solution) => {
+  const handleSolutionClick = (question, solution, language) => {
     setSelectedQuestion(question);
-    setSelectedSolution(solution);
+    setSelectedSolution({solution, language});
     setOpen(true);
   }
 
@@ -141,7 +141,7 @@ export default function HistoryTable() {
 
                     <TableCell>
                       <Button
-                        onClick={() => handleSolutionClick(row.question, row.solution)}
+                        onClick={() => handleSolutionClick(row.question, row.solution, row.language)}
                         sx={{
                           color: 
                             row.status.toLowerCase() === 'attempted' ? '#FFB800' :
@@ -194,7 +194,8 @@ export default function HistoryTable() {
           open={open}
           onClose={handleCloseDialog} 
           question={selectedQuestion} 
-          solution={selectedSolution}
+          solution={selectedSolution.solution}
+          language={selectedSolution.language}
         />
       )}
     </Paper>
