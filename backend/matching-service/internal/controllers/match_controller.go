@@ -101,46 +101,13 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 			return
 		}
 
-		// only check programming languages if generalize_languages is false
-		if !matchingInfo.GeneralizeLanguages {
-
-			// If either user has selected "any" language, allow the other user's language
-			if len(result.ProgrammingLanguages) == 0 && len(matchingInfo.ProgrammingLanguages) == 0 {
-				// default language JavaScript
-				result.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
-				matchingInfo.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
-				matchChan <- result
-				return
-			} else if len(matchingInfo.ProgrammingLanguages) == 0 {
-				matchingInfo.ProgrammingLanguages = result.ProgrammingLanguages
-				matchChan <- result
-				return
-			} else if len(result.ProgrammingLanguages) == 0 {
-				result.ProgrammingLanguages = matchingInfo.ProgrammingLanguages
-				matchChan <- result
-				return
-			}
-			
-
-			// check for specific language match if both users have specific selections
-			languageMatched := false
-			for _, lang1 := range matchingInfo.ProgrammingLanguages {
-				for _, lang2 := range result.ProgrammingLanguages {
-					if lang1 == lang2 {
-						languageMatched = true // Match found with a common language
-						break
-					}
-				}
-				if languageMatched {
-					break
-				}
-			}
-
-			if !languageMatched {
-				log.Printf("No match for user_id: %s due to language mismatch", matchingInfo.UserID)
-				matchChan <- nil
-				return
-			}
+		if len(result.ProgrammingLanguages) == 0 && len(matchingInfo.ProgrammingLanguages) == 0 {
+			// default language JavaScript
+			result.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
+			matchingInfo.ProgrammingLanguages = []models.ProgrammingLanguageEnum{models.JavaScript}
+			log.Println("both set to js")
+			matchChan <- result
+			return
 		}
 
 		// If generalization is allowed or languages match, proceed with the match
@@ -203,7 +170,7 @@ func startMatchingProcess(matchingInfo models.MatchingInfo) {
 				UserTwo:         matchedUser.UserID,   
 				UsernameTwo:     matchedUser.Username,
 				RoomID:          roomID,                
-				ProgrammingLanguages: matchedUser.ProgrammingLanguages,
+				ProgrammingLanguages: matchedUser.ProgrammingLanguages[0],
 				Complexity:      complexityIntersection, 
 				Categories:      categoriesIntersection, 
 				Question:        models.Question{},      

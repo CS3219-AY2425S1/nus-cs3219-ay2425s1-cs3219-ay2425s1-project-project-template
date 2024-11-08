@@ -69,7 +69,7 @@ type MatchResult struct {
 	UserTwo     string                  `bson:"userTwo"`
 	UsernameTwo string 					`bson:"usernameTwo`
 	RoomID      string                  `bson:"room_id"`
-	ProgrammingLanguages []ProgrammingLanguageEnum `bson:"programming_languages"`
+	ProgrammingLanguages ProgrammingLanguageEnum `bson:"programming_languages"`
 	Complexity  []QuestionComplexityEnum`bson:"complexity"`
 	Categories  []string               	`bson:"categories"`
 	Question    Question             	`bson:"question"` 

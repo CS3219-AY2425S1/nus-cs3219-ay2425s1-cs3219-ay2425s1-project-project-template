@@ -77,7 +77,7 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Create queries for difficulty levels and topics
+	// Base filter criteria for finding a match
 	filter := bson.M{
 		"status": models.Pending,
 		"user_id": bson.M{
@@ -89,6 +89,13 @@ func FindMatch(matchingInfo models.MatchingInfo) (*models.MatchingInfo, error) {
 		"categories": bson.M{
 			"$in": matchingInfo.Categories,
 		},
+	}
+
+	if !matchingInfo.GeneralizeLanguages {
+		filter["$or"] = []bson.M{
+			{"programming_languages": bson.M{"$in": matchingInfo.ProgrammingLanguages}},
+			{"generalize_languages": true},
+		}
 	}
 
 	// Try to find a matching user
