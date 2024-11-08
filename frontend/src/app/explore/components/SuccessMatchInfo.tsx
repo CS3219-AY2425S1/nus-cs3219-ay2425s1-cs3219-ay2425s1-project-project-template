@@ -78,7 +78,7 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-[#8A63D2] via-[#5932C3] to-[#2A185D] text-white border-none rounded-xl shadow-lg">
+            <DialogContent onInteractOutside={(event) => event.preventDefault()} className="sm:max-w-[425px] bg-gradient-to-br from-[#8A63D2] via-[#5932C3] to-[#2A185D] text-white border-none rounded-xl shadow-lg">
                 <DialogHeader>
                     <DialogTitle className='mt-10 flex justify-center'>
                         <h1 className='text-2xl'>Match Found!</h1>

@@ -1,43 +1,52 @@
-import { IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http'
 import SuccessfulMatch from '../models/match'
 import logger from '../utils/logger'
 
 const parseBody = async (req: IncomingMessage): Promise<any> => {
     return new Promise((resolve, reject) => {
-        let body = '';
+        let body = ''
 
         req.on('data', (chunk: Buffer) => {
-            body += chunk.toString();
-        });
+            body += chunk.toString()
+        })
 
         req.on('end', () => {
             try {
-                resolve(JSON.parse(body));
+                resolve(JSON.parse(body))
             } catch (error) {
-                reject(new Error('Invalid JSON'));
+                reject(new Error('Invalid JSON'))
             }
-        });
+        })
 
-        req.on('error', (error) => reject(error));
-    });
-};
+        req.on('error', (error) => reject(error))
+    })
+}
 
-const sendResponse = async (res: ServerResponse, statusCode: number, data: Record<string, any>): Promise<void> => {
-    res.writeHead(statusCode, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(data));
-};
+const sendResponse = async (
+    res: ServerResponse,
+    statusCode: number,
+    data: Record<string, any>,
+): Promise<void> => {
+    res.writeHead(statusCode, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify(data))
+}
 
 const addMatch = async (payload: any) => {
     const { matchId, collaborators, questionId } = payload
 
-    if (!matchId || !collaborators || collaborators.length == 0 || !questionId) {
+    if (
+        !matchId ||
+        !collaborators ||
+        collaborators.length == 0 ||
+        !questionId
+    ) {
         return
     }
 
     const match = new SuccessfulMatch({
         matchId,
         collaborators,
-        questionId
+        questionId,
     })
 
     try {
@@ -65,7 +74,9 @@ const updateMatch = async (payload: any) => {
         }
 
         if (match.attempts.includes(submissionId)) {
-            logger.error(`Match ${matchId} already has submission ${submissionId}`)
+            logger.error(
+                `Match ${matchId} already has submission ${submissionId}`,
+            )
             return { status: 409, message: 'Match already has submission' }
         }
 
@@ -81,16 +92,48 @@ const updateMatch = async (payload: any) => {
 
 const getMatchesWithUser = async (userId: string) => {
     try {
-        const successfulMatches = await SuccessfulMatch.find({ 
-            collaborators: { $in: [userId] }
+        const successfulMatches = await SuccessfulMatch.find({
+            collaborators: { $in: [userId] },
         }).sort({ createdAt: -1 })
 
-        logger.info(`Successfully fetched past successful matches for user ${userId}`)
+        logger.info(
+            `Successfully fetched past successful matches for user ${userId}`,
+        )
         return { status: 200, data: successfulMatches }
     } catch (e) {
-        logger.error(`Error fetching past successful matches for user ${userId}`)
-        return { status: 500, message: 'Error fetching past successful matches' }
+        logger.error(
+            `Error fetching past successful matches for user ${userId}`,
+        )
+        return {
+            status: 500,
+            message: 'Error fetching past successful matches',
+        }
     }
 }
 
-export { parseBody, sendResponse, addMatch, updateMatch, getMatchesWithUser  }
+const getMatch = async (matchId: string) => {
+    try {
+        const match = await SuccessfulMatch.findOne({ matchId })
+        logger.info(
+            `Successfully fetched past successful matches for user ${matchId}`,
+        )
+        return { status: 200, data: match }
+    } catch (e) {
+        logger.error(
+            `Error fetching past successful matches for user ${matchId}`,
+        )
+        return {
+            status: 500,
+            message: 'Error fetching past successful matches',
+        }
+    }
+}
+
+export {
+    parseBody,
+    sendResponse,
+    addMatch,
+    updateMatch,
+    getMatchesWithUser,
+    getMatch,
+}
