@@ -12,7 +12,6 @@ export interface Question {
 export type TestCase = {
   input: string;
   answer: string;
-  isHidden: boolean;
 };
 
 export interface UpdateQuestionInput {

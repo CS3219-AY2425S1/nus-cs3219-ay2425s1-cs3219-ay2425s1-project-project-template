@@ -179,6 +179,7 @@ services:
       - my-network
     env_file:
       - .env/.code_execution_env
+      - .env/.global_auth_env
 
 volumes:
   mongo-data:

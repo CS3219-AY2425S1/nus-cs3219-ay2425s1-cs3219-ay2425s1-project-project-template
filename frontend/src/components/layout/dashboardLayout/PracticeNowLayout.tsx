@@ -7,7 +7,6 @@ import { Socket, io } from 'socket.io-client';
 
 import { checkSession } from '../../../apis/CollaborationApi';
 import config from '../../../config';
-// import { useTopics } from '../../../constants/Question';
 import { useAuth } from '../../../hooks/AuthProvider';
 import { SessionResponse } from '../../../types/CollaborationType';
 import HelpModal from '../../modal/HelpModal';
@@ -42,7 +41,6 @@ function PracticeLayout() {
 
   const auth = useAuth();
   const navigate = useNavigate();
-  // const topics = useTopics();
 
   const handleTimeout = () => {
     if (!hasTimedOut.current) {
@@ -182,13 +180,11 @@ function PracticeLayout() {
         isHelpModalOpened={isHelpModalOpened}
         closeHelpModal={closeHelpModal}
       />
-      {/* {topics && topics.length > 0 && ( */}
       <MatchingCriteriaModal
         isMatchingCriteriaModalOpened={isMatchingCriteriaModalOpen}
         closeMatchingCriteriaModal={closeMatchingCriteriaModal}
         findMatch={findMatch}
       />
-      {/* )} */}
       <MatchingModal
         isMatchingModalOpened={isMatchingModalOpen}
         closeMatchingModal={handleCancelMatching}
