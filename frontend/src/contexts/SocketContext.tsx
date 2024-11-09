@@ -1,25 +1,23 @@
-import { createContext, Dispatch, MutableRefObject, ReactNode, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import { Socket } from 'socket.io-client';
 import { AuthContext } from './AuthContext';
 
 export interface SocketContextInterface {
   collabSocket: Socket | null,
   commSocket: Socket | null,
-  setCollabSocket: Dispatch<SetStateAction<Socket| null>>,
-  setCommSocket: Dispatch<SetStateAction<Socket| null>>
+  setCollabSocket: Dispatch<SetStateAction<Socket | null>>,
+  setCommSocket: Dispatch<SetStateAction<Socket | null>>
 }
 
 export const SocketContext = createContext<SocketContextInterface | null>(null);
 
 type ContextProviderNode = {
-    children: ReactNode
+  children: ReactNode
 };
 
-export const SocketContextProvider = ({ children } : ContextProviderNode) => {
-    const [collabSocket, setCollabSocket] = useState<Socket | null>(null);
-    const [commSocket, setCommSocket] = useState<Socket | null>(null);
-    const { user } = useContext(AuthContext);
-
+export const SocketContextProvider = ({ children }: ContextProviderNode) => {
+  const [collabSocket, setCollabSocket] = useState<Socket | null>(null);
+  const [commSocket, setCommSocket] = useState<Socket | null>(null);
 
   return (
     <SocketContext.Provider value={{ collabSocket, commSocket, setCollabSocket, setCommSocket }}>
@@ -30,9 +28,9 @@ export const SocketContextProvider = ({ children } : ContextProviderNode) => {
 }
 
 export const useSocket = (): SocketContextInterface => {
-    const context = useContext(SocketContext);
-    if (!context) {
-        throw new Error("Socket is null");
-    }
-    return context;
+  const context = useContext(SocketContext);
+  if (!context) {
+    throw new Error("Socket is null");
+  }
+  return context;
 };

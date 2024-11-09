@@ -27,9 +27,7 @@ export default function VerifyAccountPage() {
         onSuccess: (data) => {
             setSuccess(true);
         },
-        onError: (error: AxiosError) => {
-            const data: any = error.response?.data;
-        }
+        onError: (error: AxiosError) => { }
     });
 
 

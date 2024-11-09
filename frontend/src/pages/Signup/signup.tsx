@@ -1,5 +1,5 @@
-import { set, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import EmailIcon from '@mui/icons-material/Email';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -15,7 +15,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
       userName: "",
       email: "",

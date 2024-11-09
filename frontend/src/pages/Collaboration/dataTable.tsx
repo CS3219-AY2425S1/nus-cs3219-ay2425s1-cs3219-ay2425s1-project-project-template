@@ -9,7 +9,6 @@ import {
   ThemeProvider,
   createTheme,
   CircularProgress,
-  Alert,
   Typography,
 } from "@mui/material";
 import { Question } from "../Question/question";
@@ -48,7 +47,7 @@ const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
     isFetching,
     isLoading,
   } = useGetQuestions();
-  
+
   const columns = useMemo<MRT_ColumnDef<Question>[]>(
     () => [
       {
@@ -73,8 +72,8 @@ const DataTable: React.FC<DataTableProps> = ({ onSelectQuestion }) => {
                 cell.getValue<string>() === "Easy"
                   ? theme.palette.success.dark
                   : cell.getValue<string>() === "Medium"
-                  ? theme.palette.warning.dark
-                  : theme.palette.error.dark,
+                    ? theme.palette.warning.dark
+                    : theme.palette.error.dark,
               borderRadius: "0.25rem",
               color: "white",
               padding: "0.25rem",

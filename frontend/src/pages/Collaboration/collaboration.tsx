@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useRef, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -15,10 +15,10 @@ import { Question } from "../Question/question";
 import LeaveRoomModal from "./leaveRoomModal";
 import QuestionSelectModal from "./questionSelectModal";
 import ChatCard from "./chatCard";
-import { Socket, io } from "socket.io-client";
+import { io } from "socket.io-client";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
-import { blue, lightBlue, lightGreen } from "@mui/material/colors";
+import { blue } from "@mui/material/colors";
 import { LoadingButton } from "@mui/lab";
 import CallNotification from "../../components/Communication/callNotification";
 import VideoCall from "../../components/Communication/videoCall";
