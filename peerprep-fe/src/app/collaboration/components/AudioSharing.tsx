@@ -26,11 +26,13 @@ const AudioSharing = () => {
   const TURN_CREDENTIAL = process.env.NEXT_PUBLIC_TURN_PASSWORD;
 
   if (!TURN_SERVER || !TURN_USERNAME || !TURN_CREDENTIAL) {
-    console.error(TURN_SERVER);
-    console.error(TURN_USERNAME);
-    console.error(TURN_CREDENTIAL);
+    // Log which specific variables are missing
+    console.error('Missing TURN config:', {
+      server: !!TURN_SERVER,
+      username: !!TURN_USERNAME,
+      credential: !!TURN_CREDENTIAL,
+    });
   }
-
   const cleanupAudio = () => {
     if (audioStreamRef.current) {
       audioStreamRef.current.getTracks().forEach((track) => {
