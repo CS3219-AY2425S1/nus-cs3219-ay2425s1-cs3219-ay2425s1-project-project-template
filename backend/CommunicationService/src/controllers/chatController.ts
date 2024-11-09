@@ -1,4 +1,6 @@
 import { Socket, Server } from "socket.io";
+import ChatMessage from "../models/model";
+import { console } from "inspector";
 
 // Handle connection and store user info on the socket
 export const handleConnection = (socket: Socket): void => {
@@ -26,22 +28,49 @@ export const handleConnection = (socket: Socket): void => {
 };
 
 // Handle joining a specific room
-export const handleJoinRoom = (socket: Socket, roomId: string): void => {
+export const handleJoinRoom = async (
+  socket: Socket,
+  roomId: string
+): Promise<void> => {
   socket.join(roomId);
   console.log(`User ${socket.data.username} joined room ${roomId}`);
+
+  try {
+    const chatHistory = await ChatMessage.find({ roomId })
+      .sort({ timestamp: 1 }) // Sort messages by time
+      .limit(100);
+
+    socket.emit("chatHistory", chatHistory); // Emit history to client
+  } catch (error) {
+    console.error("Error retrieving chat history:", error);
+  }
+
   socket.emit("room-joined", { roomId });
 };
 
 // Handle sending a message within a specific room
-export const handleSendMessage = (
+export const handleSendMessage = async (
   io: Server,
   socket: Socket,
   roomId: string,
-  message: string
-): void => {
-  // Broadcast the message to the room only
-  io.sockets.in(roomId).emit("chatMessage", {
-    user: socket.data.username,
-    text: message,
+  text: string
+): Promise<void> => {
+  const chatMessage = new ChatMessage({
+    roomId,
+    userId: socket.data.userId,
+    username: socket.data.username,
+    message: text,
   });
+
+  try {
+    await chatMessage.save(); // Save to MongoDB
+    console.log("Message saved into MongoDB");
+    // Broadcast the message to the room only
+    io.sockets.in(roomId).emit("chatMessage", {
+      username: socket.data.username,
+      message: text,
+    });
+  } catch (error) {
+    console.error("Error saving chat message:", error);
+  }
 };

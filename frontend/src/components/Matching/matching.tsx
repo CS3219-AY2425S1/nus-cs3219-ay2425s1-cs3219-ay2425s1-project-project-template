@@ -24,7 +24,7 @@ const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser
 const timeout = 30000;
 
 export default function MatchingDialog({ open, handleMatchScreenClose }: { open: boolean, handleMatchScreenClose: () => void }) {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [complexity, setComplexity] = useState("");
   const [category, setCategory] = useState("");
   const [isMatching, setIsMatching] = useState(false);
@@ -74,9 +74,7 @@ export default function MatchingDialog({ open, handleMatchScreenClose }: { open:
         console.log(match);
         toast.success(`Matched with ${match.matchedUsername}!`);
         setIsMatching(false);
-        // TODO: Add RoomID
-
-        // Fetch random question from the question API
+        setUser(prevUser => ({ ...prevUser, currentRoom: match.uuid }));
         try {
           const response = await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/random/${match.match.difficultyLevel}/${match.match.category}`);
           console.log('API response:', response);

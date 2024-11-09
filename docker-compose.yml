@@ -81,7 +81,7 @@ services:
     container_name: redis-container
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
-  
+
   collaboration-service:
     build:
       context: ./backend/CollaborationService
@@ -93,7 +93,7 @@ services:
     volumes:
       - ./backend/CollaborationService:/app
       - /app/node_modules
-  
+
   communication-service:
     build:
       context: ./backend/CommunicationService
@@ -102,6 +102,8 @@ services:
       - ${COMM_SVC_PORT}:${COMM_SVC_PORT}
     environment:
       - PORT=${COMM_SVC_PORT}
+      - MONGOURI=${COMM_DB_URI}
+      - FRONTEND_PORT=${FRONTEND_PORT}
     volumes:
       - ./backend/CommunicationService:/app
       - /app/node_modules
@@ -117,6 +119,7 @@ services:
       - CODE_EXECUTION_SVC_PORT=${CODE_EXECUTION_SVC_PORT}
     volumes:
       - ./backend/CodeExecutionService:/app
+      - /var/run/docker.sock:/var/run/docker.sock
       - /app/node_modules
   
   history-service:
