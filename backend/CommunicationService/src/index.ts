@@ -4,14 +4,18 @@ import { Server } from "socket.io";
 import { initializeCommunicationSockets } from "./sockets/handlers";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import mongoose from "mongoose";
+import 'dotenv/config';
 
 const app = express();
 const httpServer = createServer(app);
+
 const io = new Server(httpServer, {
   cors: {
-    origin: `http://localhost:${process.env.FRONTEND_PORT}`, //config.corsOrigin? This should be set to frontend domain
+    origin: `${process.env.FRONTEND_ENDPOINT}`, //config.corsOrigin? This should be set to frontend domain
     methods: ["GET", "POST"],
   },
+  path: "/communication/socket",
+  allowUpgrades: false,
 });
 
 app.use(express.json());
@@ -36,6 +40,6 @@ mongoose
       console.log(`Communication Server is running on port ${PORT}`);
     });
   })
-  .catch((error) => {
+  .catch((error: Error) => {
     console.error("Error connecting to MongoDB:", error);
   });

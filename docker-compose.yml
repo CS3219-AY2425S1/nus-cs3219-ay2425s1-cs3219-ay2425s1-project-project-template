@@ -36,7 +36,7 @@ services:
       - PORT=${USER_SVC_PORT}
       - DB_LOCAL_URI=${USER_DB_URI}
       - JWT_SECRET=${JWT_SECRET}
-      - FRONTEND_PORT=${FRONTEND_PORT_URL}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
       - CLOUD_DOMAIN=${FRONTEND_CLOUD_URL}
       - EMAIL_USERNAME=${EMAIL_USERNAME}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
@@ -56,7 +56,7 @@ services:
     environment:
       - PORT=${QUESTION_SVC_PORT}
       - MONGOURI=${QUESTION_DB_URI}
-      - FRONTEND_PORT=${FRONTEND_PORT_URL}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/QuestionService:/app
       - /app/node_modules
@@ -70,6 +70,7 @@ services:
     environment:
       - PORT=${MATCHING_SVC_PORT}
       - REDIS_PORT=${REDIS_PORT}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/MatchingService:/app
       - /app/node_modules
@@ -90,6 +91,7 @@ services:
       - ${COLLAB_SVC_PORT}:${COLLAB_SVC_PORT}
     environment:
       - PORT=${COLLAB_SVC_PORT}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/CollaborationService:/app
       - /app/node_modules
@@ -103,7 +105,7 @@ services:
     environment:
       - PORT=${COMM_SVC_PORT}
       - MONGOURI=${COMM_DB_URI}
-      - FRONTEND_PORT=${FRONTEND_PORT}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/CommunicationService:/app
       - /app/node_modules
@@ -117,9 +119,9 @@ services:
     environment:
       - JUDGE_0_ENDPOINT=${JUDGE_0_ENDPOINT}
       - CODE_EXECUTION_SVC_PORT=${CODE_EXECUTION_SVC_PORT}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/CodeExecutionService:/app
-      - /var/run/docker.sock:/var/run/docker.sock
       - /app/node_modules
   
   history-service:
@@ -131,7 +133,7 @@ services:
     environment:
       - PORT=${HISTORY_SVC_PORT}
       - MONGOURI=${HISTORY_DB_URI}
-      - FRONTEND_PORT=${FRONTEND_PORT_URL}
+      - FRONTEND_ENDPOINT=${FRONTEND_PORT_URL}
     volumes:
       - ./backend/HistoryService:/app
       - /app/node_modules

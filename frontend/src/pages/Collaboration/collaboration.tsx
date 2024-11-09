@@ -42,7 +42,7 @@ const CollaborationPage: FC = () => {
   // const { roomId = "", userId = "", question = null } = location.state || {};
   const { roomId } = useParams();
   const {
-    userId =  user.id,
+    userId = user.id,
     userName = user.username,
     question = {
       title: "Placeholder Question Title",
@@ -80,7 +80,7 @@ const CollaborationPage: FC = () => {
     question
   );
   const onLeaveRoom = () => {
-    setUser(oldUser => ({...oldUser, currentRoom: ""}));
+    setUser(oldUser => ({ ...oldUser, currentRoom: "" }));
     navigate("/");
     collabSocket?.emit("leave-room", roomId);
     collabSocket?.disconnect();
@@ -95,7 +95,7 @@ const CollaborationPage: FC = () => {
     setIsChangeQuestionModalOpen(false); // Close the modal after selection
   };
   const handleCallButtonClick = () => {
-    commSocket!.emit("initiate-call", roomId, {username: user.username, avatar: user.avatar});
+    commSocket!.emit("initiate-call", roomId, { username: user.username, avatar: user.avatar });
     setIsAwaitingCallResponse(true);
     const timeout = setTimeout(() => {
       setIsAwaitingCallResponse(false);
@@ -103,17 +103,17 @@ const CollaborationPage: FC = () => {
     }, 15000);
     setCallTimeout(timeout);
 
-    
+
   }
   const handleCallResponse = (isAnswer: boolean) => {
-    setNotification(oldNotification => ({...oldNotification, isOpen: false}));
+    setNotification(oldNotification => ({ ...oldNotification, isOpen: false }));
     commSocket?.emit("call-response", isAnswer, roomId);
     if (isAnswer) {
       commSocket?.emit("start-video", roomId, true);
     }
     setIsInCall(isAnswer);
   }
-  
+
   const handleStopVideo = () => {
     commSocket?.emit("stop-video", roomId);
     setIsInCall(false);
@@ -131,109 +131,109 @@ const CollaborationPage: FC = () => {
         userId: user.id,
         username: user.username
       },
-      transports: ["websocket"],
+      path: "/collaboration/socket",
     }));
     setCommSocket(io(`${process.env.REACT_APP_COMM_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username
       },
-      transports: ["websocket"],
+      path: "/communication/socket",
     }));
 
-    }, [user])
-  
-    useEffect(() => {
-      if (!collabSocket) {
-        return;
+  }, [user])
+
+  useEffect(() => {
+    if (!collabSocket) {
+      return;
+    }
+    if (!commSocket) {
+      return;
+    }
+    collabSocket.on("connect", () => {
+      collabSocket?.emit("join-room", roomId);
+    });
+
+    commSocket.on("connect", () => {
+      commSocket?.emit("join-room", roomId);
+    });
+
+    collabSocket.on("connect_error", (err: Error) => {
+      setUser(oldUser => ({ ...oldUser, currentRoom: "" }));
+      console.log(`Error: ${err.message}`);
+      navigate("/");
+    });
+
+    commSocket.on("connect_error", (err: Error) => {
+      setUser(oldUser => ({ ...oldUser, currentRoom: "" }));
+      console.log(`Error ${err.message}`);
+      navigate("/");
+    });
+
+    collabSocket.on("user-left", (user: string) => {
+      toast.error(`${user} has left the room.`)
+    });
+
+    collabSocket.on("sync-question", (question: Question) => {
+      console.log(`question sync ${question.title}`);
+      setSelectedQuestion(question);
+    });
+
+    commSocket.on("incoming-call", (caller: Caller) => {
+      setNotification({
+        caller: caller,
+        isOpen: true
+      });
+    });
+
+    commSocket.on("call-response", (isAnswer: boolean) => {
+      if (callTimeout) {
+        clearTimeout(callTimeout);
+        setCallTimeout(null);
       }
-      if (!commSocket) {
-        return;
+      setIsAwaitingCallResponse(false);
+      if (isAnswer) {
+        commSocket.emit("start-video");
+        setIsInCall(true);
+      } else {
+        toast.error("Peer has declined the call.");
       }
-      collabSocket.on("connect", () => {
-        collabSocket?.emit("join-room", roomId);
-      });
-  
-      commSocket.on("connect", () => {
-        commSocket?.emit("join-room", roomId);
-      });
-  
-      collabSocket.on("connect_error", (err: Error) => {
-        setUser(oldUser => ({...oldUser, currentRoom: ""}));
-        console.log(`Error: ${err.message}`);
-        navigate("/");
-      });
-  
-      commSocket.on("connect_error", (err: Error) => {
-        setUser(oldUser => ({...oldUser, currentRoom: ""}));
-        console.log(`Error ${err.message}`);
-        navigate("/");
-      });
-  
-      collabSocket.on("user-left", (user: string) => {
-        toast.error(`${user} has left the room.`)
-      });
-    
-      collabSocket.on("sync-question", (question: Question) => {
-        console.log(`question sync ${question.title}`);
-        setSelectedQuestion(question);
-      });
-      
-      commSocket.on("incoming-call", (caller : Caller) => {
-        setNotification({
-          caller: caller,
-          isOpen: true
-        });
-      });
-  
-      commSocket.on("call-response", (isAnswer : boolean) => {
-        if (callTimeout) {
-          clearTimeout(callTimeout);
-          setCallTimeout(null);
-        }
-        setIsAwaitingCallResponse(false);
-        if (isAnswer) {
-          commSocket.emit("start-video");
-          setIsInCall(true);
-        } else {
-          toast.error("Peer has declined the call.");
-        }
 
-      });
+    });
 
-      commSocket.on("call-timeout", () => {
-        setNotification(oldNotification => ({...oldNotification, isOpen: false}));
-      })
+    commSocket.on("call-timeout", () => {
+      setNotification(oldNotification => ({ ...oldNotification, isOpen: false }));
+    })
 
-      commSocket.on("call-error", () => {
-        console.log("button")
-        setIsInCall(false);
-        setIsAwaitingCallResponse(false);
-      })
+    commSocket.on("call-error", () => {
+      console.log("button")
+      setIsInCall(false);
+      setIsAwaitingCallResponse(false);
+    })
 
-      commSocket.on("stop-video", () => {
-        setIsInCall(false);
-      })
-    
-      return () => {
-        if(collabSocket?.connected && commSocket?.connected) {
-          setUser(oldUser => ({...oldUser, currentRoom: ""}));
-        }
+    commSocket.on("stop-video", () => {
+      setIsInCall(false);
+    })
 
-        if (collabSocket && collabSocket.connected) {
-          collabSocket.disconnect();
-        }  
-        
-        if (commSocket && commSocket.connected) {
-            commSocket.disconnect();
-        }
-      };
-    }, [collabSocket, commSocket])
+    return () => {
+      if (collabSocket?.connected && commSocket?.connected) {
+        setUser(oldUser => ({ ...oldUser, currentRoom: "" }));
+      }
+
+      if (collabSocket && collabSocket.connected) {
+        collabSocket.disconnect();
+      }
+
+      if (commSocket && commSocket.connected) {
+        commSocket.disconnect();
+      }
+    };
+  }, [collabSocket, commSocket])
 
   return (
     <div className="min-h-screen text-white">
       {/* Header */}
-      <VideoCall/>
+      <VideoCall />
 
       <Box>
         <AppBar
@@ -249,29 +249,30 @@ const CollaborationPage: FC = () => {
               />
               {/* Flexible space to push buttons to the right */}
               <Box sx={{ flexGrow: 1 }} />
-              {isInCall ? 
-              <Button
-              variant="contained"
-              onClick={handleStopVideo}
-              startIcon={<PeopleIcon />}
-              sx={{ mx: 3 }}
-              className="px-4 py-2 rounded hover:bg-red-700 transition-colors">
-                Stop Video
-              </Button>
-              : 
-              <LoadingButton
-                variant="contained"
-                onClick={handleCallButtonClick}
-                startIcon={<CallIcon/>}
-                sx={{mx: 3,
-                  ":disabled": {
-                    backgroundColor: blue[900]
-                  }
-                }}
-                className="px-4 py-2 rounded hover:bg-green-500 transition-colors"
-                loading={isAwaitingCallResponse}>
+              {isInCall ?
+                <Button
+                  variant="contained"
+                  onClick={handleStopVideo}
+                  startIcon={<PeopleIcon />}
+                  sx={{ mx: 3 }}
+                  className="px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                  Stop Video
+                </Button>
+                :
+                <LoadingButton
+                  variant="contained"
+                  onClick={handleCallButtonClick}
+                  startIcon={<CallIcon />}
+                  sx={{
+                    mx: 3,
+                    ":disabled": {
+                      backgroundColor: blue[900]
+                    }
+                  }}
+                  className="px-4 py-2 rounded hover:bg-green-500 transition-colors"
+                  loading={isAwaitingCallResponse}>
                   Call Peer
-              </LoadingButton>
+                </LoadingButton>
               }
 
               <Button
@@ -344,7 +345,7 @@ const CollaborationPage: FC = () => {
           </Card>
         </div>
       </div>
-      <CallNotification notification={notification} handleCallResponse={handleCallResponse}/>
+      <CallNotification notification={notification} handleCallResponse={handleCallResponse} />
     </div>
   );
 };

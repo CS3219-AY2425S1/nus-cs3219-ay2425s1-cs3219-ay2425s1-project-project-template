@@ -10,9 +10,11 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: '*', //config.corsOrigin? This should be set to frontend domain
+        origin: `${process.env.FRONTEND_ENDPOINT}`, //config.corsOrigin? This should be set to frontend domain
         methods: ["GET", "POST"]
-    }
+    },
+    path: "/matching/socket",
+    allowUpgrades: false,
 });
 
 // Middleware

@@ -23,7 +23,7 @@ const complexities = ["Easy", "Medium", "Hard"];
 const categories = ["", "Algorithms", "Arrays", "Bit Manipulation", "Brainteaser", "Data Structures", "Databases", "Recursion", "Strings"];
 const timeout = 30000;
 
-export default function MatchingDialog({ open, handleMatchScreenClose } : { open: boolean, handleMatchScreenClose: () => void }) {
+export default function MatchingDialog({ open, handleMatchScreenClose }: { open: boolean, handleMatchScreenClose: () => void }) {
   const { user, setUser } = useContext(AuthContext);
   const [complexity, setComplexity] = useState("");
   const [category, setCategory] = useState("");
@@ -43,8 +43,9 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
           userId: user.id,
           username: user.username,
         },
+        path: "/matching/socket",
       });
-      
+
       socket.current.on("connect", () => {
         console.log(`Requesting match for ${category} on ${complexity} difficulty...`);
         socket.current!.emit("request-match", {
@@ -52,12 +53,12 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
           category: category || null,
         });
       });
-      
+
       socket.current.on("connection-error", (error: Error) => {
         toast.error(`Connection error: ${error.message}`);
         setIsMatching(false);
       });
-      
+
       socket.current.on("match-request-accepted", () => {
         startTime.current = Date.now();
         intervalReference.current = setInterval(() => {
@@ -68,28 +69,28 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
           setElapsedTime(Date.now() - startTime.current);
         }, 250);
       });
-      
+
       socket.current.on("match-found", async (match) => {
         console.log(match);
         toast.success(`Matched with ${match.matchedUsername}!`);
         setIsMatching(false);
-        setUser(prevUser => ({...prevUser, currentRoom: match.uuid}));
+        setUser(prevUser => ({ ...prevUser, currentRoom: match.uuid }));
         try {
           const response = await axios.get(`${process.env.REACT_APP_QUESTION_SVC_PORT}/api/question/random/${match.match.difficultyLevel}/${match.match.category}`);
           console.log('API response:', response);
           const question = response.data;
-          navigate(`/collaboration/${match.uuid}`, {state:{question}});
+          navigate(`/collaboration/${match.uuid}`, { state: { question } });
         } catch (error) {
           toast.error("Failed to create room (Unable to fetch question)");
           console.error(error);
         }
       });
-      
+
       socket.current.on("match-timeout", () => {
         toast.error("Matching timed out");
         setIsMatching(false);
       });
-      
+
       socket.current.on("match-request-error", (message: string) => {
         toast.error(`Error requesting match: ${message}`);
         setIsMatching(false);
@@ -135,7 +136,7 @@ export default function MatchingDialog({ open, handleMatchScreenClose } : { open
     const seconds = Math.floor(elapsedTime / 1000) % 60;
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
-  
+
   return (
     <Dialog
       onClose={handleClose}

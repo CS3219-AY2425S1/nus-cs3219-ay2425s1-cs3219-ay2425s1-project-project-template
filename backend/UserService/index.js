@@ -6,15 +6,15 @@ import authRoutes from "./routes/auth-routes.js";
 
 const app = express();
 
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({
-  origin: [`${process.env.FRONTEND_PORT}`], // config cors so that front-end can use
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  credentials: true,
-  
-}));
+app.use(
+  cors({
+    origin: `${process.env.FRONTEND_ENDPOINT}`, // config cors so that front-end can use
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 app.use("/users", userRoutes);
