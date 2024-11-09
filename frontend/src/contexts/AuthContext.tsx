@@ -8,6 +8,7 @@ export type User = {
     isAdmin: boolean
     avatar: string,
     createdAt: number,
+    currentRoom: string
 };
 
 function defaultUser() {
@@ -18,6 +19,7 @@ function defaultUser() {
         isAdmin: false,
         avatar: "",
         createdAt: 0,
+        currentRoom: ""
     };
 }
 

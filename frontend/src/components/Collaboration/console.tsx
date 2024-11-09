@@ -34,7 +34,6 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }: OutputProps
 
     return () => {
       if (collabSocket && collabSocket.connected) {
-        collabSocket.removeAllListeners();
         collabSocket.disconnect();
       }
     }

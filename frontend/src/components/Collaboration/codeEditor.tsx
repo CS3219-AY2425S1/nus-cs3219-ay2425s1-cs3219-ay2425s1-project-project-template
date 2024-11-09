@@ -21,9 +21,8 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
     const { roomId } = useParams();
     const { collabSocket } = useSocket();
     const editorRef = useRef();
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState(CODE_SNIPPETS["Python 3"]);
     const [language, setLanguage] = useState("Python 3");
-    const navigate = useNavigate();
 
     const onMount = (editor: any) => {
         editorRef.current = editor;
@@ -39,11 +38,7 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
         if (!collabSocket) {
             return;
         }
-
-        // if (!collabSocket.connected) {
-        //     collabSocket.connect();
-        // }
-
+        
         collabSocket.on("sync-code", (edittedCode: string) => {
             console.log("to sync");
             setValue(edittedCode);
@@ -56,7 +51,6 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
 
         return () => {
             if (collabSocket && collabSocket!.connected) {
-                collabSocket.removeAllListeners();
                 collabSocket.disconnect();
             }
         }
