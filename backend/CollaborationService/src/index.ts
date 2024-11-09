@@ -55,6 +55,7 @@ let roomDocs: { [key: string]: Text } = {};
 let pending: { [key: string]: ((value: any) => void)[] } = {};
 
 // listening for connections from clients
+let disconnectedUsers: { [roomId: string]: Set<string> } = {};
 io.on("connection", (socket: Socket) => {
   const roomId = socket.handshake.query.roomId;
 
@@ -72,6 +73,13 @@ io.on("connection", (socket: Socket) => {
 
   console.log("room size", io.sockets.adapter.rooms.get(roomId)?.size);
 
+  
+  console.log(`New connection: ${socket.id} joined room: ${roomId}`);
+  
+  // Notify all users in the room, including the newly connected user
+  io.in(roomId).emit("newConnection", { userId: socket.id, roomId });
+  
+
   if (!roomUpdates[roomId]) {
     roomUpdates[roomId] = [];
   }
@@ -83,6 +91,8 @@ io.on("connection", (socket: Socket) => {
   if (!pending[roomId]) {
     pending[roomId] = [];
   }
+
+  
 
   socket.on("pullUpdates", (version: number) => {
     if (version < roomUpdates[roomId].length) {
@@ -132,12 +142,43 @@ io.on("connection", (socket: Socket) => {
     );
   });
 
+    // Handle disconnection
   socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+
+    socket.to(roomId).emit("userDisconnected", { userId: socket.id });
+
     if (io.sockets.adapter.rooms.get(roomId)?.size === undefined) {
       delete roomUpdates[roomId];
       delete roomDocs[roomId];
       delete pending[roomId];
     }
+  });
+
+  // Handle joining a chat room
+  socket.on("joinRoom", ({ roomId, username }) => {
+    if (roomId) {
+      socket.join(roomId);
+      socket.to(roomId).emit("userJoined", { username });
+      console.log(`User ${username} joined chat room: ${roomId}`);
+    }
+  });
+
+  // Handle sending a chat message
+  socket.on("sendMessage", (messageData) => {
+    const { room, message, username } = messageData;
+    console.log(`Received message from ${username} in room ${room || "broadcast"}: ${message}`);
+    if (room) {
+      io.to(room).emit("receiveMessage", { username, message });
+    } else {
+      socket.broadcast.emit("receiveMessage", { username, message });
+    }
+  });
+
+  // Handle ending a chat session
+  socket.on("endSession", (roomId) => {
+    console.log(`Session ended in room ${roomId}`);
+    io.to(roomId).emit("leaveSession");
   });
 });
 

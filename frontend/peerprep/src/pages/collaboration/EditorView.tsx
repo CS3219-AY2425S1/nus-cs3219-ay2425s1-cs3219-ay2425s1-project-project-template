@@ -62,7 +62,7 @@ const EditorView: React.FC = () => {
         socketRef.current.disconnect();
       }
     };
-  }, []);
+  }, [roomId, questionId, navigate]);
 
   const saveCode = (code: string) => {
     setCurrentCode(code);
@@ -151,6 +151,7 @@ const EditorView: React.FC = () => {
               onEndSession={disconnectAndGoBack}
               question={question}
               currentCode={currentCode}
+              socketRef={socketRef}
             />
           </Box>
         </Box>

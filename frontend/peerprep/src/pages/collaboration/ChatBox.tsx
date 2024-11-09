@@ -1,19 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { Question } from "../question/questionModel";
 import exitIcon from "../../assets/ExitIcon.png";
-
-const socketUrl = "http://localhost:8081";
 
 interface ChatBoxProps {
   roomId: string | null;
   user: { username: string } | null;
-  onEndSession: (
-    question: Question | null,
-    currentCode: string
-  ) => Promise<void>;
+  onEndSession: (question: Question | null, currentCode: string) => Promise<void>;
   question: Question | null;
   currentCode: string;
+  socketRef: React.RefObject<Socket>;
 }
 
 const ChatBox: React.FC<ChatBoxProps> = ({
@@ -22,15 +18,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   onEndSession,
   question,
   currentCode,
+  socketRef,
 }) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true); // Start collapsed
-  const [isEndSessionExpanded, setIsEndSessionExpanded] =
-    useState<boolean>(false);
-  const [otherUserName, setOtherUserName] = useState<string>(""); // New state for the other user's name
+  const [isEndSessionExpanded, setIsEndSessionExpanded] = useState<boolean>(false);
+  const [otherUserName, setOtherUserName] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<Socket | null>(null);
 
   const questionRef = useRef<Question | null>(question);
   const currentCodeRef = useRef<string>(currentCode);
@@ -41,49 +36,76 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   }, [question, currentCode]);
 
   useEffect(() => {
-    socketRef.current = io(socketUrl);
-    socketRef.current.on("connect", () => {
-      if (roomId && user?.username) {
-        socketRef.current?.emit("joinRoom", { roomId, username: user.username });
-        console.log("Joined room:", roomId);
-      }
-    });
+    if (socketRef.current) {
+      console.log("Socket connection established:", socketRef.current.connected);
 
-    // Listen for the `userJoined` event to update the other user's name
-    socketRef.current.on("userJoined", (data: { username: string }) => {
-      if (data.username !== user?.username) { // Ensure it's not the current user's name
-        setOtherUserName(data.username);
-      }
-    });
+      socketRef.current.off("newConnection");
 
-    socketRef.current.on("leaveSession", () => {
-      console.log("Session Ended");
-      onEndSession(questionRef.current, currentCodeRef.current); 
-    });
-
-    socketRef.current.on(
-      "receiveMessage",
-      (data: { username: string; message: string }) => {
+      // Listen for userReconnected event
+      socketRef.current.on("newConnection", (data: { userId: string }) => {
+        console.log("User connected:", data.userId);
+        setMessages((prevMessages) => [...prevMessages, "A user has been connected"]);
+      });
+  
+      socketRef.current.on("connect", () => {
+        console.log("Connected to socket with ID:", socketRef.current?.id);
+        
+        if (roomId && user?.username) {
+          console.log("Joining room:", roomId);
+          socketRef.current.emit("joinRoom", { roomId, username: user.username });
+        }
+      });
+  
+      socketRef.current.on("userJoined", (data: { username: string }) => {
+        console.log("User joined:", data.username);
+        
         if (data.username !== user?.username) {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            `${data.username}: ${data.message}`,
-          ]);
           setOtherUserName(data.username);
         }
+      });
+  
+      socketRef.current.on("leaveSession", () => {
+        console.log("Session ended by another user");
+        onEndSession(questionRef.current, currentCodeRef.current); 
+      });
+  
+      socketRef.current.on("receiveMessage", (data: { username: string; message: string }) => {
+        console.log("Message received:", data);
+        
+        if (data.username !== user?.username) {
+          setMessages((prevMessages) => [...prevMessages, `${data.username}: ${data.message}`]);
+          setOtherUserName(data.username);
+        }
+        
         if (chatBoxRef.current) {
           chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
         }
-      }
-    );
-
-    return () => {
-      socketRef.current?.disconnect();
-    };
-  }, [roomId, user?.username, onEndSession]);
+      });
+  
+      // Listen for userDisconnected event
+      socketRef.current.on("userDisconnected", (data: { userId: string }) => {
+        console.log("User disconnected:", data.userId);
+        setMessages((prevMessages) => [...prevMessages, "A user has disconnected"]);
+      });
+  
+      // Cleanup on unmount
+      return () => {
+        console.log("Cleaning up socket listeners...");
+        socketRef.current?.off("userJoined");
+        socketRef.current?.off("leaveSession");
+        socketRef.current?.off("receiveMessage");
+        socketRef.current?.off("userDisconnected"); // Clean up this listener as well
+      };
+    } else {
+      console.log("Socket connection not established. Check socketRef.");
+    }
+  }, [roomId, user?.username, onEndSession, socketRef]);
+  
 
   const sendMessage = () => {
     if (message.trim() && socketRef.current) {
+      console.log("Sending message:", message);
+      
       socketRef.current.emit("sendMessage", {
         room: roomId,
         message,
@@ -91,16 +113,17 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       });
       setMessages((prevMessages) => [...prevMessages, `You: ${message}`]);
       setMessage("");
+    } else {
+      console.log("Cannot send empty message or socket not connected.");
     }
   };
 
   const handleEndSessionClick = () => {
     if (isEndSessionExpanded) {
-      const confirmExit = window.confirm(
-        "Are you sure you want to end the session?"
-      );
-      if (confirmExit) {
-        socketRef.current?.emit("endSession", roomId);
+      const confirmExit = window.confirm("Are you sure you want to end the session?");
+      if (confirmExit && socketRef.current) {
+        console.log("Ending session for room:", roomId);
+        socketRef.current.emit("endSession", roomId);
       }
     } else {
       setIsEndSessionExpanded(true);
@@ -111,12 +134,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 
   const renderMessages = () => {
     if (isCollapsed && messages.length > 1) {
-      const latestUserMessage = messages
-        .reverse()
-        .find((msg) => msg.startsWith("You:"));
-      const latestOtherMessage = messages
-        .reverse()
-        .find((msg) => !msg.startsWith("You:"));
+      const latestUserMessage = messages.slice().reverse().find((msg) => msg.startsWith("You:"));
+      const latestOtherMessage = messages.slice().reverse().find((msg) => !msg.startsWith("You:"));
       return (
         <>
           {latestOtherMessage && (
@@ -131,9 +150,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
     return messages.map((msg, index) => (
       <div
         key={index}
-        style={
-          msg.startsWith("You:") ? styles.userMessage : styles.receivedMessage
-        }
+        style={msg.startsWith("You:") ? styles.userMessage : styles.receivedMessage}
       >
         {msg}
       </div>
@@ -147,19 +164,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({
           {isCollapsed ? "Click to chat" : "Collapse Chat"}
         </button>
         <button
-          style={
-            isEndSessionExpanded
-              ? styles.expandedEndButton
-              : styles.shortEndButton
-          }
+          style={isEndSessionExpanded ? styles.expandedEndButton : styles.shortEndButton}
           onClick={handleEndSessionClick}
           onMouseLeave={() => setIsEndSessionExpanded(false)} // Shrinks the button back when mouse leaves
         >
-          {isEndSessionExpanded ? (
-            "End Session"
-          ) : (
-            <img src={exitIcon} alt="Exit" style={styles.icon} />
-          )}
+          {isEndSessionExpanded ? "End Session" : <img src={exitIcon} alt="Exit" style={styles.icon} />}
         </button>
       </div>
       <div ref={chatBoxRef} style={styles.messagesContainer}>
