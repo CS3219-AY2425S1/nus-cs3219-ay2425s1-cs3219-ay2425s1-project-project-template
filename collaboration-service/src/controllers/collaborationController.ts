@@ -181,6 +181,7 @@ export const createRoom = async (req: Request, res: Response) => {
       roomId: roomId,
       selectedQuestionId: selectedId,
       questionTitle: randQuestion.title,
+      category: randQuestion.category,
       attemptDateTime: currTime,
     };
 
