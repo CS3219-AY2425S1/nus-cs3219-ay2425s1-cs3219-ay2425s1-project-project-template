@@ -32,7 +32,7 @@ pipeline {
             steps {
                 sh '''
                     # Navigate to your Node.js app directory
-                    cd questions-service
+                    cd question-service
 
                     # Install dependencies
                     npm install
@@ -96,7 +96,7 @@ pipeline {
         always {
             echo 'Cleaning up Docker images...'
             sh 'docker rmi alyssaoyx/history-service:${env.BUILD_ID} || true'
-            sh 'docker rmi alyssaoyx/questions-service:${env.BUILD_ID} || true'
+            sh 'docker rmi alyssaoyx/question-service:${env.BUILD_ID} || true'
         }
         success {
             echo 'Pipeline completed successfully!'
