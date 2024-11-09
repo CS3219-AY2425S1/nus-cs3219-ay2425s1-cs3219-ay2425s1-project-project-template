@@ -88,7 +88,9 @@ pipeline {
             steps {
                 dir('history-service') {
                     script {
-                        customImage = docker.build("alyssaoyx/history-service:${env.BUILD_ID}")
+                        withDockerRegistry(credentialsId: 'docker-credentials', url: '') {
+                        customImage = docker.build("alyssaoyx/history-service:${BUILD_NUMBER}")
+                    }
                     }
                 }
             }
