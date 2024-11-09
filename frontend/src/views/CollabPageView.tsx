@@ -256,37 +256,35 @@ const CollabPageView: React.FC = () => {
 
     if (!sourceCode) return; // do nothing
 
-    if (dateAttempted === "") {
-      const attemptDate = moment().tz("Asia/Singapore").format();
-      setDateAttempted(attemptDate);
-      console.log("Attempt date:", attemptDate);
-      
-      const requestBody = {
-        userUid: getUid(), 
-        questionUid: questionData.id, 
-        dateAttempted: attemptDate,
-      };
+    let attemptDate = dateAttempted;
 
-      try{
-        const response: SuccessObject = await callFunction(
+    try {
+      setIsLoading(true);
+
+      if (dateAttempted === "") {
+        attemptDate = moment().tz("Asia/Singapore").format();
+        setDateAttempted(attemptDate);
+        console.log("Attempt date:", attemptDate);
+        
+        const requestBodyForCreatingQuestionAttempted = {
+          userUid: getUid(), 
+          questionUid: questionData.id, 
+          dateAttempted: attemptDate,
+        };
+
+        const responseForCreatingQuestionAttempted: SuccessObject = await callFunction(
           HTTP_SERVICE_HISTORY,
           "create-question-attempted",
           "POST",
-          requestBody
+          requestBodyForCreatingQuestionAttempted
         );
 
-        if (response.success) {
-          console.log("Success:", response.data.message);
+        if (responseForCreatingQuestionAttempted.success) {
+          console.log("Success:", responseForCreatingQuestionAttempted.data.message);
         } else {
-          console.error("Error creating question:", response.error);
+          console.error("Error creating question attempted:", responseForCreatingQuestionAttempted.error);
         }
-      } catch (error) {
-        console.error("Network error:", error);
       }
-    }
-    
-    try {
-      setIsLoading(true);
 
       const response = await callFunction(
         HTTP_SERVICE_COLLAB,
@@ -304,11 +302,11 @@ const CollabPageView: React.FC = () => {
       jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
         ? setIsError(true)
         : setIsError(false);
-
+        
       const requestBody = {
         userUid: userId, 
         questionUid: questionData.id, 
-        dateAttempted: dateAttempted,
+        dateAttempted: attemptDate,
         codeWritten: sourceCode,
       };
 
