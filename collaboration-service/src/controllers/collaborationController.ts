@@ -103,7 +103,8 @@ function formatTime(unixTime: number): string {
   const mmin = date.getMinutes().toString().padStart(2, "0");
   const ss = date.getSeconds().toString().padStart(2, "0");
 
-  const res = `${dd}-${mm}-${yyyy}, ${hh}:${mmin}:${ss} UTC`;
+  // const res = `${dd}-${mm}-${yyyy}, ${hh}:${mmin}:${ss} UTC`;
+  const res = `${mm}-${dd}-${yyyy}, ${hh}:${mmin}:${ss} UTC`;
   return res;
 }
 
@@ -232,8 +233,9 @@ export const getRoomData = async (req: Request, res: Response) => {
 
     const roomData = roomSnapshot.val();
     const selectedQuestionId = roomData.selectedQuestionId;
+    const createdAt = roomData.createdAt;
 
-    return res.status(200).json({ roomData, selectedQuestionId });
+    return res.status(200).json({ roomData, selectedQuestionId, createdAt });
   } catch (error) {
     console.error("Error fetching room data:", error);
     res.status(500).json({ message: "Failed to fetch room data" });
