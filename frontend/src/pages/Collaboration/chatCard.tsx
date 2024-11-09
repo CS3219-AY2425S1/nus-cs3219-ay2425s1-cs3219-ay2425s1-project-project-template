@@ -18,14 +18,14 @@ interface ChatCardProps {
 }
 
 const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
-  const [messages, setMessages] = useState<{ user: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<
+    { username: string; message: string }[]
+  >([]);
   const { commSocket } = useSocket();
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const chatBoxRef = useRef<HTMLDivElement | null>(null); // Create a ref for the chat box
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (chatBoxRef.current) {
@@ -37,7 +37,6 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
       return;
     }
 
-
     // Listen for incoming messages and add them to the chat
     commSocket.on("chatMessage", (message) => {
       console.log("Received message:", message); // Debugging log
@@ -47,6 +46,20 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
     // Clean up the socket connection on component unmount
     return () => {
       commSocket.disconnect();
+    };
+  }, [commSocket]);
+
+  useEffect(() => {
+    if (!commSocket) return;
+
+    // Load chat history when joining a room
+    commSocket.on("chatHistory", (history) => {
+      console.log("Received chat history:", history); // Check structure in console
+      setMessages(history);
+    });
+
+    return () => {
+      commSocket.off("chatHistory");
     };
   }, [commSocket]);
 
@@ -111,14 +124,14 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
                 mb: 1,
               }}
             >
-              <strong>{msg.user}</strong>:{" "}
+              <strong>{msg.username}</strong>:{" "}
               {/* Replace newlines with <br /> for rendering */}
               {/* Check if msg.text is defined before calling split */}
-              {msg.text ? (
-                msg.text.split("\n").map((line, lineIndex) => (
+              {msg.message ? (
+                msg.message.split("\n").map((line, lineIndex) => (
                   <React.Fragment key={lineIndex}>
                     {line}
-                    {lineIndex < msg.text.split("\n").length - 1 && <br />}
+                    {lineIndex < msg.message.split("\n").length - 1 && <br />}
                   </React.Fragment>
                 ))
               ) : (
