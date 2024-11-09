@@ -132,12 +132,46 @@ io.on("connection", (socket: Socket) => {
     );
   });
 
+    // Handle disconnection
   socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+    
+    // Notify others in the room that the user has left
+    if (roomId && user?.username) {
+      socket.to(roomId).emit("userLeft", { username: user.username });
+    }
+
     if (io.sockets.adapter.rooms.get(roomId)?.size === undefined) {
       delete roomUpdates[roomId];
       delete roomDocs[roomId];
       delete pending[roomId];
     }
+  });
+
+  // Handle joining a chat room
+  socket.on("joinRoom", ({ roomId, username }) => {
+    if (roomId) {
+      socket.join(roomId);
+      socket.to(roomId).emit("userJoined", { username });
+      console.log(`User ${username} joined chat room: ${roomId}`);
+    }
+  });
+
+  // Handle sending a chat message
+  socket.on("sendMessage", (messageData) => {
+    const { room, message, username } = messageData;
+    console.log(`Received message from ${username} in room ${room || "broadcast"}: ${message}`);
+    if (room) {
+      io.to(room).emit("receiveMessage", { username, message });
+    } else {
+      socket.broadcast.emit("receiveMessage", { username, message });
+    }
+  });
+
+  // Handle ending a chat session
+  socket.on("endSession", (roomId) => {
+    console.log(`Session ended in room ${roomId}`);
+    io.to(roomId).emit("leaveSession");
   });
 });
 
