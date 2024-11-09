@@ -99,9 +99,9 @@ const DashboardView = () => {
         </Flex>
       </Flex>
 
-      <Flex justify="flex-start" gap={14} w="full"> {/* Set a small gap */}
+      <Flex justify="flex-start" gap={14} w="full">
         {/* Step 1: Topic Selection */}
-        <Box flex="1" maxW="600px"> {/* Make each Box take equal space */}
+        <Box flex="1" maxW="600px">
           <Text fontSize="2xl" mb={4}>Step 1: Select Topic</Text>
           <Dropdown 
             placeholder="Choose a topic to begin"
@@ -148,7 +148,7 @@ const DashboardView = () => {
         </Box>
 
         {/* Step 3: Action Buttons */}
-        <VStack flex="1" maxW="600px" spacing={6} align="flex-start"> {/* Set align to flex-start */}
+        <VStack flex="1" maxW="600px" spacing={6} align="flex-start">
           <Text fontSize="2xl" mb={4} textAlign="left">Step 3: Choose an Action</Text>
           {services.map((value, ind) => (
             <Tooltip
@@ -158,7 +158,7 @@ const DashboardView = () => {
                   ? selectedTopic ? "View available questions based on your selection" : "Select a topic first"
                   : selectedTopic && selectedDifficulty
                   ? "Find a match based on your selection"
-                  : "Select both a topic and difficulty"
+                  : "Select both a topic and difficulty before matching"
               }
               hasArrow
               placement="top"
@@ -188,36 +188,18 @@ const DashboardView = () => {
               </Button>
             </Tooltip>
           ))}
-          {(!selectedDifficulty || !selectedTopic) && (
-            <Text fontWeight="bold" color="red.300" fontSize="lg">
-              Select a topic and difficulty before matching
+
+          {/* Centered Reconnect Message */}
+          <Flex w="100%" justifyContent="center"> {/* Centering container */}
+            <Text color={isReconnectValid ? "teal.500" : "green.300"} fontSize="lg" textAlign="center" pt={1}>
+              {isReconnectValid ? (
+                <Button colorScheme="teal" onClick={() => navigate(reconnectUrl)}>Reconnect</Button>
+              ) : (
+                "No active session to reconnect."
+              )}
             </Text>
-          )}
+          </Flex>
         </VStack>
-
-      </Flex>
-
-
-      {/* Reconnect Button */}
-      <Flex justify="center" mt={10}>
-        {isReconnectValid && reconnectUrl ? (
-          <Button
-            colorScheme="teal"
-            onClick={() => {
-              if (reconnectUrl) {
-                navigate(reconnectUrl);
-              } else {
-                console.warn("No reconnect URL available.");
-              }
-            }}
-          >
-            Reconnect
-          </Button>
-        ) : (
-          <Text fontWeight="bold" color="red.300" fontSize="lg">
-            No valid session to reconnect.
-          </Text>
-        )}
       </Flex>
     </Flex>
   );

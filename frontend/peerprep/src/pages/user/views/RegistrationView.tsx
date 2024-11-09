@@ -82,7 +82,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
             <InputBox
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase())} //to make it case-insensitive
             />
           </div>
           <div className="input-container">
