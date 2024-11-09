@@ -100,7 +100,7 @@ class SocketController {
       const randomIndex = Math.floor(Math.random() * questions.length);
       const randomQuestion = questions[randomIndex];
 
-      const roomId = moment().tz("Asia/Singapore").format();
+      const roomId = moment().tz("Asia/Singapore").format() + currUserSessionData.uid + prevUserSessionData.uid;
 
       // Emit matched to both users
       this.io.to(prevUserSocketId).emit("matched", {
