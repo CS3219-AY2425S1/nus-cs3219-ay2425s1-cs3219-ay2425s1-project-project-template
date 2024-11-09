@@ -64,7 +64,7 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
     }, [collabSocket])
 
     return (
-        <Box height="80vh" width="100%">
+        <Box height="100%" width="100%">
             <Stack direction="column" spacing={1} height="100%" width="100%">
                 <LanguageSelector language={language} onSelect={onSelect} />
                 <Editor
@@ -72,7 +72,7 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
                         minimap: { enabled: false },
                         scrollBeyondLastLine: false,
                     }}
-                    height="100vh"
+                    height="50%"
                     width="100%"
                     theme="vs-dark"
                     defaultLanguage={MONACOLANGUAGES[language]}

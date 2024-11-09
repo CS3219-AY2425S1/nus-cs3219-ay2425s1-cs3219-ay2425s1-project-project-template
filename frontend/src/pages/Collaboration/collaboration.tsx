@@ -23,6 +23,7 @@ import { LoadingButton } from "@mui/lab";
 import CallNotification from "../../components/Communication/callNotification";
 import VideoCall from "../../components/Communication/videoCall";
 import toast from "react-hot-toast";
+import "../../App.css";
 
 type Caller = {
   username: string,
@@ -295,11 +296,13 @@ const CollaborationPage: FC = () => {
       />
       <div className="grid grid-cols-2 gap-4 p-4">
         {/* Left Panel - Question and Chat */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4" style={
+          {maxHeight: "100%"}
+        }>
           {/* Question */}
           <Card className="border-gray-700 text-white flex flex-col h-full">
             <CardContent
-              className="p-6 bg-gray-800 flex-grow overflow-y-auto"
+              className="p-6 bg-gray-800 flex-grow"
               style={{ maxHeight: "86vh" }}
             >
               <div className="flex items-center gap-2 mb-4">
@@ -310,7 +313,10 @@ const CollaborationPage: FC = () => {
                   {selectedQuestion?.complexity || question.complexity}
                 </span>
               </div>
-              <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-markdown text-left">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                className="prose prose-markdown overflow-auto text-left markdown-content"
+              >
                 {selectedQuestion?.description || question.description}
               </ReactMarkdown>
             </CardContent>
