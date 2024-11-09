@@ -36,11 +36,11 @@ const MatchingView: React.FC = () => {
     setQueueStatus("matched");
     // setIsMatched(true); // Set match status
     const url = `/editor?topic=${topic}&difficulty=${difficulty}&room=${room}&questionId=${questionId}`;
-    sessionStorage.setItem('reconnectUrl', url);
-    sessionStorage.setItem('userId', user.id);
-        
-    const storedUrl = sessionStorage.getItem('reconnectUrl');
-    const storedUserId = sessionStorage.getItem('userId');
+    sessionStorage.setItem("reconnectUrl", url);
+    sessionStorage.setItem("userId", user.id);
+
+    const storedUrl = sessionStorage.getItem("reconnectUrl");
+    const storedUserId = sessionStorage.getItem("userId");
 
     console.log("Stored URL:", storedUrl);
     console.log("Stored User ID:", storedUserId);
@@ -71,10 +71,16 @@ const MatchingView: React.FC = () => {
       return;
     }
 
-    setStatus("Starting Ccnnection...");
+    setStatus("Starting Connection...");
+
+    const domain = import.meta.env.VITE_MATCH_API_URL;
+    const path =
+      import.meta.env.VITE_ENV === "DEV" ? "/socket.io" : "/matching/socket.io";
 
     // Initialize the WebSocket connection
-    socketRef.current = io("http://localhost:8080/");
+    socketRef.current = io(domain, {
+      path: path,
+    });
     const socket = socketRef.current;
 
     if (socket === null) {
@@ -108,12 +114,15 @@ const MatchingView: React.FC = () => {
     });
 
     // Listen for a match success from the server
-    socket.on("matched", (data: { message: string; room: string; questionId: string }) => {
-      console.log("Matched and assigned to room:", data.room);
-      setStatus(data.message);
-      handleStopTimer();
-      handleMatchFound(data.room , data.questionId); // Handle match found with the room name
-    });
+    socket.on(
+      "matched",
+      (data: { message: string; room: string; questionId: string }) => {
+        console.log("Matched and assigned to room:", data.room);
+        setStatus(data.message);
+        handleStopTimer();
+        handleMatchFound(data.room, data.questionId); // Handle match found with the room name
+      }
+    );
 
     // Listen for a match failure from the server
     socket.on("matchFailed", (data: { error: string }) => {

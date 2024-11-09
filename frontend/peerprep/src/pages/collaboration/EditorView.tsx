@@ -44,8 +44,11 @@ const EditorView: React.FC = () => {
       return;
     }
 
-    socketRef.current = io("http://localhost:3004/", {
-      path: "/api",
+    const collabUrl = import.meta.env.VITE_COLLAB_API_URL;
+    const path =
+      import.meta.env.VITE_ENV === "DEV" ? "/socket.io" : "/collab/socket.io";
+    socketRef.current = io(collabUrl, {
+      path: path,
       query: { roomId },
     });
     const socket = socketRef.current;
@@ -136,11 +139,12 @@ const EditorView: React.FC = () => {
           onFetchQuestion={saveQuestion}
         />
       </Box>
-  
+
       <Box style={styles.rightSection}>
         <Box style={styles.chatGeminiContainer}>
           <Box style={styles.geminiChatContainer}>
-            <h2 style={styles.chatTitle}>GenAI Assistant</h2> {/* GenAI Assistant */}
+            <h2 style={styles.chatTitle}>GenAI Assistant</h2>{" "}
+            {/* GenAI Assistant */}
             <GeminiChat socketRef={socketRef} />
           </Box>
           <Box style={styles.chatContainer}>
@@ -181,7 +185,7 @@ const styles = {
   chatTitle: {
     fontSize: "1.2rem",
     fontWeight: "bold",
-    color: "#82AAFF",  // Matches the theme color
+    color: "#82AAFF", // Matches the theme color
     marginBottom: "10px",
   },
   questionSection: {
@@ -229,12 +233,12 @@ const styles = {
   },
   chatGeminiContainer: {
     display: "flex",
-    flexDirection: "row" as const,  // Arrange GeminiChat and ChatBox side-by-side
+    flexDirection: "row" as const, // Arrange GeminiChat and ChatBox side-by-side
     marginBottom: "15px",
-    gap: "10px",  // Adds space between GeminiChat and ChatBox
+    gap: "10px", // Adds space between GeminiChat and ChatBox
   },
   geminiChatContainer: {
-    flex: 1,  // Makes GeminiChat take up half the space
+    flex: 1, // Makes GeminiChat take up half the space
     display: "flex",
     flexDirection: "column" as const,
     padding: "10px",

@@ -1,13 +1,15 @@
 import { Server } from "socket.io";
 import { addUserToQueue } from "./queue-controller.js";
 import { matchingQueue } from "../queue/matching-queue.js";
-import axios from 'axios';
+import axios from "axios";
 let io;
 
 export const initializeCollaborationService = (server) => {
+  const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
   io = new Server(server, {
+    path: "/socket.io",
     cors: {
-      origin: "http://localhost:5173",
+      origin: FRONTEND_URL,
       methods: ["GET", "POST"],
     },
   });
@@ -80,7 +82,10 @@ export const handleUserMatch = async (job) => {
   const matchedUserSocket = io.sockets.sockets.get(matchedUserId);
 
   if (!matchedUserSocket) {
-    notifyUserOfMatchFailed(socketId, "Matched user disconnected, please try again");
+    notifyUserOfMatchFailed(
+      socketId,
+      "Matched user disconnected, please try again"
+    );
     return;
   }
   if (userSocket) {
@@ -90,11 +95,14 @@ export const handleUserMatch = async (job) => {
 
 export const fetchQuestionId = async (topic, difficulty) => {
   try {
-    const response = await axios.post('http://question_service:3002/questions/matching', {
+    const question_domain =
+      process.env.QUESTION_SERVICE || "http://localhost:3002";
+    const question_path = `${question_domain}/questions/matching`;
+    const response = await axios.post(question_path, {
       category: topic,
       complexity: difficulty,
     });
-    
+
     return response.data.question_id; // Return the fetched question ID
   } catch (error) {
     console.error("Error fetching question ID:", error);
@@ -103,7 +111,7 @@ export const fetchQuestionId = async (topic, difficulty) => {
 };
 
 export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
-  const { matchedUser, userNumber, matchedUserId, questionId} = job.data;
+  const { matchedUser, userNumber, matchedUserId, questionId } = job.data;
 
   const room =
     userNumber === 1
