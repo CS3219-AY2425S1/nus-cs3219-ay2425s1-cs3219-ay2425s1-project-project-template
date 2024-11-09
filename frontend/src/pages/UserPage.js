@@ -41,7 +41,7 @@ export const UserPage = () => {
 
   useEffect(() => {
     getProfile(localStorage.getItem("userId"), localStorage.getItem("accessToken"));
-  })
+  }, [])
 
   return (
     <div className="user-page">
@@ -63,8 +63,11 @@ export const UserPage = () => {
             </tr>
           </tbody>
         </table>
-        <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} onClick={handleHomeButton}>        
-        </FontAwesomeIcon>
+        <div className='btn-container'>
+          <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} onClick={handleHomeButton}>        
+          </FontAwesomeIcon>
+          <button className="history-btn" onClick={(e) => navigate("/history")}>Questions attempted</button>
+        </div>
       </div>
     </div>
   )

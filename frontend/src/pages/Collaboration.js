@@ -16,12 +16,15 @@ export const Collaboration = () => {
     const [chat, setChat] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [title, setTitle] = useState('-')
+    const titleRef = useRef(title);
     const [question, setQuestion] = useState('No questions found');
+    const questionRef = useRef(question);
     const [showModal, setShowModal] = useState(false);
     const [roomName, setRoomName] = useState("");
     const navigate = useNavigate();
     const topic = sessionStorage.getItem("match_topic") ?? 'Bit Manipulation';
     const difficulty = sessionStorage.getItem("match_difficulty") ?? 'Medium';
+    const sharedSpaceRef = useRef();
 
 
     const getQuestionData = async () => {
@@ -44,7 +47,13 @@ export const Collaboration = () => {
         getQuestionData();
     })
 
-    const sharedSpaceRef = useRef();
+    useEffect(() => {
+        titleRef.current = title;
+    }, [title]);
+
+    useEffect(() => {
+        questionRef.current = question;
+    }, [question]);
 
     // Sync chat
     useEffect(() => {
@@ -65,9 +74,12 @@ export const Collaboration = () => {
           });
 
         socket.on('leave', (message) => {
-            saveData();
+            saveData().then((result) => {
             navigate('/home');
             alert(message);
+            }).catch(error => {
+                console.log("error occured while saving data");
+            })
         });
 
         return () => {
@@ -99,8 +111,9 @@ export const Collaboration = () => {
             const sharedSpaceState = sharedSpaceRef.current.getSharedSpaceState();
             const response = await axios.post("http://localhost:5002/saveAttempt", {
                 username: localStorage.getItem("username"),
-                attempts: [{question_id: 1, code: sharedSpaceState.code, text: sharedSpaceState.text1,
-                    language: sharedSpaceState.language, partner_username: sessionStorage.getItem("partner")
+                attempts: [{title: titleRef.current, code: sharedSpaceState.code, text: sharedSpaceState.text1,
+                    language: sharedSpaceState.language, partner_username: sessionStorage.getItem("partner"),
+                    question: questionRef.current
                 }]
             });
             console.log(response);
@@ -115,8 +128,11 @@ export const Collaboration = () => {
 
     const confirmLeave = () => {
         socket.emit('leave', roomName);
-        saveData();
-        navigate('/home');
+        saveData().then((result) => {
+            navigate('/home');
+        }).catch(error => {
+            console.log("Error with saving!");
+        });
     }
 
     const cancelLeave = () => {
@@ -128,7 +144,7 @@ export const Collaboration = () => {
           <div className="question-and-whiteboard">
             <h2 className="subheading">Question</h2>
             <div className="question-box">
-                <h3 className='questionTitle'>{title}</h3>
+              <h3 className='questionTitle'>{title}</h3>
               <h3 className='questionText'>{question}</h3>
             </div>
             <div className="whiteboard">

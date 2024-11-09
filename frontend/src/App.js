@@ -10,6 +10,8 @@ import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { Match } from "./pages/Match";
 import { Collaboration } from "./pages/Collaboration";
+import { History } from "./pages/History";
+import { CollaborationHistory } from "./pages/CollaborationHistory";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] =  useState(false);
@@ -83,6 +85,8 @@ function App() {
         <Route path="/profile" element={<PrivateRoute element={<UserPage />} isAuthenticated={isAuthenticated} />} />
         <Route path="/match" element={<PrivateRoute element={<Match />} isAuthenticated={isAuthenticated} />} />
         <Route path="/collab" element={<PrivateRoute element={<Collaboration />} isAuthenticated={isAuthenticated} />} />
+        <Route path="/history" element={<PrivateRoute element={<History />} isAuthenticated={isAuthenticated} />} />
+        <Route path="/collabhistory/:username/:attemptid" element={<PrivateRoute element={<CollaborationHistory />} isAuthenticated={isAuthenticated}/>} />
         <Route path="*" element={<p>404: Page Not Found!</p>} />
       </Routes>
     </div>
