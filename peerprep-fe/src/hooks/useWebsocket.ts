@@ -19,8 +19,9 @@ export function useWebSocket(url: string, userId: string) {
   useEffect(() => {
     if (!userId) return;
 
-    const baseUrl = url.replace('http://', '');
-    const wsUrl = `ws://${baseUrl}/matching/ws?userId=${userId}`;
+    const baseUrl = url.replace('http://', '').replace('https://', '');
+    const wsPrefix = process.env.NEXT_PUBLIC_WEBSOCKET_PREFIX || 'ws';
+    const wsUrl = `${wsPrefix}://${baseUrl}/matching/ws?userId=${userId}`;
     const websocket = new WebSocket(wsUrl);
     setWs(websocket);
 
