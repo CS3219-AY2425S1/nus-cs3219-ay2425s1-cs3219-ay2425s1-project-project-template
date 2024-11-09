@@ -19,6 +19,7 @@ import VideoCall from "./components/Communication/videoCall";
 import NavBar from "./components/NavBar/navbar";
 
 import "./App.css";
+import VerifyAccountPage from "./pages/Verify/verify";
 
 const queryClient = new QueryClient();
 const TOAST_LIMIT = 3
@@ -47,12 +48,13 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
               <Route path="/resetpassword" element={<ResetPasswordPage />} />
+              <Route path="/verify" element={<VerifyAccountPage />} />
             </Route>
             <Route element={<PrivateRoute />}>
               <Route path="/" element={<QuestionPage />} />
-              <Route path="/settings" element={<SettingsPage />}/>
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/collaboration/:roomId" element={<CollaborationPage />} />
-              <Route path="/history" element= {<HistoryPage />} />
+              <Route path="/history" element={<HistoryPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

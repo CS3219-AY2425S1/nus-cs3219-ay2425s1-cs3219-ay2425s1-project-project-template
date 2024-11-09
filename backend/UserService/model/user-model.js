@@ -27,8 +27,14 @@ const UserModelSchema = new Schema(
       type: String,
       default: "",
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     forgotPasswordToken: String,
     forgotPasswordTokenExpiry: Date,
+    verificationToken: String,
+    verificationTokenExpiry: Date,
   },
   { timestamps: true }
 );
