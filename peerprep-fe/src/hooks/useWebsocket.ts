@@ -3,6 +3,7 @@ import { UserMatchingResponse } from '@/types/types';
 
 type Message = UserMatchingResponse;
 
+// websocket
 export function useWebSocket(url: string, userId: string) {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
