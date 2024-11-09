@@ -2,6 +2,7 @@ import { Row, TabsProps } from "antd";
 import { QuestionDetail } from "../QuestionDetail/QuestionDetail";
 import { TestcaseDetail } from "../TestcaseDetail/TestcaseDetail";
 import "./styles.scss";
+import { Test } from "@/app/services/execute";
 
 // TODO: should add function for test case submission in props
 interface QuestionDetailFullProps {
@@ -9,7 +10,7 @@ interface QuestionDetailFullProps {
   complexity?: string;
   categories?: string[];
   description?: string;
-  testcaseItems?: TabsProps["items"];
+  visibleTestcases?: Test[];
   shouldShowSubmitButton?: boolean;
   handleRunTestCases?: () => void;
   isLoadingTestCase?: boolean;
@@ -19,7 +20,7 @@ interface QuestionDetailFullProps {
 export const QuestionDetailFull = (props: QuestionDetailFullProps) => {
   return (
     <>
-      <Row className="question-row">
+      <Row className="question-box">
         <QuestionDetail
           questionTitle={props.questionTitle}
           complexity={props.complexity}
@@ -27,9 +28,9 @@ export const QuestionDetailFull = (props: QuestionDetailFullProps) => {
           description={props.description}
         />
       </Row>
-      <Row className="test-row">
+      <Row className="test-box">
         <TestcaseDetail
-          testcaseItems={props.testcaseItems}
+          visibleTestcases={props.visibleTestcases}
           shouldShowSubmitButton={props.shouldShowSubmitButton}
           handleRunTestCases={props.handleRunTestCases}
           isLoadingTestCase={props.isLoadingTestCase}

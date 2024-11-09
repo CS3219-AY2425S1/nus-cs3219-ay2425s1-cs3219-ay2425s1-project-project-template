@@ -1,9 +1,14 @@
-import { FileDoneOutlined, PlayCircleOutlined } from "@ant-design/icons";
-import { Button, Input, Spin, Tabs, TabsProps } from "antd";
+import {
+  FileDoneOutlined,
+  InfoCircleFilled,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import { Button, Input, Spin, Tabs, TabsProps, Typography } from "antd";
 import "./styles.scss";
+import { isTestResult, Test } from "@/app/services/execute";
 
 interface TestcaseDetailProps {
-  testcaseItems?: TabsProps["items"];
+  visibleTestcases?: Test[];
   shouldShowSubmitButton?: boolean;
   isLoadingTestCase?: boolean;
   handleRunTestCases?: () => void;
@@ -11,9 +16,7 @@ interface TestcaseDetailProps {
 }
 
 export const TestcaseDetail = (props: TestcaseDetailProps) => {
-  // TODO: Tabs component items for testcases
-  // TODO: Setup test-cases in db for each qn and pull/paste here
-  const items: TabsProps["items"] = [
+  const defaultTestcaseTabs: TabsProps["items"] = [
     {
       key: "1",
       label: "Case 1",
@@ -37,9 +40,56 @@ export const TestcaseDetail = (props: TestcaseDetailProps) => {
     // },
   ];
 
+  var visibleTestcasesTabs: TabsProps["items"] = props.visibleTestcases?.map(
+    (item, index) => {
+      return {
+        key: index.toString(),
+        label: (
+          <span
+            style={{
+              color: !isTestResult(item) ? "" : item.passed ? "green" : "red",
+            }}
+          >
+            Case {index + 1}
+          </span>
+        ),
+        children: (
+          <div>
+            <Input.TextArea
+              disabled
+              placeholder={`Stdin: ${item.input}\nStdout: ${item.expected}`}
+              rows={4}
+            />
+            {isTestResult(item) && (
+              <div className="test-result-container">
+                <InfoCircleFilled className="hidden-test-icon" />
+                <Typography.Text
+                  strong
+                  style={{ color: item.passed ? "green" : "red" }}
+                >
+                  {item.passed ? "Passed" : "Failed"}
+                </Typography.Text>
+                <br />
+                <Typography.Text strong>Actual Output:</Typography.Text>{" "}
+                {item.actual}
+                <br />
+                {item.error && (
+                  <>
+                    <Typography.Text strong>Error:</Typography.Text>
+                    <div className="error-message">{item.error}</div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        ),
+      };
+    }
+  );
+
   return (
-    <div className="test-container">
-      <div className="test-top-container">
+    <div className="test-section">
+      <div className="test-top-box">
         <div className="test-title">
           <FileDoneOutlined className="title-icons" />
           Test Cases
@@ -63,7 +113,10 @@ export const TestcaseDetail = (props: TestcaseDetailProps) => {
         )}
       </div>
       <div className="test-cases-container">
-        <Tabs items={props.testcaseItems || items} defaultActiveKey="1" />
+        <Tabs
+          items={visibleTestcasesTabs || defaultTestcaseTabs}
+          defaultActiveKey="1"
+        />
       </div>
     </div>
   );

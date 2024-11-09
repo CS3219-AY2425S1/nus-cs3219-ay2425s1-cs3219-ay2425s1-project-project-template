@@ -22,16 +22,22 @@ import {
   ClockCircleOutlined,
   CodeOutlined,
   InfoCircleFilled,
-  MessageOutlined,
   SendOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import CollaborativeEditor, {
   CollaborativeEditorHandle,
 } from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { CreateHistory } from "@/app/services/history";
 import { WebrtcProvider } from "y-webrtc";
-import { ExecuteVisibleAndCustomTests, ExecuteVisibleAndHiddenTestsAndSubmit, ExecutionResults, GetVisibleTests, isTestResult, SubmissionHiddenTestResultsAndStatus, SubmissionResults, Test, TestData, TestResult } from "@/app/services/execute";
+import {
+  ExecuteVisibleAndCustomTests,
+  ExecuteVisibleAndHiddenTestsAndSubmit,
+  ExecutionResults,
+  GetVisibleTests,
+  SubmissionHiddenTestResultsAndStatus,
+  SubmissionResults,
+  Test,
+} from "@/app/services/execute";
 import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
 import VideoPanel from "@/components/VideoPanel/VideoPanel";
 
@@ -89,8 +95,12 @@ export default function CollaborationPage(props: CollaborationProps) {
   );
   const [visibleTestCases, setVisibleTestCases] = useState<Test[]>([]);
   const [isLoadingTestCase, setIsLoadingTestCase] = useState<boolean>(false);
-  const [isLoadingSubmission, setIsLoadingSubmission] = useState<boolean>(false);
-  const [submissionHiddenTestResultsAndStatus, setSubmissionHiddenTestResultsAndStatus] = useState<SubmissionHiddenTestResultsAndStatus | undefined>(undefined);
+  const [isLoadingSubmission, setIsLoadingSubmission] =
+    useState<boolean>(false);
+  const [
+    submissionHiddenTestResultsAndStatus,
+    setSubmissionHiddenTestResultsAndStatus,
+  ] = useState<SubmissionHiddenTestResultsAndStatus | undefined>(undefined);
 
   // End Button Modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -151,7 +161,7 @@ export default function CollaborationPage(props: CollaborationProps) {
       type: "info",
       content: message,
     });
-  }
+  };
 
   const sendSubmissionResultsToMatchedUser = (data: SubmissionResults) => {
     if (!providerRef.current) {
@@ -161,7 +171,7 @@ export default function CollaborationPage(props: CollaborationProps) {
       submissionResults: data,
       id: Date.now(),
     });
-  }
+  };
 
   const sendExecutingStateToMatchedUser = (executing: boolean) => {
     if (!providerRef.current) {
@@ -171,7 +181,7 @@ export default function CollaborationPage(props: CollaborationProps) {
       executing: executing,
       id: Date.now(),
     });
-  }
+  };
 
   const sendSubmittingStateToMatchedUser = (submitting: boolean) => {
     if (!providerRef.current) {
@@ -181,7 +191,7 @@ export default function CollaborationPage(props: CollaborationProps) {
       submitting: submitting,
       id: Date.now(),
     });
-  }
+  };
 
   const sendExecutionResultsToMatchedUser = (data: ExecutionResults) => {
     if (!providerRef.current) {
@@ -191,7 +201,7 @@ export default function CollaborationPage(props: CollaborationProps) {
       executionResults: data,
       id: Date.now(),
     });
-  }
+  };
 
   const updateSubmissionResults = (data: SubmissionResults) => {
     setSubmissionHiddenTestResultsAndStatus({
@@ -199,11 +209,11 @@ export default function CollaborationPage(props: CollaborationProps) {
       status: data.status,
     });
     setVisibleTestCases(data.visibleTestResults);
-  }
+  };
 
   const updateExecutionResults = (data: ExecutionResults) => {
     setVisibleTestCases(data.visibleTestResults);
-  }
+  };
 
   const handleRunTestCases = async () => {
     if (!questionDocRefId) {
@@ -211,20 +221,17 @@ export default function CollaborationPage(props: CollaborationProps) {
     }
     setIsLoadingTestCase(true);
     sendExecutingStateToMatchedUser(true);
-    const data = await ExecuteVisibleAndCustomTests(
-      questionDocRefId,
-      {
-        code: code,
-        language: selectedLanguage,
-        customTestCases: "",
-      }
-    );
+    const data = await ExecuteVisibleAndCustomTests(questionDocRefId, {
+      code: code,
+      language: selectedLanguage,
+      customTestCases: "",
+    });
     setVisibleTestCases(data.visibleTestResults);
-    infoMessage("Test cases executed. Review the results below.")
+    infoMessage("Test cases executed. Review the results below.");
     sendExecutionResultsToMatchedUser(data);
     setIsLoadingTestCase(false);
     sendExecutingStateToMatchedUser(false);
-  }
+  };
 
   const handleSubmitCode = async () => {
     if (!questionDocRefId) {
@@ -232,19 +239,16 @@ export default function CollaborationPage(props: CollaborationProps) {
     }
     setIsLoadingSubmission(true);
     sendSubmittingStateToMatchedUser(true);
-    const data = await ExecuteVisibleAndHiddenTestsAndSubmit(
-      questionDocRefId,
-      {
-        code: code,
-        language: selectedLanguage,
-        user: currentUser ?? "",
-        matchedUser: matchedUser ?? "",
-        matchedTopics: matchedTopics ?? [],
-        title: questionTitle ?? "",
-        questionDifficulty: complexity ?? "",
-        questionTopics: categories,
-      }
-    );
+    const data = await ExecuteVisibleAndHiddenTestsAndSubmit(questionDocRefId, {
+      code: code,
+      language: selectedLanguage,
+      user: currentUser ?? "",
+      matchedUser: matchedUser ?? "",
+      matchedTopics: matchedTopics ?? [],
+      title: questionTitle ?? "",
+      questionDifficulty: complexity ?? "",
+      questionTopics: categories,
+    });
     setVisibleTestCases(data.visibleTestResults);
     setSubmissionHiddenTestResultsAndStatus({
       hiddenTestResults: data.hiddenTestResults,
@@ -254,7 +258,7 @@ export default function CollaborationPage(props: CollaborationProps) {
     successMessage("Code saved successfully!");
     setIsLoadingSubmission(false);
     sendSubmittingStateToMatchedUser(false);
-  }
+  };
 
   const handleCodeChange = (code: string) => {
     setCode(code);
@@ -309,55 +313,6 @@ export default function CollaborationPage(props: CollaborationProps) {
       router.push("/matching"); // Redirect to matching page
     }
   }, [isSessionEndModalOpen, countDown]);
-
-  // Tabs component items for visibleTestCases
-  var items: TabsProps["items"] = visibleTestCases.map((item, index) => {
-    return {
-      key: index.toString(),
-      label: (
-        <span
-          style={{
-            color: !isTestResult(item) 
-              ? "" 
-              : (item.passed ? "green" : "red"),
-          }}
-        >
-          Case {index + 1}
-        </span>
-      ),
-      children: (
-        <div>
-          <Input.TextArea
-            disabled
-            placeholder={`Stdin: ${item.input}\nStdout: ${item.expected}`}
-            rows={4}
-          />
-          {isTestResult(item) && (
-            <div className="test-result-container">
-              <InfoCircleFilled className="hidden-test-icon" />
-              <Typography.Text 
-                strong 
-                style={{ color: item.passed ? "green" : "red" }}
-              >
-                {item.passed ? "Passed" : "Failed"}
-              </Typography.Text>
-              <br />
-              <Typography.Text strong>Actual Output:</Typography.Text> {item.actual}
-              <br />
-              {item.error && (
-                <>
-                  <Typography.Text strong>Error:</Typography.Text>
-                  <div className="error-message">
-                    {item.error}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      ),
-    };
-  });
 
   // Handles the cleaning of localstorage variables, stopping the timer & signalling collab user on webrtc
   // type: "initiator" | "peer"
@@ -438,7 +393,7 @@ export default function CollaborationPage(props: CollaborationProps) {
               complexity={complexity}
               categories={categories}
               description={description}
-              testcaseItems={items}
+              visibleTestcases={visibleTestCases}
               shouldShowSubmitButton
               handleRunTestCases={handleRunTestCases}
               isLoadingTestCase={isLoadingTestCase}
@@ -487,31 +442,50 @@ export default function CollaborationPage(props: CollaborationProps) {
                 )}
                 <div className="hidden-test-results">
                   <InfoCircleFilled className="hidden-test-icon" />
-                  <Typography.Text 
+                  <Typography.Text
                     strong
                     style={{
                       color: submissionHiddenTestResultsAndStatus
-                        ? submissionHiddenTestResultsAndStatus.status === "Accepted"
+                        ? submissionHiddenTestResultsAndStatus.status ===
+                          "Accepted"
                           ? "green"
-                          : submissionHiddenTestResultsAndStatus.status === "Attempted"
+                          : submissionHiddenTestResultsAndStatus.status ===
+                            "Attempted"
                           ? "orange"
                           : "black" // default color for any other status
                         : "gray", // color for "Not Attempted"
                     }}
                   >
-                    Session Status: {submissionHiddenTestResultsAndStatus ? submissionHiddenTestResultsAndStatus.status : "Not Attempted"}
+                    Session Status:{" "}
+                    {submissionHiddenTestResultsAndStatus
+                      ? submissionHiddenTestResultsAndStatus.status
+                      : "Not Attempted"}
                   </Typography.Text>
                   <br />
                   {submissionHiddenTestResultsAndStatus && (
                     <Typography.Text
                       strong
                       style={{
-                        color: submissionHiddenTestResultsAndStatus.hiddenTestResults.passed === submissionHiddenTestResultsAndStatus.hiddenTestResults.total
-                          ? "green" // All test cases passed
-                          : "red"   // Some test cases failed
+                        color:
+                          submissionHiddenTestResultsAndStatus.hiddenTestResults
+                            .passed ===
+                          submissionHiddenTestResultsAndStatus.hiddenTestResults
+                            .total
+                            ? "green" // All test cases passed
+                            : "red", // Some test cases failed
                       }}
                     >
-                      Passed {submissionHiddenTestResultsAndStatus.hiddenTestResults.passed} / {submissionHiddenTestResultsAndStatus.hiddenTestResults.total} hidden test cases
+                      Passed{" "}
+                      {
+                        submissionHiddenTestResultsAndStatus.hiddenTestResults
+                          .passed
+                      }{" "}
+                      /{" "}
+                      {
+                        submissionHiddenTestResultsAndStatus.hiddenTestResults
+                          .total
+                      }{" "}
+                      hidden test cases
                     </Typography.Text>
                   )}
                 </div>

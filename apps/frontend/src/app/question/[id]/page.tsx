@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/components/Header/header";
-import { Col, Layout, message, PaginationProps, Row, Table } from "antd";
+import { Col, Layout, message, PaginationProps, Row, Spin, Table } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { CodeOutlined, HistoryOutlined } from "@ant-design/icons";
 import "./styles.scss";
@@ -15,11 +15,13 @@ import { basicSetup, EditorView } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { GetHistory, GetUserQuestionHistories } from "@/app/services/history";
 import { ValidateUser, VerifyTokenResponseType } from "@/app/services/user";
+import { GetVisibleTests, Test } from "@/app/services/execute";
 
 interface Submission {
   submittedAt: string;
   language: string;
   matchedUser: string;
+  otherUser: string;
   historyDocRefId: string;
   code: string;
 }
@@ -63,6 +65,7 @@ export default function QuestionPage() {
     useState<History[]>();
   const [submission, setSubmission] = useState<Submission>();
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
+  const [isSubmissionLoading, setIsSubmissionLoading] = useState<boolean>(true);
   const [currentSubmissionId, setCurrentSubmissionId] = useState<
     string | undefined
   >(historyDocRefId == "" ? undefined : historyDocRefId);
@@ -72,6 +75,7 @@ export default function QuestionPage() {
     currentPage: 1,
     limit: 3,
   });
+  const [visibleTestCases, setVisibleTestCases] = useState<Test[]>([]);
 
   const state = EditorState.create({
     doc: "",
@@ -128,6 +132,10 @@ export default function QuestionPage() {
       .finally(() => {
         setIsLoading(false);
       });
+
+    GetVisibleTests(questionDocRefId).then((data: Test[]) => {
+      setVisibleTestCases(data);
+    });
   }, [questionDocRefId]);
 
   useEffect(() => {
@@ -149,23 +157,28 @@ export default function QuestionPage() {
       parent: editorRef.current || undefined,
     });
 
-    GetHistory(currentSubmissionId).then((data: any) => {
-      const submittedAt = new Date(data.createdAt);
-      setSubmission({
-        submittedAt: submittedAt.toLocaleString("en-US"),
-        language: data.language,
-        matchedUser:
-          username == data.matchedUser ? data.user : data.matchedUser,
-        historyDocRefId: data.historyDocRefId,
-        code: data.code,
-      });
+    setIsSubmissionLoading(true);
+    GetHistory(currentSubmissionId)
+      .then((data: any) => {
+        const submittedAt = new Date(data.createdAt);
+        setSubmission({
+          submittedAt: submittedAt.toLocaleString("en-US"),
+          language: data.language,
+          matchedUser:
+            username == data.matchedUser ? data.user : data.matchedUser,
+          otherUser: data.user,
+          historyDocRefId: data.historyDocRefId,
+          code: data.code,
+        });
+        setIsSubmissionLoading(false);
 
-      view.dispatch(
-        state.update({
-          changes: { from: 0, to: state.doc.length, insert: data.code },
-        })
-      );
-    });
+        view.dispatch(
+          state.update({
+            changes: { from: 0, to: state.doc.length, insert: data.code },
+          })
+        );
+      })
+      .finally(() => {});
 
     return () => {
       // Cleanup on component unmount
@@ -211,7 +224,7 @@ export default function QuestionPage() {
                 complexity={complexity}
                 categories={categories}
                 description={description}
-                testcaseItems={undefined}
+                visibleTestcases={visibleTestCases}
               />
             </Col>
             <Col span={12} className="second-col">
@@ -222,35 +235,57 @@ export default function QuestionPage() {
                       <HistoryOutlined className="title-icons" />
                       Submission History
                     </div>
-                  </div>
-                  <div style={{ margin: "10px" }}>
-                    <Table
-                      rowKey="id"
-                      dataSource={userQuestionHistories}
-                      columns={columns}
-                      onRow={(record: any) => {
-                        return {
-                          onClick: () => handleRowClick(record),
-                          style: { cursor: "pointer" },
-                        };
-                      }}
-                      loading={isHistoryLoading}
-                      pagination={{
-                        size: "small",
-                        current: paginationParams.currentPage,
-                        total: paginationParams.totalCount,
-                        pageSize: paginationParams.limit,
-                        onChange: onPageJump,
-                      }}
-                      scroll={{ y: 200 }}
-                    />
+                    <div style={{ margin: "10px" }}>
+                      <Table
+                        rowKey="id"
+                        dataSource={userQuestionHistories}
+                        columns={columns}
+                        onRow={(record: any) => {
+                          return {
+                            onClick: () => handleRowClick(record),
+                            style: { cursor: "pointer" },
+                          };
+                        }}
+                        loading={isHistoryLoading}
+                        pagination={{
+                          size: "small",
+                          current: paginationParams.currentPage,
+                          total: paginationParams.totalCount,
+                          pageSize: paginationParams.limit,
+                          onChange: onPageJump,
+                        }}
+                        scroll={{ y: 200 }}
+                      />
+                    </div>
                   </div>
                 </div>
               </Row>
               {currentSubmissionId && (
                 <Row className="code-row">
                   <div className="code-container">
-                    <>
+                    {isSubmissionLoading && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100%",
+                        }}
+                      >
+                        <Spin />
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        visibility: `${
+                          isSubmissionLoading ? "hidden" : "visible"
+                        }`,
+
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
+                      }}
+                    >
                       <div className="code-top-container">
                         <div className="code-title">
                           <CodeOutlined className="title-icons" />
@@ -263,25 +298,44 @@ export default function QuestionPage() {
                         style={{
                           margin: "10px",
                           display: "flex",
+                          justifyContent: "space-between",
                           flexDirection: "row",
                         }}
                       >
                         <div className="submission-header-detail">
-                          Submitted at: {submission?.submittedAt || "-"}
+                          <div style={{ fontWeight: "bold" }}>
+                            Submitted at:
+                          </div>
+                          <div style={{ paddingLeft: "5px" }}>
+                            {submission?.submittedAt || "-"}
+                          </div>
                         </div>
                         <div className="submission-header-detail">
-                          Language: {submission?.language || "-"}
+                          <div style={{ fontWeight: "bold" }}>Language:</div>
+                          <div style={{ paddingLeft: "5px" }}>
+                            {submission?.language || "-"}
+                          </div>
                         </div>
                         <div className="submission-header-detail">
-                          Matched with: {submission?.matchedUser || "-"}
+                          <div style={{ fontWeight: "bold" }}>
+                            Matched with:
+                          </div>
+                          <div style={{ paddingLeft: "5px" }}>
+                            {submission?.matchedUser
+                              ? // Check to ensure that matched user is correct, otherwise swap with otherUser
+                                username == submission.matchedUser
+                                ? submission.otherUser
+                                : submission.matchedUser
+                              : "-"}
+                          </div>
                         </div>
                       </div>
 
                       {/* Code Editor */}
                       <div
                         style={{
-                          margin: "10px",
-                          height: "35vh",
+                          marginTop: "10px",
+                          height: "100%",
                         }}
                       >
                         <div
@@ -293,7 +347,7 @@ export default function QuestionPage() {
                           }}
                         ></div>
                       </div>
-                    </>
+                    </div>
                   </div>
                 </Row>
               )}
