@@ -26,7 +26,9 @@ const AudioSharing = () => {
   const TURN_CREDENTIAL = process.env.NEXT_PUBLIC_TURN_PASSWORD;
 
   if (!TURN_SERVER || !TURN_USERNAME || !TURN_CREDENTIAL) {
-    console.error('Missing TURN environment variables');
+    console.error(TURN_SERVER);
+    console.error(TURN_USERNAME);
+    console.error(TURN_CREDENTIAL);
   }
 
   const cleanupAudio = () => {
