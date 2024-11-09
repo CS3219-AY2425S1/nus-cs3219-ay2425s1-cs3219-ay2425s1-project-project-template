@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import { initializeCommunicationSockets } from "./sockets/handlers";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import mongoose from "mongoose";
+import 'dotenv/config';
 
 const app = express();
 const httpServer = createServer(app);
@@ -39,6 +40,6 @@ mongoose
       console.log(`Communication Server is running on port ${PORT}`);
     });
   })
-  .catch((error) => {
+  .catch((error: Error) => {
     console.error("Error connecting to MongoDB:", error);
   });
