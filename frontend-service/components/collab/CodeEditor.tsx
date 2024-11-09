@@ -37,27 +37,32 @@ interface CodeEditorProps {
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
+
+  // Code editor states
   const [code, setCode] = useState('//Start writing your code here..');
   const [codeLanguage, setCodeLanguage] = useState<string>('javascript');
-  const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null);
-  const [question, setQuestion] = useState<Question | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false); // New state
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'typing' | null>(null);
-  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  // const [question, setQuestion] = useState<Question | null>(null);
 
-  const toast = useToast(); // Initialize Chakra UI toast
+  // Room states
+  const [leaveRoomMessage, setLeaveRoomMessage] = useState<string | null>(null);
+  const [isLeaveRoomDialogOpen, setIsLeaveRoomDialogOpen] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
+
   const previousUsersCount = useRef<number>(0);
   const [activeUserCount, setActiveUserCount] = useState(0);
-  const [assignedQuestionId, setAssignedQuestionId] = useState<number | null>(null)
+  const [assignedQuestionId, setAssignedQuestionId] = useState<number | null>(null);
 
+  // Firebase references
   const usersRef = ref(FIREBASE_DB, `rooms/${roomId}/users`);
   const codeRef = ref(FIREBASE_DB, `rooms/${roomId}/code`);
   const languageRef = ref(FIREBASE_DB, `rooms/${roomId}/currentLanguage`);
-
   const cancelRef = useRef(null);
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+
+  const toast = useToast();
   const navigate = useNavigate();
 
   // create a use effect for fetching of question id assigned to users in the room
@@ -74,7 +79,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
 
         if (assignedQuestionId) {
           setAssignedQuestionId(assignedQuestionId);
-          fetchAssignedQn(assignedQuestionId);
+          // fetchAssignedQn(assignedQuestionId);
         } else {
           console.error("No selectedQuestionId found in room data");
         }
@@ -83,19 +88,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
       }
     };
 
-    const fetchAssignedQn = async (questionId: number) => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/questions/${questionId}`)
-        console.log("Fetched question details:", response.data)
-        setQuestion(response.data)
-      } catch (error) {
-        console.error("Failed to fetch question details:", error)
-      }
-    }
+    // const fetchAssignedQn = async (questionId: number) => {
+    //   try {
+    //     const response = await axios.get(`http://localhost:8080/api/questions/${questionId}`)
+    //     console.log("Fetched question details:", response.data)
+    //     // setQuestion(response.data)
+    //   } catch (error) {
+    //     console.error("Failed to fetch question details:", error)
+    //   }
+    // }
 
     fetchRoomData();
   }, [roomId]);
 
+  // Setup syntax highlighting
   useEffect(() => {
     const setupSyntaxHighlighting = async () => {
       const highlighter = await createHighlighter({
@@ -111,6 +117,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
     setupSyntaxHighlighting().catch(console.error);
   }, []);
 
+  // Setup code editor
   useEffect(() => {
     const unsubscribe = onValue(codeRef, (snapshot) => {
       const updatedCode = snapshot.val()
@@ -135,6 +142,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
     }
   }, [code, codeLanguage])
 
+  // Actions based on whether the other user is present
   useEffect(() => {
     const unsubscribe = onValue(usersRef, (snapshot) => {
       const users = snapshot.val();
@@ -171,6 +179,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
     };
   }, [toast]);
 
+  // Show save state of the code
   useEffect(() => {
     // Listen to Firebase database changes to confirm save status
     const unsubscribe = onValue(codeRef, (snapshot) => {
@@ -184,6 +193,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
     return () => unsubscribe();
   }, [code, codeLanguage, codeRef]);
 
+  // Handle code changes
   const handleEditorChange = async (newValue: string | undefined) => {
     if (newValue !== undefined) {
       setCode(newValue);
@@ -230,7 +240,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   };
 
   const handleConfirmLeave = () => {
-    setIsDialogOpen(false);
+    setIsLeaveRoomDialogOpen(false);
     handleLeaveRoom();
   };
 
@@ -268,6 +278,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
   const handleEditorDidMount: OnMount = (editor) => {
     monacoEditorRef.current = editor;
     editor.layout();
+  };
+
+  const handleDownloadCurrentCode = () => {
+    const fileExtensionMap: { [key: string]: string } = {
+      javascript: 'js',
+      python: 'py',
+      java: 'java',
+      csharp: 'cs',
+    };
+    const fileExtension = fileExtensionMap[codeLanguage] || 'txt';
+    const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+    const filename = `code.${fileExtension}`;
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -328,8 +357,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
                 <option key={lang} value={lang}>{lang.charAt(0).toUpperCase() + lang.slice(1)}</option>
               ))}
             </Select>
-            <Button size="sm" colorScheme="red" mr={3} onClick={() => setIsDialogOpen(true)}>Leave Room</Button>
             <Button size="sm" colorScheme="gray" onClick={handleResetCode}>Reset</Button>
+            <Button size="sm" colorScheme="teal" onClick={handleDownloadCurrentCode} mr={3}>Download Code</Button>
+            <Button size="sm" colorScheme="red" mr={3} onClick={() => setIsLeaveRoomDialogOpen(true)}>Leave Room</Button>
           </Box>
         </Box>
 
@@ -353,13 +383,13 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ roomId, thisUserId }) => {
 
         {leaveRoomMessage && <Text color="red.500" mt={4}>{leaveRoomMessage}</Text>}
 
-        <AlertDialog isOpen={isDialogOpen} leastDestructiveRef={cancelRef} onClose={() => setIsDialogOpen(false)}>
+        <AlertDialog isOpen={isLeaveRoomDialogOpen} leastDestructiveRef={cancelRef} onClose={() => setIsLeaveRoomDialogOpen(false)}>
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogHeader fontSize="lg" fontWeight="bold">Leave Room</AlertDialogHeader>
               <AlertDialogBody>Are you sure you want to leave the room?</AlertDialogBody>
               <AlertDialogFooter>
-                <Button ref={cancelRef} onClick={() => setIsDialogOpen(false)}>No</Button>
+                <Button ref={cancelRef} onClick={() => setIsLeaveRoomDialogOpen(false)}>No</Button>
                 <Button colorScheme="red" onClick={handleConfirmLeave} ml={3}>Yes, Leave</Button>
               </AlertDialogFooter>
             </AlertDialogContent>
