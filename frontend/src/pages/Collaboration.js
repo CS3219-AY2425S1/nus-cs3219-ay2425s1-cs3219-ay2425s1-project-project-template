@@ -11,7 +11,9 @@ const socket = io('http://localhost:5002');
 
 
 export const Collaboration = () => {
-    const [chatMessages, setChatMessages] = useState([]);
+    const currentUsername = localStorage.getItem("username");
+    const partnerUsername = sessionStorage.getItem("partner");
+    const [chat, setChat] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [title, setTitle] = useState('-')
     const [question, setQuestion] = useState('No questions found');
@@ -26,7 +28,6 @@ export const Collaboration = () => {
         try {
           const response = await axios.get(`${QUESTIONS_SERVICE}/questions/${topic}/${difficulty}`);
           if (response.status === 404 || response.status === 500) {
-            //404 not found
             console.log("Response 404 || 500");
             navigate("/*");
           }
@@ -47,17 +48,21 @@ export const Collaboration = () => {
 
     // Sync chat
     useEffect(() => {
-        /**
-        socket.on('chatMessage', (message) => {
-            setChatMessages((prevMessages) => [...prevMessages, {text: message, isSent: false}]);
-        });
-        */
         
         // Join the room with partner
-        const newRoom = [localStorage.getItem("username"), sessionStorage.getItem("partner")].sort().join('-');
+        const newRoom = [currentUsername, partnerUsername].sort().join('-');
         setRoomName(newRoom);
         socket.emit("joinRoom", newRoom);
         console.log(`Joined room: ${newRoom}`);
+
+        socket.on('receiveMessage', (messageData) => {
+            if (messageData.currentUsername === currentUsername) {
+                console.log("Message sent by current user");
+            } else {
+                setChat((prevChat) => [...prevChat, messageData]);
+                console.log(`User ${currentUsername} received message: ${messageData} from user ${messageData.currentUsername}`);
+            }
+          });
 
         socket.on('leave', (message) => {
             saveData();
@@ -66,21 +71,28 @@ export const Collaboration = () => {
         });
 
         return () => {
-            //socket.off('chatMessage');
+            socket.off('receiveMessage');
             socket.off('leave');
         }
     }, []);
 
-    /**
+    useEffect(() => {
+        console.log("Chat updated:", chat);
+    }, [chat]);
+
     const handleSendMessage = () => {
-        if (currentMessage.trim()) {
-            const newMessage = { text: currentMessage, isSent: true };
-            socket.emit('chatMessage', newMessage);
-            setChatMessages((prevMessages) => [...prevMessages, newMessage]);
-            setCurrentMessage('');
-        }
+        const messageData = { roomName, currentUsername, currentMessage };
+        socket.emit('sendMessage', messageData);
+        setChat((prevChat) => [...prevChat, messageData]);
+        setCurrentMessage('');
+
     };
-    */
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        handleSendMessage();
+      }
+    };
 
     const saveData = async () => {
         try {
@@ -110,14 +122,6 @@ export const Collaboration = () => {
     const cancelLeave = () => {
         setShowModal(false);
     }
-    
-    /**
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        handleSendMessage();
-      }
-    };
-    */
 
     return (
         <div className="collaboration-container">
@@ -138,11 +142,11 @@ export const Collaboration = () => {
             <h2>Topic: {topic}</h2>
             <h2>Difficulty: {difficulty}</h2>
             <div className="chat-box">
-                <h3>Chat</h3>
+                <h3>Chat with {partnerUsername}</h3>
                 <div className="chat-messages">
-                    {chatMessages.map((msg, index) => (
-                        <p key={index} className={`message ${msg.isSent ? 'sent' : 'received'}`}>
-                            {msg.text}
+                    {chat.map((msg, index) => (
+                        <p key={index} className={`message ${(msg.currentUsername === currentUsername) ? 'sent' : 'received'}`}>
+                            {msg.currentMessage}
                         </p>
                     ))}
                 </div>
@@ -150,9 +154,10 @@ export const Collaboration = () => {
                     type="text"
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="Type a message..."
                 />
-                <button className="send-button">Send</button>
+                <button className="send-button" onClick={handleSendMessage}>Send</button>
             </div>
             
             <div className="leave-container">

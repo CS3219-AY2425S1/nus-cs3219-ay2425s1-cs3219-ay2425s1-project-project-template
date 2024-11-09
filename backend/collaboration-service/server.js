@@ -64,12 +64,19 @@ const io = SocketIO(server, {
       credentials: true                  // Allow credentials (if needed)
   }
 });
+
 io.on('connection', (socket) => {
-  console.log("SocketIO for Collab Page Leave functionality connected");
+  console.log("SocketIO for Collab Page connected");
 
   socket.on('joinRoom', (roomName) => {
     console.log(`Join Room name: ${roomName}`);
     socket.join(roomName);
+  })
+
+  socket.on('sendMessage', (messageData) => {
+    const { roomName, currentUsername, currentMessage } = messageData;
+    console.log(`collab-service backend send message from ${currentUsername} to room: ${roomName} and message: ${currentMessage}`);
+    io.to(roomName).emit('receiveMessage', messageData);
   })
 
   socket.on('leave', (roomName) => {
@@ -77,7 +84,7 @@ io.on('connection', (socket) => {
     socket.to(roomName).emit("leave", "Your partner has left!");
   })
   socket.on('disconnect', () => {
-    console.log("SocketIO for Collab Page Leave functionality Disconnected");
+    console.log("SocketIO for Collab Page Disconnected");
   })
 })
 
