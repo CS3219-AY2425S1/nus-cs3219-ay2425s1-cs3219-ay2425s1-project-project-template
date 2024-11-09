@@ -21,13 +21,9 @@ const AudioSharing = () => {
     process.env.NEXT_PUBLIC_AUDIO_SERVER_URL || 'http://localhost:5555';
 
   // Add TURN server credentials from environment variables
-  const TURN_SERVER = process.env.NEXT_PUBLIC_TURN_SERVER;
-  const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME;
-  const TURN_CREDENTIAL = process.env.NEXT_PUBLIC_TURN_CREDENTIAL;
-
-  if (!TURN_SERVER || !TURN_USERNAME || !TURN_CREDENTIAL) {
-    console.error('Missing TURN environment variables');
-  }
+  const TURN_SERVER = process.env.NEXT_PUBLIC_TURN_SERVER || 'turn:localhost';
+  const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME || 'none';
+  const TURN_CREDENTIAL = process.env.NEXT_PUBLIC_TURN_PASSWORD || 'none';
 
   const cleanupAudio = () => {
     if (audioStreamRef.current) {
@@ -56,11 +52,11 @@ const AudioSharing = () => {
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:global.stun.twilio.com:3478' },
           // Add TURN server configuration
-          // {
-          //   urls: TURN_SERVER,
-          //   username: TURN_USERNAME,
-          //   credential: TURN_CREDENTIAL,
-          // },
+          {
+            urls: TURN_SERVER,
+            username: TURN_USERNAME,
+            credential: TURN_CREDENTIAL,
+          },
         ],
       },
     });
