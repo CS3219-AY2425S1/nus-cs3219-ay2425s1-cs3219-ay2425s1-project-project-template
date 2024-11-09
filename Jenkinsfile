@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: 'refs/heads/develop']]])
+                checkout scm
             }
         }
 
