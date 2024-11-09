@@ -16,6 +16,29 @@ pipeline {
                 echo 'Testing'
             }
         }
+        stage('Diagnose Docker') {
+            steps {
+                sh '''
+                    echo "Which docker:"
+                    which docker || echo "docker not in PATH"
+                    
+                    echo "\nDocker version:"
+                    docker --version || echo "docker command failed"
+                    
+                    echo "\nCurrent user:"
+                    whoami
+                    
+                    echo "\nCurrent groups:"
+                    groups
+                    
+                    echo "\nDocker socket permissions:"
+                    ls -l /var/run/docker.sock || echo "docker.sock not found"
+                    
+                    echo "\nSystem PATH:"
+                    echo $PATH
+                '''
+            }
+        }
 
         stage('Build History Service') {
             steps {
