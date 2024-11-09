@@ -7,6 +7,7 @@ pipeline {
     tools {
         nodejs 'nodejs'
         docker 'docker'
+        echo 'Tools installed'
     }
 
     stages {
