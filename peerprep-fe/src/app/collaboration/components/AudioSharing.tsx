@@ -27,7 +27,7 @@ const AudioSharing = () => {
 
   if (!TURN_SERVER || !TURN_USERNAME || !TURN_CREDENTIAL) {
     // Log which specific variables are missing
-    console.error('Missing TURN config:', {
+    console.error('Missing TURN env:', {
       server: !!TURN_SERVER,
       username: !!TURN_USERNAME,
       credential: !!TURN_CREDENTIAL,
