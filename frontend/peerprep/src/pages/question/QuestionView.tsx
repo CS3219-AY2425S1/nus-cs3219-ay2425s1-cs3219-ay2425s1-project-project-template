@@ -286,21 +286,24 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             setColumnFilters={setColumnFilter}
             topics={topics}
           />
-          <HStack mb={6} spacing={4} align="center">
-            <Button colorScheme="purple" onClick={onLeetCodeModalOpen}>
-              Add LeetCode Question
-            </Button>
-            <Button
-              colorScheme="purple"
-              onClick={() => {
-                setSelectedQuestion(null);
-                onQuestionModalOpen();
-              }}
-            >
-              Add Question
-            </Button>
-          </HStack>
+          {user.isAdmin && (
+            <HStack mb={6} spacing={4} align="center">
+              <Button colorScheme="purple" onClick={onLeetCodeModalOpen}>
+                Add LeetCode Question
+              </Button>
+              <Button
+                colorScheme="purple"
+                onClick={() => {
+                  setSelectedQuestion(null);
+                  onQuestionModalOpen();
+                }}
+              >
+                Add Question
+              </Button>
+            </HStack>
+          )}
         </Box>
+
         {/* Table Display */}
         <DataTable
           columns={columns}
