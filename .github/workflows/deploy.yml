@@ -24,11 +24,11 @@ jobs:
             fe:
               - 'peerprep-fe/**'
               - 'k8s/peerprep*'
-              - 'cloudbuilds/fe'
+              - 'cloudbuilds/fe.yaml'
             api:
               - 'api-gateway/**'
               - 'k8s/api-gateway*'
-              - 'cloudbuilds/'
+              - 'cloudbuilds/api-gateway.yaml'
             question:
               - 'question-service/**'
               - 'k8s/question-service*'
