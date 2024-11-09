@@ -102,16 +102,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
             />
           </div>
 
-          {/* Checkbox for isAdmin */}
-          <div className="flex items-center">
-            <Checkbox
-              checked={isAdmin}
-              onChange={(e) => setIsAdmin(e.target.checked)} // Update isAdmin state
-              className="mr-2"
-            />
-            <Text color={"white"}>Admin</Text>
-          </div>
-
           {/* Display form validation errors */}
           {formError && <p className="text-red-500">{formError}</p>}
           {passwordError && <p className="text-red-500">{passwordError}</p>}

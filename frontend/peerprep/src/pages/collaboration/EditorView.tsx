@@ -223,7 +223,7 @@ const styles = {
   },
   leetCodeLink: {
     color: "#89DDFF",
-    textDecoration: "none",
+    textDecoration: "underline",
     fontWeight: "bold",
     marginTop: "10px",
     display: "inline-block",
