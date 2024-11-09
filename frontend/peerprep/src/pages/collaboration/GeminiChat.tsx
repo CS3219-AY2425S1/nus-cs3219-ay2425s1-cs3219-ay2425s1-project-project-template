@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-//import dotenv from 'dotenv';
 
 const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }) => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<{ user: string, ai: string }[]>([]);
     const [loading, setLoading] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false); // New state for collapsed state
-    
-    // dotenv.config();
-    // const apiKey = process.env.API_KEY;
-    // console.log("Loaded API Key:", apiKey);
-    // const genAI = new GoogleGenerativeAI(apiKey as string);
-    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY); // for now because it can't read properly from .env
+
+    // Instantiate Google Generative AI with your API key (replace with actual import method if necessary)
+    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInput(event.target.value);
     };
@@ -26,7 +22,7 @@ const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }
 
         try {
             const result = await model.generateContent(input);
-            const aiResponse = result.response.text();
+            const aiResponse = await result.response.text();
             
             setMessages(prev => {
                 const newMessages = [...prev];
@@ -48,109 +44,108 @@ const GeminiChat: React.FC<{ socketRef: React.RefObject<any> }> = ({ socketRef }
         }
     };
 
-    const toggleCollapse = () => {
-        setIsCollapsed(prev => !prev); // Toggle collapsed state
-    };
-
     return (
-        <div style={{ ...styles.chatContainer, height: isCollapsed ? '40px' : 'auto' }}>
-            <button onClick={toggleCollapse} style={styles.toggleButton}>
-                {isCollapsed ? 'Expand Chat' : 'Collapse Chat'}
-            </button>
-            {!isCollapsed && (
-                <>
-                    <div style={styles.messages}>
-                        {messages.map((msg, index) => (
-                            <div key={index} style={styles.message}>
-                                <strong>You:</strong> {msg.user}
-                                <br />
-                                <strong>AI:</strong> {msg.ai}
-                            </div>
-                        ))}
-                        {loading && <div>Loading...</div>}
+        <div style={styles.chatBoxContainer}>
+            <div style={styles.messagesContainer}>
+                {messages.map((msg, index) => (
+                    <div key={index} style={styles.messageContainer}>
+                        <div style={styles.userMessage}><strong>You:</strong> {msg.user}</div>
+                        {msg.ai && <div style={styles.aiMessage}><strong>AI:</strong> {msg.ai}</div>}
                     </div>
-                    <div style={styles.inputContainer}>
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={handleInputChange}
-                            onKeyDown={handleKeyDown}
-                            style={styles.input}
-                            placeholder="Type your message..."
-                        />
-                        <button onClick={handleSend} style={styles.sendButton}>Send</button>
-                    </div>
-                </>
-            )}
+                ))}
+                {loading && <div style={styles.loadingMessage}>Loading...</div>}
+            </div>
+
+            <div style={styles.inputContainer}>
+                <input
+                    type="text"
+                    value={input}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    style={styles.input}
+                    placeholder="Type your message..."
+                />
+                <button onClick={handleSend} style={styles.sendButton}>Send</button>
+            </div>
         </div>
     );
 };
 
 const styles = {
-    chatContainer: {
-        flex: "1",
-        backgroundColor: "#1e1e2f", 
+    chatBoxContainer: {
+        display: "flex",
+        flexDirection: "column" as const,
+        backgroundColor: "#2e2e3e",
         borderRadius: "8px",
         padding: "10px",
-        display: "flex",
-        flexDirection: "column",
-        overflowY: "hidden",
-        transition: "height 0.3s ease",
-        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)", 
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+        width: "100%", // Occupy full width
+        height: "100%", // Occupy full height of the parent
+        color: "#ffffff",
     },
-    toggleButton: {
-        padding: "8px",
-        backgroundColor: "#5636a7", 
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-        marginBottom: "10px",
-        fontWeight: "bold",
-        fontSize: "0.9rem",
-        transition: "background-color 0.3s ease",
-    },
-    messages: {
+    messagesContainer: {
         flex: 1,
-        overflowY: "auto",
-        color: "#f5f5f5",
+        overflowY: "auto" as const,
         padding: "10px",
-        maxHeight: "300px",
-        borderRadius: "5px",
-        backgroundColor: "#2b2b3a", 
+        backgroundColor: "#1e1e2e",
+        borderRadius: "8px",
+        maxHeight: "250px",
+        marginBottom: "10px",
     },
-    message: {
+    messageContainer: {
         marginBottom: "15px",
-        padding: "8px",
-        borderRadius: "5px",
-        backgroundColor: "#3e3e4e", 
+    },
+    userMessage: {
+        alignSelf: "flex-end",
+        backgroundColor: "#4e8ef7",
+        color: "#ffffff",
+        padding: "6px 10px",
+        borderRadius: "10px",
+        maxWidth: "75%",
+        fontSize: "0.9rem",
+    },
+    aiMessage: {
+        alignSelf: "flex-start",
+        backgroundColor: "#44475a",
+        color: "#ffffff",
+        padding: "6px 10px",
+        borderRadius: "10px",
+        maxWidth: "75%",
+        fontSize: "0.9rem",
+        marginTop: "5px",
+    },
+    loadingMessage: {
+        textAlign: "center" as const,
+        color: "#b3b3b3",
+        fontStyle: "italic",
     },
     inputContainer: {
+        height: "36px",
         display: "flex",
-        alignItems: "center",
-        marginTop: "10px",
+        marginTop: "5px",
     },
     input: {
         flex: 1,
-        padding: "10px",
-        borderRadius: "5px",
-        backgroundColor: "#333",
-        border: "1px solid #555",
+        height: "36px",
+        padding: "6px",
+        fontSize: "0.85rem",
+        borderRadius: "6px",
+        border: "1px solid #444",
+        backgroundColor: "#1e1e2e",
         color: "#ffffff",
-        marginRight: "10px",
-        fontSize: "0.95rem",
-        outline: "none",
+        marginRight: "5px",
+        boxSizing: "border-box" as const,
     },
     sendButton: {
-        padding: "10px 15px",
-        backgroundColor: "#5636a7", 
-        color: "white",
+        height: "36px",
+        padding: "6px 12px",
+        fontSize: "0.85rem",
+        borderRadius: "6px",
         border: "none",
-        borderRadius: "4px",
+        backgroundColor: "#9A78B3",
+        color: "#ffffff",
         cursor: "pointer",
-        fontWeight: "bold",
-        fontSize: "0.9rem",
-        transition: "background-color 0.3s ease",
+        boxSizing: "border-box" as const,
     },
 };
 
