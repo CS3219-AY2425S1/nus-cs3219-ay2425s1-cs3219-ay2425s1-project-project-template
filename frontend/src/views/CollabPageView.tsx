@@ -130,33 +130,6 @@ const CollabPageView: React.FC = () => {
         setUserId(uid);
         setUsername(await getUsernameByUid());
         setQuestionData(questionData);
-
-        const attemptDate = moment().tz("Asia/Singapore").format();
-        setDateAttempted(attemptDate);
-        console.log("Attempt date:", attemptDate);
-        
-        const requestBody = {
-          userUid: uid, 
-          questionUid: questionData.id, 
-          dateAttempted: attemptDate,
-        };
-
-        try{
-          const response: SuccessObject = await callFunction(
-            HTTP_SERVICE_HISTORY,
-            "create-question-attempted",
-            "POST",
-            requestBody
-          );
-
-          if (response.success) {
-            console.log("Success:", response.data.message);
-          } else {
-            console.error("Error creating question:", response.error);
-          }
-        } catch (error) {
-          console.error("Network error:", error);
-        }
       });
 
       console.log("Current user ID:", userId);
@@ -175,7 +148,6 @@ const CollabPageView: React.FC = () => {
 
       newSocket.on("disconnect", () => {
         console.log("Collab socket disconnected.");
-        navigate("/questions"); // Navigate after disconnecting
       });
 
       newSocket.on("sessionTerminated", ({ userId }) => {
@@ -183,9 +155,9 @@ const CollabPageView: React.FC = () => {
 
         if (newSocket.connected) {
           newSocket.disconnect(); 
-        } else {
-          navigate("/questions"); // Navigate if already disconnected
-        }
+        } 
+
+        navigate("/questions"); 
       });
 
       newSocket.on("userLeft", ({ userId }) => {
@@ -284,6 +256,35 @@ const CollabPageView: React.FC = () => {
 
     if (!sourceCode) return; // do nothing
 
+    if (dateAttempted === "") {
+      const attemptDate = moment().tz("Asia/Singapore").format();
+      setDateAttempted(attemptDate);
+      console.log("Attempt date:", attemptDate);
+      
+      const requestBody = {
+        userUid: getUid(), 
+        questionUid: questionData.id, 
+        dateAttempted: attemptDate,
+      };
+
+      try{
+        const response: SuccessObject = await callFunction(
+          HTTP_SERVICE_HISTORY,
+          "create-question-attempted",
+          "POST",
+          requestBody
+        );
+
+        if (response.success) {
+          console.log("Success:", response.data.message);
+        } else {
+          console.error("Error creating question:", response.error);
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+      }
+    }
+    
     try {
       setIsLoading(true);
 
