@@ -1,30 +1,30 @@
 services:
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     target: ${BUILD_ENV}
-  #   ports:
-  #     - ${FRONTEND_PORT}:${FRONTEND_PORT}
-  #   environment:
-  #     - PORT=${FRONTEND_PORT}
-  #     - REACT_APP_USER_SVC_PORT=${REACT_APP_USER_SVC_PORT}
-  #     - REACT_APP_QUESTION_SVC_PORT=${REACT_APP_QUESTION_SVC_PORT}
-  #     - REACT_APP_MATCHING_SVC_PORT=${REACT_APP_MATCHING_SVC_PORT}
-  #     - REACT_APP_COLLAB_SVC_PORT=${REACT_APP_COLLAB_SVC_PORT}
-  #     - REACT_APP_COMM_SVC_PORT=${REACT_APP_COMM_SVC_PORT}
-  #     - REACT_APP_CODE_EXECUTION_SVC_PORT=${REACT_APP_CODE_EXECUTION_SVC_PORT}
-  #     - REACT_APP_HISTORY_SVC_PORT=${REACT_APP_HISTORY_SVC_PORT}
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - user-service
-  #     - question-service
-  #     - matching-service
-  #     - collaboration-service
-  #     - communication-service
-  #     - code-execution-service
-  #     - history-service
+  frontend:
+    build:
+      context: ./frontend
+      target: ${BUILD_ENV}
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - REACT_APP_USER_SVC_PORT=${REACT_APP_USER_SVC_PORT}
+      - REACT_APP_QUESTION_SVC_PORT=${REACT_APP_QUESTION_SVC_PORT}
+      - REACT_APP_MATCHING_SVC_PORT=${REACT_APP_MATCHING_SVC_PORT}
+      - REACT_APP_COLLAB_SVC_PORT=${REACT_APP_COLLAB_SVC_PORT}
+      - REACT_APP_COMM_SVC_PORT=${REACT_APP_COMM_SVC_PORT}
+      - REACT_APP_CODE_EXECUTION_SVC_PORT=${REACT_APP_CODE_EXECUTION_SVC_PORT}
+      - REACT_APP_HISTORY_SVC_PORT=${REACT_APP_HISTORY_SVC_PORT}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - user-service
+      - question-service
+      - matching-service
+      - collaboration-service
+      - communication-service
+      - code-execution-service
+      - history-service
 
   user-service:
     build:
@@ -61,20 +61,20 @@ services:
       - ./backend/QuestionService:/app
       - /app/node_modules
 
-  # matching-service:
-  #   build:
-  #     context: ./backend/MatchingService
-  #     target: ${BUILD_ENV}
-  #   ports:
-  #     - ${MATCHING_SVC_PORT}:${MATCHING_SVC_PORT}
-  #   environment:
-  #     - PORT=${MATCHING_SVC_PORT}
-  #     - REDIS_PORT=${REDIS_PORT}
-  #   volumes:
-  #     - ./backend/MatchingService:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - redis
+  matching-service:
+    build:
+      context: ./backend/MatchingService
+      target: ${BUILD_ENV}
+    ports:
+      - ${MATCHING_SVC_PORT}:${MATCHING_SVC_PORT}
+    environment:
+      - PORT=${MATCHING_SVC_PORT}
+      - REDIS_PORT=${REDIS_PORT}
+    volumes:
+      - ./backend/MatchingService:/app
+      - /app/node_modules
+    depends_on:
+      - redis
 
   redis:
     image: redis

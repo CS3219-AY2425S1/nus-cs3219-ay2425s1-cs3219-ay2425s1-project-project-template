@@ -7,10 +7,10 @@ import mongoose from "mongoose";
 
 const app = express();
 const httpServer = createServer(app);
-console.log(process.env.FRONTEND_ENV);
+
 const io = new Server(httpServer, {
   cors: {
-    origin: `http://localhost:${process.env.FRONTEND_PORT}`, //config.corsOrigin? This should be set to frontend domain
+    origin: `${process.env.FRONTEND_ENDPOINT}`, //config.corsOrigin? This should be set to frontend domain
     methods: ["GET", "POST"],
   },
   path: "/communication/socket",
