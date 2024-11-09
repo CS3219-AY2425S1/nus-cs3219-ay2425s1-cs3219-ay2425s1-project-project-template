@@ -19,6 +19,13 @@ const CollaborationPage = () => {
         'python': "# YOUR FUNCTION BELOW\n\n# YOUR FUNCTION ABOVE\n\n\n# for testing\nprint('''put your function with parameters here''')"
     }
 
+    const versionMap = {
+        'cpp': '10.2.0',
+        'java': '15.0.2',
+        'javascript': '18.15.0',
+        'python': '3.10.0'
+    }
+
     const [content, setContent] = useState(templateMap['javascript']); // actual content to be displayed
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
     const { roomId } = useParams();
@@ -171,16 +178,34 @@ const CollaborationPage = () => {
 
     const handleExecuteCode = async () => {
         try {
-          const response = await fetch('http://localhost:3010/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: content, language })
-          });
-          const result = await response.json();
-          setExecutionResult(result.output || result.error);
+            const apiEndpoint = 'https://emkc.org/api/v2/piston/execute';
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    "language": String(language),
+                    "version": versionMap[String(language)],
+                    "files": [
+                        {
+                            "content": content
+                        }
+                    ],
+                })
+            });
+            
+            const result = await response.json();
+            if (result) {
+                if (result.run.stdout) {
+                    setExecutionResult(result.run.stdout);
+                } else {
+                    setExecutionResult(result.run.stderr);
+                }
+            } else {
+                setExecutionResult("No response received");
+            }
         } catch (error) {
-          console.error("Execution error:", error);
-          setExecutionResult(String(error));
+            console.error("Execution error:", error);
+            setExecutionResult(String(error));
         }
     };
 
