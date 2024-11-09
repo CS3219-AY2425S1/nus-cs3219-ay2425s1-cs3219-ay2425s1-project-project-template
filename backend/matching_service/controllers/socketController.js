@@ -1,3 +1,4 @@
+const moment = require("moment-timezone");
 const { QueueService } = require("../services/QueueService");
 const TIMEOUT_TIME = require("../utils/CONSTANTS");
 
@@ -99,7 +100,7 @@ class SocketController {
       const randomIndex = Math.floor(Math.random() * questions.length);
       const randomQuestion = questions[randomIndex];
 
-      const roomId = currUserSessionData.uid;
+      const roomId = moment().tz("Asia/Singapore").format();
 
       // Emit matched to both users
       this.io.to(prevUserSocketId).emit("matched", {
