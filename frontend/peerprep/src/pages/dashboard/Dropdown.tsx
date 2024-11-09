@@ -10,7 +10,7 @@ const Dropdown: React.FC<DropdownProps> = ({ topics, onSelect }) => {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
 
   const menuButtonProps = {
-    w: "80%",
+    w: "100%",
     h: "14",
     topic: selectedTopic? selectedTopic : "Select a Topic",
   };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Avatar, Text, Box, Flex, VStack, HStack } from "@chakra-ui/react";
+import { Button, Avatar, Text, Box, Flex, VStack, HStack, Tooltip } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { useUserContext } from "../../context/UserContext";
 import { COMPLEXITIES } from "../../constants/data";
@@ -26,30 +26,22 @@ const DashboardView = () => {
     const storedUrl = sessionStorage.getItem('reconnectUrl');
     const storedUserId = sessionStorage.getItem('userId');
 
-    console.log("Stored URL:", storedUrl);
-    console.log("Stored User ID:", storedUserId);
-    console.log("Current User ID:", user.id);
-
     if (storedUrl && storedUserId === user.id) {
         setReconnectUrl(storedUrl);
         setIsReconnectValid(true);
-        console.log("Reconnect valid:", true);
     } else {
         setIsReconnectValid(false);
         sessionStorage.removeItem('reconnectUrl');
         sessionStorage.removeItem('userId');
-        console.log("Reconnect valid:", false);
     }
-}, [user.id]);
+  }, [user.id]);
 
-  // Function to fetch topics
   const fetchTopics = async () => {
     try {
       const response = await api.get<{ message: string; topics: { topic: string; difficulties: string[] }[] }>(
         "/questions/topics"
       );
       setTopics(response.data.topics);
-      console.log(response)
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Axios error: ", error.response?.data || error.message);
@@ -59,30 +51,18 @@ const DashboardView = () => {
     }
   };
 
-  // Fetch topics on component mount
   useEffect(() => {
     fetchTopics();
   }, []);
 
-  // Update filtered difficulties when topic changes
   useEffect(() => {
-    console.log("Selected Topic:", selectedTopic);
-    console.log("Topics Array:", topics);
-
     const selectedTopicObject = topics.find(
       (topicObj) => topicObj.topic.toLowerCase() === selectedTopic.toLowerCase()
     );
 
-    if (!selectedTopicObject) {
-      console.warn("No match found for selected topic:", selectedTopic);
-    } else {
-      console.log("Found Topic Object:", selectedTopicObject);
-    }
-
     setFilteredDifficulties(selectedTopicObject ? selectedTopicObject.difficulties : []);
     setSelectedDifficulty(""); // Reset difficulty when topic changes
   }, [selectedTopic, topics]);
-
 
   return (
     <Flex direction="column" p={10} w="full" h="200vh">
@@ -118,66 +98,95 @@ const DashboardView = () => {
           </Button>
         </Flex>
       </Flex>
-      
-      {/* Topic and Difficulty Section */}
-      <Flex justify="space-between">
-        {/* Topic Selection */}
-        <Box w="30%">
-          <Text fontSize="2xl" mb={4}>Select Topic: </Text>
+
+      <Flex justify="flex-start" gap={14} w="full"> {/* Set a small gap */}
+        {/* Step 1: Topic Selection */}
+        <Box flex="1" maxW="600px"> {/* Make each Box take equal space */}
+          <Text fontSize="2xl" mb={4}>Step 1: Select Topic</Text>
           <Dropdown 
-            topics={topics.map((t) => t.topic)} 
-            onSelect={(topic) => setSelectedTopic(topic)} 
+            placeholder="Choose a topic to begin"
+            topics={topics.map((t) => t.topic)}
+            onSelect={(topic) => setSelectedTopic(topic)}
+            style={{
+              width: "100%",
+              height: "56px",
+              backgroundColor: "#6B46C1",
+              color: "white",
+              borderRadius: "8px",
+            }}
           />
         </Box>
 
-        {/* Difficulty Selection */}
-        <Box w="30%">
-          <Text fontSize="2xl" mb={4}>Select Difficulty:</Text>
+        {/* Step 2: Difficulty Selection */}
+        <Box flex="1" maxW="600px">
+          <Text fontSize="2xl" mb={4}>Step 2: Select Difficulty</Text>
           <VStack spacing={6}>
             {COMPLEXITIES.map((value, ind) => (
-              <Button
+              <Tooltip
                 key={ind}
-                w="100%"
-                h="14"
-                bgColor={selectedDifficulty === value.id ? "purple.600" : "purple.500"}
-                color="white"
-                fontSize="lg"
-                border="2px"
-                borderColor={selectedDifficulty === value.id ? "white" : "transparent"}
-                _hover={{ bgColor: selectedDifficulty === value.id ? "purple.700" : "purple.600" }}
-                isDisabled={!selectedTopic || !filteredDifficulties.includes(value.id.toLowerCase())}
-                onClick={() => setSelectedDifficulty(value.id)}
+                label={!selectedTopic ? "Select a topic first" : ""}
+                hasArrow
+                placement="top"
               >
-                {value.id}
-              </Button>
+                <Button
+                  w="100%"
+                  h="14"
+                  bgColor={selectedDifficulty === value.id ? "purple.600" : "purple.500"}
+                  color="white"
+                  fontSize="lg"
+                  border="2px"
+                  borderColor={selectedDifficulty === value.id ? "white" : "transparent"}
+                  _hover={{ bgColor: selectedDifficulty === value.id ? "purple.700" : "purple.600" }}
+                  isDisabled={!selectedTopic || !filteredDifficulties.includes(value.id.toLowerCase())}
+                  onClick={() => setSelectedDifficulty(value.id)}
+                >
+                  {value.id}
+                </Button>
+              </Tooltip>
             ))}
           </VStack>
         </Box>
 
-        {/* Action Buttons */}
-        <VStack w="30%" spacing={6} align="center">
+        {/* Step 3: Action Buttons */}
+        <VStack flex="1" maxW="600px" spacing={6} align="flex-start"> {/* Set align to flex-start */}
+          <Text fontSize="2xl" mb={4} textAlign="left">Step 3: Choose an Action</Text>
           {services.map((value, ind) => (
-            <Button
+            <Tooltip
               key={ind}
-              w="100%"
-              h="14"
-              bgColor="purple.500"
-              color="white"
-              fontSize="lg"
-              _hover={{ bgColor: "purple.600" }}
-              rightIcon={<FaArrowRight />}
-              isDisabled={value === "Let's Match" && (!selectedTopic || !selectedDifficulty)}
-              onClick={() => {
-                if (value === "View Questions") {
-                  navigate(`/questions?topic=${selectedTopic}&difficulty=${selectedDifficulty}`);
-                }
-                if (value === "Let's Match") {
-                  navigate(`/matching?topic=${selectedTopic}&difficulty=${selectedDifficulty}`);
-                }
-              }}
+              label={
+                value === "View Questions"
+                  ? selectedTopic ? "View available questions based on your selection" : "Select a topic first"
+                  : selectedTopic && selectedDifficulty
+                  ? "Find a match based on your selection"
+                  : "Select both a topic and difficulty"
+              }
+              hasArrow
+              placement="top"
             >
-              {value}
-            </Button>
+              <Button
+                w="100%"
+                h="14"
+                bgColor="purple.500"
+                color="white"
+                fontSize="lg"
+                _hover={{ bgColor: "purple.600" }}
+                rightIcon={<FaArrowRight />}
+                isDisabled={
+                  value === "Let's Match" && (!selectedTopic || !selectedDifficulty) ||
+                  (value === "View Questions" && !selectedTopic)
+                }
+                onClick={() => {
+                  if (value === "View Questions") {
+                    navigate(`/questions?topic=${selectedTopic}&difficulty=${selectedDifficulty}`);
+                  }
+                  if (value === "Let's Match") {
+                    navigate(`/matching?topic=${selectedTopic}&difficulty=${selectedDifficulty}`);
+                  }
+                }}
+              >
+                {value}
+              </Button>
+            </Tooltip>
           ))}
           {(!selectedDifficulty || !selectedTopic) && (
             <Text fontWeight="bold" color="red.300" fontSize="lg">
@@ -185,7 +194,9 @@ const DashboardView = () => {
             </Text>
           )}
         </VStack>
+
       </Flex>
+
 
       {/* Reconnect Button */}
       <Flex justify="center" mt={10}>
