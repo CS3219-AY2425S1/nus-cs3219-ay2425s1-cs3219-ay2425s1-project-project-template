@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-
+	middleware "backend/middleware"
 	routes "backend/routes"
 
 	"github.com/gin-contrib/cors"
@@ -38,7 +38,7 @@ func main() {
 		})
 	})
 
-	//router.Use(middleware.Authentication())
+	router.Use(middleware.Authentication())
 	routes.QuestionRoutes(router) // Creates Question api routes
 	router.Run(":" + port)
 }

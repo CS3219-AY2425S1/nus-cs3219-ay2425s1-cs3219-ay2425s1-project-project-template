@@ -14,6 +14,24 @@ export const initializeCollaborationService = (server) => {
     },
   });
 
+  // Middleware for token verification
+  io.use(async (socket, next) => {
+    const token = socket.handshake.query.token;
+
+    if (!token) {
+      return next(new Error("Authentication token is missing"));
+    }
+
+    try {
+      // Verify the token
+      await verifyToken(token); // Wait for the token verification to finish
+      socket.token = token;
+      next();  // Proceed with the connection
+    } catch (error) {
+      return next(new Error("Authentication failed"));
+    }
+  });
+
   io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
 
@@ -93,7 +111,8 @@ export const handleUserMatch = async (job) => {
   }
 };
 
-export const fetchQuestionId = async (topic, difficulty) => {
+export const fetchQuestionId = async (topic, difficulty, socketId) => {
+  const userSocket = io.sockets.sockets.get(socketId);
   try {
     const question_domain =
       process.env.QUESTION_SERVICE || "http://localhost:3002";
@@ -101,12 +120,45 @@ export const fetchQuestionId = async (topic, difficulty) => {
     const response = await axios.post(question_path, {
       category: topic,
       complexity: difficulty,
+    },{
+      headers: {
+        'Authorization': `Bearer ${userSocket.token}`  // Pass the token here
+      }
     });
 
     return response.data.question_id; // Return the fetched question ID
   } catch (error) {
     console.error("Error fetching question ID:", error);
     throw new Error("Failed to fetch question. Please try again."); // Throw an error to handle it at the call site
+  }
+};
+
+// Token verification function
+export const verifyToken = async (token) => {
+  try {
+    const user_domain = process.env.USER_SERVICE || "http://localhost:3001";
+    
+    // Construct the URL for the verify-token endpoint
+    const verifyTokenUrl = `${user_domain}/auth/verify-token`;
+
+    // Send a POST request with the token in the Authorization header (Bearer token)
+    const response = await axios({
+      method: 'get',
+      url: verifyTokenUrl,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'  // Set Content-Type
+      }
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Token verification failed");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    throw new Error("Failed to verify token. Please try again.");
   }
 };
 

@@ -32,6 +32,7 @@ const EditorView: React.FC = () => {
   const questionId = searchParams.get("questionId");
 
   useEffect(() => {
+    const token = localStorage.getItem("token")
     const disconnected = sessionStorage.getItem("disconnected");
 
     if (
@@ -49,7 +50,7 @@ const EditorView: React.FC = () => {
       import.meta.env.VITE_ENV === "DEV" ? "/socket.io" : "/collab/socket.io";
     socketRef.current = io(collabUrl, {
       path: path,
-      query: { roomId },
+      query: { token, roomId },
     });
     const socket = socketRef.current;
 

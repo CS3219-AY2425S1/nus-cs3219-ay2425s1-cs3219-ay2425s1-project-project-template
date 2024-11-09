@@ -4,8 +4,6 @@ import Timer from "./Timer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { useUserContext } from "../../context/UserContext";
-import { useQuesApiContext } from "../../context/ApiContext";
-import { UserContext } from "../../context/UserContext";
 
 const MatchingView: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +21,7 @@ const MatchingView: React.FC = () => {
   const timerRef = useRef<number | null>(null);
 
   sessionStorage.setItem("disconnected", "false");
+  const token = localStorage.getItem("token");
 
   // Timeout handler
   // const handleTimeout = (timeTaken: number) => {
@@ -80,6 +79,9 @@ const MatchingView: React.FC = () => {
     // Initialize the WebSocket connection
     socketRef.current = io(domain, {
       path: path,
+      query: {
+        token: token, // Pass token as query parameter
+      },
     });
     const socket = socketRef.current;
 
