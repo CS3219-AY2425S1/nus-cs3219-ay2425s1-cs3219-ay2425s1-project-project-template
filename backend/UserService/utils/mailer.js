@@ -1,8 +1,16 @@
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
-import { updateUserForgetPasswordTokenById as _updateUserForgetPasswordTokenById } from "../model/repository.js";
+import {
+  updateUserForgetPasswordTokenById as _updateUserForgetPasswordTokenById,
+  updateUserVerificationTokenById as _updateUserVerificationTokenById,
+} from "../model/repository.js";
 
-export const sendEmail = async (email, userId) => {
+export const EMAIL_TYPE = {
+  VERIFICATION: 0,
+  RESET_PASSWORD: 1,
+};
+
+export const sendEmail = async (email, userId, emailType) => {
   try {
     let hashedToken = await bcrypt.hash(userId.toString(), 10);
     while (
@@ -11,11 +19,20 @@ export const sendEmail = async (email, userId) => {
     ) {
       hashedToken = await bcrypt.hash(userId.toString(), 10);
     }
-    await _updateUserForgetPasswordTokenById(
-      userId,
-      hashedToken,
-      Date.now() + 3600000 // 1 hour
-    );
+
+    if (emailType === EMAIL_TYPE.VERIFICATION) {
+      await _updateUserVerificationTokenById(
+        userId,
+        hashedToken,
+        Date.now() + 3600000 // 1 hour
+      );
+    } else if (emailType === EMAIL_TYPE.RESET_PASSWORD) {
+      await _updateUserForgetPasswordTokenById(
+        userId,
+        hashedToken,
+        Date.now() + 3600000 // 1 hour
+      );
+    }
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
@@ -25,18 +42,31 @@ export const sendEmail = async (email, userId) => {
       },
     });
 
+    const subject =
+      (emailType === EMAIL_TYPE.VERIFICATION ? "Verify" : "Reset") +
+      " Your Account";
+
     const domain =
       process.env.ENV === "PROD"
         ? process.env.CLOUD_DOMAIN
-        : process.env.FRONTEND_PORT;
-    const messageBody = `<p>Please click <a href="${domain}/resetpassword?token=${hashedToken}">here</a> to Reset your password or copy paste the link below in your browser. The link is only valid for 1 hour.
-          <br>${domain}/resetpassword?token=${hashedToken}</br>
-      </p>`;
+        : process.env.FRONTEND_ENDPOINT;
+
+    const link = `${domain}/${
+      emailType === EMAIL_TYPE.VERIFICATION ? "verify" : "resetpassword"
+    }?token=${hashedToken}`;
+
+    const messageBody = `<p>Please click <a href="${link}">here</a> or copy paste the link below in your browser to
+            ${
+              emailType === EMAIL_TYPE.VERIFICATION ? "verify" : "reset"
+            } your account.
+            <br>The link is only valid for 1 hour.</br>
+            <br>${link}</br>
+        </p>`;
 
     const mailOptions = {
       from: "",
       to: email,
-      subject: "Reset your password",
+      subject: subject,
       html: messageBody,
     };
 

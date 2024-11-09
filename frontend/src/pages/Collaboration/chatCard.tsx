@@ -7,9 +7,7 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import { io, Socket } from "socket.io-client";
 import { useSocket } from "../../contexts/SocketContext";
-import { useNavigate } from "react-router-dom";
 
 interface ChatCardProps {
   roomId: string;
@@ -23,9 +21,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
   >([]);
   const { commSocket } = useSocket();
   const [input, setInput] = useState("");
-  const [socket, setSocket] = useState<Socket | null>(null);
   const chatBoxRef = useRef<HTMLDivElement | null>(null); // Create a ref for the chat box
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (chatBoxRef.current) {

@@ -31,6 +31,10 @@ export async function findUserByForgotPasswordToken(token) {
   return UserModel.findOne({ forgotPasswordToken: token });
 }
 
+export async function findUserByVerificationToken(token) {
+  return UserModel.findOne({ verificationToken: token });
+}
+
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
     $or: [{ username }, { email }],
@@ -85,6 +89,37 @@ export async function updateUserPasswordById(userId, password) {
         password: password,
         forgotPasswordToken: "",
         forgotPasswordTokenExpiry: "",
+      },
+    },
+    { new: true }
+  );
+}
+
+export async function updateUserVerificationTokenById(
+  userId,
+  verificationToken,
+  verificationTokenExpiry
+) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        verificationToken,
+        verificationTokenExpiry,
+      },
+    },
+    { new: true, runValidators: true } // return the updated user
+  );
+}
+
+export async function updateUserVerificationStatusById(userId, password) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        isVerified: true,
+        verificationToken: "",
+        verificationTokenExpiry: "",
       },
     },
     { new: true }

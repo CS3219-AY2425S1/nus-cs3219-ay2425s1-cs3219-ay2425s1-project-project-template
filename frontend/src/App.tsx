@@ -6,19 +6,17 @@ import QuestionPage from "./pages/Question/page";
 import CollaborationPage from './pages/Collaboration/collaboration';
 import HistoryPage from "./pages/History/history";
 
-import { BrowserRouter, Navigate, redirect, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider, } from '@tanstack/react-query'
 import toast, { Toaster, useToasterStore } from "react-hot-toast";
-import { useContext, useEffect } from "react";
-import { AuthContext } from "./contexts/AuthContext";
+import { useEffect } from "react";
 import PublicRoute from "./routes/PublicRoute";
 import SettingsPage from "./pages/Settings/settings";
 import ForgotPasswordPage from "./pages/ForgotPassword/forgotPassword";
 import ResetPasswordPage from "./pages/ResetPassword/ResetPassword";
-import VideoCall from "./components/Communication/videoCall";
-import NavBar from "./components/NavBar/navbar";
 
 import "./App.css";
+import VerifyAccountPage from "./pages/Verify/verify";
 
 const queryClient = new QueryClient();
 const TOAST_LIMIT = 3
@@ -34,7 +32,6 @@ function App() {
       .forEach((t) => toast.dismiss(t.id));
   }, [toasts]);
 
-  const { isAuthenticated } = useContext(AuthContext);
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster position="bottom-center" />
@@ -47,12 +44,13 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
               <Route path="/resetpassword" element={<ResetPasswordPage />} />
+              <Route path="/verify" element={<VerifyAccountPage />} />
             </Route>
             <Route element={<PrivateRoute />}>
               <Route path="/" element={<QuestionPage />} />
-              <Route path="/settings" element={<SettingsPage />}/>
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/collaboration/:roomId" element={<CollaborationPage />} />
-              <Route path="/history" element= {<HistoryPage />} />
+              <Route path="/history" element={<HistoryPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

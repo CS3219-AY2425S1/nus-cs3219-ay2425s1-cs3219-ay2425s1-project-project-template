@@ -12,7 +12,7 @@ import { useContext, useState } from "react";
 import { AuthContext, authState } from "../../contexts/AuthContext";
 
 export default function LoginPage() {
-  const { user, setUser, setIsAuthenticated } = useContext(AuthContext);
+  const { setUser, setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 

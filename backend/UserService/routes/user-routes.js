@@ -9,6 +9,7 @@ import {
   resetPassword,
   updateUser,
   updateUserPrivilege,
+  verifyUserAccount,
 } from "../controller/user-controller.js";
 import {
   verifyAccessToken,
@@ -46,5 +47,6 @@ router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 
 router.get("/forgotpassword/:email", forgetPassword);
 router.post("/forgotpassword/:token", resetPassword);
+router.get("/verify/:token", verifyUserAccount);
 
 export default router;

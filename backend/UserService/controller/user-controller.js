@@ -11,9 +11,11 @@ import {
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
   findUserByForgotPasswordToken as _findUserByForgotPasswordToken,
-  updateUserPasswordById,
+  updateUserPasswordById as _updateUserPasswordById,
+  findUserByVerificationToken as _findUserByVerificationToken,
+  updateUserVerificationStatusById,
 } from "../model/repository.js";
-import { sendEmail } from "../utils/mailer.js";
+import { EMAIL_TYPE, sendEmail } from "../utils/mailer.js";
 import cloudinary from "../config/cloudinary-config.js";
 import { fileRemover } from "../utils/fileRemover.js";
 
@@ -31,6 +33,7 @@ export async function createUser(req, res) {
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
       const createdUser = await _createUser(username, email, hashedPassword);
+      await sendEmail(email, createdUser._id, EMAIL_TYPE.VERIFICATION);
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
         data: formatUserResponse(createdUser),
@@ -109,14 +112,9 @@ export async function updateUser(req, res) {
 
       if (file) {
         try {
-          console.log(process.env.CLOUDINARY_CLOUD_NAME);
-          console.log(process.env.CLOUDINARY_API_KEY);
-          console.log(process.env.CLOUDINARY_API_SECRET);
-          console.log("1");
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "PeerPrep",
           });
-          console.log("2");
           newAvatarPath = result.secure_url;
         } catch (err) {
           return res.status(500).json({
@@ -232,7 +230,7 @@ export async function forgetPassword(req, res) {
     const user = await _findUserByEmail(userEmail);
 
     if (user) {
-      await sendEmail(userEmail, user._id);
+      await sendEmail(userEmail, user._id, EMAIL_TYPE.RESET_PASSWORD);
     }
 
     return res.status(200).json({
@@ -263,7 +261,7 @@ export async function resetPassword(req, res) {
     if (newPassword) {
       const salt = bcrypt.genSaltSync(10);
       hashedPassword = bcrypt.hashSync(newPassword, salt);
-      const updatedUser = await updateUserPasswordById(
+      const updatedUser = await _updateUserPasswordById(
         user._id,
         hashedPassword
       );
@@ -281,6 +279,31 @@ export async function resetPassword(req, res) {
     return res
       .status(500)
       .json({ message: "Unknown error when reseting password!" });
+  }
+}
+
+export async function verifyUserAccount(req, res) {
+  try {
+    const token = req.params.token;
+    const user = await _findUserByVerificationToken(token);
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid Token!",
+      });
+    }
+
+    await updateUserVerificationStatusById(user._id);
+
+    return res.status(200).json({
+      message: `Verification completed for user ${user._id}`,
+      data: formatUserResponse(user),
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when verifying account!" });
   }
 }
 

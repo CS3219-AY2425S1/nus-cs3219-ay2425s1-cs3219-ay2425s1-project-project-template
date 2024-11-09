@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { findUserByEmail as _findUserByEmail } from "../model/repository.js";
 import { formatUserResponse } from "./user-controller.js";
+import { EMAIL_TYPE, sendEmail } from "../utils/mailer.js";
 
 export async function handleLogin(req, res) {
   const { email, password } = req.body;
@@ -17,6 +18,11 @@ export async function handleLogin(req, res) {
         return res.status(401).json({ message: "Wrong email and/or password" });
       }
 
+      if (!user.isVerified) {
+        await sendEmail(email, user._id, EMAIL_TYPE.VERIFICATION);
+        return res.status(403).json({ message: "Please verify your email" });
+      }
+
       const accessToken = jwt.sign(
         {
           id: user.id,
@@ -30,7 +36,7 @@ export async function handleLogin(req, res) {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         secure: true,
-        sameSite: process.env.ENV == "dev" ? "strict" : "none" ,
+        sameSite: process.env.ENV == "dev" ? "strict" : "none",
       });
       return res
         .status(200)

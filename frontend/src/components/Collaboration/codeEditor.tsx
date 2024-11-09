@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Editor from '@monaco-editor/react';
 import LanguageSelector from './languageSelector';
@@ -6,7 +6,7 @@ import { CODE_SNIPPETS } from './languageSelector';
 import Stack from '@mui/material/Stack';
 import Output from './console';
 import { useSocket } from '../../contexts/SocketContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 export const MONACOLANGUAGES: Record<string, string> = {
     "C++": "cpp",
@@ -38,7 +38,7 @@ const CodeEditor = ({ qid }: { qid: Number }) => {
         if (!collabSocket) {
             return;
         }
-        
+
         collabSocket.on("sync-code", (edittedCode: string) => {
             console.log("to sync");
             setValue(edittedCode);

@@ -33,7 +33,6 @@ export default function MatchingDialog({ open, handleMatchScreenClose }: { open:
   const intervalReference = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const startTime = useRef(0);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const roomIdRef = useRef<string>();
   const navigate = useNavigate();
 
   useEffect(() => {
