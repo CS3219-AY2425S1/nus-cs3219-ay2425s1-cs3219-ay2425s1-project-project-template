@@ -39,13 +39,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
     if (socketRef.current) {
       console.log("Socket connection established:", socketRef.current.connected);
 
+      socketRef.current.off("newConnection");
+
       // Listen for userReconnected event
       socketRef.current.on("newConnection", (data: { userId: string }) => {
         console.log("User connected:", data.userId);
         setMessages((prevMessages) => [...prevMessages, "A user has been connected"]);
       });
   
-      
       socketRef.current.on("connect", () => {
         console.log("Connected to socket with ID:", socketRef.current?.id);
         
