@@ -98,7 +98,6 @@ export const fetchQuestionId = async (topic, difficulty) => {
     const question_domain =
       process.env.QUESTION_SERVICE || "http://localhost:3002";
     const question_path = `${question_domain}/questions/matching`;
-    console.log("question", question_path);
     const response = await axios.post(question_path, {
       category: topic,
       complexity: difficulty,

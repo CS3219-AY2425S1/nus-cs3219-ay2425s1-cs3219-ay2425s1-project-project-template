@@ -39,3 +39,10 @@ spec:
                 name: matching-service
                 port:
                   number: 8080
+          - path: /collab/(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: collab-service
+                port:
+                  number: 3004

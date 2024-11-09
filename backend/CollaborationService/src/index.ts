@@ -19,29 +19,29 @@ app.get("/", (req, res) => {
 });
 
 // using ioredis for socket.io due to problems stated in documentation for socket io adapter
-const redisClient = new Redis(
-  process.env.ENV === "DEV"
-    ? process.env.REDIS_URL || ""
-    : "redis://127.0.0.1:6379"
-);
+// const redisClient = new Redis(
+//   process.env.ENV === "DEV"
+//     ? process.env.REDIS_URL || ""
+//     : "redis://127.0.0.1:6379"
+// );
 
-redisClient.on("connect", () => {
-  console.log("Connected to Redis:", process.env.REDIS_URL);
-});
+// redisClient.on("connect", () => {
+//   console.log("Connected to Redis:", process.env.REDIS_URL);
+// });
 
 // create redis adapter for socket.io for horizontal scaling
-const subClient = redisClient.duplicate();
-const pubClient = redisClient.duplicate();
+// const subClient = redisClient.duplicate();
+// const pubClient = redisClient.duplicate();
 
 // functions to update redis storage
 
 let io = new Server(server, {
-  path: "/api",
+  path: "/socket.io",
   cors: {
     origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
   },
-  adapter: createAdapter(pubClient, subClient),
+  // adapter: createAdapter(pubClient, subClient),
 });
 
 // The updates received so far (updates.length gives the current
@@ -73,12 +73,10 @@ io.on("connection", (socket: Socket) => {
 
   console.log("room size", io.sockets.adapter.rooms.get(roomId)?.size);
 
-  
   console.log(`New connection: ${socket.id} joined room: ${roomId}`);
-  
+
   // Notify all users in the room, including the newly connected user
   io.in(roomId).emit("newConnection", { userId: socket.id, roomId });
-  
 
   if (!roomUpdates[roomId]) {
     roomUpdates[roomId] = [];
@@ -91,8 +89,6 @@ io.on("connection", (socket: Socket) => {
   if (!pending[roomId]) {
     pending[roomId] = [];
   }
-
-  
 
   socket.on("pullUpdates", (version: number) => {
     if (version < roomUpdates[roomId].length) {
@@ -142,7 +138,7 @@ io.on("connection", (socket: Socket) => {
     );
   });
 
-    // Handle disconnection
+  // Handle disconnection
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
 
@@ -167,7 +163,11 @@ io.on("connection", (socket: Socket) => {
   // Handle sending a chat message
   socket.on("sendMessage", (messageData) => {
     const { room, message, username } = messageData;
-    console.log(`Received message from ${username} in room ${room || "broadcast"}: ${message}`);
+    console.log(
+      `Received message from ${username} in room ${
+        room || "broadcast"
+      }: ${message}`
+    );
     if (room) {
       io.to(room).emit("receiveMessage", { username, message });
     } else {
