@@ -57,6 +57,11 @@ const limiter = rateLimit({
 });
 
 app.use(cors());
+app.use(cors({
+  origin: `${process.env.FRONTEND_ENDPOINT}`,
+  methods: ['GET', 'POST'],
+}));
+
 app.use(express.json());
 app.use(limiter);
 

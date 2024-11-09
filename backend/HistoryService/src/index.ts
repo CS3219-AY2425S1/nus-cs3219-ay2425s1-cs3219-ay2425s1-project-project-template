@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: `${process.env.FRONTEND_PORT}`,
+  origin: `${process.env.FRONTEND_ENDPOINT}`,
   methods: ['GET', 'POST'],
 }));
 

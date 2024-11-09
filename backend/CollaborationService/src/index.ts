@@ -9,9 +9,11 @@ const httpServer = createServer(app);
 const port = process.env.COLLAB_SVC_PORT ?? 4004
 const io = new Server(httpServer, {
     cors: {
-        origin: "*",
+        origin: `${process.env.FRONTEND_ENDPOINT}`,
         methods: ["GET", "POST"]
-    }
+    },
+    path: "/collaboration/socket",
+    allowUpgrades: false,
 })
 
 app.use(express.json());

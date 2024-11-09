@@ -883,6 +883,7 @@ paths:
       x-google-backend:
         address: https://matching-183444271064.asia-southeast1.run.app
         path_translation: APPEND_PATH_TO_ADDRESS
+        deadline: 40
       operationId: matchingConnect
       parameters:
         - name: EIO
