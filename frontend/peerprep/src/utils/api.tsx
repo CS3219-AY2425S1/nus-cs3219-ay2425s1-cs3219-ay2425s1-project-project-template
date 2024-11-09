@@ -27,7 +27,6 @@ export const initApi = (
     }
   );
 
-
   return api;
 };
 
@@ -56,7 +55,6 @@ export const authApi = (
       return Promise.reject(error);
     }
   );
-
 
   return api;
 };

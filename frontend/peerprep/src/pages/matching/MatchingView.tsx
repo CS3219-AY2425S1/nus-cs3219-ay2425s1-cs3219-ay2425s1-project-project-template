@@ -75,6 +75,7 @@ const MatchingView: React.FC = () => {
     const domain = import.meta.env.VITE_MATCH_API_URL;
     const path =
       import.meta.env.VITE_ENV === "DEV" ? "/socket.io" : "/matching/socket.io";
+      console.log(path)
 
     // Initialize the WebSocket connection
     socketRef.current = io(domain, {
