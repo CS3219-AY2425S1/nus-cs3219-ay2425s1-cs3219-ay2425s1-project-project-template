@@ -10,7 +10,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 checkout scm
-                echo 'Repository cloned'
+                echo 'Repository cloned successfully to Jenkins agent'
             }
         }
 
