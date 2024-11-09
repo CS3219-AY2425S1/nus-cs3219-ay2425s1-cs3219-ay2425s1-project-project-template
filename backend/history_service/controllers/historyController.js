@@ -63,7 +63,16 @@ const getAllAttemptedQuestions = async (req, res) => {
 
         // Combine question information with attempt date&time and code written
         const result = questionsAttempted.map(attempt => ({
-            ...questionMap[attempt.questionUid],
+            ...(questionMap[attempt.questionUid] || {
+                id: attempt.questionUid,
+                examples: [],
+                constraints: [],
+                title: "This question has been deleted from the database",
+                description: "Data not available",
+                difficulty: "Unknown",
+                dateCreated: "Unknown",
+                topics: ["Unknown"]
+            }),
             dateAttempted: attempt.dateAttempted,
             codeWritten: attempt.codeWritten
         }));
