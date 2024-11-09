@@ -5,7 +5,7 @@ interface ExecuteCodeRequest {
 
 interface ExecuteCodeResponse {
   output: string;
-  stderr?: string;
+  error?: string;
 }
 
 interface ExecuteCodeError {
@@ -17,7 +17,7 @@ export const executeCode = async (
   sourceCode: string
 ): Promise<ExecuteCodeResponse> => {
   try {
-    const response = await fetch(`http://localhost:${process.env.REACT_APP_CODE_EXECUTION_SVC_PORT}/execute`, {
+    const response = await fetch(`${process.env.REACT_APP_CODE_EXECUTION_SVC_PORT}/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ export const executeCode = async (
     const data = await response.json() as ExecuteCodeResponse;
     return {
       output: data.output || '',
-      stderr: data.stderr
+      error: data.error
     };
   } catch (error) {
     if (error instanceof Error) {

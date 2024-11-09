@@ -37,7 +37,7 @@ export type CallNotificationState = {
 const CollaborationPage: FC = () => {
   const navigate = useNavigate();
   const { collabSocket, commSocket, setCollabSocket, setCommSocket } = useSocket();
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const location = useLocation();
   // const { roomId = "", userId = "", question = null } = location.state || {};
   const { roomId } = useParams();
@@ -80,6 +80,7 @@ const CollaborationPage: FC = () => {
     question
   );
   const onLeaveRoom = () => {
+    setUser(oldUser => ({...oldUser, currentRoom: ""}));
     navigate("/");
     collabSocket?.emit("leave-room", roomId);
     collabSocket?.disconnect();
@@ -119,14 +120,20 @@ const CollaborationPage: FC = () => {
   }
 
   useEffect(() => {
-    setCollabSocket(io(`http://localhost:${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
+    if (user.currentRoom !== roomId) {
+      navigate("/");
+      toast.dismiss();
+      toast.error("User has no permission to join this room.")
+      return;
+    }
+    setCollabSocket(io(`${process.env.REACT_APP_COLLAB_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username
       },
       transports: ["websocket"],
     }));
-    setCommSocket(io(`http://localhost:${process.env.REACT_APP_COMM_SVC_PORT}`, {
+    setCommSocket(io(`${process.env.REACT_APP_COMM_SVC_PORT}`, {
       auth: {
         userId: user.id,
         username: user.username
@@ -134,7 +141,7 @@ const CollaborationPage: FC = () => {
       transports: ["websocket"],
     }));
 
-    }, [])
+    }, [user])
   
     useEffect(() => {
       if (!collabSocket) {
@@ -152,11 +159,13 @@ const CollaborationPage: FC = () => {
       });
   
       collabSocket.on("connect_error", (err: Error) => {
+        setUser(oldUser => ({...oldUser, currentRoom: ""}));
         console.log(`Error: ${err.message}`);
         navigate("/");
       });
   
       commSocket.on("connect_error", (err: Error) => {
+        setUser(oldUser => ({...oldUser, currentRoom: ""}));
         console.log(`Error ${err.message}`);
         navigate("/");
       });
@@ -164,8 +173,9 @@ const CollaborationPage: FC = () => {
       collabSocket.on("user-left", (user: string) => {
         toast.error(`${user} has left the room.`)
       });
-  
+    
       collabSocket.on("sync-question", (question: Question) => {
+        console.log(`question sync ${question.title}`);
         setSelectedQuestion(question);
       });
       
@@ -206,13 +216,17 @@ const CollaborationPage: FC = () => {
       })
     
       return () => {
-        if (collabSocket && collabSocket!.connected) {
+        if(collabSocket?.connected && commSocket?.connected) {
+          setUser(oldUser => ({...oldUser, currentRoom: ""}));
+        }
+
+        if (collabSocket && collabSocket.connected) {
           collabSocket.disconnect();
         }  
         
         if (commSocket && commSocket.connected) {
-              commSocket.disconnect();
-          }
+            commSocket.disconnect();
+        }
       };
     }, [collabSocket, commSocket])
 

@@ -35,22 +35,23 @@ export default function VideoCall() {
 
         commSocket.on("signal", (signal: SignalData) => {
             console.log("received signal");
-            peerInstance.current?.signal(signal);
+            if (!peerInstance.current) {
+                commSocket.emit("call-error", roomId);
+            } else {
+                peerInstance.current.signal(signal);
+            }
         })
 
         commSocket.on("stop-video", () => {
-            console.log("sv");
             stopVideo();
         })
         
         commSocket.on("call-error", () => {
             stopVideo();
-            toast.error("Error occured on call");
+            toast.error("Error occured on call. Please try again.");
         })
 
-
         return () => {
-            commSocket.off("signal");
             stopVideo();
         } 
 
@@ -59,29 +60,27 @@ export default function VideoCall() {
 
     
     const setMediaDevices = (roomId: string, isInitiator: boolean) => {
+        peerInstance.current = new SimplePeer({
+            initiator: isInitiator,
+            trickle: false,
+        });
+        peerInstance.current.on('signal', (signal) => {
+            console.log("emitting signal"); 
+            commSocket!.emit('signal', roomId, signal, peerInstance);
+        });
+        peerInstance.current.on('stream', (remoteStream) => {
+            if (remoteVideo.current) {
+                console.log("stream")
+                remoteVideo.current.srcObject = remoteStream;
+            }
+        });
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((mediaStream) => {
             streamRef.current = mediaStream;
             if (myVideo.current) {
                 myVideo.current.srcObject = mediaStream;
             }
-            peerInstance.current = new SimplePeer({
-                initiator: isInitiator,
-                trickle: false,
-                stream: mediaStream
-            });
-    
-            peerInstance.current.on('signal', (signal) => {
-                console.log("emitting signal");
-                commSocket!.emit('signal', roomId, signal, peerInstance);
-            });
-    
-            peerInstance.current.on('stream', (remoteStream) => {
-                if (remoteVideo.current) {
-                    console.log("stream")
-                    remoteVideo.current.srcObject = remoteStream;
-                }
-            });
+            peerInstance.current?.addStream(mediaStream);
         })
         .catch((_err : Error) => {
             stopVideo();

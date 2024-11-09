@@ -109,10 +109,14 @@ export async function updateUser(req, res) {
 
       if (file) {
         try {
+          console.log(process.env.CLOUDINARY_CLOUD_NAME);
+          console.log(process.env.CLOUDINARY_API_KEY);
+          console.log(process.env.CLOUDINARY_API_SECRET);
+          console.log("1");
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "PeerPrep",
           });
-
+          console.log("2");
           newAvatarPath = result.secure_url;
         } catch (err) {
           return res.status(500).json({

@@ -30,7 +30,7 @@ export async function handleLogin(req, res) {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         secure: true,
-        sameSite: "Strict",
+        sameSite: process.env.ENV == "dev" ? "strict" : "none" ,
       });
       return res
         .status(200)
@@ -45,6 +45,9 @@ export async function handleLogin(req, res) {
 
 export async function handleLogout(req, res) {
   res.cookie("token", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: process.env.ENV == "dev" ? "strict" : "none",
     maxAge: -1,
   });
   return res.status(200).json({ message: "User logged out" });

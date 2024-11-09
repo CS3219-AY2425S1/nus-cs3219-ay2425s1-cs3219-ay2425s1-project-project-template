@@ -8,6 +8,7 @@ export type User = {
     isAdmin: boolean
     avatar: string,
     createdAt: number,
+    currentRoom: string
 };
 
 function defaultUser() {
@@ -18,6 +19,7 @@ function defaultUser() {
         isAdmin: false,
         avatar: "",
         createdAt: 0,
+        currentRoom: ""
     };
 }
 
@@ -52,7 +54,7 @@ export default function AuthContextProvider({ children }: ContextProviderNode) {
     const [isAuthenticated, setIsAuthenticated] = useState(authState.LOADING)
 
     useEffect(() => {
-        axios.get(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/verify-token`, {
+        axios.get(`${process.env.REACT_APP_USER_SVC_PORT}/auth/verify-token`, {
             withCredentials: true
         })
             .then((response) => {

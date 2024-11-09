@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function ResetPasswordPage() {
-    const [success, setSuccess] = useState(true);
+    const [success, setSuccess] = useState(false);
 
     const urlToken = window.location.search.split("=")[1];
 
@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
 
     const { mutate, isPending } = useMutation({
         mutationFn: (data: Record<string, string>) => {
-            return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/users/forgotpassword/${urlToken}`, data);
+            return axios.post(`${process.env.REACT_APP_USER_SVC_PORT}/users/forgotpassword/${urlToken}`, data);
         },
         onSuccess: (data) => {
             setSuccess(true);

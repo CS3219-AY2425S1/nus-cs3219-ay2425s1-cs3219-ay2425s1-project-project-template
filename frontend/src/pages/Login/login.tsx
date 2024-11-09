@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Record<string, string>) => {
-      return axios.post(`http://localhost:${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, data, {
+      return axios.post(`${process.env.REACT_APP_USER_SVC_PORT}/auth/login`, data, {
         withCredentials: true,
       });
     },
@@ -49,9 +49,9 @@ export default function LoginPage() {
 
   const textBoxStyle = "border-2 border-black rounded-lg w-full h-12 pl-10"
 
-  return <div className="flex flex-row min-w-full min-h-screen max-h-screen">
-    <div className="flex-1 bg-black">
-      <img className="object-fill w-full h-full" src="/background.jpg" alt="background picture" />
+  return <div className="flex flex-row min-w-full min-h-screen">
+    <div className="flex-1 bg-black max-h-screen">
+      <img className="w-full h-full" src="/background.jpg" alt="background" />
     </div>
     <div className="py-12 flex-1 flex flex-col gap-10 bg-white text-black justify-center items-center text-lg">
       <img className="w-1/4" alt="peerprep logo" src="/logo-with-text.svg" />

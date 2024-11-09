@@ -11,7 +11,6 @@ export const initialiseCollaborationSockets = (io : Server) => {
             if (verifyRoomJoinPermission(socket, roomID)){
                 console.log(`${socket.data.username} joined ${roomID}`);
                 socket.join(roomID);
-                socket.to(roomID).emit("new-join");
             }
             console.log(io.sockets.adapter.rooms.get(roomID)?.size);
         })
@@ -27,8 +26,8 @@ export const initialiseCollaborationSockets = (io : Server) => {
             socket.to(roomID).emit("sync-code", edittedCode);
         })
 
-        socket.on("console-change", (roomId: string, qid: Number, consoleContent: Array<string>) => {
-            socket.nsp.to(roomId).emit("sync-console", qid, consoleContent);
+        socket.on("console-change", (roomId: string, consoleContent: string, error: boolean) => {
+            socket.nsp.to(roomId).emit("sync-console", consoleContent, error);
         })
 
         socket.on("console-load", (roomId: string, isLoading: boolean) => {
@@ -46,6 +45,7 @@ export const initialiseCollaborationSockets = (io : Server) => {
         socket.on("disconnecting", () => {
             // leaves all rooms, ideally only one
             socket.rooms.forEach((roomID: string) => {
+                socket.to(roomID).emit("user-left", socket.data.username);
                 console.log(`Socket has left ${roomID}`);
                 socket.leave(roomID);
             });

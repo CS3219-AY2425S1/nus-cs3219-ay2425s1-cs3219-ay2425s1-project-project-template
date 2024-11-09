@@ -4,7 +4,7 @@ import { updateUserForgetPasswordTokenById as _updateUserForgetPasswordTokenById
 
 export const sendEmail = async (email, userId) => {
   try {
-    const hashedToken = await bcrypt.hash(userId.toString(), 10);
+    let hashedToken = await bcrypt.hash(userId.toString(), 10);
     while (
       hashedToken.charAt(hashedToken.length - 1) === "." ||
       hashedToken.includes("/")
@@ -27,8 +27,8 @@ export const sendEmail = async (email, userId) => {
 
     const domain =
       process.env.ENV === "PROD"
-        ? process.env.WEB_DOMAIN
-        : "http://localhost:" + process.env.FRONTEND_PORT;
+        ? process.env.CLOUD_DOMAIN
+        : process.env.FRONTEND_PORT;
     const messageBody = `<p>Please click <a href="${domain}/resetpassword?token=${hashedToken}">here</a> to Reset your password or copy paste the link below in your browser. The link is only valid for 1 hour.
           <br>${domain}/resetpassword?token=${hashedToken}</br>
       </p>`;
