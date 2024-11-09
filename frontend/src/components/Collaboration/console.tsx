@@ -92,7 +92,7 @@ const Output: React.FC<OutputProps> = ({ editorRef, language, qid }: OutputProps
   };
 
   return (
-    <Box height="100%" width="100%">
+    <Box height="50%" width="100%">
       <Stack direction="row" alignItems={"center"} marginBottom={1} marginTop={1}>
         <Text fontSize="14px" color="white" marginRight={2}>
           Output:

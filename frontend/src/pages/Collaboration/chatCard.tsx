@@ -87,7 +87,9 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
       className="border-gray-700 text-white flex flex-col h-full"
       sx={{ maxHeight: "350px" }}
     >
-      <CardContent className="p-6 bg-gray-800 flex-grow">
+      <CardContent className="p-6 bg-gray-800 flex-grow"
+        sx={{ paddingTop: "8px", paddingBottom: "10px" }}
+      >
         <Typography
           variant="h6"
           className="mb-4"
@@ -98,7 +100,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
         <Box
           ref={chatBoxRef}
           sx={{
-            height: 200,
+            height: 100,
             overflowY: "auto",
             border: "1px solid #ddd",
             padding: 2,
@@ -114,7 +116,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
               className="text-gray-300"
               sx={{
                 textAlign: "left",
-                fontSize: "1.1rem",
+                fontSize: "0.9rem",
                 mb: 1,
               }}
             >
@@ -135,14 +137,13 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
           ))}
         </Box>
         {/* Input and Send Button */}
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1 , height: "5vh"}}>
           <TextField
             variant="outlined"
             placeholder="Type a message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            multiline // Enable multiline input using cttrl c
             minRows={1} // Minimum rows to show
             maxRows={2}
             sx={{
@@ -151,7 +152,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ roomId, username, userId }) => {
               borderRadius: "4px",
             }}
             InputProps={{
-              style: { color: "#000" }, // Black text color inside input
+              style: { color: "#000", fontSize: "1.1rem", height: "100%"}, // Black text color inside input
             }}
           />
           <Button
