@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cors()); // configured so any one can use
 app.options('*', cors());
 
-// Health check route
+// Health check route, redeploy
 app.get('/', (req, res) => {
   res.status(200).send('OK');
 });

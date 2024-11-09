@@ -24,7 +24,12 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json()); //
+app.use(express.json());
+
+// Health check route
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
 
 /**
  * Create an http server
