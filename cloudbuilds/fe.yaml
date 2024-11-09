@@ -16,6 +16,12 @@ steps:
         "NEXT_PUBLIC_SOCK_SERVER_URL=${_NEXT_PUBLIC_SOCK_SERVER_URL}",
         "--build-arg",
         "NEXT_PUBLIC_AUDIO_SERVER_URL=${_NEXT_PUBLIC_AUDIO_SERVER_URL}",
+        "--build-arg",
+        "NEXT_PUBLIC_TURN_SERVER=${_NEXT_PUBLIC_TURN_SERVER}",
+        "--build-arg",
+        "NEXT_PUBLIC_TURN_USERNAME={_NEXT_PUBLIC_TURN_USERNAME}",
+        "--build-arg",
+        "NEXT_PUBLIC_TURN_PASSWORD=${_NEXT_PUBLIC_TURN_PASSWORD}",
         "-f",
         "peerprep-fe/Dockerfile",
         "peerprep-fe",
@@ -58,6 +64,9 @@ substitutions:
   _NEXT_PUBLIC_GITHUB_CLIENT_ID: ""
   _NEXT_PUBLIC_SOCK_SERVER_URL: ""
   _NEXT_PUBLIC_AUDIO_SERVER_URL: ""
+  _NEXT_PUBLIC_TURN_SERVER: ""
+  _NEXT_PUBLIC_TURN_USERNAME: ""
+  _NEXT_PUBLIC_TURN_PASSWORD: ""
 
 options:
   dynamic_substitutions: true
