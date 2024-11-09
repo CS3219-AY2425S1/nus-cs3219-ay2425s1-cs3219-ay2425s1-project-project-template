@@ -82,8 +82,23 @@ async function createSubmission(submission: Judge0Submission): Promise<string> {
 
 async function getSubmissionResult(token: string): Promise<Judge0Response> {
   try {
-    const response = await axios.get(`${JUDGE0_API_URL}/submissions/${token}?base64_encoded=false`);
-    return response.data;
+    const response = await axios.get(`${JUDGE0_API_URL}/submissions/${token}?base64_encoded=true`);
+    const data = response.data;
+    // Decode base64 encoded fields
+    if (data.stdout) {
+      data.stdout = Buffer.from(data.stdout, 'base64').toString('utf-8');
+    }
+    if (data.stderr) {
+      data.stderr = Buffer.from(data.stderr, 'base64').toString('utf-8');
+    }
+    if (data.compile_output) {
+      data.compile_output = Buffer.from(data.compile_output, 'base64').toString('utf-8');
+    }
+    if (data.message) {
+      data.message = Buffer.from(data.message, 'base64').toString('utf-8');
+    }
+    console.log('Submission result:', data);
+    return data;
   } catch (error) {
     console.error('Error getting submission result:', error);
     throw new Error('Failed to get submission result');
