@@ -13,7 +13,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 checkout scm
-                echo 'Repository cloned successfully'
+                echo 'Testing'
             }
         }
 
