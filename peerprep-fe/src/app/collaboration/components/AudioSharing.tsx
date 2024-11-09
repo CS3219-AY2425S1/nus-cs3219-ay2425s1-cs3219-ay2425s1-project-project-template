@@ -15,10 +15,17 @@ const AudioSharing = () => {
   const socketRef = useRef<Socket | null>(null);
   const peerRef = useRef<Instance | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
-  const initializedRef = useRef(false); // To track initialization
+  const initializedRef = useRef(false);
 
   const SERVER_URL =
     process.env.NEXT_PUBLIC_AUDIO_SERVER_URL || 'http://localhost:5555';
+
+  // Add TURN server credentials from environment variables
+  const TURN_SERVER =
+    process.env.NEXT_PUBLIC_TURN_SERVER || 'turn:localhost:3478';
+  const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME || 'username';
+  const TURN_CREDENTIAL =
+    process.env.NEXT_PUBLIC_TURN_CREDENTIAL || 'credential';
 
   const cleanupAudio = () => {
     if (audioStreamRef.current) {
@@ -43,8 +50,15 @@ const AudioSharing = () => {
       trickle: false,
       config: {
         iceServers: [
+          // Maintain existing STUN servers
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:global.stun.twilio.com:3478' },
+          // Add TURN server configuration
+          {
+            urls: TURN_SERVER,
+            username: TURN_USERNAME,
+            credential: TURN_CREDENTIAL,
+          },
         ],
       },
     });
@@ -73,11 +87,16 @@ const AudioSharing = () => {
       cleanupAudio();
     });
 
+    // Add connection state logging
+    peer.on('connect', () => {
+      console.log('Peer connection established successfully');
+    });
+
     return peer;
   };
 
   const initializeSocketAndPeer = () => {
-    if (initializedRef.current) return; // Prevent re-initialization
+    if (initializedRef.current) return;
     initializedRef.current = true;
 
     socketRef.current = io(SERVER_URL, {
@@ -109,7 +128,6 @@ const AudioSharing = () => {
               autoGainControl: true,
             },
           });
-          // Initially muted
           stream.getTracks().forEach((track) => {
             track.enabled = false;
           });
@@ -133,11 +151,10 @@ const AudioSharing = () => {
   };
 
   const toggleAudio = async () => {
-    initializeSocketAndPeer(); // Ensure initialization happens once
+    initializeSocketAndPeer();
 
     try {
       if (!audioStreamRef.current) {
-        // First time enabling audio - need to set up the stream and peer
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -154,7 +171,6 @@ const AudioSharing = () => {
         });
         setIsAudioEnabled(true);
       } else {
-        // Just toggle the existing stream
         const newEnabledState = !isAudioEnabled;
         audioStreamRef.current.getTracks().forEach((track) => {
           track.enabled = newEnabledState;
