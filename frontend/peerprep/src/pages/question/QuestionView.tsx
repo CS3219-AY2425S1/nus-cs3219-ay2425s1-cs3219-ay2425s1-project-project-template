@@ -22,6 +22,8 @@ import QuestionModal from "../../components/QuestionModal";
 import { toast } from "react-toastify"; // Import toast for notifications
 import { LeetCodeModal } from "../../components/LeetCodeModal";
 import QuestionDescriptionModal from "../../components/QuestionDescriptionModal";
+import { useUserContext } from "../../context/UserContext"; // Import the user context
+
 
 type QuestionViewProps = {
   questions: Question[];
@@ -57,6 +59,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   onEditQuestion,
   onDeleteQuestion,
 }) => {
+  const { user } = useUserContext();
   const [columnFilters, setColumnFilter] = useState<ColumnFilter[]>(initialCF);
 
   const {
@@ -83,6 +86,13 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onClose: onLeetCodeModalClose,
   } = useDisclosure();
 
+  // Check if the user can edit/delete a question (either admin or question owner)
+
+  const canEditDelete = (questionOwnerId: string) => {
+
+    return user.isAdmin;
+  }
+  
   // Handle Add LeetCode Question
   const handleLeetCodeAdd = async (newQuestion: { title: string }) => {
     try {
@@ -235,30 +245,33 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         header: "Actions",
         cell: ({ row }) => (
           <ButtonGroup size="sm" isAttached>
-            <IconButton
-              icon={<Icon as={FaEdit} />}
-              aria-label="Edit"
-              colorScheme="purple"
-              onClick={() => {
-                setSelectedQuestion(row.original);
-                onQuestionModalOpen();
-                onMenuClose();
-              }}
-            />
-            {/* Delete Button */}
-            <IconButton
-              icon={<Icon as={FaTrash} />}
-              aria-label="Delete"
-              colorScheme="red"
-              onClick={() => {
-                handleDelete(row.original.ID);
-              }}
-            />
+            {canEditDelete(row.original.ownerId) && (
+              <>
+                <IconButton
+                  icon={<Icon as={FaEdit} />}
+                  aria-label="Edit"
+                  colorScheme="purple"
+                  onClick={() => {
+                    setSelectedQuestion(row.original);
+                    onQuestionModalOpen();
+                    onMenuClose();
+                  }}
+                />
+                <IconButton
+                  icon={<Icon as={FaTrash} />}
+                  aria-label="Delete"
+                  colorScheme="red"
+                  onClick={() => {
+                    handleDelete(row.original.ID);
+                  }}
+                />
+              </>
+            )}
           </ButtonGroup>
         ),
       },
     ],
-    [onModalOpen, onMenuClose]
+    [onModalOpen, onMenuClose, user]
   );
 
   return (
