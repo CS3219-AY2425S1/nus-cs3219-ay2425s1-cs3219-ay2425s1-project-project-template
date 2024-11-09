@@ -19,6 +19,11 @@ app.use(
   })
 );
 
+// Health check route
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {

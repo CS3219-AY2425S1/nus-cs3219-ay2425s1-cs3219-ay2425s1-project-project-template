@@ -1,22 +1,61 @@
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: http-to-https
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: fe-ingress
+  name: nginx-ingress-session
   annotations: 
-    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.global-static-ip-name: nginx-api
+    networking.gke.io/managed-certificates: peerprep-fe-cs3219-g11-nginx-all
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/frontend-config: "http-to-https"
 spec:
-  tls: 
-    - hosts:
-      - peerprep-interview.duckdns.org
-      secretName: peerprep-config
+  ingressClassName: "gce"
   rules:
-    - host: peerprep-interview.duckdns.org
+    - host: peerprep-fe.duckdns.org
       http:
-        paths: 
-        - path: /
-          pathType: Prefix
-          backend: 
-            service:
+        paths:
+        - path: /* 
+          pathType: ImplementationSpecific
+          backend:
+            service: 
               name: peerprep-fe
               port:
                 number: 80
+    - host: peerprep-api.duckdns.org
+      http:
+        paths:
+        - path: /*
+          pathType: ImplementationSpecific
+          backend:
+            service: 
+              name: api-gateway
+              port:
+                number: 8001
+    - host: peerprep-session.duckdns.org
+      http:
+        paths:
+        - path: /*
+          pathType: ImplementationSpecific
+          backend:
+            service: 
+              name: session-svc
+              port:
+                number: 4444
+    - host: peerprep-audio.duckdns.org
+      http:
+        paths:
+        - path: /*
+          pathType: ImplementationSpecific
+          backend:
+            service: 
+              name: session-svc
+              port:
+                number: 5555
