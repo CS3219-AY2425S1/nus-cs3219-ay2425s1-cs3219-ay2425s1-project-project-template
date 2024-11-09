@@ -3,6 +3,7 @@ FROM node:18-alpine AS base
 
 # Install pnpm globally
 RUN npm install -g pnpm
+RUN npm install -g typescript
 
 # Set the working directory in the container
 WORKDIR /app
@@ -22,7 +23,6 @@ COPY tsconfig.json ./
 
 CMD ["pnpm", "dev"]
 
-
 # Production stage
 FROM base AS production
 ENV NODE_ENV=production
@@ -32,5 +32,7 @@ COPY src ./src
 COPY tsconfig.json ./
 
 EXPOSE ${PORT}
+
+RUN pnpm build
 
 CMD ["pnpm", "start"]
