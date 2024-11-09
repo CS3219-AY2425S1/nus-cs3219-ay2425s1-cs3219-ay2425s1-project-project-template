@@ -3,6 +3,10 @@ info:
   title: peerprep-api
   description: API Gateway for peerprep G54
   version: 1.0.0
+host: peerprep-api-31pxcopgm65us.apigateway.peerprep-440610.cloud.goog
+x-google-endpoints:
+  - name: peerprep-api-31pxcopgm65us.apigateway.peerprep-440610.cloud.goog
+    allowCors: True
 schemes:
   - https
   - http
@@ -468,7 +472,7 @@ paths:
                 format: date-time
                 description: "The time user is created."
 
-  /question:
+  /api/question:
     # Get all questions
     get:
       summary: Get all questions
@@ -566,12 +570,12 @@ paths:
                   - "Hard"
                 description: "The complexity level of the question."
 
-  /question/{qid}:
+  /api/question/{qid}:
     # Get a question
     get:
       summary: Get a specific question
       x-google-backend:
-        address: https://question-183444271064.asia-southeast1.run.app/api/
+        address: https://question-183444271064.asia-southeast1.run.app/
         path_translation: APPEND_PATH_TO_ADDRESS
       operationId: getOneQuestion
       parameters:
@@ -611,7 +615,7 @@ paths:
     delete:
       summary: Delete a specific question
       x-google-backend:
-        address: https://question-183444271064.asia-southeast1.run.app/api/
+        address: https://question-183444271064.asia-southeast1.run.app/
         path_translation: APPEND_PATH_TO_ADDRESS
       operationId: deleteQuestion
       parameters:
@@ -651,7 +655,7 @@ paths:
       # Update a question
       summary: Update a specific question
       x-google-backend:
-        address: https://question-183444271064.asia-southeast1.run.app/api/
+        address: https://question-183444271064.asia-southeast1.run.app/
         path_translation: APPEND_PATH_TO_ADDRESS
       operationId: updateQuestion
       parameters:
@@ -715,12 +719,12 @@ paths:
                   - "Hard"
                 description: "The complexity level of the question."
 
-  /question/random/{difficulty}/{topic}:
+  /api/question/random/{difficulty}/{topic}:
     # Get a random question
     get:
       summary: Get a random question based on difficulty and topic
       x-google-backend:
-        address: https://question-183444271064.asia-southeast1.run.app/api/
+        address: https://question-183444271064.asia-southeast1.run.app/
         path_translation: APPEND_PATH_TO_ADDRESS
       operationId: getRandomQuestion
       parameters:
@@ -762,7 +766,7 @@ paths:
                   - "Hard"
                 description: "The complexity level of the question."
 
-  /history:
+  /api/history:
     # Add question attemp
     post:
       summary: Add a question attempt
@@ -792,12 +796,12 @@ paths:
                 type: string
                 description: "Question attemp recorded on user"
 
-  /history/{userId}:
+  /api/history/{userId}:
     # Get all question attempted by specific user
     get:
       summary: Get all questions attempted by user
       x-google-backend:
-        address: https://history-183444271064.asia-southeast1.run.app/api/
+        address: https://history-183444271064.asia-southeast1.run.app/
         path_translation: APPEND_PATH_TO_ADDRESS
       operationId: getQuestionAttempted
       parameters:
@@ -871,3 +875,165 @@ paths:
               statusDescription:
                 type: string
                 description: "The status description of the execution."
+
+  /matching/socket:
+    # Connect
+    get:
+      summary: Matching connect
+      x-google-backend:
+        address: https://matching-183444271064.asia-southeast1.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+      operationId: matchingConnect
+      parameters:
+        - name: EIO
+          in: query
+          required: false
+          type: string
+          description: "Engine.IO protocol version"
+        - name: transport
+          in: query
+          required: false
+          type: string
+          description: "Transport mechanism (e.g., polling)"
+        - name: t
+          in: query
+          required: false
+          type: string
+          description: "Timestamp parameter for caching"
+      responses:
+        "200":
+          description: Connected to matching service.
+
+    post:
+      summary: Send matching content
+      x-google-backend:
+        address: https://matching-183444271064.asia-southeast1.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+      operationId: sendMatchingContent
+      parameters:
+        - name: EIO
+          in: query
+          required: false
+          type: string
+          description: "Engine.IO protocol version"
+        - name: transport
+          in: query
+          required: false
+          type: string
+          description: "Transport mechanism (e.g., polling)"
+        - name: t
+          in: query
+          required: false
+          type: string
+          description: "Timestamp parameter for caching"
+      responses:
+        "200":
+          description: Matching content send successfully.
+
+  /collaboration/socket:
+    # Connect
+    get:
+      summary: Collaboration connect
+      x-google-backend:
+        address: https://collab-183444271064.asia-southeast1.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+      operationId: collaborationConnect
+      parameters:
+        - name: EIO
+          in: query
+          required: false
+          type: string
+          description: "Engine.IO protocol version"
+        - name: transport
+          in: query
+          required: false
+          type: string
+          description: "Transport mechanism (e.g., polling)"
+        - name: t
+          in: query
+          required: false
+          type: string
+          description: "Timestamp parameter for caching"
+      responses:
+        "200":
+          description: Connected to collaboration service.
+
+    post:
+      summary: Send collaboration content
+      x-google-backend:
+        address: https://collab-183444271064.asia-southeast1.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+      operationId: sendCollabotationContent
+      parameters:
+        - name: EIO
+          in: query
+          required: false
+          type: string
+          description: "Engine.IO protocol version"
+        - name: transport
+          in: query
+          required: false
+          type: string
+          description: "Transport mechanism (e.g., polling)"
+        - name: t
+          in: query
+          required: false
+          type: string
+          description: "Timestamp parameter for caching"
+      responses:
+        "200":
+          description: Collaboration content send successfully
+
+  /communication/socket:
+    # Connect
+    get:
+      summary: Communication connect
+      x-google-backend:
+        address: https://comm-183444271064.asia-southeast1.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+      operationId: communicationConnect
+      parameters:
+        - name: EIO
+          in: query
+          required: false
+          type: string
+          description: "Engine.IO protocol version"
+        - name: transport
+          in: query
+          required: false
+          type: string
+          description: "Transport mechanism (e.g., polling)"
+        - name: t
+          in: query
+          required: false
+          type: string
+          description: "Timestamp parameter for caching"
+      responses:
+        "200":
+          description: Connected to communication service.
+
+    post:
+      summary: Send communication content
+      x-google-backend:
+        address: https://comm-183444271064.asia-southeast1.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+      operationId: sendCommunicationContent
+      parameters:
+        - name: EIO
+          in: query
+          required: false
+          type: string
+          description: "Engine.IO protocol version"
+        - name: transport
+          in: query
+          required: false
+          type: string
+          description: "Transport mechanism (e.g., polling)"
+        - name: t
+          in: query
+          required: false
+          type: string
+          description: "Timestamp parameter for caching"
+      responses:
+        "200":
+          description: Communication content send successfully
