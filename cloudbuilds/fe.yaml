@@ -19,7 +19,7 @@ steps:
         "--build-arg",
         "NEXT_PUBLIC_TURN_SERVER=${_NEXT_PUBLIC_TURN_SERVER}",
         "--build-arg",
-        "NEXT_PUBLIC_TURN_USERNAME={_NEXT_PUBLIC_TURN_USERNAME}",
+        "NEXT_PUBLIC_TURN_USERNAME=${_NEXT_PUBLIC_TURN_USERNAME}",
         "--build-arg",
         "NEXT_PUBLIC_TURN_PASSWORD=${_NEXT_PUBLIC_TURN_PASSWORD}",
         "-f",
