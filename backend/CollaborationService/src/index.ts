@@ -135,11 +135,8 @@ io.on("connection", (socket: Socket) => {
     // Handle disconnection
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
-    
-    // Notify others in the room that the user has left
-    if (roomId && user?.username) {
-      socket.to(roomId).emit("userLeft", { username: user.username });
-    }
+
+    socket.to(roomId).emit("userDisconnected", { userId: socket.id });
 
     if (io.sockets.adapter.rooms.get(roomId)?.size === undefined) {
       delete roomUpdates[roomId];

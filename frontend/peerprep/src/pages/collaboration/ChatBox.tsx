@@ -47,7 +47,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
           socketRef.current.emit("joinRoom", { roomId, username: user.username });
         }
       });
-
+  
       socketRef.current.on("userJoined", (data: { username: string }) => {
         console.log("User joined:", data.username);
         
@@ -55,12 +55,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({
           setOtherUserName(data.username);
         }
       });
-
+  
       socketRef.current.on("leaveSession", () => {
         console.log("Session ended by another user");
         onEndSession(questionRef.current, currentCodeRef.current); 
       });
-
+  
       socketRef.current.on("receiveMessage", (data: { username: string; message: string }) => {
         console.log("Message received:", data);
         
@@ -73,18 +73,26 @@ const ChatBox: React.FC<ChatBoxProps> = ({
           chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
         }
       });
-
+  
+      // Listen for userDisconnected event
+      socketRef.current.on("userDisconnected", (data: { userId: string }) => {
+        console.log("User disconnected:", data.userId);
+        setMessages((prevMessages) => [...prevMessages, "A user has disconnected"]);
+      });
+  
       // Cleanup on unmount
       return () => {
         console.log("Cleaning up socket listeners...");
         socketRef.current?.off("userJoined");
         socketRef.current?.off("leaveSession");
         socketRef.current?.off("receiveMessage");
+        socketRef.current?.off("userDisconnected"); // Clean up this listener as well
       };
     } else {
       console.log("Socket connection not established. Check socketRef.");
     }
   }, [roomId, user?.username, onEndSession, socketRef]);
+  
 
   const sendMessage = () => {
     if (message.trim() && socketRef.current) {
