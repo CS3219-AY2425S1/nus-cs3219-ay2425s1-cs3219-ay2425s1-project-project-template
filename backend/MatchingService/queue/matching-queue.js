@@ -61,7 +61,8 @@ matchingQueue.process(1, async (job) => {
           // Fetch a question ID for the matched users
           const questionId = await fetchQuestionId(
             job.data.topic,
-            job.data.difficulty
+            job.data.difficulty,
+            job.data.socketId
           );
 
           // remove and add the matched job to the front of the queue

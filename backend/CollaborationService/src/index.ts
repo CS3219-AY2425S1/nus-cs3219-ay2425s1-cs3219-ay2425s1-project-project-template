@@ -7,6 +7,7 @@ import express from "express";
 import Redis from "ioredis";
 import { createAdapter } from "@socket.io/redis-adapter";
 import "dotenv/config";
+import axios from "axios";
 
 const app = express();
 const server = http.createServer(app);
@@ -56,6 +57,23 @@ let pending: { [key: string]: ((value: any) => void)[] } = {};
 
 // listening for connections from clients
 let disconnectedUsers: { [roomId: string]: Set<string> } = {};
+
+io.use(async (socket, next) => {
+  const token = socket.handshake.query.token;
+
+  if (!token) {
+    return next(new Error("Authentication token is missing"));
+  }
+
+  try {
+    // Verify the token
+    await verifyToken(token); // Wait for the token verification to finish
+    next();  // Proceed with the connection
+  } catch (error) {
+    return next(new Error("Authentication failed"));
+  }
+});
+
 io.on("connection", (socket: Socket) => {
   const roomId = socket.handshake.query.roomId;
 
@@ -181,6 +199,35 @@ io.on("connection", (socket: Socket) => {
     io.to(roomId).emit("leaveSession");
   });
 });
+
+// Token verification function
+export const verifyToken = async (token : string | string[]) => {
+  try {
+    const user_domain = process.env.USER_SERVICE || "http://localhost:3001";
+    
+    // Construct the URL for the verify-token endpoint
+    const verifyTokenUrl = `${user_domain}/auth/verify-token`;
+
+    // Send a POST request with the token in the Authorization header (Bearer token)
+    const response = await axios({
+      method: 'get',
+      url: verifyTokenUrl,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'  // Set Content-Type
+      }
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Token verification failed");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    throw new Error("Failed to verify token. Please try again.");
+  }
+};
 
 const port = process.env.PORT || 8000;
 // server.listen(port, () => console.log(`Server listening on port: ${port}`));
