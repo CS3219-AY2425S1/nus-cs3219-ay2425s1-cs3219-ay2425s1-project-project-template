@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: user-service
+  name: user-service
+  namespace: peerprep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - image: asia-southeast1-docker.pkg.dev/peerprep-440902/peerprep/user-service
+          imagePullPolicy: Always
+          name: user-service
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+            # readinessProbe:
+            #   httpGet:
+            #     path: /user # Adjust based on your application
+            #     port: 3001
+            #   initialDelaySeconds: 5
+            #   periodSeconds: 10
+            # livenessProbe:
+            #   httpGet:
+            #     path: /user # Alternatively, define an endpoint like /health
+            #     port: 3001
+            # initialDelaySeconds: 15
+            # periodSeconds: 20
+      restartPolicy: Always
+
+status: {}
