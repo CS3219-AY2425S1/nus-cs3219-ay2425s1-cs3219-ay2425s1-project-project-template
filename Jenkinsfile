@@ -6,8 +6,7 @@ pipeline {
     agent any 
     tools {
         nodejs 'nodejs'
-        docker 'docker'
-        echo 'Tools installed'
+        dockerTool 'docker'
     }
 
     stages {
