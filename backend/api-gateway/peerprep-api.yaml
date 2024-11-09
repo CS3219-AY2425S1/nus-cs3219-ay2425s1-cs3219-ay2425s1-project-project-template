@@ -471,6 +471,45 @@ paths:
                 type: string
                 format: date-time
                 description: "The time user is created."
+  # Verify Account
+  /users/verify/{token}:
+    get:
+      x-google-backend:
+        address: https://user-183444271064.asia-southeast1.run.app/
+        path_translation: APPEND_PATH_TO_ADDRESS
+      summary: Verify account using token
+      operationId: verifyAccount
+      parameters:
+        - in: path
+          name: token
+          required: true
+          type: string
+          description: "The verification token sent to the user's email."
+      responses:
+        "200":
+          description: Account successfully verified
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: "The id of the user."
+              username:
+                type: string
+                description: "The username of the user."
+              email:
+                type: string
+                description: "The email of the user."
+              isAdmin:
+                type: boolean
+                description: "The admin status of user."
+              avatar:
+                type: string
+                description: "The avatar url of the user."
+              createdAt:
+                type: string
+                format: date-time
+                description: "The time user is created."
 
   /api/question:
     # Get all questions
