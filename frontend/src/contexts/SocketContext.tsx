@@ -1,6 +1,5 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
 import { Socket } from 'socket.io-client';
-import { AuthContext } from './AuthContext';
 
 export interface SocketContextInterface {
   collabSocket: Socket | null,
