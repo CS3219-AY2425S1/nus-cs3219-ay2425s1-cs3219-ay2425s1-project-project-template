@@ -20,7 +20,7 @@ interface QuestionDetailFullProps {
 export const QuestionDetailFull = (props: QuestionDetailFullProps) => {
   return (
     <>
-      <Row className="question-row">
+      <Row className="question-box">
         <QuestionDetail
           questionTitle={props.questionTitle}
           complexity={props.complexity}
@@ -28,7 +28,7 @@ export const QuestionDetailFull = (props: QuestionDetailFullProps) => {
           description={props.description}
         />
       </Row>
-      <Row className="test-row">
+      <Row className="test-box">
         <TestcaseDetail
           visibleTestcases={props.visibleTestcases}
           shouldShowSubmitButton={props.shouldShowSubmitButton}

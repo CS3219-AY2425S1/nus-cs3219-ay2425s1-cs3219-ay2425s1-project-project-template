@@ -88,8 +88,8 @@ export const TestcaseDetail = (props: TestcaseDetailProps) => {
   );
 
   return (
-    <div className="test-container">
-      <div className="test-top-container">
+    <div className="test-section">
+      <div className="test-top-box">
         <div className="test-title">
           <FileDoneOutlined className="title-icons" />
           Test Cases

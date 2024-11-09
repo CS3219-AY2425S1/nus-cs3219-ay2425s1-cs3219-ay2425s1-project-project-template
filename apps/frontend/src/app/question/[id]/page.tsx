@@ -227,7 +227,7 @@ export default function QuestionPage() {
                 visibleTestcases={visibleTestCases}
               />
             </Col>
-            <Col span={12} className="second-col" style={{ height: "100%" }}>
+            <Col span={12} className="second-col">
               <Row className="history-row">
                 <div className="history-container">
                   <div className="history-top-container">
@@ -235,28 +235,28 @@ export default function QuestionPage() {
                       <HistoryOutlined className="title-icons" />
                       Submission History
                     </div>
-                  </div>
-                  <div style={{ margin: "10px" }}>
-                    <Table
-                      rowKey="id"
-                      dataSource={userQuestionHistories}
-                      columns={columns}
-                      onRow={(record: any) => {
-                        return {
-                          onClick: () => handleRowClick(record),
-                          style: { cursor: "pointer" },
-                        };
-                      }}
-                      loading={isHistoryLoading}
-                      pagination={{
-                        size: "small",
-                        current: paginationParams.currentPage,
-                        total: paginationParams.totalCount,
-                        pageSize: paginationParams.limit,
-                        onChange: onPageJump,
-                      }}
-                      scroll={{ y: 200 }}
-                    />
+                    <div style={{ margin: "10px" }}>
+                      <Table
+                        rowKey="id"
+                        dataSource={userQuestionHistories}
+                        columns={columns}
+                        onRow={(record: any) => {
+                          return {
+                            onClick: () => handleRowClick(record),
+                            style: { cursor: "pointer" },
+                          };
+                        }}
+                        loading={isHistoryLoading}
+                        pagination={{
+                          size: "small",
+                          current: paginationParams.currentPage,
+                          total: paginationParams.totalCount,
+                          pageSize: paginationParams.limit,
+                          onChange: onPageJump,
+                        }}
+                        scroll={{ y: 200 }}
+                      />
+                    </div>
                   </div>
                 </div>
               </Row>
