@@ -26,7 +26,7 @@ const AudioSharing = () => {
   const TURN_CREDENTIAL = process.env.NEXT_PUBLIC_TURN_PASSWORD;
 
   if (!TURN_SERVER || !TURN_USERNAME || !TURN_CREDENTIAL) {
-    // Log which specific variables are missing
+    // Log which specific TURN variables are missing
     console.error('Missing TURN env:', {
       server: !!TURN_SERVER,
       username: !!TURN_USERNAME,
