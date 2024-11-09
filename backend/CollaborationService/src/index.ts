@@ -55,6 +55,7 @@ let roomDocs: { [key: string]: Text } = {};
 let pending: { [key: string]: ((value: any) => void)[] } = {};
 
 // listening for connections from clients
+let disconnectedUsers: { [roomId: string]: Set<string> } = {};
 io.on("connection", (socket: Socket) => {
   const roomId = socket.handshake.query.roomId;
 
@@ -72,6 +73,13 @@ io.on("connection", (socket: Socket) => {
 
   console.log("room size", io.sockets.adapter.rooms.get(roomId)?.size);
 
+  
+  console.log(`New connection: ${socket.id} joined room: ${roomId}`);
+  
+  // Notify all users in the room, including the newly connected user
+  io.in(roomId).emit("newConnection", { userId: socket.id, roomId });
+  
+
   if (!roomUpdates[roomId]) {
     roomUpdates[roomId] = [];
   }
@@ -83,6 +91,8 @@ io.on("connection", (socket: Socket) => {
   if (!pending[roomId]) {
     pending[roomId] = [];
   }
+
+  
 
   socket.on("pullUpdates", (version: number) => {
     if (version < roomUpdates[roomId].length) {
