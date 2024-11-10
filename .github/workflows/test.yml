@@ -114,11 +114,6 @@ jobs:
 
   test-docker-compose:
     runs-on: ubuntu-latest
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Chrome Driver
-        run: |
 
     steps:
       - name: Checkout code
