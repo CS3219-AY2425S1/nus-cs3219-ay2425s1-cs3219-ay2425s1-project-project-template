@@ -55,3 +55,18 @@
 .profile-table td:nth-child(even) {
     width: 400px;
 }
+
+.history-btn {
+    background-color: #f7b32b;
+    color: white;
+    font-size: 16px;
+    font-family: cursive;
+    cursor: pointer;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}

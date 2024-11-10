@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const attemptSchema = new mongoose.Schema({
-    question_id: {
-        type: Number,
+    title: {
+        type: String,
         required: true,
     },
     timestamp: {
@@ -11,11 +11,9 @@ const attemptSchema = new mongoose.Schema({
     },
     code: {
         type: String,
-        required: true,
     },
     text: {
         type: String,
-        required: true
     },
     language: {
         type: String,
@@ -25,6 +23,9 @@ const attemptSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    question: {
+        type: String
+    }
 });
 
 const collabHistorySchema = new mongoose.Schema({

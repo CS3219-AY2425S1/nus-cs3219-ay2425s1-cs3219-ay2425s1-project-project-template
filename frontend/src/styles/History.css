@@ -1,0 +1,53 @@
+.history {
+  text-align: center;
+  font-family: cursive;
+  background-color: #2f3654;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding-bottom: 30px;
+}
+
+.history-table {
+  margin: 10px auto;
+  border-collapse: collapse;
+  width: 70vw;
+  border: 5px solid white;
+  color: black;
+  font-size: 16px;
+}
+
+.history-table th .history-table td {
+  border: 2px solid white;
+  padding: 8px;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #f7b32b;
+  color: black;
+}
+
+.history-table tr:hover {
+  cursor: pointer;
+} 
+
+.history-table tr:nth-child(odd) {
+  background-color: white;
+}
+
+.history-table tr:nth-child(even) {
+  background-color: #ffffcc;
+}
+
+.collab-header {
+  font-size: 40px;
+}
+
+.collab-text {
+  font-size: 20px;
+}

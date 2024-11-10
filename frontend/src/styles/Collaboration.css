@@ -152,5 +152,12 @@ input[type='text'] {
 }
 
 .modal .confirm-button:hover {
-  backgound-color: #0056b3;
+  background-color: #0056b3;
+}
+
+.home-btn-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
 }
