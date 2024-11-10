@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { Question } from "../question/questionModel";
-import exitIcon from "../../assets/ExitIcon.png";
 
 interface ChatBoxProps {
   roomId: string | null;
@@ -112,7 +111,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   
     return messages.map((msg, index) => {
       const isNotification = notificationMessages.includes(msg);
-      
+  
       return (
         <div
           key={index}
@@ -120,8 +119,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({
             isNotification
               ? styles.notificationMessage
               : msg.startsWith("You:")
-              ? styles.userMessage
-              : styles.receivedMessage
+              ? styles.userMessageLeft
+              : styles.receivedMessageRight
           }
         >
           {msg}
@@ -129,6 +128,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       );
     });
   };
+  
 
   return (
     <div style={styles.chatBoxContainer}>
@@ -201,6 +201,9 @@ const styles = {
   },
 
   messagesContainer: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "flex-start", // Aligns messages to the start
     flex: 1,
     overflowY: "auto" as const,
     padding: "10px",
@@ -208,6 +211,7 @@ const styles = {
     borderRadius: "8px",
     marginBottom: "10px",
   },
+  
 
   userMessage: {
     alignSelf: "flex-end",
@@ -216,11 +220,13 @@ const styles = {
     padding: "6px 10px",
     borderRadius: "10px",
     marginBottom: "5px",
-    display: "inline-block",
-    maxWidth: "100%",
     fontSize: "0.9rem",
+    display: "inline-flex", // Adjusts the bubble width to fit the content
+    maxWidth: "80%", // Optional: prevents the bubble from getting too wide on large screens
+    whiteSpace: "pre-wrap", // Allows text to wrap within the bubble if needed
+    wordBreak: "break-word", // Breaks long words to avoid overflow
   },
-
+  
   receivedMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#44475a",
@@ -228,10 +234,13 @@ const styles = {
     padding: "6px 10px",
     borderRadius: "10px",
     marginBottom: "5px",
-    display: "inline-block",
-    maxWidth: "100%",
     fontSize: "0.9rem",
+    display: "inline-flex", // Adjusts the bubble width to fit the content
+    maxWidth: "80%", // Optional: prevents the bubble from getting too wide on large screens
+    whiteSpace: "pre-wrap", // Allows text to wrap within the bubble if needed
+    wordBreak: "break-word", // Breaks long words to avoid overflow
   },
+  
 
 
   inputContainer: {
@@ -263,6 +272,34 @@ const styles = {
     color: "#ffffff",
     cursor: "pointer",
     boxSizing: "border-box",
+  },
+
+  userMessageLeft: {
+    alignSelf: "flex-start",
+    backgroundColor: "#4e8ef7",
+    color: "#ffffff",
+    padding: "6px 10px",
+    borderRadius: "10px",
+    marginBottom: "5px",
+    fontSize: "0.9rem",
+    display: "inline-flex",
+    maxWidth: "80%",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
+  },
+  
+  receivedMessageRight: {
+    alignSelf: "flex-end",
+    backgroundColor: "#44475a",
+    color: "#ffffff",
+    padding: "6px 10px",
+    borderRadius: "10px",
+    marginBottom: "5px",
+    fontSize: "0.9rem",
+    display: "inline-flex",
+    maxWidth: "80%",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
   },
 
   notificationMessage: {
