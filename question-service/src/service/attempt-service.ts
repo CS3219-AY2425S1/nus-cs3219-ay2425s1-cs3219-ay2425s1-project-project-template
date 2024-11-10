@@ -1,8 +1,12 @@
-import { saveAttempt, getAttemptsByUserId } from "../repo/attempt-repo";
+import { 
+  saveAttempt, 
+  getAttemptsByUserId, 
+  removeLatestAttempt, 
+  deleteAttemptsForUserAndQuestion, 
+  getAttemptByIdFromRepo } from "../repo/attempt-repo";
 import { getQuestionById } from "../repo/question-repo";
-import { removeLatestAttempt } from "../repo/attempt-repo";
-import { deleteAttemptsForUserAndQuestion } from "../repo/attempt-repo";
 
+// Create an Attempt
 export async function createAttempt(attemptData: any) {
   const { userId, questionId, peerUserName } = attemptData;
 
@@ -16,12 +20,18 @@ export async function createAttempt(attemptData: any) {
   return await saveAttempt(attemptData);
 }
 
+// Fetch Attempts by UserId
 export async function fetchAttemptsByUserId(userId: string) {
   const attempts = await getAttemptsByUserId(userId);
   if (!attempts) {
     throw new Error(`No attempts found for user ID: ${userId}`);
   }
   return attempts;
+}
+
+// Fetch Attempts by AttemptId
+export async function getAttemptById(attemptId: string) {
+  return await getAttemptByIdFromRepo(attemptId);
 }
 
 // Function to Delete the latest Attempt

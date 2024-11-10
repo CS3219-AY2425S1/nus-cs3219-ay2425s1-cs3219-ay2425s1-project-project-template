@@ -4,9 +4,11 @@ import {
   fetchAttemptsByUserId,
   deleteLatestAttempt,
   cleanupAttemptsForUserAndQuestion,
+  getAttemptById,
 } from "../service/attempt-service";
 
 
+// Create an Attempt
 export async function createAttemptController(req: any, res: Response) {
   try {
     const userId = req.user.id;
@@ -39,6 +41,7 @@ export async function createAttemptController(req: any, res: Response) {
   }
 }
 
+// Fetch Attempts by UserId
 export async function getAttemptsByUserController(req: any, res: Response) {
   try {
     const userId = req.user.id;
@@ -50,7 +53,21 @@ export async function getAttemptsByUserController(req: any, res: Response) {
   }
 }
 
-// New Controller to Delete a latest Attempt
+// Get Attempt by AttempId
+export async function getAttemptByIdController(req: Request, res: Response) {
+  try {
+    const { attemptId } = req.params;
+    const attempt = await getAttemptById(attemptId);
+    if (!attempt) {
+      return res.status(404).json({ error: "Attempt not found" });
+    }
+    res.status(200).json(attempt);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// Delete latest Attempt
 export async function deleteLatestAttemptController(req: any, res: Response) {
     try {
       const { userId, questionId, peerUserName } = req.body;
@@ -80,7 +97,7 @@ export async function deleteLatestAttemptController(req: any, res: Response) {
     }
   }
 
-// Cleanup Invalid Attempts for a Specific User
+// Cleanup Attempts for a Specific User
 export async function cleanupInvalidAttemptsForUserController(req: any, res: Response) {
     try {
         const { userId, questionId } = req.body;
@@ -107,3 +124,4 @@ export async function cleanupInvalidAttemptsForUserController(req: any, res: Res
     res.status(500).json({ error: "Internal server error." });
   }
 }
+
