@@ -19,7 +19,7 @@ dotenv.config();
     origin: process.env.WEBSOCKET_ORIGIN,
   },
   namespace: '/',
-  port: parseInt(process.env.WEBSOCKET_PORT, 10),
+  port: process.env.WEBSOCKET_PORT || 8080,
 })
 export class CollabGateway implements OnGatewayDisconnect {
   private readonly logger = new Logger(CollabGateway.name);

@@ -74,7 +74,7 @@ export default function SessionsPage() {
         return
       }
       try {
-        const res = await verifyToken(token)
+        const res: any = await verifyToken(token)
         setUserData({ username: res.data.username, email: res.data.email })
         setLoading(false)
       } catch (error) {

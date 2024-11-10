@@ -78,9 +78,10 @@ export class CodeExecutionService {
 
       // Make PATCH request to update submission
       try {
+        const CODE_EDITOR_URL = process.env.CODE_EDITOR_URL;
         const response = await firstValueFrom(
           this.httpService.patch<any>(
-            `http://host.docker.internal:3006/submissions/${sessionId}/${questionId}`,
+            `${CODE_EDITOR_URL}/submissions/${sessionId}/${questionId}`,
             {
               status,
               executionResults: result

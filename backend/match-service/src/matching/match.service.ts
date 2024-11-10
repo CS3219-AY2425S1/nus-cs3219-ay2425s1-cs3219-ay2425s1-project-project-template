@@ -201,9 +201,12 @@ export class MatchService {
       };
       this.logger.debug(`collab request body: ${collabRequestBody}`);
 
+      const collab_url = process.env.COLLAB_SERVICE_URL;
+      this.logger.log(`Public collab url: ${collab_url}`);
+
       const collabResponse = await this.httpService
         .post(
-          `http://host.docker.internal:3005/collaboration/create-session/${matchId}`,
+          `${collab_url}/collaboration/create-session/${matchId}`,
           collabRequestBody,
         )
         .toPromise();

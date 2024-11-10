@@ -12,7 +12,6 @@ import DynamicTestCases from '../TestCaseCard';
 import { CodeExecutionResponse } from '@/app/api/code-execution/route';
 import { executeCode } from '@/lib/api-user';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 
 
 interface CodeEditorProps {
@@ -28,10 +27,9 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
   const [language, setLanguage] = useState(initialLanguage);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   const [executing, setExecuting] = useState<boolean>(false);
-  const [result, setResult] = useState<CodeExecutionResponse | null>(null);
+  // const [result, setResult] = useState<CodeExecutionResponse | null>(null);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,8 +73,8 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         code: code
       });
       
-    } catch (error) {
-      setError((error as any).message);
+    } catch (error: any) {
+      setError((error).message);
     } finally {
     }
   };

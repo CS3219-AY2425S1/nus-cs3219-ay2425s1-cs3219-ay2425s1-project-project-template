@@ -12,15 +12,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectI
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import AttemptsTab from "@/components/attempts/attempts"
 import { useRouter } from 'next/navigation';
 import { executeCode, verifyToken } from '@/lib/api-user'
-import toast from 'react-hot-toast';
 import CodeEditorContainer from '@/components/collaboration/code-editor-container';
-import VideoDisplay from '@/components/collaboration/VideoDisplay';
-import DynamicTestCases from '@/components/TestCaseCard';
 import { CodeExecutionResponse } from '@/app/api/code-execution/route';
 
 
@@ -533,16 +529,12 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
               </div>
             </Card>
           </TabsContent>
-          {/* <TabsContent value="attempts" className="flex-1 pb-1 h-full overflow-hidden">
-            <AttemptsTab />
-          </TabsContent> */}
         </Tabs>
         <div className="flex flex-col h-full overflow-hidden">
           <CodeEditorContainer sessionId={matchId} questionId={question?._id} userData={userData} />
         </div>
       </div>
       <div className="absolute bottom-0 left-0 z-50">
-        {/* <VideoDisplay /> */}
       </div>
     </div>
   )

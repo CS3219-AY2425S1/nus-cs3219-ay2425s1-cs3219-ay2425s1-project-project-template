@@ -25,7 +25,7 @@ export class CodeExecutionProcessor {
     const { questionId, language, code } = job.data;
 
     try {
-      const response = await axios.get(`${this.QUESTION_SERVICE_URL}/${questionId}`);
+      const response = await axios.get(`${this.QUESTION_SERVICE_URL}/Questions/${questionId}`);
       const question = response.data;
 
       if (!question) {
