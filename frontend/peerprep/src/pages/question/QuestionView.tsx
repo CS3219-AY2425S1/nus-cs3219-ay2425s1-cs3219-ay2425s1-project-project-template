@@ -270,6 +270,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 }, [onModalOpen, onMenuClose, user]);
 
 
+
   return (
     <Box
       className="flex flex-col min-h-screen bg-gradient-to-br from-[#1D004E] to-[#141A67]"
