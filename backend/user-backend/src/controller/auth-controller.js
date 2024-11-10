@@ -16,9 +16,10 @@ import {
 import {
   hashPassword,
   formatFullUserResponse,
+  generateSecureOTP,
   sendEmailVerification,
   sendOtpEmail,
-  validatePassword
+  validatePassword,
 } from "./controller-utils.js";
 
 export async function handleLogin(req, res) {

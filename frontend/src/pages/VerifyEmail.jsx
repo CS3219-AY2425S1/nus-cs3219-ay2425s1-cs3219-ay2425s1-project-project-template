@@ -19,13 +19,16 @@ const VerifyEmail = () => {
 
     axios.post(
       "http://localhost:3001/auth/verify-email",
-      { token: token },
-      { withCredentials: true }
+      null,
+      { 
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true
+      }
 
     ).then(res => {
       if (res.status === 200) {
         setResult(true);
-        setStatusMessage(`"${res.data.username}" successfully verified! Returning to login page...`);
+        setStatusMessage(`Email successfully verified! Returning to login page...`);
         setTimeout(() => navigate("/login"), 3000);
       }
 
