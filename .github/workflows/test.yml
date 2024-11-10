@@ -108,7 +108,7 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/frontend
-          node ./__tests__/browser-tests\wtf.test.js
+          node ./__tests__/browser-tests/wtf.test.js
 
 
 
