@@ -17,11 +17,14 @@ interface DeleteQuestionAlertDialogProps {
     onClose: () => void, // Receive the onClose function as a prop
     refetch: () => void;
 }
+
+const questionServiceBaseUrl = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
+
 const DeleteQuestionAlertDialog: React.FC<DeleteQuestionAlertDialogProps> = ({ questionId, onClose, refetch }) => {
 
         async function onConfirm() {
             try {
-                const response = await fetch(`http://localhost:5001/delete-question/${questionId}`, {
+                const response = await fetch(`${questionServiceBaseUrl}/delete-question/${questionId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'

@@ -16,6 +16,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+const userServiceBaseUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL;
+
 const Navbar: React.FC = () => {
     const router = useRouter();
     const currentPath = usePathname();
@@ -42,7 +44,7 @@ const Navbar: React.FC = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/users/logout`, {
+            const response = await fetch(`${userServiceBaseUrl}/api/users/logout`, {
                 method: 'POST',
                 credentials: 'include', // Include cookies
             });

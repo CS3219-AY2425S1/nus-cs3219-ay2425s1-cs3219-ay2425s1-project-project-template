@@ -36,7 +36,10 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
 
   useEffect(() => {
     // websocket link updated 
-    const provider = new WebsocketProvider('ws://localhost:5003/code-collab', roomId, ydoc);
+    const wsProtocol = process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL;
+    const collabBaseUrl = process.env.NEXT_PUBLIC_CODE_COLLAB_URL?.replace(/^https?:\/\//, '');
+    const collabSocketUrl = `${wsProtocol}://${collabBaseUrl}/code-collab/${roomId}`;
+    const provider = new WebsocketProvider(collabSocketUrl, roomId, ydoc);
     setProvider(provider);
     +
       // Set user awareness
@@ -60,7 +63,9 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     // Function to handle running code
     const handleRunCode = async () => {
       try {
-        const response = await axios.post('http://localhost:5005/execute-code', {
+        const codeExecBaseUrl = process.env.NEXT_PUBLIC_CODE_EXECUTION_URL;
+        const executeCodeUrl = `${codeExecBaseUrl}/execute-code`;
+        const response = await axios.post(executeCodeUrl, {
           questionId: question.questionId,
           code: ydoc.getText('monaco'),
           language,
@@ -84,7 +89,9 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
     // Function to handle submitting code
     const handleSubmitCode = async () => {
       try {
-        const response = await axios.post('http://localhost:5005/submit-code', {
+        const codeExecBaseUrl = process.env.NEXT_PUBLIC_CODE_EXECUTION_URL;
+        const submitCodeUrl = `${codeExecBaseUrl}/submit-code`;
+        const response = await axios.post(submitCodeUrl, {
           questionId: question.questionId,
           matchId: matchId, 
           code: ydoc.getText('monaco'),

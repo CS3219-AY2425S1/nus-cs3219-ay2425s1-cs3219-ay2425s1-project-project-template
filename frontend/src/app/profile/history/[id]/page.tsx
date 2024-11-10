@@ -72,6 +72,9 @@ interface PageProps {
     };
 }
 
+const questionServiceBaseUrl = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
+const historyServiceBaseUrl = process.env.NEXT_PUBLIC_HISTORY_SERVICE_URL;
+
 export default function MatchDetailsPage({ params }: PageProps) {
     const { isAuthenticated, user, isAdmin, refreshAuth } = useAuth();
     const [submissions, setSubmissions] = useState<Submission[]>([])
@@ -82,7 +85,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
 
     const fetchQuestionData = async (questionId: string) => {
         try {
-            const response = await fetch(`http://localhost:5001/get-questions?questionId=${questionId}`, {
+            const response = await fetch(`${questionServiceBaseUrl}/get-questions?questionId=${questionId}`, {
                 method: 'GET',
             });
             const data = await response.json()
@@ -97,7 +100,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
     const fetchData = async () => {
         try {
             setIsLoading(true)
-            const responseMatch = await fetch(`http://localhost:5006/match-history/${params.id}`,
+            const responseMatch = await fetch(`${historyServiceBaseUrl}/match-history/${params.id}`,
                 {
                     method: 'GET',
                     next: { revalidate: 60 },
@@ -112,7 +115,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
             const match = await responseMatch.json()
             console.log("Match fetched", match)
 
-            const responseSubmission = await fetch(`http://localhost:5006/submissions/${params.id}`,
+            const responseSubmission = await fetch(`${historyServiceBaseUrl}/submissions/${params.id}`,
                 {
                     method: 'GET',
                     next: { revalidate: 60 },
@@ -132,7 +135,7 @@ export default function MatchDetailsPage({ params }: PageProps) {
             setSubmissions(submissions)
 
             const peerId = match.data.collaborators[0] != user?.id? match.data.collaborators[0] : match.data.collaborators[1]
-            const responsePeer = await fetch(`http://localhost:5006/collaborators/${peerId}`,
+            const responsePeer = await fetch(`${historyServiceBaseUrl}/collaborators/${peerId}`,
                 {
                     method: 'GET',
                     next: { revalidate: 60 },

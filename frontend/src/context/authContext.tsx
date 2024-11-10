@@ -18,6 +18,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const userServiceBaseUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL;
 
 /**
  * Custom hook to access authentication context
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setIsAuthenticated(status.isAuthenticated);
 
             if (status.isAuthenticated) {
-                const response = await fetch(`http://localhost:5000/api/users/profile`, {
+                const response = await fetch(`${userServiceBaseUrl}/api/users/profile`, {
                     method: 'GET',
                     credentials: 'include',
                 });

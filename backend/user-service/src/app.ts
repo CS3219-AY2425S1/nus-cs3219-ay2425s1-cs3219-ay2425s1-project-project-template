@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './auth/routes/authRoutes';
 import errorHandler from './middleware/errorHandler';
+import { config } from './config/envConfig';
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(express.json());
 
 // CORS config
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'], // Replace with frontend URL
+    origin: config.frontendUrl, // Replace with frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true, // allows cookies to be sent
 }));

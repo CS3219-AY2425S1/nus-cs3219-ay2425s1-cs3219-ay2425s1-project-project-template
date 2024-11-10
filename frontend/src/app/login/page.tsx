@@ -26,7 +26,8 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const userServiceBaseUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL;
+      const response = await fetch(`${userServiceBaseUrl}/api/users/login`, {
         method: 'POST',
         credentials: 'include', // Important to include cookies
         headers: {

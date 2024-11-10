@@ -24,4 +24,5 @@ export const config = {
     databaseConnection: process.env.DATABASE_CONNECTION as string,
     port: process.env.PORT || 5000,
     nodeEnv: process.env.NODE_ENV || 'development',
+    frontendUrl: process.env.FRONTEND_URL
 };

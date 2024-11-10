@@ -66,7 +66,8 @@ const MatchingFilters = () => {
 
     // Setup socket connection and event handlers
     useEffect(() => {
-        socketRef.current = io('http://localhost:5002');
+        const matchingServiceBaseUrl = process.env.NEXT_PUBLIC_MATCHING_SERVICE_URL;
+        socketRef.current = io(matchingServiceBaseUrl);
 
         const { current: socket } = socketRef;
 
