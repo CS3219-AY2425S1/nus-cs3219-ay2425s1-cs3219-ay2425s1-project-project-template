@@ -7,10 +7,6 @@ interface TestCasesTabProps {
 }
 
 function TestCasesTab({ testCases }: TestCasesTabProps) {
-  const publicTestCases = testCases.filter(
-    (testCase: TestCase) => !testCase.isHidden,
-  );
-
   const testCasePanel = (testCase: TestCase) => (
     <Stack p="16px" pb={0} gap="16px">
       <Title order={5}>Input</Title>
@@ -28,12 +24,12 @@ function TestCasesTab({ testCases }: TestCasesTabProps) {
     <ScrollArea h="100%" offsetScrollbars>
       <Tabs variant="pills" color="gray.9" defaultValue="1" p="10px">
         <Tabs.List>
-          {publicTestCases.map((_, i) => (
+          {testCases.map((_, i) => (
             <Tabs.Tab value={(i + 1).toString()}>Case {i + 1}</Tabs.Tab>
           ))}
         </Tabs.List>
 
-        {publicTestCases.map((testCase: TestCase, i: number) => (
+        {testCases.map((testCase: TestCase, i: number) => (
           <Tabs.Panel value={(i + 1).toString()}>
             {testCasePanel(testCase)}
           </Tabs.Panel>

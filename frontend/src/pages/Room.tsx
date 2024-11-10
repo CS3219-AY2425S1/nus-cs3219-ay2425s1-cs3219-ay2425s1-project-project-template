@@ -20,18 +20,25 @@ import {
   CodeExecutionInput,
   CodeOutput,
   SupportedLanguage,
+  TestResult,
 } from '../types/CodeExecutionType';
-import { Question } from '../types/QuestionType';
+import { Question, TestCase } from '../types/QuestionType';
 
 function Room() {
   const [loading, setLoading] = useState(true);
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
   const [question, setQuestion] = useState<Question | undefined>(undefined);
   const [codeOutput, setCodeOutput] = useState<CodeOutput | undefined>(
+    undefined,
+  );
+  const [customCodeInput, setCustomCodeInput] = useState('');
+  const [customCodeOutput, setCustomCodeOutput] = useState<
+    CodeOutput | undefined
+  >(undefined);
+  const [testResults, setTestResults] = useState<TestResult[] | undefined>(
     undefined,
   );
 
@@ -64,6 +71,7 @@ function Room() {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
   };
 
+
   useEffect(() => {
     const requestMediaPermissions = async () => {
       try {
@@ -72,7 +80,6 @@ function Room() {
           video: true,
         });
         setLocalStream(stream);
-        setPermissionsGranted(true);
         setLoading(false);
       } catch (error) {
         console.error('Permissions not granted:', error);
@@ -84,14 +91,7 @@ function Room() {
   }, []);
 
   useEffect(() => {
-    if (!loading && communicationSocketRef.current !== null) {
-      console.log('Emitting ready-to-call');
-      communicationSocketRef.current.emit('ready-to-call');
-    }
-  }, [loading, communicationSocketRef.current]);
-
-  useEffect(() => {
-    if (!permissionsGranted || !sessionData) {
+    if (loading || !sessionData) {
       return;
     }
 
@@ -110,7 +110,7 @@ function Room() {
         },
       );
     }
-  }, [permissionsGranted, sessionData]);
+  }, [sessionData, loading]);
 
   // Connect Collaboration Socket
   const connectCollaborationSocket = (
@@ -220,6 +220,10 @@ function Room() {
       communicationSocketRef.current?.emit('joinRoom', roomId);
     });
 
+    communicationSocketRef.current.on('roomJoined', () => {
+      communicationSocketRef.current?.emit('ready-to-call');
+    }); 
+
     communicationSocketRef.current.on(
       'loadPreviousMessages',
       (pastMessages: ChatMessage[]) => {
@@ -265,10 +269,44 @@ function Room() {
       code,
       language,
     };
-    executeCode(codeExecutionInput).then(
-      (codeOutput: CodeOutput) => {
+    const customCodeExecutionInput: CodeExecutionInput = {
+      code,
+      language,
+      input: customCodeInput,
+    };
+    const newTestResults: TestResult[] = Array(
+      question?.testCases?.length || 0,
+    ).fill(null);
+
+    Promise.all([
+      executeCode(codeExecutionInput).then((codeOutput: CodeOutput) => {
         setCodeOutput(codeOutput);
         collaborationSocketRef.current?.emit('codex-output', codeOutput);
+      }),
+      executeCode(customCodeExecutionInput).then((codeOutput: CodeOutput) => {
+        setCustomCodeOutput(codeOutput);
+      }),
+      ...(question?.testCases?.map(async (testCase: TestCase, i: number) => {
+        const testCaseExecutionInput: CodeExecutionInput = {
+          code,
+          language,
+          input: testCase.input,
+        };
+
+        const codeOutput = await executeCode(testCaseExecutionInput);
+        const newTestResult: TestResult = {
+          input: testCase.input,
+          answer: testCase.answer,
+          output: codeOutput.output,
+          isError: codeOutput.isError,
+        };
+        newTestResults[i] = newTestResult;
+      }) ?? []),
+    ]).then(
+      () => {
+        if (question?.testCases) {
+          setTestResults(newTestResults);
+        }
         setIsRunningCode(false);
       },
       (error: any) => {
@@ -312,14 +350,10 @@ function Room() {
   };
 
   const handleReadyToCall = async (user: string) => {
-    if (
-      peerConnectionRef.current &&
-      communicationSocketRef.current &&
-      user !== userId
-    ) {
+    if (peerConnectionRef.current && user !== userId) {
       const offer = await peerConnectionRef.current.createOffer();
       await peerConnectionRef.current.setLocalDescription(offer);
-      communicationSocketRef.current.emit('offer', offer);
+      communicationSocketRef.current?.emit('offer', offer);
     }
   };
 
@@ -346,7 +380,18 @@ function Room() {
 
   const handleUserLeft = () => {
     setRemoteStream(null); // Reset the remote video
+    resetPeerConnection(); // Reset the peer connection
   };
+
+  const resetPeerConnection = () => {
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.onicecandidate = null;
+      peerConnectionRef.current.ontrack = null;
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    setupPeerConnection();  // Re-setup a new peer connection
+  };  
 
   const handleCloseModal = () => {
     closeModal();
@@ -402,7 +447,15 @@ function Room() {
             handleRunCode={handleRunCode}
             viewUpdateRef={viewUpdateRef}
           />
-          <CodeOutputTabs codeOutput={codeOutput} />
+          <CodeOutputTabs
+            codeOutput={codeOutput}
+            testCases={question?.testCases}
+            testResults={testResults}
+            customCodeOutput={customCodeOutput}
+            customCodeInput={customCodeInput}
+            setCustomCodeInput={setCustomCodeInput}
+            isRunningCode={isRunningCode}
+          />
         </Stack>
       </Group>
 

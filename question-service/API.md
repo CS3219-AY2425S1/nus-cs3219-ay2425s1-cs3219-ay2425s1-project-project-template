@@ -24,49 +24,50 @@ endpoint: `http://localhost:8000/api/questions`
 
   - **Success**:
 
-      ```json
-        {
-          "id": 21,
-          "title": "Reverse a String 2",
-          "description": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.",
-          "topics": [
-              "Strings",
-              "Algorithms"
-          ],
-          "difficulty": "Easy",
-          "images": [
-              "P1213381.jpeg"
-          ],
-          "_id": "66f701a60ef4b01ca799b93d",
-          "__v": 0
-        }
-        ```
+    ````json
+      {
+        "id": 21,
+        "title": "Reverse a String 2",
+        "description": "Write a function that reverses a string. The input string is given as an array of characters s.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\n\nExample 1:\n\nInput: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]\n\nExample 2:\nInput: s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]\nOutput: [\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]\n\nConstraints:\n1 <= s.length <= 105 s[i] is a printable ascii character.",
+        "topics": [
+            "Strings",
+            "Algorithms"
+        ],
+        "difficulty": "Easy",
+        "images": [
+            "P1213381.jpeg"
+        ],
+        "_id": "66f701a60ef4b01ca799b93d",
+        "__v": 0
+      }
+      ```
+
+    ````
 
   - **Error**:
 
     ```json
-        {
-          "message": "Error when creating new question!",
-          "error": {
-              "errors": {
-                  "title": {
-                      "name": "ValidatorError",
-                      "message": "Path `title` is required.",
-                      "properties": {
-                          "message": "Path `title` is required.",
-                          "type": "required",
-                          "path": "title"
-                      },
-                      "kind": "required",
-                      "path": "title"
-                  }
-              },
-              "_message": "Question validation failed",
-              "name": "ValidationError",
-              "message": "Question validation failed: title: Path `title` is required."
-              }
-              }
-
+    {
+      "message": "Error when creating new question!",
+      "error": {
+        "errors": {
+          "title": {
+            "name": "ValidatorError",
+            "message": "Path `title` is required.",
+            "properties": {
+              "message": "Path `title` is required.",
+              "type": "required",
+              "path": "title"
+            },
+            "kind": "required",
+            "path": "title"
+          }
+        },
+        "_message": "Question validation failed",
+        "name": "ValidationError",
+        "message": "Question validation failed: title: Path `title` is required."
+      }
+    }
     ```
 
 ## READ Routes
@@ -321,7 +322,6 @@ endpoint: `http://localhost:8000/api/questions`
         "Bit Manipulation",
         "Brainteaser",
         "Data Structures",
-        "Databases",
         "Recursion",
         "Strings"
       ]
