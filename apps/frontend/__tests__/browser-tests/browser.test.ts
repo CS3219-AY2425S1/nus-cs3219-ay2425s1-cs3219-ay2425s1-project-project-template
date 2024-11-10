@@ -1,44 +1,23 @@
 import { Browser, Builder, By, Key, until } from "selenium-webdriver"
 
-import { path } from "chromedriver"
-import { getBinaryPaths } from "selenium-webdriver/common/driverFinder"
 import Chrome from "selenium-webdriver/chrome"
-describe("base selenium test", () => {
-    it.skip("works", async () => {
-        // referenced: https://www.npmjs.com/package/selenium-webdriver
-        console.log(path)
-        
-        let options = new Chrome.Options();
-        options.setBrowserVersion("stable")
 
-        let paths = getBinaryPaths(options)
-        let driverPath = paths.driverPath;
-        let browserPath = paths.browserPath;
-        console.log(paths);
+describe("chrome webdriver installed correctly", () => {
+    it("does google search", async function test() {
+        const options = new Chrome.Options().addArguments("--headless=new") as Chrome.Options;
+        const builder = new Builder().forBrowser(Browser.CHROME).setChromeOptions(options);
         
-        options.setChromeBinaryPath(browserPath)
-        
-        let service = new Chrome.ServiceBuilder().setPath(driverPath);
-
-        let driver = await new Builder().forBrowser(Browser.CHROME)
-            .setChromeOptions(options)
-            .setChromeService(service)
-            .build();
-        
-        console.log("got here");
+        const driver = await builder.build();
         
         try {
-            await driver.get('https://www.google.com/ncr')
-            console.log("got here");
-            await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN)
-            console.log("got here");
-            await driver.wait(until.titleIs('webdriver - Google Search'), 1000)
-            console.log("got here");
+            await driver.get('http://www.google.com');
+            await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
+            await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
         } finally {
-            await driver.quit()
+            await driver.quit();
         }
-    }, 60000)
-})
+    });
+});
 
 
 

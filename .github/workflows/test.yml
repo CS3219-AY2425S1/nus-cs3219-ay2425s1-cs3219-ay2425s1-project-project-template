@@ -105,10 +105,14 @@ jobs:
           cd ./apps/frontend
           pnpm i
       
+      - uses: nanasess/setup-chromedriver@v2
+        with:
+          chromedriver-version: '130.0.6723.116'
+
       - name: Run tests
         run: |
           cd ./apps/frontend
-          node ./__tests__/browser-tests/works.test.js
+          pnpm test -- ./__tests__/browser-tests
 
 
 
