@@ -135,13 +135,8 @@ export class CollabService {
     return data;
   }
 
-  async addUserIfAllowed(matchId: string, username: string): Promise<boolean> {
-    const isAllowed = await this.collabRedisService.addUserIfAllowed(
-      matchId,
-      username,
-    );
-
-    return true;
+  async addUser(matchId: string, username: string): Promise<void> {
+    await this.collabRedisService.addUser(matchId, username);
   }
 
   async updateSessionName(
