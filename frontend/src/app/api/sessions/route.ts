@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
-const uri = 'mongodb://localhost:27017/';
-const dbName = 'code-editor';
+const uri = process.env.MONGODB_URI;
+const dbName = 'test';
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: any = null;

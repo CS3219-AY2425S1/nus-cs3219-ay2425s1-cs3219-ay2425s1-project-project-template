@@ -9,20 +9,6 @@ import { Server, Socket } from 'socket.io';
 import { EditorService } from './editor.service';
 import { QuestionSubmission } from './schemas/question-submission.schema';
 
-interface CodeChangePayload {
-  sessionId: string;
-  questionId: string;
-  code: string;
-  language: string;
-}
-
-interface SubmissionPayload {
-  sessionId: string;
-  questionId: string;
-  code: string;
-  language: string;
-}
-
 @WebSocketGateway({
   cors: {
     origin: '*',

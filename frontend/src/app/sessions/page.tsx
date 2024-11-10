@@ -36,6 +36,7 @@ export default function SessionsPage() {
     email: "",
   });
   const [loading, setLoading] = useState(true)
+  const [sessionLoading, setSessionLoading] = useState(false)
   const [userNames, setUserNames] = useState<{ [key: string]: string }>({});
   const router = useRouter();
 
@@ -48,6 +49,7 @@ export default function SessionsPage() {
         return
       }
       try {
+        setSessionLoading(true)
         const res = await fetch('/api/sessions', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -58,6 +60,8 @@ export default function SessionsPage() {
       } catch (error) {
         console.error('Error fetching sessions or user data:', error)
         router.push('/login')
+      } finally {
+        setSessionLoading(false)
       }
     }
     fetchUserData()
@@ -120,7 +124,7 @@ export default function SessionsPage() {
     }
   }, [sessions]);
   if (loading) {
-    return <div>Loading...</div>
+    return <div className="text-center mb-4">Loading...</div>
   }
 
   const filteredSessions = sessions.filter(session =>
@@ -156,21 +160,26 @@ export default function SessionsPage() {
         <CreateSessionDialog sessions={sessions} />
       </div>
       <div className="space-y-6">
-        {renderYearSessions(2024, filteredSessions, userNames)}
+        {renderYearSessions(2024, filteredSessions, userNames, sessionLoading)}
       </div>
 
     </main>
   )
 }
-function renderYearSessions(year: number, sessions: Session[], userNames: { [key: string]: string }) {
+function renderYearSessions(year: number, sessions: Session[], userNames: { [key: string]: string }, sessionLoading: boolean) {
   return (
     <div key={year}>
       <h3 className="text-xl font-bold mb-4">{year}</h3>
-      <div className="space-y-4">
+      <div className="flex flex-col gap-2">
         {sessions.length === 0 ? (
-          <div>
-            <p className="text-center mb-4">No sessions yet</p>
-          </div>
+          sessionLoading ? (
+            <div className="text-center mb-4">Loading...</div>
+          ) : (
+            // No sessions yet
+            <div>
+              <p className="text-center mb-4">No sessions yet</p>
+            </div>
+          )
         ) : (
           sessions.map(session => {
             const uniqueQuestions = new Set(session.questionAttempts.map(attempt => attempt.questionId));
@@ -191,8 +200,7 @@ function renderYearSessions(year: number, sessions: Session[], userNames: { [key
                       <div>
                         <h4 className="text-lg font-semibold">{session.sessionName}</h4>
                         <div className="text-sm text-muted-foreground">
-                          {/* {session.activeUsers.map(userId => userNames[userId] || userId).join(', ')} */}
-                          {session.activeUsers.map(userId => userId.split(':')[0]).join(', ')}
+                          {session.allUsers.join(', ')}
                         </div>
                       </div>
                     </div>

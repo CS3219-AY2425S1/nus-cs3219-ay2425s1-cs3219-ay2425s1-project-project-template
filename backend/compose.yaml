@@ -112,24 +112,9 @@ services:
       - ./collaborative-code-editor-service/.env
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/code-editor
-      - REDIS_URL=redis://redis:6379
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
     command: npm run start:dev
     depends_on:
-      - mongodb
       - redis
-    networks:
-      - app-network
-
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb-dev
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
     networks:
       - app-network
 
@@ -153,5 +138,4 @@ networks:
     driver: bridge
 
 volumes:
-  mongodb_data:
   redis_data:
