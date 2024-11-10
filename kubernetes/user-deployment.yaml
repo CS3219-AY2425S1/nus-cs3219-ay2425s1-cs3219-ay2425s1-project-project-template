@@ -6,7 +6,7 @@ metadata:
   name: user-service
   namespace: peerprep
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: user-service
@@ -21,25 +21,6 @@ spec:
           name: user-service
           ports:
             - containerPort: 3001
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
-            limits:
-              memory: "1Gi"
-              cpu: "1000m"
-            # readinessProbe:
-            #   httpGet:
-            #     path: /user # Adjust based on your application
-            #     port: 3001
-            #   initialDelaySeconds: 5
-            #   periodSeconds: 10
-            # livenessProbe:
-            #   httpGet:
-            #     path: /user # Alternatively, define an endpoint like /health
-            #     port: 3001
-            # initialDelaySeconds: 15
-            # periodSeconds: 20
       restartPolicy: Always
 
 status: {}

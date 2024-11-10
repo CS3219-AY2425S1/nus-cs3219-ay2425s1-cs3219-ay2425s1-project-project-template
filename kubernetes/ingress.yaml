@@ -12,10 +12,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:5173"
     nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization, token"
+    networking.gke.io/managed-certificates: managed-cert
 spec:
   ingressClassName: nginx
   rules:
-    - host: peerprep.com
+    - host: peerprep-service.com
       http:
         paths:
           - path: /user/(.*)
