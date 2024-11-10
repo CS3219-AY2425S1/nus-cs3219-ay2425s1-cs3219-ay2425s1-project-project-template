@@ -26,7 +26,7 @@ const userLoginController = async (req: Request, res: Response) => {
         const cookieOptions: CookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: ms(config.jwtExpiresIn), // should be 2 weeks in ms, but expiration can be changed in .env
         };
 
