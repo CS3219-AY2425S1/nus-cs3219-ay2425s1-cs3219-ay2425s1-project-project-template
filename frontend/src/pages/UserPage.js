@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from "react";
 import { USER_SERVICE } from "../Services";
 
@@ -43,6 +44,28 @@ export const UserPage = () => {
     getProfile(localStorage.getItem("userId"), localStorage.getItem("accessToken"));
   }, [])
 
+  const deleteProfile = async (id, accessToken) => {
+    try {
+      const response = await axios.delete(`${USER_SERVICE}/users/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
+      if (response.status === 200) {
+        console.log(`data: ${response.data}`);
+        alert("Successfully deleted your profile!");
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        alert("Unknown error when deleting profile!");
+        console.log(`Unknown error in deleting profile`);
+      }
+    } catch (error) {
+      alert("Failed to delete profile!");
+      console.log(`Error in deleting profile: ${error}`)
+    }
+  }
+
   return (
     <div className="user-page">
       <div className="center-block">
@@ -67,6 +90,10 @@ export const UserPage = () => {
           <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} onClick={handleHomeButton}>        
           </FontAwesomeIcon>
           <button className="history-btn" onClick={(e) => navigate("/history")}>Questions attempted</button>
+          <FontAwesomeIcon icon={faTrash} 
+            style={{fontSize: "32px", color: "red", cursor: "pointer"}} 
+            onClick={() => deleteProfile(localStorage.getItem("userId"), localStorage.getItem("accessToken"))}>
+          </FontAwesomeIcon>
         </div>
       </div>
     </div>
