@@ -112,7 +112,7 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/frontend
-          pnpm test -- ./__tests__/browser-tests -t "chrome webdriver installed correctly"
+          pnpm browser-test -- -t "chrome webdriver installed correctly"
 
 
 
