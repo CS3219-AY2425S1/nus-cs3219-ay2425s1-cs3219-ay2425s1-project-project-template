@@ -7,9 +7,16 @@ import { config } from '../../config/envConfig';
 import ms from 'ms'
 
 const userLoginController = async (req: Request, res: Response) => {
+    var cookieSameSiteSetting: boolean | "strict" | "none" | "lax" | undefined;
+    if (config.cookieSameSiteSetting == "strict" || config.cookieSameSiteSetting == "none" || config.cookieSameSiteSetting == "lax") {
+        cookieSameSiteSetting = config.cookieSameSiteSetting
+    } else {
+        cookieSameSiteSetting = 'strict'
+    }
+
     // Validate input
     const { error, value } = logInValidator.validate(req.body);
-
+    
     if (error) {
         logger.warn(`Login validation failed: ${error.details[0].message}`);
         return res.status(400).json({ message: error.details[0].message });
@@ -26,7 +33,7 @@ const userLoginController = async (req: Request, res: Response) => {
         const cookieOptions: CookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: cookieSameSiteSetting,
             maxAge: ms(config.jwtExpiresIn), // should be 2 weeks in ms, but expiration can be changed in .env
         };
 

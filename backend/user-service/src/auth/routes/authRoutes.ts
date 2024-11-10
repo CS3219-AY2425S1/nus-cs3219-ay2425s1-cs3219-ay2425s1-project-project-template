@@ -7,6 +7,7 @@ import { getUserProfile } from '../controllers/getUserProfileController';
 import { authenticateAdmin } from '../../middleware/authAdminMiddleware';
 import { checkAdminController } from '../controllers/checkAdminController';
 import { getUserById } from '../controllers/getUserByIdController';
+import { userLogoutController } from '../controllers/logoutController';
 
 const router = express.Router();
 
@@ -19,14 +20,7 @@ router.post('/register', registerUser);
 // POST /api/users/login
 router.post('/login', userLoginController);
 // POST /api/users/logout
-router.post('/logout', authenticate, (req: AuthenticatedRequest, res: express.Response) => {
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
-    });
-    res.status(200).json({ message: 'Logged out successfully.' });
-});
+router.post('/logout', authenticate, userLogoutController);
 
 router.get('/get-user/:userId', getUserById);
 

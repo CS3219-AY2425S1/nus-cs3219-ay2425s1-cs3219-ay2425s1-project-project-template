@@ -5,5 +5,6 @@ export const config = {
     databaseConnection: process.env.DATABASE_CONNECTION as string,
     port: process.env.PORT || 5000,
     nodeEnv: process.env.NODE_ENV as string,
-    frontendUrl: process.env.FRONTEND_URL as string
+    frontendUrl: process.env.FRONTEND_URL as string,
+    cookieSameSiteSetting: process.env.COOKIE_SAME_SITE as string || 'strict'
 };
