@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/authContext';
 
+const userServiceBaseUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL;
+
 const SignUp: React.FC = () => {
   const router = useRouter();
   const { isAuthenticated, refreshAuth } = useAuth();
@@ -39,7 +41,7 @@ const SignUp: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/register`, {
+      const response = await fetch(`${userServiceBaseUrl}/api/users/register`, {
         method: 'POST',
         credentials: 'include', // Important to include cookies
         headers: {

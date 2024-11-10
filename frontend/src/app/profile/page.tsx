@@ -17,9 +17,12 @@ const ProfilePage: React.FC = () => {
     const [skills, setSkills] = useState([]);
     const [isLoadingMatches, setIsLoadingMatches] = useState(false);
 
+    const questionServiceBaseUrl = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
+    const historyServiceBaseUrl = process.env.NEXT_PUBLIC_HISTORY_SERVICE_URL;
+
     const fetchQuestionData = async (questionId: string) => {
         try {
-            const response = await fetch(`http://localhost:5001/get-questions?questionId=${questionId}`, {
+            const response = await fetch(`${questionServiceBaseUrl}/get-questions?questionId=${questionId}`, {
                 method: 'GET',
             });
             const data = await response.json()
@@ -36,7 +39,7 @@ const ProfilePage: React.FC = () => {
     const fetchPastMatches = async () => {
         try {
             setIsLoadingMatches(true)
-            const response = await fetch(`http://localhost:5006/history/${user?.id}`)
+            const response = await fetch(`${historyServiceBaseUrl}/history/${user?.id}`)
             if (!response.ok) {
                 throw new Error('Failed to fetch past successful matches')
             }

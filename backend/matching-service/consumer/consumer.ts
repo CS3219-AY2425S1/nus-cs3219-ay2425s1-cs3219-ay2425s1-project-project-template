@@ -22,8 +22,7 @@ const startConsumer = async (
 
     const maxRetries = 3
     const retryDelay = 15000 // 15 seconds
-    const rabbitUrl: string =
-        process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672'
+    const rabbitUrl: string = String(process.env.RABBITMQ_URL)
     const queueName = 'matching_requests'
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {

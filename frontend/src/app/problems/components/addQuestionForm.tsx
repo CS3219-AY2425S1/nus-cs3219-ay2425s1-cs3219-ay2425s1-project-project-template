@@ -30,6 +30,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
+const questionServiceBaseUrl = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
 
 const singleQuoteStringSchema = z
   .string()
@@ -117,7 +118,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({ onClose, refetch }) =
       values.categories.sort();
     }
     try {
-      const response = await fetch('http://localhost:5001/add-question', {
+      const response = await fetch(`${questionServiceBaseUrl}/add-question`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -62,7 +62,8 @@ export default function QuestionsPage() {
 
     const fetchQuestions = async () => {
         try {
-            const response = await fetch('http://localhost:5001/get-questions')
+            const questionServiceBaseUrl = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
+            const response = await fetch(`${questionServiceBaseUrl}/get-questions`)
             if (!response.ok) {
                 throw new Error('Failed to fetch questions')
             }

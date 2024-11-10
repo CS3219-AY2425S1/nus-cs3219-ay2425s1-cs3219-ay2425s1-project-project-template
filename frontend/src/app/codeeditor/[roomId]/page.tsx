@@ -22,7 +22,8 @@ const CollabRoomPage = ({ params }: {
             if (!roomId || !user) return;
 
             try {
-                const response = await axios.post('http://localhost:5003/verify-room', {
+                const codeCollabUrl = process.env.NEXT_PUBLIC_CODE_COLLAB_URL
+                const response = await axios.post(`${codeCollabUrl}/verify-room`, {
                     roomId,
                     userId: user.id,
                 });

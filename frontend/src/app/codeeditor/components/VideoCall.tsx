@@ -289,7 +289,11 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
             setStream(currentStream);
 
             // Then connect socket
-            const newSocket = io(process.env.NEXT_PUBLIC_COLLAB_SERVICE_HOST || 'ws://localhost:5003', {
+            const wsProtocol = process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL;
+            const collabBaseUrl = process.env.NEXT_PUBLIC_CODE_COLLAB_URL?.replace(/^https?:\/\//, '');
+            const videoSocketUrl = `${wsProtocol}://${collabBaseUrl}`;
+            const newSocket = io(videoSocketUrl, {
+                path: '/video-call',
                 transports: ['websocket'],
                 reconnection: true,
                 reconnectionAttempts: 5,

@@ -60,6 +60,8 @@ interface EditQuestionFormProps {
   refetch: () => void;
 }
 
+const questionServiceBaseUrl = process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL;
+
 const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose, refetch }) => {
       const [isFormEdited, setIsFormEdited] = useState<boolean>(true);
       const [error, setError] = useState('');
@@ -77,7 +79,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
 
       const fetchData = async () => {
         try {
-          const response = await fetch(`http://localhost:5001/get-questions?questionId=${questionId}`, {
+          const response = await fetch(`${questionServiceBaseUrl}/get-questions?questionId=${questionId}`, {
             method: 'GET',
           });
 
@@ -172,7 +174,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({ questionId, onClose
               updatedFields.testCases = parsedValues.testCases;
             }
             
-            const response = await fetch(`http://localhost:5001/edit-question/${questionId}`, {
+            const response = await fetch(`${questionServiceBaseUrl}/edit-question/${questionId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
