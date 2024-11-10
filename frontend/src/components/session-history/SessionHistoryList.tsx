@@ -10,7 +10,7 @@ const SessionHistoryList = ({ sessionId }) => {
   const [selectedAttempts, setSelectedAttempts] = useState([]);
   const [questionDetails, setQuestionDetails] = useState({});
 
-  useEffect(() => {
+  useEffect(() => { 
     async function fetchSessionHistory() {
       try {
         const response = await fetch(`/api/sessions/${sessionId}`);

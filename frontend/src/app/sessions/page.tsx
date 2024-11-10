@@ -97,7 +97,8 @@ export default function SessionsPage() {
       //try {
         // const userNamesMap: { [key: string]: string } = {};
         // await Promise.all(userIds.map(async (userId) => {
-        //   try {
+        //   try {  
+        
         //     const res = await fetch(`/api/users/${userId}`);
         //     if (!res.ok) {
         //       throw new Error('User not found');
