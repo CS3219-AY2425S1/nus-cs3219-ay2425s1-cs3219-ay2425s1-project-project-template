@@ -65,7 +65,7 @@ router.get('/attempts/:username', async (req, res) => {
                 res.json({ attempts: output} );
             } else {
                 console.log("User not found");
-                res.status(404).send("User not found");
+                res.json({ attempts: [] });
             }
         })
     } catch (error) {

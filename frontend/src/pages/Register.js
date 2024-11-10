@@ -10,6 +10,7 @@ export const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const regexPattern = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,16}$/;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -17,9 +18,12 @@ export const Register = () => {
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
-    } else if (username === '' || email === '' || password === '') {
+    } else if (username.trim() === '' || email.trim() === '' || password.trim() === '') {
         alert('Please fill out all fields!');
         return;
+    } else if (!regexPattern.test(password)) {
+        console.log(password);
+        alert("Please include 8-16 characters, 1 number, 1 uppercase and 1 lowercase letter in your password");
     } else {
       try {
         const response = await axios.post(`${USER_SERVICE}/users/create`, {
@@ -33,7 +37,7 @@ export const Register = () => {
           localStorage.setItem("accessToken", response.data.data.accessToken);
           localStorage.setItem("username", response.data.data.username);
           localStorage.setItem("email", response.data.data.email);
-          navigate("/login");
+          navigate("/home");
         } else {
           alert('Unable to create user.');
         }
