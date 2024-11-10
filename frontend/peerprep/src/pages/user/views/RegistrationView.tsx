@@ -82,7 +82,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
             <InputBox
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase())} //to make it case-insensitive
             />
           </div>
           <div className="input-container">
@@ -100,16 +100,6 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
               onChange={(e) => setConfirmPassword(e.target.value)}
               isPassword={true} // Enable password toggle for the "Confirm Password" field
             />
-          </div>
-
-          {/* Checkbox for isAdmin */}
-          <div className="flex items-center">
-            <Checkbox
-              checked={isAdmin}
-              onChange={(e) => setIsAdmin(e.target.checked)} // Update isAdmin state
-              className="mr-2"
-            />
-            <Text color={"white"}>Admin</Text>
           </div>
 
           {/* Display form validation errors */}

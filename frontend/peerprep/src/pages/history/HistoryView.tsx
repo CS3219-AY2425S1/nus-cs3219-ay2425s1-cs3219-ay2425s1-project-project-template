@@ -48,13 +48,14 @@ const HistoryView: React.FC<HistoryViewProps> = ({
       { header: "Title", accessorKey: "title" },
       {
         header: "Topic",
-        accessorKey: "categories",
+        accessorFn: (row) => row.categories,
+        id: "Categories", 
         cell: ({ getValue }) => {
           const categories = getValue<string[]>();
           return (
             <HStack spacing={1}>
               {categories.map((category) => (
-                <Badge key={category} borderRadius="lg" px="4" py="2" bg="purple.500" color="white">
+                <Badge key={category.toLowerCase()} borderRadius="lg" px="4" py="2" bg="purple.500" color="white">
                   {category}
                 </Badge>
               ))}
@@ -65,10 +66,11 @@ const HistoryView: React.FC<HistoryViewProps> = ({
           const cat = row.getValue<string[]>(columnId);
           return cat.includes(filterValue);
         },
-      },
+      },      
       {
         header: "Complexity",
-        accessorKey: "complexity",
+        accessorFn: (row) => row.complexity, 
+        id: "Complexity", 
         cell: ({ getValue }) => {
           const complexity = getValue<string>();
           const color = getComplexityColor(complexity);
@@ -78,7 +80,7 @@ const HistoryView: React.FC<HistoryViewProps> = ({
             </Badge>
           );
         },
-      },
+      },      
       {
         header: "Attempts",
         accessorKey: "attempts",

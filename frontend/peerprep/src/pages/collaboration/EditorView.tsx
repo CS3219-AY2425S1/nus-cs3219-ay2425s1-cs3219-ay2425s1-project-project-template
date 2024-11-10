@@ -10,7 +10,6 @@ import { useAuthApiContext, useQuesApiContext } from "../../context/ApiContext";
 import { Question } from "../question/questionModel";
 import EditorElement from "./EditorElement";
 import QuestionDisplay from "./QuestionDisplay";
-import GeminiChat from "./GeminiChat";
 import { border, Box, Button } from "@chakra-ui/react";
 import ChatBox from "./ChatBox";
 import { addQuestionToUser } from "./updateQuestionController";
@@ -32,7 +31,7 @@ const EditorView: React.FC = () => {
   const questionId = searchParams.get("questionId");
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     const disconnected = sessionStorage.getItem("disconnected");
 
     if (
@@ -143,13 +142,8 @@ const EditorView: React.FC = () => {
 
       <Box style={styles.rightSection}>
         <Box style={styles.chatGeminiContainer}>
-          <Box style={styles.geminiChatContainer}>
-            <h2 style={styles.chatTitle}>GenAI Assistant</h2>{" "}
-            {/* GenAI Assistant */}
-            <GeminiChat socketRef={socketRef} />
-          </Box>
           <Box style={styles.chatContainer}>
-            <h2 style={styles.chatTitle}>User Chat</h2> {/* User Chat */}
+            <h2 style={styles.chatTitle}>Chat Room</h2> {/* User Chat */}
             <ChatBox
               roomId={roomId}
               user={user ?? null}

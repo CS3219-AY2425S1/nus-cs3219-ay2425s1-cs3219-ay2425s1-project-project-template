@@ -7,6 +7,7 @@ import { type Socket } from "socket.io-client";
 import { getDocument, peerExtension } from "./collabController";
 import { Button } from "@chakra-ui/react";
 import axios from "axios";
+import GeminiChat from './GeminiChat';
 
 type Props = {
   socket: Socket;
@@ -245,6 +246,10 @@ const EditorElement: React.FC<Props> = ({
               </pre>
             </div>
           ))}
+      </div>
+      {/* GeminiChat Component */}
+      <div style={{ marginTop: "20px" }}>
+        <GeminiChat socket={socket} doc={doc} />
       </div>
     </div>
   ) : (

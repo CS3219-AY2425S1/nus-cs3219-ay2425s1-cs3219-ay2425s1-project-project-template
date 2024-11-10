@@ -35,7 +35,7 @@ const LoginView: React.FC<LoginViewProps> = ({
             <InputBox
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase())} 
             />
           </div>
           <div className="input-container">
