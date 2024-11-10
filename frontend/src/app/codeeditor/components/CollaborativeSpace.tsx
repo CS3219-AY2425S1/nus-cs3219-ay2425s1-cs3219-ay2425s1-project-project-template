@@ -31,8 +31,10 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [output, setOutput] = useState(''); // To display output from running code
   const [greenOutputText, setGreenOutputText] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [isRunLoading, setIsRunLoading] = useState(false);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const { toast } = useToast();
+  const [displayedTestCases, setDisplayedTestCases] = useState([]);
 
   useEffect(() => {
     // websocket link updated 
@@ -59,6 +61,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
   
     // Function to handle running code
     const handleRunCode = async () => {
+      setIsRunLoading(true);
       try {
         const response = await axios.post('http://localhost:5005/execute-code', {
           questionId: question.questionId,
@@ -67,6 +70,12 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
         });
         const testCasesPassed:string = response.data.testCasesPassed;
         const testCasesTotal:string = response.data.testCasesTotal;
+        const testCaseResults = response.data.results;
+        const testCasesToShow = testCaseResults.slice(0, 2);
+        setDisplayedTestCases(testCasesToShow);
+
+
+
         if (testCasesPassed == testCasesTotal) {
           setGreenOutputText(true);
         } else {
@@ -77,12 +86,16 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
       } catch (error) {
         console.error('Error running code:', error);
         setGreenOutputText(false);
+        setDisplayedTestCases([]);
         setOutput('An error occurred while running the code.');
+      } finally {
+        setIsRunLoading(false);
       }
     };
   
     // Function to handle submitting code
     const handleSubmitCode = async () => {
+      setIsSubmitLoading(true);
       try {
         const response = await axios.post('http://localhost:5005/submit-code', {
           questionId: question.questionId,
@@ -100,8 +113,11 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
       });
       } catch (error) {
         console.error('Error submitting code:', error);
+        setDisplayedTestCases([]);
         setGreenOutputText(false);
         setOutput('An error occurred while trying to submit the code.');
+      } finally {
+        setIsSubmitLoading(false);
       }
     }
 
@@ -176,6 +192,9 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
                   allPassed={greenOutputText}
                   handleRunCode={handleRunCode}
                   handleSubmitCode={handleSubmitCode}
+                  testCases={displayedTestCases}
+                  isRunLoading={isRunLoading}
+                  isSubmitLoading={isSubmitLoading}
                 />
               </TabsContent>
             </div>
