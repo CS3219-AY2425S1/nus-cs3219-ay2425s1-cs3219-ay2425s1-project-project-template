@@ -40,7 +40,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       socketRef.current.off("newConnection");
 
       socketRef.current.on("newConnection", (data: { userId: string }) => {
-        setMessages((prevMessages) => [...prevMessages, "Connected, let's chat!"]);
+        setMessages((prevMessages) => [...prevMessages, "Your partner has connected. Let’s chat!"]);
       });
 
       socketRef.current.on("connect", () => {
@@ -71,8 +71,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       });
 
       socketRef.current.on("userDisconnected", (data: { userId: string }) => {
-        setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected :("]);
-        setOtherUserName(""); // Reset otherUserName on disconnection
+        setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected"]);
+        setOtherUserName("");
       });
 
       return () => {
