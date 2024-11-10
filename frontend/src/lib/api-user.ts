@@ -7,7 +7,7 @@ export const loginUser = async (email: string, password: string) => {
   try {
     const response = await axios.post(`${BASE_URL}/auth/login`, { email, password });
     return response.data;
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error.response) {
       switch (error.response.status) {
         case 401:
@@ -27,7 +27,7 @@ export const registerUser = async (userData: { username: string; email: string; 
   try {
     const response = await axios.post(`${BASE_URL}/users`, userData);
     return response.data;
-  } catch (error: unknown) {
+  } catch (error: any) {
         if (error.response) {
           switch (error.response.status) {
             case 409:
@@ -53,7 +53,7 @@ export const verifyToken = async (token: string) => {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error.response) {
       switch (error.response.status) {
         case 401:
@@ -77,7 +77,7 @@ export const updateUser = async (userId: string, token: string, data: { username
     },
     })
     return response
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error.response) {
       switch (error.response.status) {
         case 401:
@@ -106,7 +106,7 @@ export const updatePassword = async (userId: string, token: string, password: st
         },
       });
     return response.data;
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error.response) {
       switch (error.response.status) {
         case 401:
