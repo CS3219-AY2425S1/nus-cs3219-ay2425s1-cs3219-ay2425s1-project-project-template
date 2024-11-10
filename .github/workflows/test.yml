@@ -262,7 +262,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd ./apps/frontend
-          pnpm i -D
+          pnpm i
       
       - name: Install Chrome WebDriver
         uses: nanasess/setup-chromedriver@v2

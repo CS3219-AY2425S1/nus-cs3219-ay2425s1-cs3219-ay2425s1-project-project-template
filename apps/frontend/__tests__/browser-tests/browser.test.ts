@@ -6,7 +6,7 @@ const ETERNAL_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OD
 
 describe("chrome browser", () => {
     const options = new Chrome.Options()
-    .addArguments("--headless=new") as Chrome.Options; // uncomment locally to see the steps in action
+    // .addArguments("--headless=new") as Chrome.Options; // uncomment locally to see the steps in action
     const builder = new Builder().forBrowser(Browser.CHROME).setChromeOptions(options);
     let driver: WebDriver;
 
@@ -32,7 +32,7 @@ describe("chrome browser", () => {
     });
     
     describe("browser-test", () => {
-        it.skip("accesses and login to peerprep", async () => {
+        it("accesses and login to peerprep", async () => {
             await driver.get(URL);
             await driver.wait(until.urlIs(`${URL}login`));
             
@@ -44,6 +44,11 @@ describe("chrome browser", () => {
 
             await submit.click();
             await driver.wait(until.urlIs(`${URL}`));
+
+            const slogan1 = await driver.findElement(By.xpath("/html/body/div[1]/main/div/div[1]/div[2]/span[1]")).then(ele => ele.getText())
+            const slogan2 = await driver.findElement(By.xpath("/html/body/div[1]/main/div/div[1]/div[2]/span[2]")).then(ele => ele.getText())
+
+            expect(slogan1 + slogan2).toBe("A better way to prepare for coding interviews withpeers");
         });
     })
 })
