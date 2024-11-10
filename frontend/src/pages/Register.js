@@ -23,7 +23,7 @@ export const Register = () => {
         return;
     } else if (!regexPattern.test(password)) {
         console.log(password);
-        alert("Please include 8-16 characters, 1 number and 1 letter in your password");
+        alert("Please include 8-16 characters, 1 number, 1 uppercase and 1 lowercase letter in your password");
     } else {
       try {
         const response = await axios.post(`${USER_SERVICE}/users/create`, {
