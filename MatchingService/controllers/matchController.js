@@ -3,26 +3,22 @@ import QueueModel from '../models/queue-model.js';
 
 const { addMatchRequest, cancelMatchRequest, processMatchQueue } = matchService;
 const { isUserInQueue } = QueueModel;
+import jwt from 'jsonwebtoken';
 
 /* Verify user's token */
 async function verifyUser(token) {
     try {
         console.log("Verifying user " + token);
+        if (!token) {
+            console.log("No token provided");
+            return false;
+        }
+        var verified = jwt.verify(token, process.env.JWT_SECRET);
 
-        const response = await fetch('http://user-service:3001/auth/verify-token', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}` // Include the token in the header if required
-            },
-        });
-
-        if (!response.ok) {
+        if (!verified) {
             // If response is not OK, handle the error
             return false;
         }
-
-        // const data = await response.json();
-
         // Sending the data from the API call as the response
         return true;
     } catch (error) {

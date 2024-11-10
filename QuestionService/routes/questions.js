@@ -1,6 +1,7 @@
 var express = require('express');
 const connectToDatabase = require("../db/conn");
 var router = express.Router();
+const jwt = require('jsonwebtoken');
 
 let db;
 connectToDatabase().then(database => {
@@ -12,21 +13,16 @@ const difficulties = ["Easy", "Medium", "Hard"];
 async function verifyUser(token) {
     try {
         console.log("Verifying user " + token);
+        if (!token) {
+            console.log("No token provided");
+            return false;
+        }
+        var verified = jwt.verify(token, process.env.JWT_SECRET);
 
-        const response = await fetch('http://user-service:3001/auth/verify-token', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}` // Include the token in the header if required
-            },
-        });
-
-        if (!response.ok) {
+        if (!verified) {
             // If response is not OK, handle the error
             return false;
         }
-
-        // const data = await response.json();
-
         // Sending the data from the API call as the response
         return true;
     } catch (error) {
@@ -34,6 +30,7 @@ async function verifyUser(token) {
         return false;
     }
 }
+
 /* GET single question. */
 router.get('/question', async (req, res, next) => {
     const token = req.cookies.accessToken;
