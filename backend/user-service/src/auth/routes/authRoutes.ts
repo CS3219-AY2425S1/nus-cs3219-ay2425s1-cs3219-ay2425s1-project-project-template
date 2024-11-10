@@ -23,7 +23,7 @@ router.post('/logout', authenticate, (req: AuthenticatedRequest, res: express.Re
     res.clearCookie('token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict' as 'strict' | 'lax' | 'none',
+        sameSite: 'none',
     });
     res.status(200).json({ message: 'Logged out successfully.' });
 });
