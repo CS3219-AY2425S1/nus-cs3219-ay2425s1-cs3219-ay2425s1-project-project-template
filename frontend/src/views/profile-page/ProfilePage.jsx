@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useCookies } from "react-cookie";
+
 import useProfile from '../../hooks/useProfile';
+import useUpdateProfile from '../../hooks/useUpdateProfile';
+
 import styles from './ProfilePage.module.css';
 
 const ProfilePage = () => {
@@ -11,6 +14,14 @@ const ProfilePage = () => {
     const [cookies] = useCookies(["username", "accessToken", "userId"]);
     const [activeLanguage, setActiveLanguage] = useState(null);
 
+    const [newUsername, setNewUsername] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [message, setMessage] = useState('');
+
+    const handleEditToggle = () => setIsEditing(!isEditing);
+
     const {
         username,
         email,
@@ -19,6 +30,24 @@ const ProfilePage = () => {
         error,
         isLoading
     } = useProfile(cookies.userId);
+
+    useEffect(() => {
+        setNewUsername(username);
+        setNewEmail(email);
+    }, [username, email]);
+
+    const { handleUpdateProfile, isLoading: isUpdating, isInvalidUpdate } = useUpdateProfile();
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        await handleUpdateProfile(newUsername, newEmail, newPassword);
+        if (!isInvalidUpdate) {
+            setMessage('Profile updated successfully');
+            setIsEditing(false);
+        } else {
+            setMessage('Failed to update profile');
+        }
+    };
 
     const getCodeSnippet = (sessionId, language) => {
         const match = history.find(entry => entry.sessionId === sessionId && entry.language === language);
@@ -85,6 +114,46 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Edit Profile Section */}
+            <button className={styles.editButton} onClick={handleEditToggle}>
+                {isEditing ? 'Cancel' : 'Edit Profile'}
+            </button>
+
+            {isEditing && (
+                <form onSubmit={handleFormSubmit} className={styles.editForm}>
+                    <div className={styles.formGroup}>
+                        <label>Username</label>
+                        <input
+                            type="text"
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            placeholder="Enter new password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                    </div>
+                    <button type="submit" className={styles.saveButton} disabled={isUpdating}>
+                        {isUpdating ? 'Updating...' : 'Save Changes'}
+                    </button>
+                    {message && <p>{message}</p>}
+                </form>
+            )}
+
             <div className={styles.questionHistory}>
                 <div>
                     <h2>Question History</h2>
