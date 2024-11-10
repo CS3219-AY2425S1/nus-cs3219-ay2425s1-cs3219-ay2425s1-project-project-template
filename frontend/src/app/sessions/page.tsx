@@ -8,27 +8,64 @@ import CreateSessionDialog from '@/components/CreateSessionDialog'
 import { useRouter } from 'next/navigation'
 import { verifyToken } from '@/lib/api-user'
 
-export interface Session {
-  _id: string
-  sessionId: string
-  activeUsers: string[]
-  allUsers: string[]
-  questionAttempts: {
-    questionId: string
-    submissions: {
-      code: string
-      language: string
-      submittedAt: string
-      status: string
-    }[]
-    startedAt: string
-    currentCode: string
-    currentLanguage: string
-  }[]
-  isCompleted: boolean
-  sessionName: string
+// export interface Session {
+//   _id: string
+//   sessionId: string
+//   activeUsers: string[]
+//   allUsers: string[]
+//   questionAttempts: {
+//     questionId: string
+//     submissions: {
+//       code: string
+//       language: string
+//       submittedAt: string
+//       status: string
+//     }[]
+//     startedAt: string
+//     currentCode: string
+//     currentLanguage: string
+//   }[]
+//   isCompleted: boolean
+//   sessionName: string
+// }
+export interface QuestionSubmission {
+  code: string;
+  language: string;
+  submittedAt?: Date;
+  status: 'pending' | 'accepted' | 'rejected';
+  executionResults?: {
+    totalTests: number;
+    passedTests: number;
+    failedTests: number;
+    testResults: {
+      testCaseNumber: number;
+      input: string;
+      expectedOutput: string;
+      actualOutput?: string;
+      passed: boolean;
+      error?: string;
+      compilationError?: string | null;
+    }[];
+  };
 }
 
+export interface QuestionAttempt {
+  questionId: string;
+  submissions: QuestionSubmission[];
+  startedAt?: Date;
+  currentCode?: string;
+  currentLanguage?: string;
+}
+
+export interface Session {
+  _id: string;
+  sessionId: string;
+  activeUsers: string[];
+  allUsers: string[];
+  questionAttempts: QuestionAttempt[];
+  isCompleted: boolean;
+  sessionName: string;
+}
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [userData, setUserData] = useState({
@@ -175,8 +212,10 @@ function renderYearSessions(year: number, sessions: Session[], userNames: { [key
                   <div className="flex flex-wrap items-center justify-between gap-4 px-4">
                     <div className="flex items-center space-x-4 gap-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{new Date(session.questionAttempts[0].startedAt).getDate()}</div>
-                        <div className="text-sm text-muted-foreground">{new Date(session.questionAttempts[0].startedAt).toLocaleString('default', { month: 'short' })}</div>
+                      <div className="text-2xl font-bold">{session.questionAttempts[0].startedAt ? new Date(session.questionAttempts[0].startedAt).getDate() : 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{session.questionAttempts[0].startedAt ? new Date(session.questionAttempts[0].startedAt).toLocaleString('default', { month: 'short' }) : 'N/A'}</div>
+                        {/* <div className="text-2xl font-bold">{new Date(session.questionAttempts[0].startedAt).getDate()}</div>
+                        <div className="text-sm text-muted-foreground">{new Date(session.questionAttempts[0].startedAt).toLocaleString('default', { month: 'short' })}</div> */}
                       </div>
                       <div>
                         <h4 className="text-lg font-semibold">{session.sessionName}</h4>
