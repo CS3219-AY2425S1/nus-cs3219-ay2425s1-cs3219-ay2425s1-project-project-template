@@ -10,6 +10,8 @@ This document outlines the architecture of this diagram and includes some basic 
 
 Peerprep consists of a ReactJS frontend that is linked to multiple backend services developed using Frameworks like Express and Flask.
 
+<img src="./assets/architecture-overview.png">
+
 ### Frontend
 
 The frontend for this application is developed using ReactJS, a simple JavaScript based web framework. The routing between different pages in the application is handled by the react-router-dom library and the routes are kept simple and intuitive.
