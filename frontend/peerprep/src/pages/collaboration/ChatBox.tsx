@@ -71,7 +71,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       });
 
       socketRef.current.on("userDisconnected", (data: { userId: string }) => {
-        setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected :("]);
+        setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected"]);
         setOtherUserName("");
       });
 
