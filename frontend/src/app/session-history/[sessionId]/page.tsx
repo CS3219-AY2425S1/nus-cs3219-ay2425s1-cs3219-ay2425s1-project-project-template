@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button'; // Adjust the import path based on your project structure
 import SessionHistoryList from '@/components/session-history/SessionHistoryList';
 
-export default function SessionHistoryPage({ params }) {
+export default function SessionHistoryPage({ params }: { params: any }) {
   const { sessionId } = params;
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col h-full overflow-hidden">
       <div>
         <Link href="/sessions">
-          <Button variant="primary" className="flex items-center space-x-2">
+          <Button variant="default" className="flex items-center space-x-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
