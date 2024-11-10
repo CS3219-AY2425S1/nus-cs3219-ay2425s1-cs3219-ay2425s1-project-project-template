@@ -6,7 +6,7 @@ const ETERNAL_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OD
 
 describe("chrome browser", () => {
     const options = new Chrome.Options()
-    // .addArguments("--headless=new") as Chrome.Options;
+    .addArguments("--headless=new") as Chrome.Options;
     const builder = new Builder().forBrowser(Browser.CHROME).setChromeOptions(options);
     let driver: WebDriver;
 
