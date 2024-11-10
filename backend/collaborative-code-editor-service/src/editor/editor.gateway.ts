@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { EditorService } from './editor.service';
-import { set } from 'mongoose';
+import { QuestionSubmission } from './schemas/question-submission.schema';
 
 interface CodeChangePayload {
   sessionId: string;
@@ -169,5 +169,9 @@ export class EditorGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.error('Error in handleSubmission:', error);
       client.emit('error', 'Failed to submit code');
     }
+  }
+
+  async notifySubmissionMade(sessionId: string, questionId: string, submission: QuestionSubmission) {
+    this.server.to(`${sessionId}:${questionId}`).emit('submissionResults', submission);
   }
 }

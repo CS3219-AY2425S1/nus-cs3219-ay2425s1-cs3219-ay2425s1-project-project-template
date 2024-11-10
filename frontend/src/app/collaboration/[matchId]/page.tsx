@@ -537,7 +537,7 @@ const CollaborationPage: FC<CollaborationPageProps> = ({ params }) => {
             <AttemptsTab />
           </TabsContent> */}
         </Tabs>
-        <div className="flex flex-col gap-0 h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden">
           <CodeEditorContainer sessionId={matchId} questionId={question?._id} userData={userData} />
         </div>
       </div>
