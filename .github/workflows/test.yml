@@ -83,7 +83,7 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/frontend
-          pnpm test --  __tests__/unit-tests
+          pnpm unit-test
 
   browser-test:
     runs-on: ubuntu-latest
@@ -259,6 +259,11 @@ jobs:
         with:
           version: 9.1.4
 
+      - name: Install dependencies
+        run: |
+          cd ./apps/frontend
+          pnpm i -D
+      
       - name: Install Chrome WebDriver
         uses: nanasess/setup-chromedriver@v2
         with:
@@ -267,4 +272,4 @@ jobs:
       - name: Run Browser Test
         run: |
           cd ./apps/frontend
-          pnpm test -- ./__tests__/browser-tests
+          pnpm browser-test
