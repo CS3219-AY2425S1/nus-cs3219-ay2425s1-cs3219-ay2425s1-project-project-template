@@ -35,6 +35,15 @@ export class CollaborationController {
     return this.collaborationClient.send({ cmd: 'review-code' }, dto);
   }
 
+  @Get('history')
+  @ApiOkResponse({ description: 'Get user session history successfully' })
+  async getUserSessionHistory(@GetCurrentUserId() currentUserId) {
+    return this.collaborationClient.send(
+      { cmd: 'get-user-session-history' },
+      { userId: currentUserId },
+    );
+  }
+
   // Get session details by id
   @Get(':id')
   @ApiOkResponse({

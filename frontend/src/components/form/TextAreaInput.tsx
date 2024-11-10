@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/form";
 import { FieldPath, FieldValues, useFormContext } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
-import { InputHTMLAttributes, useCallback } from "react";
+import { InputHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 interface TextAreaInputProps<TFieldValues extends FieldValues>

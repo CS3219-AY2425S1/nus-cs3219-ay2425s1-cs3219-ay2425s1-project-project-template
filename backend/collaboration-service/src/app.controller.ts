@@ -32,6 +32,14 @@ export class AppController {
     return review;
   }
 
+  @MessagePattern({ cmd: 'get-user-session-history' })
+  async handleGetUserSessionHistory(@Payload() data: { userId: string }) {
+    const sessionHistory = await this.appService.getUserSessionHistory(
+      data.userId,
+    );
+    return sessionHistory;
+  }
+
   @MessagePattern({ cmd: 'add-chat-message' })
   async handleAddChatMessage(@Payload() data: ChatSendMessageRequestDto) {
     console.log('add-chat-message controller service invoked');
