@@ -42,6 +42,7 @@ async function initRabbitMQ() {
   await channel.assertQueue('search_queue');
   await channel.assertQueue('match_found_queue');
   await channel.assertQueue('disconnect_queue');
+  await channel.assertQueue('error_queue');
 
   // Start listening for search requests
   channel.consume('search_queue', (msg) => {
