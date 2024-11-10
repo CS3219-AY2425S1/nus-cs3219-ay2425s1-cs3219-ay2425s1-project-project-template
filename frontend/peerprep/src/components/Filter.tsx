@@ -24,7 +24,7 @@ const Filters: React.FC<FiltersProps> = ({
   setColumnFilters,
   topics,
 }) => {
-  const filteredTitle = columnFilters.filter((x) => x.id === "Title");
+  const filteredTitle = columnFilters.filter((x) => x.id === "title");
 
   const onFilterChange = (id: string, value: string) => {
     setColumnFilters((prev) =>
@@ -64,7 +64,7 @@ const Filters: React.FC<FiltersProps> = ({
           value={
             filteredTitle.length === 0 ? "" : String(filteredTitle[0].value)
           }
-          onChange={(e) => onFilterChange("Title", e.target.value)}
+          onChange={(e) => onFilterChange("title", e.target.value)}
         />
       </InputGroup>
       <Text textColor={"white"} size={"lg"}>
@@ -75,7 +75,7 @@ const Filters: React.FC<FiltersProps> = ({
         filters={COMPLEXITIES}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
-        filterKey="Complexity"
+        filterKey={"Complexity"}
         color="purple.300"
       />
       <Text textColor={"white"} size={"lg"}>
@@ -86,7 +86,7 @@ const Filters: React.FC<FiltersProps> = ({
         filters={topics}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
-        filterKey="Categories"
+        filterKey={"Categories"}
         color="purple.300"
       />
     </HStack>

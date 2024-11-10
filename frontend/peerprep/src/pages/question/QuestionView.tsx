@@ -86,7 +86,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     onClose: onLeetCodeModalClose,
   } = useDisclosure();
 
-  // Check if the user can edit/delete a question (either admin or question owner)
+  // Check if the user can edit/delete a question
 
   const canEditDelete = (questionOwnerId: string) => {
 
@@ -169,110 +169,107 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   };
 
   // Define the table columns
-  const columns: ColumnDef<Question>[] = useMemo(
-    () => [
-      {
-        header: "#",
-        accessorFn: (_, rowIndex) => rowIndex + 1,
-        id: "rowNumber",
-        cell: ({ getValue }) => getValue<number>(),
-      },
-      { header: "Title", accessorKey: "Title" },
-      {
-        header: "Topic",
-        accessorKey: "Categories",
-        cell: ({ getValue }) => {
-          const categories = getValue<string[]>();
+  const columns: ColumnDef<Question>[] = useMemo(() => {
+  const baseColumns: ColumnDef<Question>[] = [
+    {
+      header: "#",
+      accessorFn: (_, rowIndex) => rowIndex + 1,
+      id: "rowNumber",
+      cell: ({ getValue }) => getValue<number>(),
+    },
+    { header: "Title", accessorKey: "Title" },
+    {
+      header: "Topic",
+      accessorKey: "Categories",
+      cell: ({ getValue }) => {
+        const categories = getValue<string[]>();
 
-          return (
-            <HStack spacing={1}>
-              {categories.map((category) => {
-                return (
-                  <Badge
-                    key={category}
-                    borderRadius="lg"
-                    px="4"
-                    py="2"
-                    bg="purple.500"
-                    color="white"
-                  >
-                    {category}
-                  </Badge>
-                );
-              })}
-            </HStack>
-          );
-        },
-        filterFn: (row, columnId, filterValue) => {
-          const cat = row.getValue<string[]>(columnId);
-          return cat.includes(filterValue);
-        },
+        return (
+          <HStack spacing={1}>
+            {categories.map((category) => (
+              <Badge
+                key={category}
+                borderRadius="lg"
+                px="4"
+                py="2"
+                bg="purple.500"
+                color="white"
+              >
+                {category}
+              </Badge>
+            ))}
+          </HStack>
+        );
       },
-      {
-        header: "Complexity",
-        accessorKey: "Complexity",
-        cell: ({ getValue }) => {
-          const complexity = getValue<string>();
-          const color = getComplexityColor(complexity);
-          return (
-            <Badge borderRadius="lg" px="5" py="2" bg={color}>
-              <Text color={"whitesmoke"}>{complexity}</Text>
-            </Badge>
-          );
-        },
-        enableSorting: true,
+      filterFn: (row, columnId, filterValue) => {
+        const cat = row.getValue<string[]>(columnId);
+        return cat.includes(filterValue);
       },
-      {
-        header: "Question",
-        accessorKey: "Question",
-        cell: ({ row }) => {
-          return (
-            <Button
-              onClick={() => {
-                setSelectedQuestion(row.original);
-                onModalOpen();
-                onMenuClose();
-              }}
-              colorScheme="blue"
-              variant="link"
-            >
-              View
-            </Button>
-          );
-        },
+    },
+    {
+      header: "Complexity",
+      accessorKey: "Complexity",
+      cell: ({ getValue }) => {
+        const complexity = getValue<string>();
+        const color = getComplexityColor(complexity);
+        return (
+          <Badge borderRadius="lg" px="5" py="2" bg={color}>
+            <Text color={"whitesmoke"}>{complexity}</Text>
+          </Badge>
+        );
       },
-      {
-        header: "Actions",
-        cell: ({ row }) => (
-          <ButtonGroup size="sm" isAttached>
-            {canEditDelete(row.original.ownerId) && (
-              <>
-                <IconButton
-                  icon={<Icon as={FaEdit} />}
-                  aria-label="Edit"
-                  colorScheme="purple"
-                  onClick={() => {
-                    setSelectedQuestion(row.original);
-                    onQuestionModalOpen();
-                    onMenuClose();
-                  }}
-                />
-                <IconButton
-                  icon={<Icon as={FaTrash} />}
-                  aria-label="Delete"
-                  colorScheme="red"
-                  onClick={() => {
-                    handleDelete(row.original.ID);
-                  }}
-                />
-              </>
-            )}
-          </ButtonGroup>
-        ),
-      },
-    ],
-    [onModalOpen, onMenuClose, user]
-  );
+      enableSorting: true,
+    },
+    {
+      header: "Question",
+      accessorKey: "Question",
+      cell: ({ row }) => (
+        <Button
+          onClick={() => {
+            setSelectedQuestion(row.original);
+            onModalOpen();
+            onMenuClose();
+          }}
+          colorScheme="blue"
+          variant="link"
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  // Add the "Actions" column only if the user is an admin
+  if (user.isAdmin) {
+    baseColumns.push({
+      header: "Actions",
+      cell: ({ row }) => (
+        <ButtonGroup size="sm" isAttached>
+          <IconButton
+            icon={<Icon as={FaEdit} />}
+            aria-label="Edit"
+            colorScheme="purple"
+            onClick={() => {
+              setSelectedQuestion(row.original);
+              onQuestionModalOpen();
+              onMenuClose();
+            }}
+          />
+          <IconButton
+            icon={<Icon as={FaTrash} />}
+            aria-label="Delete"
+            colorScheme="red"
+            onClick={() => handleDelete(row.original.ID)}
+          />
+        </ButtonGroup>
+      ),
+    });
+  }
+
+  return baseColumns;
+}, [onModalOpen, onMenuClose, user]);
+
+
 
   return (
     <Box
@@ -290,21 +287,24 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             setColumnFilters={setColumnFilter}
             topics={topics}
           />
-          <HStack mb={6} spacing={4} align="center">
-            <Button colorScheme="purple" onClick={onLeetCodeModalOpen}>
-              Add LeetCode Question
-            </Button>
-            <Button
-              colorScheme="purple"
-              onClick={() => {
-                setSelectedQuestion(null);
-                onQuestionModalOpen();
-              }}
-            >
-              Add Question
-            </Button>
-          </HStack>
+          {user.isAdmin && (
+            <HStack mb={6} spacing={4} align="center">
+              <Button colorScheme="purple" onClick={onLeetCodeModalOpen}>
+                Add LeetCode Question
+              </Button>
+              <Button
+                colorScheme="purple"
+                onClick={() => {
+                  setSelectedQuestion(null);
+                  onQuestionModalOpen();
+                }}
+              >
+                Add Question
+              </Button>
+            </HStack>
+          )}
         </Box>
+
         {/* Table Display */}
         <DataTable
           columns={columns}

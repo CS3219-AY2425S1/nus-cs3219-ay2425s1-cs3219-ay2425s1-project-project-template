@@ -140,11 +140,11 @@ const EditorView: React.FC = () => {
       <Box style={styles.rightSection}>
         <Box style={styles.chatGeminiContainer}>
           <Box style={styles.geminiChatContainer}>
-            <h2 style={styles.chatTitle}>GenAI Assistant</h2> {/* GenAI Assistant */}
+            <h2 style={styles.chatTitleAI}>AI Assistant</h2> {/* GenAI Assistant */}
             <GeminiChat socketRef={socketRef} />
           </Box>
           <Box style={styles.chatContainer}>
-            <h2 style={styles.chatTitle}>User Chat</h2> {/* User Chat */}
+            <h2 style={styles.chatTitleRoom}>Chat Room</h2> {/* User Chat */}
             <ChatBox
               roomId={roomId}
               user={user ?? null}
@@ -171,17 +171,27 @@ const styles = {
     backgroundColor: "#1e1e2e",
     padding: "10px",
     borderRadius: "8px",
+    height: "100vh",  
+    overflow: "hidden",
   },
   leftSection: {
     display: "flex",
     flexDirection: "column" as const,
     width: "30%",
     padding: "20px",
+    height: "100%", // Matches the right section height
+    marginTop: "5px",
   },
-  chatTitle: {
+  chatTitleRoom: {
     fontSize: "1.2rem",
     fontWeight: "bold",
     color: "#82AAFF",  // Matches the theme color
+    marginBottom: "10px",
+  },
+  chatTitleAI: {
+    fontSize: "1.2rem",
+    fontWeight: "bold",
+    color: "#B3A1E6",  // Matches the theme color
     marginBottom: "10px",
   },
   questionSection: {
@@ -190,7 +200,8 @@ const styles = {
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
     overflowY: "auto",
-    padding: "5px",
+    padding: "15px",
+    height: "100%", 
   },
   questionTitle: {
     fontSize: "1.5rem",
@@ -212,7 +223,7 @@ const styles = {
   },
   leetCodeLink: {
     color: "#89DDFF",
-    textDecoration: "none",
+    textDecoration: "underline",
     fontWeight: "bold",
     marginTop: "10px",
     display: "inline-block",
@@ -232,6 +243,7 @@ const styles = {
     flexDirection: "row" as const,  // Arrange GeminiChat and ChatBox side-by-side
     marginBottom: "15px",
     gap: "10px",  // Adds space between GeminiChat and ChatBox
+    marginTop: "15px",
   },
   geminiChatContainer: {
     flex: 1,  // Makes GeminiChat take up half the space
@@ -241,6 +253,7 @@ const styles = {
     backgroundColor: "#2e2e3e",
     borderRadius: "8px",
     overflowY: "auto",
+    height: "40vh",
   },
   chatContainer: {
     flex: 1,
@@ -251,6 +264,7 @@ const styles = {
     borderRadius: "8px",
     color: "#ffffff",
     overflowY: "auto",
+    height: "40vh",
   },
   editorContainer: {
     backgroundColor: "#1e1e2e",
