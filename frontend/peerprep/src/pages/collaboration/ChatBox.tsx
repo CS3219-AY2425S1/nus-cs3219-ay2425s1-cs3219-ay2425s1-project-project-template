@@ -105,8 +105,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 
   const renderMessages = () => {
     const notificationMessages = [
-      "Your partner has connected, let's chat!",
-      "Your partner has disconnected :(",
+      "Your partner has connected, Let's chat!",
+      "Your partner has disconnected",
       "Start chatting to find out who you are paired with!"
     ];
   
