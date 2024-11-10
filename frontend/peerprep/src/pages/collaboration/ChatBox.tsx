@@ -216,7 +216,8 @@ const styles = {
     padding: "6px 10px",
     borderRadius: "10px",
     marginBottom: "5px",
-    maxWidth: "75%",
+    display: "inline-block", // Allow it to only take as much width as needed
+    maxWidth: "100%", // Optionally set a max width for really long messages
     fontSize: "0.9rem",
   },
 
@@ -227,9 +228,11 @@ const styles = {
     padding: "6px 10px",
     borderRadius: "10px",
     marginBottom: "5px",
-    maxWidth: "75%",
+    display: "inline-block", // Allow it to only take as much width as needed
+    maxWidth: "100%", // Optionally set a max width for really long messages
     fontSize: "0.9rem",
   },
+
 
   inputContainer: {
     height: "36px",  
