@@ -46,11 +46,16 @@ router.get('/questions/:id', async (req, res) => {
 // GET endpoint to retrieve a question by category and complexity
 router.get('/questions/:category/:complexity', async (req, res) => {
     try {
-        const question = await Question.findOne({ category: req.params.category, complexity: req.params.complexity });
-        if (!question) {
+        const questions = await Question.aggregate([
+            { $match: { category: req.params.category, complexity: req.params.complexity } },
+            { $sample: { size: 1 } }
+        ]);
+
+        if (questions.length === 0) {
             return res.status(404).send();
         }
-        res.send(question);
+
+        res.send(questions[0]);
     } catch (error) {
         res.status(500).send(error);
     }
