@@ -10,7 +10,7 @@ function Header() {
             <Title c="white">PeerPrep</Title>
           </Link>
           <Link to="../admin">
-            <Title c="white">Questions</Title>
+            <Title c="white" fz="lg">Questions</Title>
           </Link>
         </Group>
         <Link to="../profile">
