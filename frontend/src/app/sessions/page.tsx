@@ -98,25 +98,6 @@ export default function SessionsPage() {
       
       setUserNames(obj);
       console.log(obj);
-      //try {
-        // const userNamesMap: { [key: string]: string } = {};
-        // await Promise.all(userIds.map(async (userId) => {
-        //   try {
-        //     const res = await fetch(`/api/users/${userId}`);
-        //     if (!res.ok) {
-        //       throw new Error('User not found');
-        //     }
-        //     const user = await res.json();
-        //     userNamesMap[userId] = user.username;
-        //   } catch (error) {
-        //     console.error(`Error fetching user ${userId}:`, error);
-        //     userNamesMap[userId] = userId; // Return userId if user is not found
-        //   }
-        // }));
-        //setUserNames(username);
-      // } catch (error) {
-      //   console.error('Error fetching user names:', error);
-      // }
     };
 
     if (sessions.length > 0) {
