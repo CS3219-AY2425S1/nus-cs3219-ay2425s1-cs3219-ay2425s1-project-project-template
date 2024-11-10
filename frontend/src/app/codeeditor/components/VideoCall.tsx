@@ -290,6 +290,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ userName, roomId }) => {
 
             // Then connect socket
             const newSocket = io(process.env.NEXT_PUBLIC_COLLAB_SERVICE_HOST || 'ws://localhost:5003', {
+                path: '/video-call',
                 transports: ['websocket'],
                 reconnection: true,
                 reconnectionAttempts: 5,

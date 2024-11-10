@@ -36,7 +36,7 @@ const CollaborativeSpace: React.FC<CollaborativeSpaceProps> = ({
 
   useEffect(() => {
     // websocket link updated 
-    const provider = new WebsocketProvider('ws://localhost:5004', roomId, ydoc);
+    const provider = new WebsocketProvider('ws://localhost:5003/code-collab', roomId, ydoc);
     setProvider(provider);
     +
       // Set user awareness

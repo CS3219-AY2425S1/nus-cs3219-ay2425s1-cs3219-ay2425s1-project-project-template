@@ -10,6 +10,7 @@ interface RoomUser {
 
 export const setupVideoCallServer = (server: HTTPServer) => {
     const io = new SocketIOServer(server, {
+        path: '/video-call',
         cors: {
             origin: process.env.FRONTEND_URL || "http://localhost:3000",
             methods: ["GET", "POST"]
@@ -113,5 +114,5 @@ export const setupVideoCallServer = (server: HTTPServer) => {
         });
     });
 
-    return io;
+    logger.info(`Video Call WebSocket server is set up on /video-call`);
 };

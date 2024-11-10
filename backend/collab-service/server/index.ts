@@ -23,8 +23,8 @@ app.use(verifyRoom)
 const PORT = process.env.PORT || 5003
 const server = createServer(app)
 
-setupCodeCollabWebSocketServer()
 setupVideoCallServer(server)
+setupCodeCollabWebSocketServer(server)
 
 server.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`)
