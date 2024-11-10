@@ -105,7 +105,7 @@ export class CodeExecutionProcessor {
         compilationError: executionResult.compile?.stderr || null,
         executionTime: response.data.run.time,
         memoryUsage: response.data.run.memory,
-        retryCount, // Add retry count to the result for monitoring
+        retryCount, 
       };
 
     } catch (error) {
@@ -171,8 +171,6 @@ export class CodeExecutionProcessor {
     const languageVersions = {
       python: '3.10',
       javascript: '18.15.0',
-      typescript: '5.0.3',
-      java: '19.0.2',
       cpp: '10.2.0',
     };
 

@@ -50,7 +50,7 @@ const DynamicTestCases = ({ questionId, testResults }: TestCaseProps) => {
 
   if (loading) {
     return (
-      <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
+      <Card className="h-1/2 max-h-[50vh] overflow-auto pb-4 mb-1">
         <CardHeader className="pb-1 pt-4">
           <div className="h-6 w-32 bg-gray-200 animate-pulse rounded" />
         </CardHeader>
@@ -66,7 +66,7 @@ const DynamicTestCases = ({ questionId, testResults }: TestCaseProps) => {
 
   if (error) {
     return (
-      <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
+      <Card className="h-[600px] max-h-[50vh] overflow-auto pb-4 mb-1">
         <CardHeader className="pb-1 pt-4 text-red-500">Error Loading Test Cases</CardHeader>
         <CardContent>{error}</CardContent>
       </Card>
@@ -77,7 +77,7 @@ const DynamicTestCases = ({ questionId, testResults }: TestCaseProps) => {
   
   if (!testCases.length) {
     return (
-      <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
+      <Card className="h-[600px] max-h-[50vh] overflow-auto pb-4 mb-1">
         <CardHeader className="pb-1 pt-4 font-bold text-xl">Test Cases</CardHeader>
         <CardContent className="flex-1 overflow-auto py-0">
           {!hasRunResults && (
@@ -113,7 +113,7 @@ const DynamicTestCases = ({ questionId, testResults }: TestCaseProps) => {
   }
 
   return (
-    <Card className="max-h-[40vh] overflow-auto pb-4 mb-1">
+    <Card className="h-[600px] max-h-[50vh] overflow-auto pb-4 mb-1">
       <CardHeader className="pb-1 pt-4 font-bold text-xl">Test Cases</CardHeader>
       <CardContent className="flex-1 overflow-auto py-0">
         <Tabs defaultValue={`test-case-0`}>

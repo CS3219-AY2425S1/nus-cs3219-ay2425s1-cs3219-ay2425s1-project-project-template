@@ -109,6 +109,9 @@ export class EditorService {
     lastSubmission.executionResults = executionResults;
 
     await session.save();
+
+    // Invalidate cache
+    await this.redis.del(`session:${sessionId}`);
     return lastSubmission;
   }
 

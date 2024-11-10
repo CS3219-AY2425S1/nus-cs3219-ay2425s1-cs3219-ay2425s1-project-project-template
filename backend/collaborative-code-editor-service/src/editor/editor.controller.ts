@@ -3,11 +3,13 @@ import { EditorService } from './editor.service';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { QuestionSubmission } from './schemas/question-submission.schema';
 import { Session } from './schemas/session.schema';
+import { EditorGateway } from './editor.gateway';
 
 @Controller('submissions')
 export class EditorController {
   constructor(
     private readonly editorService: EditorService,
+    private readonly editorGateway: EditorGateway,
   ) {}
 
   @Get(':sessionId/:questionId')
@@ -27,12 +29,16 @@ export class EditorController {
     @Param('questionId') questionId: string,
     @Body() updateSubmissionDto: UpdateSubmissionDto,
   ): Promise<QuestionSubmission> {
-    return this.editorService.updateLastSubmission(
+    const questionSubmission = await this.editorService.updateLastSubmission(
       sessionId,
       questionId,
       updateSubmissionDto.status,
       updateSubmissionDto.executionResults,
     );
+
+    this.editorGateway.notifySubmissionMade(sessionId, questionId, questionSubmission);
+
+    return questionSubmission;
   }
 
   @Get(':sessionId')
