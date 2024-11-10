@@ -12,10 +12,11 @@ const useUpdateProfile = () => {
         setLoading(true);
         setIsInvalidUpdate(false);
         try {
-            const response = await fetch(`${VITE_USER_SERVICE_API}/users`, {
-                method: 'PATCH',
+            const response = await fetch(`${VITE_USER_SERVICE_API}/users/${cookies.userId}`, {
+                method: 'PATCH', 
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cookies.accessToken}`
                 },
                 body: JSON.stringify({
                     username: username,

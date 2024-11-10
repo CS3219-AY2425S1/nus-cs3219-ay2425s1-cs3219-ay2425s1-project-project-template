@@ -40,10 +40,18 @@ const ProfilePage = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+        if (newUsername == '' && newEmail == '' && newPassword == '') {
+            setMessage('Please fill in at least one field');
+            return;
+        }
+
         await handleUpdateProfile(newUsername, newEmail, newPassword);
         if (!isInvalidUpdate) {
             setMessage('Profile updated successfully');
             setIsEditing(false);
+            setNewUsername('');
+            setNewEmail('');
+            setNewPassword('');
         } else {
             setMessage('Failed to update profile');
         }
