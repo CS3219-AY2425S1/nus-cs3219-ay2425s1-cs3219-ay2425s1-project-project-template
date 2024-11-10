@@ -111,7 +111,7 @@ export async function handleLeaveRoom(
   socket: Socket,
   { roomId, codeContent }: { roomId: string; codeContent: string }
 ) {
-  socket.leave(roomId);
+  
 
   const userInfo = socketUserInfo[socket.id];
   if (!userInfo) {
@@ -197,6 +197,7 @@ export async function handleLeaveRoom(
   }
 
   socket.to(roomId).emit("leave_collab_notify", { userName });
+  await socket.leave(roomId);
 
   if (!roomUsers[roomId] || roomUsers[roomId].length === 0) {
     delete roomUsers[roomId];
