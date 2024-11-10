@@ -6,7 +6,7 @@ const ETERNAL_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OD
 
 describe("chrome browser", () => {
     const options = new Chrome.Options()
-    .addArguments("--headless=new") as Chrome.Options;
+    .addArguments("--headless=new") as Chrome.Options; // uncomment locally to see the steps in action
     const builder = new Builder().forBrowser(Browser.CHROME).setChromeOptions(options);
     let driver: WebDriver;
 
@@ -18,7 +18,7 @@ describe("chrome browser", () => {
         await driver.quit();
     })
 
-    describe.skip("chrome webdriver installed correctly", () => {
+    describe("chrome webdriver installed correctly", () => {
         it("does google search", async () => {
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
