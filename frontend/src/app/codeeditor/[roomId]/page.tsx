@@ -32,6 +32,7 @@ const CollabRoomPage = ({ params }: {
                     setCollabQuestion(response.data.question)
                     setCollabLanguage(response.data.language)
                     setMatchId(response.data.matchId)
+                    console.log(response.data)
                 }
             } catch (error: any) {
                 console.error('Error verifying room:', error.response?.data?.message || error.message);
