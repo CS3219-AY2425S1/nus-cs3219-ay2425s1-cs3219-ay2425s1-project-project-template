@@ -65,8 +65,6 @@ export class QuestionDB {
 
     return output;
   
-    // return await query.select('_id title categories complexity testCases').exec();
-
   }
 
   async findOneQuestionInDB(questionId: string): Promise<Question> {

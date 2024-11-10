@@ -130,69 +130,35 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
         title: "Code Submitted",
         description: `Submission recorded at ${new Date(timestamp).toLocaleTimeString()}`,
       });
-
       setExecuting(true);
-      for (let i = 0; i < 10; i++) {
-          try {
+    });
 
+    socketInstance.on('submissionResults', ({status, executionResults }) => {
+      console.log("executionResults: ", executionResults, status);
+      if (executionResults?.testResults) {
+        setTestResults(executionResults.testResults);
+      }
 
-            const response = await axios.post(`/api/submissions/${sessionId}/${questionId}`);
-            const submission = await response.data as { status: string, executionResults: CodeExecutionResponse };
-
-            // const submission = await response.json();
-            console.log("submission: ", submission.status);
-      
-            if (submission.status !== 'pending') {
-              // Set test results regardless of status
-              if (submission.executionResults?.testResults) {
-                setTestResults(submission.executionResults.testResults);
-              }
-      
-              // Show appropriate toast based on status
-              if (submission.status === 'accepted') {
-                toast(
-                  {
-                    title: "Accepted",
-                    description: `All ${submission.executionResults.totalTests} tests passed successfully!`
-                  }
-                );
-                break;
-              } else if (submission.status === 'rejected') {
-                toast(
-                  {
-                    variant: "destructive",
-                    title: "Rejected",
-                    description:
-                  `${submission.executionResults.failedTests} of ${submission.executionResults.totalTests} tests failed`
-                  }
-                );
-                break;
-              }
-            }
-      
-            // If we reach the last iteration and status is still pending
-            if (i === 9 && submission.status === 'pending') {
-              toast({
-                variant: "destructive",
-                title: "Submission processing timeout",
-              });
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          } catch (error) {
-            toast({
-              variant: "destructive",
-              title: "Submission failed",
-            });
-            break;
+      // Show appropriate toast based on status
+      if (status === 'accepted') {
+        toast(
+          {
+            title: "Accepted",
+            description: `All ${executionResults.totalTests} tests passed successfully!`
           }
+        );
+      } else if (status === 'rejected') {
+        toast(
+          {
+            variant: "destructive",
+            title: "Rejected",
+            description:
+          `${executionResults.failedTests} of ${executionResults.totalTests} tests failed`
+          }
+        );
       }
       setExecuting(false);
     });
-
-    // socketInstance.on('sessionCompleted', () => {
-    //   router.push('/sessions');
-    // });
 
     socket.current = socketInstance;
 
@@ -262,8 +228,7 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
             <SelectGroup>
               <SelectItem value="javascript">JavaScript</SelectItem>
               <SelectItem value="python">Python</SelectItem>
-              {/* <SelectItem value="java">Java</SelectItem>
-              <SelectItem value="cpp">C++</SelectItem> */}
+              <SelectItem value="cpp">C++</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -300,7 +265,7 @@ const CodeEditorContainer = ({ sessionId, questionId, userData, initialLanguage 
       <DynamicTestCases
             questionId={questionId} 
             testResults={testResults}
-          />
+      />
     </>
   );
 };

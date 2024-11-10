@@ -23,10 +23,10 @@ export class EditorService {
   }
 
   async getSessionIfActive(sessionId: string): Promise<Session | null> {
-    // const cachedSession = await this.redis.get(`session:${sessionId}`);
-    // if (cachedSession) {
-    //   return JSON.parse(cachedSession);
-    // }
+    const cachedSession = await this.redis.get(`session:${sessionId}`);
+    if (cachedSession) {
+      return JSON.parse(cachedSession);
+    }
 
     const session = await this.sessionModel.findOne({ sessionId, isCompleted: false }).exec();
     if (session) {
@@ -41,10 +41,10 @@ export class EditorService {
   }
 
   async getSession(sessionId: string): Promise<Session | null> {
-    // const cachedSession = await this.redis.get(`session:${sessionId}`);
-    // if (cachedSession) {
-    //   return JSON.parse(cachedSession);
-    // }
+    const cachedSession = await this.redis.get(`session:${sessionId}`);
+    if (cachedSession) {
+      return JSON.parse(cachedSession);
+    }
 
     const session = await this.sessionModel.findOne({ sessionId }).exec();
     if (session) {
@@ -109,10 +109,12 @@ export class EditorService {
     lastSubmission.executionResults = executionResults;
 
     await session.save();
+
+    // Invalidate cache
+    await this.redis.del(`session:${sessionId}`);
     return lastSubmission;
   }
 
-  // TODO: Remove later
   async createSessionIfNotCompleted(sessionId: string): Promise<Session> {
     const existingSession = await this.sessionModel.findOne({ sessionId, isCompleted: true }).exec();
     if (existingSession) {
@@ -137,9 +139,7 @@ export class EditorService {
   ): Promise<QuestionAttempt> {
     // Invalidate cache
     await this.redis.del(`session:${sessionId}`);
-    console.log('Creating question attempt', sessionId, questionId);
 
-    // TODO: Add default current language in some config file
     const questionAttempt: QuestionAttempt = {
       questionId,
       submissions: [],
@@ -155,10 +155,8 @@ export class EditorService {
       }
     ).exec();
 
-    // Remove multiple question attempts if available
     await this.removMultipleQuestionAttemptsIfAvailable(sessionId, questionId);
 
-    // set time out to remove duplicate question attempts
     setTimeout(async () => {
       await this.removMultipleQuestionAttemptsIfAvailable(sessionId, questionId);
     }, 3000);
@@ -199,6 +197,9 @@ export class EditorService {
           $set: { questionAttempts },
         }
       ).exec();
+
+      // Invalidate cache
+      await this.redis.del(`session:${sessionId}`);
     }
   }
 
@@ -247,7 +248,6 @@ export class EditorService {
     questionId: string,
     submission: Partial<QuestionSubmission>
   ): Promise<void> {
-    // TODO: Check if session id and question id already has pending submission
     const newSubmission: QuestionSubmission = {
       code: submission.code,
       language: submission.language,
@@ -263,8 +263,6 @@ export class EditorService {
         $push: { 'questionAttempts.$.submissions': newSubmission },
       }
     );
-
-    // TODO: Add code for executing test cases here, change status of submission
 
     // Invalidate cache
     await this.redis.del(`session:${sessionId}`);
@@ -295,10 +293,10 @@ export class EditorService {
   }
 
   async getActiveUsers(sessionId: string): Promise<string[]> {
-    // const cachedUsers = await this.redis.smembers(`session:${sessionId}:users`);
-    // if (cachedUsers.length > 0) {
-    //   return cachedUsers.map(user => user.split(':')[1]);
-    // }
+    const cachedUsers = await this.redis.smembers(`session:${sessionId}:users`);
+    if (cachedUsers.length > 0) {
+      return cachedUsers;
+    }
 
     const session = await this.sessionModel.findOne({ sessionId }).exec();
     if (session && session.activeUsers && session.activeUsers.length > 0) {
@@ -326,6 +324,9 @@ export class EditorService {
         { $set: { isCompleted: true } }
       );
     }
+
+    // Invalidate cache
+    await this.redis.del(`session:${sessionId}`);
   }
 
   async setActiveUsers(sessionId: string, userIds: string[]): Promise<void> {

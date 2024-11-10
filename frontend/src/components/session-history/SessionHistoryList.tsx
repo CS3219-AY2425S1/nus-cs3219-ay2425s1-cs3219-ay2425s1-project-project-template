@@ -59,30 +59,30 @@ const SessionHistoryList = ({ sessionId }) => {
   }
 
   return (
-    <div className="flex h-screen max-h-[800px] gap-4 p-4">
-      <Card className="w-1/2">
+    <div className="flex flex-grow h-full gap-4 p-4 overflow-hidden">
+      <Card className="w-1/2 flex flex-col h-full overflow-hidden">
         <CardHeader>
           <CardTitle>
             {selectedQuestion ? (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="p-0 mb-2"
                 onClick={() => setSelectedQuestion(null)}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Questions
               </Button>
-            ) : 
+            ) :
               "Question List"
             }
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[700px] pr-4">
+        <CardContent className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full pr-4">
             {!selectedQuestion ? (
               <div className="space-y-4">
                 {sessionHistory.questionAttempts.map((attempt, index) => (
-                  <Card 
+                  <Card
                     key={`${attempt.questionId}-${index}`}
                     className="cursor-pointer hover:bg-gray-50"
                     onClick={() => handleQuestionSelect(attempt.questionId)}
@@ -113,7 +113,7 @@ const SessionHistoryList = ({ sessionId }) => {
         </CardContent>
       </Card>
 
-      <Card className="w-1/2 flex flex-col">
+      <Card className="w-1/2 flex flex-col h-full overflow-hidden">
         <CardHeader>
           <CardTitle>Submission History</CardTitle>
           {selectedQuestion && (
@@ -124,37 +124,39 @@ const SessionHistoryList = ({ sessionId }) => {
         </CardHeader>
         <CardContent className='flex-1 overflow-hidden'>
           <ScrollArea className="h-full max-h-full pr-4 overflow-y-auto">
-            <div className="space-y-4">
-              {selectedAttempts.map((attempt, attemptIndex) => (
-                <div key={attemptIndex}>
-                  {attempt.submissions.map((submission, submissionIndex) => (
-                    <Card key={submissionIndex} className="bg-gray-50 mb-4">
-                      <CardHeader className="p-4">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-sm">
-                            Submission {submissionIndex + 1}
-                          </CardTitle>
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(submission.status)}
-                            <span className="text-sm capitalize">
-                              {submission.status || 'No status'}
-                            </span>
+            {selectedQuestion && (
+              <div className="space-y-4">
+                {selectedAttempts.map((attempt, attemptIndex) => (
+                  <div key={attemptIndex}>
+                    {attempt.submissions.map((submission, submissionIndex) => (
+                      <Card key={submissionIndex} className="bg-gray-50 mb-4">
+                        <CardHeader className="p-4">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm">
+                              Submission {submissionIndex + 1}
+                            </CardTitle>
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(submission.status)}
+                              <span className="text-sm capitalize">
+                                {submission.status || 'No status'}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <CardDescription>
-                          Language: {submission.language}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-4">
-                        <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
-                          <code>{submission.code}</code>
-                        </pre>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ))}
-            </div>
+                          <CardDescription>
+                            Language: {submission.language}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                          <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+                            <code>{submission.code}</code>
+                          </pre>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>

@@ -9,8 +9,8 @@ export default function SessionHistoryPage({ params }) {
   const { sessionId } = params;
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-4">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col h-full overflow-hidden">
+      <div>
         <Link href="/sessions">
           <Button variant="primary" className="flex items-center space-x-2">
             <svg
@@ -31,7 +31,9 @@ export default function SessionHistoryPage({ params }) {
           </Button>
         </Link>
       </div>
-      <SessionHistoryList sessionId={sessionId} />
+      <div className='flex-grow h-full flex overflow-hidden'>
+        <SessionHistoryList sessionId={sessionId} />
+      </div>
     </main>
   );
 }

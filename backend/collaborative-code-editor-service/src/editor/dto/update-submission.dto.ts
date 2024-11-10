@@ -1,4 +1,3 @@
-// update-submission.dto.ts
 
 import { ExecutionResults } from "../schemas/question-submission.schema";
 
