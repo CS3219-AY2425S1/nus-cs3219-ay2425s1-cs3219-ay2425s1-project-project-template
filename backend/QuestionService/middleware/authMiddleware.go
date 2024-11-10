@@ -42,7 +42,6 @@ func Authentication() gin.HandlerFunc {
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
-
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{ "message": err.Error() }})
 			c.Abort()

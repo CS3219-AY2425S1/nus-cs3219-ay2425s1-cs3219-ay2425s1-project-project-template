@@ -9,7 +9,7 @@ services:
       - redis_data:/data
 
   mongo_db:
-    container_name: db_container
+    container_name: db-container
     image: mongo:latest
     restart: always
     ports:
@@ -17,8 +17,8 @@ services:
     volumes:
       - mongo_db:/data/db
 
-  matching_service:
-    container_name: matching_service
+  matching-service:
+    container_name: matching-service
     build: ./MatchingService
     ports:
       - "8080:8080"
@@ -32,16 +32,16 @@ services:
         - path: ./MatchingService
           action: rebuild
 
-  collaboration_service:
-    container_name: collaboration_service
+  collaboration-service:
+    container_name: collaboration-service
     build: ./CollaborationService
     ports:
       - "3004:3004"
     depends_on:
       - redis
 
-  user_service:
-    container_name: user_service
+  user-service:
+    container_name: user-service
     build: ./PeerPrep-UserService-main/user-service
     ports:
       - "3001:3001"
@@ -62,8 +62,8 @@ services:
       - "3000:3000"
     restart: always
 
-  question_service:
-    container_name: question_service
+  question-service:
+    container_name: question-service
     build: ./QuestionService
     ports:
       - "3002:3002"
@@ -79,7 +79,7 @@ services:
           action: rebuild
 
   frontend:
-    container_name: frontend_service
+    container_name: frontend-service
     build:
       context: ../frontend/peerprep
       dockerfile: Dockerfile
@@ -88,7 +88,7 @@ services:
     environment:
       - PORT=5173
     depends_on:
-      - user_service
+      - user-service
     develop:
       watch:
         - action: sync

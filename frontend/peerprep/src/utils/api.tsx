@@ -27,7 +27,6 @@ export const initApi = (
     }
   );
 
-
   return api;
 };
 
@@ -57,7 +56,6 @@ export const authApi = (
     }
   );
 
-
   return api;
 };
 
@@ -86,7 +84,6 @@ export const questionApi = (
       return Promise.reject(error);
     }
   );
-
 
   return api;
 };
