@@ -118,28 +118,32 @@ export const Question = () => {
       descriptionText.trim() === "") {
       alert("Some fields are empty!");
     } else {
-      try {
-        const response = await axios.post(`${QUESTIONS_SERVICE}/questions`, {
-          complexity: complexity,
-          category: revertCategoryArray(category),
-          title: title,
-          description: descriptionText,
-          web_link: "www.google.com"
-        });
-        if (response.status === 201) {
-          alert("Successfully created question!");
-          //console.log(response.data);
-          navigate(`/questions/${response.data.question_id}`);
-        } else {
-          alert("Unable to create question :(");
+      if (descriptionText.length > 10) {
+        try {
+          const response = await axios.post(`${QUESTIONS_SERVICE}/questions`, {
+            complexity: complexity,
+            category: revertCategoryArray(category),
+            title: title,
+            description: descriptionText,
+            web_link: "www.google.com"
+          });
+          if (response.status === 201) {
+            alert("Successfully created question!");
+            //console.log(response.data);
+            navigate(`/questions/${response.data.question_id}`);
+          } else {
+            alert("Unable to create question :(");
+          }
+        } catch (error) {
+          if (error.response.data.code === 11000) {
+            //duplicate
+            alert("Question titles must be unique!");
+          } else {
+            alert("An error occured!");
+          }
         }
-      } catch (error) {
-        if (error.response.data.code === 11000) {
-          //duplicate
-          alert("Question titles must be unique!");
-        } else {
-          alert("An error occured!");
-        }
+      } else {
+        alert("Your description is too short!");
       }
     }
   }
