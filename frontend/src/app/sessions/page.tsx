@@ -2,11 +2,7 @@
 
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-<<<<<<< Updated upstream
 import { CalendarIcon, FileQuestionIcon } from 'lucide-react'
-=======
-import { CalendarIcon } from 'lucide-react'
->>>>>>> Stashed changes
 import { Card } from '@/components/ui/card'
 import CreateSessionDialog from '@/components/CreateSessionDialog'
 import { useRouter } from 'next/navigation'
