@@ -26,7 +26,14 @@ class QuestionController {
       d = [d];
     }
 
-    res.status(200).json(await getQuestionsByFilter(c, d));
+    res.status(200).json(await getQuestionsByFilter(c, d)); /* replaced with the following */
+    /* try {
+      // Fetch filtered questions
+      const filteredQuestions = await getQuestionsByFilter(c, d);
+      return res.status(200).json(filteredQuestions);
+    } catch (error) {
+      return res.status(500).json({ error: "Error fetching filtered questions" });
+    } */
   }
 
   // Get question by id
