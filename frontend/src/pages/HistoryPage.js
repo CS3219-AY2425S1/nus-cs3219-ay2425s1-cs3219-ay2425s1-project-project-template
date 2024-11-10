@@ -128,7 +128,7 @@ function HistoryComponent() {
           value={filters.search}
           onChange={handleInputChange}
           className="input w-full bg-[#2a2a2a] text-white border border-[#5b5b5b] rounded-lg p-2 h-[40px] box-border text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
-          placeholder="Search History"
+          placeholder="Search by title"
         />
       </div>
 
