@@ -65,8 +65,11 @@ export class CollabService {
       this.logger.debug(
         `Request body for calling question collab: ${JSON.stringify(requestBody, null, 2)}`,
       );
+
+      const question_url = process.env.QUESTION_SERVICE_URL;
+
       const response = await this.httpService
-        .post('http://host.docker.internal:8000/questions/collab', requestBody)
+        .post(`${question_url}/questions/collab`, requestBody)
         .toPromise();
 
       const newQuestion = response.data;

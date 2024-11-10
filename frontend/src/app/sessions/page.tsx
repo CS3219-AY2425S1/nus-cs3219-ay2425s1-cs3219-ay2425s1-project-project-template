@@ -2,7 +2,11 @@
 
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+<<<<<<< Updated upstream
 import { CalendarIcon, FileQuestionIcon } from 'lucide-react'
+=======
+import { CalendarIcon } from 'lucide-react'
+>>>>>>> Stashed changes
 import { Card } from '@/components/ui/card'
 import CreateSessionDialog from '@/components/CreateSessionDialog'
 import { useRouter } from 'next/navigation'
@@ -74,7 +78,7 @@ export default function SessionsPage() {
         return
       }
       try {
-        const res = await verifyToken(token)
+        const res: any = await verifyToken(token)
         setUserData({ username: res.data.username, email: res.data.email })
         setLoading(false)
       } catch (error) {

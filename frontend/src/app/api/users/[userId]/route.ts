@@ -1,21 +1,18 @@
 import { NextResponse } from 'next/server';
-import { MongoClient, ObjectId } from 'mongodb';
+import { Db, MongoClient, ObjectId } from 'mongodb';
 
 const uri = 'mongodb+srv://admin:PeerPrepG51AdminUserService@cluster0.gaxdw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const dbName = 'test';
 
 let cachedClient: MongoClient | null = null;
-let cachedDb: any = null;
+let cachedDb: Db | null = null;
 
 async function connectToDatabase() {
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const client = await MongoClient.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  const client = await MongoClient.connect(uri);
 
   const db = client.db(dbName);
 
