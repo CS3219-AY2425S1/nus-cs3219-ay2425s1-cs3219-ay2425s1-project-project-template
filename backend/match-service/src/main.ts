@@ -14,7 +14,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true,
   }));
-  const PORT = process.env.PORT || 8080;
+  const PORT = process.env.WEBSOCKET_PORT || 8080;
   await app.listen(PORT);
   console.log(`Nest application is listening on port ${PORT}`);
 }

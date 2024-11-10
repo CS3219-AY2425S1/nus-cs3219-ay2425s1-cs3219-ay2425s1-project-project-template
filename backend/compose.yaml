@@ -148,7 +148,6 @@ services:
       - ./collaborative-code-editor-service/.env
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/code-editor
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3006
