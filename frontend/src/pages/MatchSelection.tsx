@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, CircularProgress } from "@mui/material";
 import Header from "../components/Header";
 import { useAuth } from "../hooks/useAuth";
-import { fetchAllTopics } from "../api/questionApi";
+import { fetchAllTopics, fetchQuestionsByTopicAndDifficulty } from "../api/questionApi";
 import { findMatch, cancelMatch } from "../api/matchingApi";
 import { io } from "socket.io-client";
 import { SelectChangeEvent } from "@mui/material/Select";
@@ -29,6 +29,7 @@ const MatchSelection = () => {
   const navigate = useNavigate();
   const [question, setQuestion] = useState<Question | null>(null);
   const [questionMetadata, setQuestionMetadata] = useState<QuestionMetadata | null>(null);
+  const [noQuestionsAvailable, setNoQuestionsAvailable] = useState<boolean>(false);
 
   useEffect(() => {
     const getTopics = async () => {
@@ -68,14 +69,33 @@ const MatchSelection = () => {
     }
   }, [isMatching, timer]);
 
+  const validateQuestionsAvailability = async () => {
+    try {
+      const data = await fetchQuestionsByTopicAndDifficulty(topic, difficulty);
+      return data.length > 0;
+    } catch (error) {
+      console.error("Error checking question availability:", error);
+      return false;
+    }
+  };
+
   const handleFindMatch = useCallback(async (e: React.FormEvent) => {
     setMatchUserName(null);
     setNoMatchFound(false);
+    setNoQuestionsAvailable(false); 
     e.preventDefault();
 
     if (!user || !token) {
       throw new Error("User is not logged in.");
     }
+
+    // Validate if questions are available 
+    const areQuestionsAvailable = await validateQuestionsAvailability();
+    if (!areQuestionsAvailable) {
+      setNoQuestionsAvailable(true);
+      return; 
+    }
+
     socketRef.current = io(SOCKET_SERVER_URL, {path:"/socket.io"});
       // Wait for the room join acknowledgment before proceeding
     const roomJoinResult: RoomJoinResult = await new Promise((resolve) => {
@@ -191,7 +211,11 @@ const MatchSelection = () => {
             ))}
           </Select>
         </FormControl>
-
+        {noQuestionsAvailable && (
+          <Typography variant="body1" color="red" sx={{ mt: 2 }}>
+            No questions available for the selected difficulty and topic.
+          </Typography>
+        )}
         <Box
           sx={{
             justifyContent: "start",

@@ -8,11 +8,16 @@ import {
   fetchQuestionByTitle,
   fetchAllTopics,
   fetchRandomQuestionByTopic,
+  fetchQuestionByTopicAndDifficulty,
   fetchQuestionMetadata
 } from '../controller/question-controller';  // Import your controller methods
 import { authenticateJWT, isAdmin } from '../middleware/auth-middleware';  // Import the middleware
 
 const router = Router();
+
+
+// Route for fetching filtered questions
+router.get('/questions/filter', fetchQuestionByTopicAndDifficulty);
 
 // Route to create a new question
 router.post('/questions', authenticateJWT, isAdmin, createQuestion);

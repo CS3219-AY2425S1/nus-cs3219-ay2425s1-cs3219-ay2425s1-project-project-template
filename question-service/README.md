@@ -131,6 +131,23 @@ GET http://localhost:3002/api/questions?page=2&limit=5
   - No authentication required.
   - Explanation: This endpoint does not require authentication. It allows public access to retrieve a specific question by its title.
 
+### Fetch Question by Topic and Difficulty
+- Description: This endpoint allows fetching questions from the database filtered by topic and difficulty.
+
+- HTTP method: `GET`
+
+- Endpoint: `http://localhost:3002/api/questions/filter?complexity={:difficulty}&category={:topic}`
+
+- URL Parameters:
+	- complexity: (Required) The difficulty level of the questions. Valid values are easy, medium, or hard.
+      - Example: ?complexity=easy
+	- category: (Required) The category/topic of the questions.
+	  - Example: ?category=Strings
+
+- Headers:
+  - No authentication required.
+  - Explanation: This endpoint does not require authentication. It allows public access to retrieve filtered question by its topic and difficulty.
+
 ### Update Question by ID
 - Description: This endpoint allows updating an existing question in the database.
 

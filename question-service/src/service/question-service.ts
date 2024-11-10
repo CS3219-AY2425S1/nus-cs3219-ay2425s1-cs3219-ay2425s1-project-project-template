@@ -115,3 +115,7 @@ export async function fetchQuestionMetadata(questionTitle: string) {
     const questionMetadata = await getQuestionMetadata(questionTitle);
     return questionMetadata;
 }
+export async function fetchFilteredQuestionsService(complexity: string, category: string) {
+    const questions = await getQuestionsByTopic(category, complexity);
+    return questions;
+}
