@@ -83,10 +83,42 @@ jobs:
       - name: Run tests
         run: |
           cd ./apps/frontend
-          pnpm test
+          pnpm test --  __tests__/unit-tests
+
+  browser-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+    
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm i -g pnpm
+      
+      - name: Install dependencies
+        run: |
+          cd ./apps/frontend
+          pnpm i
+      
+      - name: Run tests
+        run: |
+          cd ./apps/frontend
+          node .\__tests__\browser-tests\wtf.test.js
+
+
 
   test-docker-compose:
     runs-on: ubuntu-latest
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Chrome Driver
+        run: |
 
     steps:
       - name: Checkout code
