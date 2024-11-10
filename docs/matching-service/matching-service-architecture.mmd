@@ -1,0 +1,61 @@
+graph TD
+    subgraph "Matching Service (Full 2021)"
+        subgraph "Core Components"
+            MM[Message Manager]
+            TM[Transaction Manager]
+            Logger
+            Models
+        end
+
+        subgraph "Game Management"
+            GM[Game Management]
+            VM[Version]
+            MM2[Mirror]
+            RF[Ready Flags]
+            MN[Matching Algorithm]
+            SM[State Manager]
+        end
+
+        subgraph "Network Services"
+            NS[Message Queue]
+            SS[State Store]
+        end
+
+        subgraph "User States"
+            US[User States]
+            SR[Server Records]
+        end
+
+        subgraph "Game Flow"
+            GQ[Game Queue]
+            OQ[Offline Queue]
+            Time
+            Warmup
+            Variables
+        end
+
+        MM --> TM
+        TM --> Logger
+        Logger --> Models
+        Models --> GM
+
+        GM --> VM & MM2 & RF
+        GM --> MN
+        MN --> SM
+
+        NS --> US
+        US --> SR
+        SR --> GQ
+        GQ --> OQ
+        OQ --> Time
+        Time --> Warmup
+        Warmup --> Variables
+
+        subgraph "Background Processes"
+            BP[Background Processes]
+            GS[Game Strategy]
+        end
+
+        Variables --> BP
+        BP --> GS
+    end
