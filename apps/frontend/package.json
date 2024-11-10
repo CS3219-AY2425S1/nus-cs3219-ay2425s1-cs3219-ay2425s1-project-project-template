@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "unit-test": "jest __tests__/unit-tests",
-    "browser-test": "jest __tests__/browser-tests"
+    "unit-test": "jest --verbose __tests__/unit-tests",
+    "browser-test": "jest --verbose __tests__/browser-tests"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
