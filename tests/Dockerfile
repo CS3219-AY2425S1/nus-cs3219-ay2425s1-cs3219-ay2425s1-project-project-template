@@ -3,4 +3,4 @@ COPY . /tests
 WORKDIR /tests
 RUN pip install -r requirements.txt
 
-CMD ["pytest", "--log-cli-level=DEBUG"]
+CMD ["pytest"]

@@ -36,6 +36,7 @@ services:
       - "3000"
     environment:
       - MONGO_URI=mongodb://root:example@mongo:27017/
+      - JWT_SECRET=you-can-replace-this-with-your-own-secret
     depends_on:
       - mongo
     networks:
@@ -85,6 +86,8 @@ services:
     depends_on:
       - rabbitmq
       - redis
+    environment:
+      - JWT_SECRET=you-can-replace-this-with-your-own-secret
     networks:
       - app-network
 
