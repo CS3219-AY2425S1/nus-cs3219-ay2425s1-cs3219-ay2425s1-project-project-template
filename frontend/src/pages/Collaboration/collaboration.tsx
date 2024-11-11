@@ -40,7 +40,6 @@ const CollaborationPage: FC = () => {
   const { collabSocket, commSocket, setCollabSocket, setCommSocket } = useSocket();
   const { user, setUser } = useContext(AuthContext);
   const location = useLocation();
-  // const { roomId = "", userId = "", question = null } = location.state || {};
   const { roomId } = useParams();
   const {
     userId = user.id,
@@ -74,6 +73,19 @@ const CollaborationPage: FC = () => {
     setIsLeaveRoomModalOpen(false);
   };
 
+  const alertUser = (event: Event) => {
+    event.preventDefault();
+    return event.returnValue = true;
+  }
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", alertUser);
+
+    return () => {
+      window.removeEventListener("beforeunload", alertUser);
+    }
+  });
+
   const handleLeaveRoom = () => {
     onLeaveRoom();
   };
@@ -103,8 +115,6 @@ const CollaborationPage: FC = () => {
       commSocket?.emit("call-timeout", roomId);
     }, 15000);
     setCallTimeout(timeout);
-
-
   }
   const handleCallResponse = (isAnswer: boolean) => {
     setNotification(oldNotification => ({ ...oldNotification, isOpen: false }));
