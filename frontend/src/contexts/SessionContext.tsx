@@ -32,6 +32,7 @@ import { SessionJoinRequest } from "@/types/SessionInfo";
 import { Frown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 interface SessionContextType {
   connectionStatus: "connecting" | "connected" | "failed";
@@ -51,6 +52,7 @@ interface SessionContextType {
   testResultPanel: string;
   setSubmissionResult: (result: SubmissionResult) => void;
   setTestResultPanel: (panel: string) => void;
+  endSession: () => void;
   codeReview: {
     isGeneratingCodeReview: boolean;
     currentClientCode: string;
@@ -78,6 +80,9 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   question,
   children,
 }) => {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const [connectionStatus, setConnectionStatus] = useState<
     "connecting" | "connected" | "failed"
   >("connecting");
@@ -360,6 +365,30 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     []
   );
 
+  const endSession = useCallback(() => {
+    socket.emit("sessionEnd", {
+      userId: userProfile.id,
+      sessionId,
+    });
+  }, [socket]);
+
+  const onSessionEnded = useCallback(
+    ({ endedBy, message }: { endedBy: string; message: string }) => {
+      toast({
+        title: "Session ended",
+        description: `${
+          userProfile.id === endedBy
+            ? "You have ended the session"
+            : "The other user has ended the session"
+        }, you will be redirected to the dashboard shortly.`,
+      });
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 4000);
+    },
+    [toast, router]
+  );
+
   // connect to the session socket on mount
   useEffect(() => {
     socket.connect();
@@ -377,10 +406,12 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
     socket.on("chatReceiveMessage", onChatReceiveMessage);
 
+    socket.on("languageChanged", onLanguageChanged);
+
     socket.on("submitting", onSubmitting);
     socket.on("submitted", onSubmitted);
 
-    socket.on("languageChanged", onLanguageChanged);
+    socket.on("sessionEnded", onSessionEnded);
 
     return () => {
       socket.emit("sessionLeave", {
@@ -423,6 +454,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       testResultPanel,
       setTestResultPanel,
       setSubmissionResult,
+      endSession,
       codeReview: {
         ...codeReview,
         setCurrentClientCode,

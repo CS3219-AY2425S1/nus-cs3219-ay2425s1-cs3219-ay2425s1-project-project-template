@@ -32,6 +32,12 @@ export default async function Page(props: { params: Params }) {
 
   const sessionInfo = SessionInfoSchema.parse(sessionInfoResponse.data);
 
+  console.log(sessionInfo);
+  console.log(sessionInfo.status == "active");
+  if (sessionInfo.status !== "active") {
+    redirect("/dashboard");
+  }
+
   // Get user profile
   const userProfileResponse: UserProfileResponse = await getCurrentUser();
   const parsedProfile = UserProfileSchema.safeParse(userProfileResponse.data);
@@ -63,27 +69,27 @@ export default async function Page(props: { params: Params }) {
       socketUrl={socketUrl}
     >
       <div className="flex flex-row w-full h-full overflow-hidden">
-      <ResizablePanelGroup
-        className="flex w-full h-full"
-        direction="horizontal"
-      >
-        <ResizablePanel className="p-1" defaultSize={30}>
-          <QuestionTabPanel question={question} />
-        </ResizablePanel>
+        <ResizablePanelGroup
+          className="flex w-full h-full"
+          direction="horizontal"
+        >
+          <ResizablePanel className="p-1" defaultSize={30}>
+            <QuestionTabPanel question={question} />
+          </ResizablePanel>
 
-        <ResizableHandle withHandle={true} />
+          <ResizableHandle withHandle={true} />
 
-        <ResizablePanel defaultSize={70}>
-          <CenterPanel question={question} />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          <ResizablePanel defaultSize={70}>
+            <CenterPanel question={question} />
+          </ResizablePanel>
+        </ResizablePanelGroup>
 
-      {chatFeature && (
-        <div className="flex p-1">
-          <Chatbox />
-        </div>
-      )}
-    </div>
+        {chatFeature && (
+          <div className="flex p-1">
+            <Chatbox />
+          </div>
+        )}
+      </div>
     </SessionProvider>
   );
 }

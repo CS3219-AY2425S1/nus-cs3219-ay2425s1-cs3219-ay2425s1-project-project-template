@@ -9,7 +9,7 @@ export const SessionInfoSchema = z.object({
   topicPreference: z.array(CategorySchema),
   questionId: z.string(), // String question ID
   userIds: z.array(z.string()), // Array of user ID strings
-  status: z.enum(["active", "inactive"]), // Enum for status
+  status: z.enum(["active", "completed"]), // Enum for status
   endedAt: z.nullable(z.string().datetime()), // Nullable ISO date string
   createdAt: z.string().datetime(), // ISO date string
   updatedAt: z.string().datetime(), // ISO date string
@@ -17,7 +17,7 @@ export const SessionInfoSchema = z.object({
 
 export const SessionHistorySchema = z.object({
   sessionId: z.string(),
-  status: z.enum(["active", "inactive"]),
+  status: z.enum(["active", "completed"]),
 });
 
 export const SessionHistoryDataSchema = z.array(SessionHistorySchema);
