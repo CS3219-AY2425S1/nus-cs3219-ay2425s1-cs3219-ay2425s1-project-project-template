@@ -8,7 +8,7 @@
 .question-content {
   background: white;
   flex: 1;
-  overflow-y: auto;
+  // overflow-y: auto;
 }
 
 .first-col,
@@ -21,26 +21,20 @@
 }
 
 .history-row {
-  height: 45%;
-  padding: 1rem 0.25rem 0.25rem;
+  padding: 0.5rem 0.25rem 0.25rem;
+  height: 40%;
 }
 
 .code-row {
-  height: 55%;
-  padding: 1rem 0.25rem 0.25rem;
+  flex: 1;
+  height: 60%;
+  padding: 0.5rem 0.25rem 0.25rem;
 }
 
-.session-row {
-  height: 20%;
-  padding: 1rem 0.25rem 0.25rem;
-}
-
-.test-top-container,
-.code-top-container,
-.history-top-container,
-.session-top-container {
+.test-top-container {
   display: flex;
   justify-content: space-between;
+  height: 50%;
 }
 
 .history-container,
@@ -48,6 +42,7 @@
   border: 2px solid #463f3a;
   border-radius: 10px;
   width: 100%;
+  height: 100%;
   padding: 1rem;
 }
 
@@ -59,18 +54,10 @@
   width: 120px;
 }
 
-.session-container {
-  border: 2px solid #463f3a;
-  border-radius: 10px;
-  width: 100%;
-  padding: 1rem;
-}
-
 .question-title,
 .test-title,
 .code-title,
-.history-title,
-.session-title {
+.history-title {
   font-size: 16px;
   font-weight: bold;
 }
@@ -80,24 +67,7 @@
   margin: 4px 0px;
 }
 
-.session-duration,
-.session-matched-user-label {
-  margin: 4px 0px;
-}
-
-.session-duration-timer {
-  font-weight: normal;
-  margin-left: 8px;
-}
-
-.session-matched-user-name {
-  color: #e0afa0;
-  margin-left: 8px;
-}
-
-.topic-label,
-.session-duration,
-.session-matched-user-label {
+.topic-label {
   font-size: 14px;
   font-weight: bold;
 }
@@ -106,39 +76,9 @@
   margin-right: 4px;
 }
 
-.session-end-button,
-.test-case-button {
-  width: fit-content;
-}
-
-.modal-description {
-  margin-bottom: 2rem;
-}
-
-.session-modal-question,
-.session-modal-difficulty,
-.session-modal-duration,
-.session-modal-matched-user {
-  font-weight: bold;
-}
-
-.session-modal-time,
-.session-modal-title {
-  font-weight: normal;
-}
-.session-modal-matched-user-name {
-  color: #e0afa0;
-}
-
-.info-modal-icon {
-  color: red;
-}
-
-.code-viewer {
-  resize: none;
-}
-
 .submission-header-detail {
   font-weight: normal;
-  padding: 0px 10px 0px 10px;
+  display: flex;
+  flex-direction: row;
+  padding: 0px 10px 0px 0px;
 }

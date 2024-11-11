@@ -22,14 +22,12 @@ import {
   ClockCircleOutlined,
   CodeOutlined,
   InfoCircleFilled,
-  MessageOutlined,
   SendOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import CollaborativeEditor, {
   CollaborativeEditorHandle,
 } from "@/components/CollaborativeEditor/CollaborativeEditor";
-import { CreateHistory } from "@/app/services/history";
 import { WebrtcProvider } from "y-webrtc";
 import {
   ExecuteVisibleAndCustomTests,
@@ -446,7 +444,7 @@ export default function CollaborationPage(props: CollaborationProps) {
               complexity={complexity}
               categories={categories}
               description={description}
-              testcaseItems={items}
+              visibleTestcases={visibleTestCases}
               shouldShowSubmitButton
               handleRunTestCases={handleRunTestCases}
               isLoadingTestCase={isLoadingTestCase}
