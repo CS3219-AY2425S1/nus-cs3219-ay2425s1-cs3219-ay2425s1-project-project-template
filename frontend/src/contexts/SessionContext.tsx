@@ -191,36 +191,39 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     [sessionId, socket, userProfile.id]
   );
 
-  const handleJoinSession = useCallback((payload: SessionJoinRequest) => {
-    if (!socket.connected) return;
+  const handleJoinSession = useCallback(
+    (payload: SessionJoinRequest) => {
+      if (!socket.connected) return;
 
-    socket.emit(
-      "sessionJoin",
-      payload,
-      (ack: {
-        success: boolean;
-        data: { messages: any };
-        error: string | undefined;
-      }) => {
-        try {
-          if (!ack.success) throw new Error(ack.error);
-          setConnectionStatus("connected");
-          const currentMessages = ChatMessagesSchema.parse(
-            ack.data.messages.map((message: ChatMessage) => ({
-              ...message,
-              status: ChatMessageStatusEnum.enum.sent,
-            }))
-          );
-          setMessages([...currentMessages]);
-        } catch (e) {
-          setConnectionStatus("failed");
+      socket.emit(
+        "sessionJoin",
+        payload,
+        (ack: {
+          success: boolean;
+          data: { messages: ChatMessages };
+          error: string | undefined;
+        }) => {
+          try {
+            if (!ack.success) throw new Error(ack.error);
+            setConnectionStatus("connected");
+            const currentMessages = ChatMessagesSchema.parse(
+              ack.data.messages.map((message: ChatMessage) => ({
+                ...message,
+                status: ChatMessageStatusEnum.enum.sent,
+              }))
+            );
+            setMessages([...currentMessages]);
+          } catch (e) {
+            setConnectionStatus("failed");
+          }
         }
-      }
-    );
-  }, []);
+      );
+    },
+    [socket]
+  );
 
   const onSessionJoined = useCallback(
-    ({ sessionUserProfiles }: { sessionUserProfiles: any }) => {
+    ({ sessionUserProfiles }: { sessionUserProfiles: SessionUserProfiles }) => {
       console.log("sessionJoined occured");
       try {
         const currentSessionUserProfiles =
@@ -234,18 +237,21 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     []
   );
 
-  const onChatReceiveMessage = useCallback((data: any) => {
-    try {
-      data["status"] = ChatMessageStatusEnum.enum.sent;
-      const messageParsed = ChatMessageSchema.parse(data);
+  const onChatReceiveMessage = useCallback(
+    (newMessage: ChatMessage) => {
+      try {
+        newMessage["status"] = ChatMessageStatusEnum.enum.sent;
+        const messageParsed = ChatMessageSchema.parse(newMessage);
 
-      if (messageParsed.userId === userProfile.id) return;
+        if (messageParsed.userId === userProfile.id) return;
 
-      setMessages((prev) => [...prev, messageParsed]);
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
+        setMessages((prev) => [...prev, messageParsed]);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    [userProfile.id]
+  );
 
   const onSessionLeft = useCallback(
     ({
@@ -266,7 +272,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
         console.error(e);
       }
     },
-    []
+    [userProfile]
   );
 
   const [submitting, setSubmitting] = useState(false);
@@ -349,7 +355,17 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       socket.removeAllListeners();
       socket.disconnect();
     };
-  }, [onSubmitted, onSubmitting, sessionId, socket, userProfile]);
+  }, [
+    onSubmitted,
+    onSubmitting,
+    sessionId,
+    socket,
+    userProfile,
+    handleJoinSession,
+    onChatReceiveMessage,
+    onSessionJoined,
+    onSessionLeft,
+  ]);
 
   const contextValue: SessionContextType = useMemo(
     () => ({
