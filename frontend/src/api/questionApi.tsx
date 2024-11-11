@@ -123,3 +123,19 @@ export const updateQuestion = async (
     throw error;
   }
 };
+
+
+export const fetchQuestionsByTopicAndDifficulty = async (category: string, complexity: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/questions/filter`, {
+      params: {
+        category: category,
+        complexity: complexity
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching questions by topic and difficulty:", error);
+    throw error;
+  }
+};
