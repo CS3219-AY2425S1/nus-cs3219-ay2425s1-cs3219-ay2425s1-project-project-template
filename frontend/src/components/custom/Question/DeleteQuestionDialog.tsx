@@ -5,7 +5,11 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { HTTP_SERVICE_QUESTION, SuccessObject, callFunction } from "@/lib/utils";
+import {
+  HTTP_SERVICE_QUESTION,
+  SuccessObject,
+  callFunction,
+} from "@/lib/utils";
 import { Question } from "@/models/Question";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { Loader2 } from "lucide-react";
@@ -52,7 +56,10 @@ const DeleteQuestionDialog: React.FC<DeleteQuestionCardProps> = ({
       <DialogContent className="justify-center">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
-            Delete Question: {question.title}
+            Delete Question:{" "}
+            {question.title.length > 75
+              ? question.title.slice(0, 75) + "..."
+              : question.title}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Deletion is non-reversable, please double check before deleting.
@@ -60,7 +67,11 @@ const DeleteQuestionDialog: React.FC<DeleteQuestionCardProps> = ({
         </DialogHeader>
         <div className="flex flex-col items-center justify-center">
           <p>Are you sure you want to delete this question?</p>
-          <b className="text-xl my-2 text-orange-500">{question.title}</b>
+          <b className="text-xl my-2 text-orange-500">
+            {question.title.length > 75
+              ? question.title.slice(0, 75) + "..."
+              : question.title}
+          </b>
         </div>
         <DialogFooter>
           <Button

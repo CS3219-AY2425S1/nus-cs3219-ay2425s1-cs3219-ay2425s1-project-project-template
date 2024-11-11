@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import Editor from "@monaco-editor/react";
-import moment from 'moment-timezone';
+import moment from "moment-timezone";
 import {
   Select,
   SelectContent,
@@ -49,12 +49,14 @@ const customQuestion: Question = {
 
 const CollabPageView: React.FC = () => {
   const navigate = useNavigate();
-  const [code, setCode] = useState<string>(() => sessionStorage.getItem("code") || "");
+  const [code, setCode] = useState<string>(
+    () => sessionStorage.getItem("code") || ""
+  );
   const [socket, setSocket] = useState<Socket | null>(null);
   const [message, setMessage] = useState(""); // For new message input
-  const [messages, setMessages] = useState<{ username: string; message: string }[]>(() =>
-    JSON.parse(sessionStorage.getItem("messages") || "[]")
-  );
+  const [messages, setMessages] = useState<
+    { username: string; message: string }[]
+  >(() => JSON.parse(sessionStorage.getItem("messages") || "[]"));
   const [userId, setUserId] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [questionData, setQuestionData] = useState<Question>(customQuestion);
@@ -81,7 +83,7 @@ const CollabPageView: React.FC = () => {
           return true;
         } else {
           alert(
-            `Collab session verification failed. \nPlease use the matching service to access the collab page.`
+            "Your session has ended or is no longer available.\n Please return to the matching page to start a new session."
           );
           navigate("/questions");
           return false;
@@ -124,13 +126,16 @@ const CollabPageView: React.FC = () => {
         newSocket.emit("sessionJoined", sessionIdObj, uid);
       });
 
-      newSocket.on("sessionData", async ({ sessionIdObj, uid, questionData }) => {
-        sessionIdObj = sessionIdObj;
-        // Set state with the received data
-        setUserId(uid);
-        setUsername(await getUsernameByUid());
-        setQuestionData(questionData);
-      });
+      newSocket.on(
+        "sessionData",
+        async ({ sessionIdObj, uid, questionData }) => {
+          sessionIdObj = sessionIdObj;
+          // Set state with the received data
+          setUserId(uid);
+          setUsername(await getUsernameByUid());
+          setQuestionData(questionData);
+        }
+      );
 
       console.log("Current user ID:", userId);
 
@@ -154,14 +159,16 @@ const CollabPageView: React.FC = () => {
         console.log(`Session terminated by user with ID: ${userId}`);
 
         if (newSocket.connected) {
-          newSocket.disconnect(); 
-        } 
+          newSocket.disconnect();
+        }
 
-        navigate("/questions"); 
+        navigate("/questions");
       });
 
-      newSocket.on("userLeft", ({ userId }) => {
-        alert(`User ${userId} has left the session.`);
+      newSocket.on("userLeft", () => {
+        alert(
+          `The other user has left the session.\n Note that upon refreshing the page, the session will be terminated.`
+        );
       });
 
       newSocket.on("messageReceived", (data) => {
@@ -275,24 +282,31 @@ const CollabPageView: React.FC = () => {
         attemptDate = moment().tz("Asia/Singapore").format();
         setDateAttempted(attemptDate);
         console.log("Attempt date:", attemptDate);
-        
+
         const requestBodyForCreatingQuestionAttempted = {
-          userUid: getUid(), 
-          questionUid: questionData.id, 
+          userUid: getUid(),
+          questionUid: questionData.id,
           dateAttempted: attemptDate,
         };
 
-        const responseForCreatingQuestionAttempted: SuccessObject = await callFunction(
-          HTTP_SERVICE_HISTORY,
-          "create-question-attempted",
-          "POST",
-          requestBodyForCreatingQuestionAttempted
-        );
+        const responseForCreatingQuestionAttempted: SuccessObject =
+          await callFunction(
+            HTTP_SERVICE_HISTORY,
+            "create-question-attempted",
+            "POST",
+            requestBodyForCreatingQuestionAttempted
+          );
 
         if (responseForCreatingQuestionAttempted.success) {
-          console.log("Success:", responseForCreatingQuestionAttempted.data.message);
+          console.log(
+            "Success:",
+            responseForCreatingQuestionAttempted.data.message
+          );
         } else {
-          console.error("Error creating question attempted:", responseForCreatingQuestionAttempted.error);
+          console.error(
+            "Error creating question attempted:",
+            responseForCreatingQuestionAttempted.error
+          );
         }
       }
 
@@ -312,10 +326,10 @@ const CollabPageView: React.FC = () => {
       jsonData.run.code !== CODE_EXECUTED_SUCCESSFULLY
         ? setIsError(true)
         : setIsError(false);
-        
+
       const requestBody = {
-        userUid: userId, 
-        questionUid: questionData.id, 
+        userUid: userId,
+        questionUid: questionData.id,
         dateAttempted: attemptDate,
         codeWritten: sourceCode,
       };
@@ -332,7 +346,6 @@ const CollabPageView: React.FC = () => {
       } else {
         console.error("Error storing executed code:", result.error);
       }
-      
     } catch (error) {
       alert(error);
     } finally {
