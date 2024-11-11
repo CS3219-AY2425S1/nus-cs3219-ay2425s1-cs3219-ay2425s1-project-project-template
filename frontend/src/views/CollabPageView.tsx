@@ -49,12 +49,12 @@ const customQuestion: Question = {
 
 const CollabPageView: React.FC = () => {
   const navigate = useNavigate();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState<string>(() => sessionStorage.getItem("code") || "");
   const [socket, setSocket] = useState<Socket | null>(null);
   const [message, setMessage] = useState(""); // For new message input
-  const [messages, setMessages] = useState<
-    { username: string; message: string }[]
-  >([]);
+  const [messages, setMessages] = useState<{ username: string; message: string }[]>(() =>
+    JSON.parse(sessionStorage.getItem("messages") || "[]")
+  );
   const [userId, setUserId] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [questionData, setQuestionData] = useState<Question>(customQuestion);
@@ -177,8 +177,18 @@ const CollabPageView: React.FC = () => {
       if (socket) {
         socket.disconnect(); // Cleanup WebSocket connection on component unmount
       }
+      sessionStorage.removeItem("code");
+      sessionStorage.removeItem("messages");
     };
   }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("code", code);
+  }, [code]);
+
+  useEffect(() => {
+    sessionStorage.setItem("messages", JSON.stringify(messages));
+  }, [messages]);
 
   const handleCodeChange = (newCode: string | undefined) => {
     if (newCode === undefined) return; // if not code, do nothing
