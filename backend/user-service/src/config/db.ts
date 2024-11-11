@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
-import { config } from './envConfig';
+import dotenv from 'dotenv';
+import path from 'path';
 
-const url: string | undefined = config.databaseConnection;
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+const url: string | undefined = process.env.DATABASE_CONNECTION;
 
 if (!url) {
     throw new Error('Database connection URL is missing');
