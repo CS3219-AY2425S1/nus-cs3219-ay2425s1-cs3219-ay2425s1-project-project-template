@@ -99,6 +99,13 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         messages, // chat messages
         sessionUserProfiles, // returns the all session member profiles
       });
+
+      return {
+        success: true,
+        data: {
+          messages, // chat messages
+        }
+      };
     } catch (e) {
       console.log(e);
       return {

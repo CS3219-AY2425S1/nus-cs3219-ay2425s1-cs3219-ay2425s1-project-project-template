@@ -16,7 +16,6 @@ import {
 import { createCodeReview } from "@/services/collaborationService";
 import { CodeReview } from "@/types/CodeReview";
 import { io } from "socket.io-client";
-import { SessionJoinRequest } from "@/types/SessionInfo";
 import {
   ChatMessage,
   ChatMessages,
@@ -27,9 +26,14 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { Question } from "@/types/Question";
 import { SubmissionResult } from "@/types/TestResult";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { SessionJoinRequest } from "@/types/SessionInfo";
+import { Frown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface SessionContextType {
-  isConnected: boolean;
+  connectionStatus: "connecting" | "connected" | "failed";
   sessionId: string;
   sessionUserProfiles: SessionUserProfiles;
   userProfile: UserProfile | null;
@@ -71,7 +75,9 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   question,
   children,
 }) => {
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connecting" | "connected" | "failed"
+  >("connecting");
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
   const [sessionUserProfiles, setSessionUserProfiles] =
     useState<SessionUserProfiles>([]);
@@ -182,13 +188,86 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
         }
       );
     },
-    [socket]
+    [sessionId, socket, userProfile.id]
   );
 
-  const sessionJoinRequest: SessionJoinRequest = {
-    userId: userProfile.id,
-    sessionId,
-  };
+  const handleJoinSession = useCallback((payload: SessionJoinRequest) => {
+    if (!socket.connected) return;
+
+    socket.emit(
+      "sessionJoin",
+      payload,
+      (ack: {
+        success: boolean;
+        data: { messages: any };
+        error: string | undefined;
+      }) => {
+        try {
+          if (!ack.success) throw new Error(ack.error);
+          setConnectionStatus("connected");
+          const currentMessages = ChatMessagesSchema.parse(
+            ack.data.messages.map((message: ChatMessage) => ({
+              ...message,
+              status: ChatMessageStatusEnum.enum.sent,
+            }))
+          );
+          setMessages([...currentMessages]);
+        } catch (e) {
+          setConnectionStatus("failed");
+        }
+      }
+    );
+  }, []);
+
+  const onSessionJoined = useCallback(
+    ({ sessionUserProfiles }: { sessionUserProfiles: any }) => {
+      console.log("sessionJoined occured");
+      try {
+        const currentSessionUserProfiles =
+          SessionUserProfilesSchema.parse(sessionUserProfiles);
+        setSessionUserProfiles([...currentSessionUserProfiles]);
+      } catch (e) {
+        // TODO toast here
+        console.log(e);
+      }
+    },
+    []
+  );
+
+  const onChatReceiveMessage = useCallback((data: any) => {
+    try {
+      data["status"] = ChatMessageStatusEnum.enum.sent;
+      const messageParsed = ChatMessageSchema.parse(data);
+
+      if (messageParsed.userId === userProfile.id) return;
+
+      setMessages((prev) => [...prev, messageParsed]);
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
+
+  const onSessionLeft = useCallback(
+    ({
+      sessionUserProfiles,
+    }: {
+      userId: string;
+      sessionUserProfiles: string;
+    }) => {
+      try {
+        console.log("sessionLeft occured");
+
+        const currentSessionUserProfiles =
+          SessionUserProfilesSchema.parse(sessionUserProfiles);
+        setSessionUserProfiles([...currentSessionUserProfiles]);
+
+        console.log(userProfile);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    []
+  );
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -211,7 +290,14 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       questionId: question._id,
       code: codeReview.currentClientCode,
     });
-  }, [socket, userProfile, sessionId, codeReview.currentClientCode]);
+  }, [
+    submitting,
+    socket,
+    userProfile.id,
+    sessionId,
+    question._id,
+    codeReview.currentClientCode,
+  ]);
 
   const onSubmitting = useCallback(({}: { message: string }) => {
     setSubmitting(true);
@@ -240,79 +326,34 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     socket.connect();
 
     socket.on("connect", () => {
-      socket.emit("sessionJoin", sessionJoinRequest);
+      handleJoinSession({
+        userId: userProfile.id,
+        sessionId,
+      });
     });
 
-    socket.on("sessionJoined", ({ userId, messages, sessionUserProfiles }) => {
-      console.log("sessionJoined occured");
-      try {
-        if (userId === userProfile.id) {
-          setIsConnected(true);
-          const currentMessages = ChatMessagesSchema.parse(
-            messages.map((message: ChatMessage) => ({
-              ...message,
-              status: ChatMessageStatusEnum.enum.sent,
-            }))
-          );
-          setMessages([...currentMessages]);
-        }
+    socket.on("sessionJoined", onSessionJoined);
 
-        const currentSessionUserProfiles =
-          SessionUserProfilesSchema.parse(sessionUserProfiles);
-        setSessionUserProfiles([...currentSessionUserProfiles]);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+    socket.on("sessionLeft", onSessionLeft);
 
-    socket.on(
-      "sessionLeft",
-      ({
-        sessionUserProfiles,
-      }: {
-        userId: string;
-        sessionUserProfiles: string;
-      }) => {
-        try {
-          console.log("sessionLeft occured");
-
-          const currentSessionUserProfiles =
-            SessionUserProfilesSchema.parse(sessionUserProfiles);
-          setSessionUserProfiles([...currentSessionUserProfiles]);
-
-          console.log(userProfile);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    );
-
-    socket.on("chatReceiveMessage", (data) => {
-      try {
-        data["status"] = ChatMessageStatusEnum.enum.sent;
-        const messageParsed = ChatMessageSchema.parse(data);
-
-        if (messageParsed.userId === userProfile.id) return;
-
-        setMessages((prev) => [...prev, messageParsed]);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+    socket.on("chatReceiveMessage", onChatReceiveMessage);
 
     socket.on("submitting", onSubmitting);
     socket.on("submitted", onSubmitted);
 
     return () => {
-      socket.emit("sessionLeave", sessionJoinRequest);
+      socket.emit("sessionLeave", {
+        userId: userProfile.id,
+        sessionId,
+      });
       socket.removeAllListeners();
       socket.disconnect();
     };
-  }, [socket]);
+  }, [onSubmitted, onSubmitting, sessionId, socket, userProfile]);
 
   const contextValue: SessionContextType = useMemo(
     () => ({
-      isConnected,
+      connectionStatus,
       sessionId,
       setSessionId,
       sessionUserProfiles,
@@ -335,7 +376,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       },
     }),
     [
-      isConnected,
+      connectionStatus,
       codeReview,
       sessionId,
       sessionUserProfiles,
@@ -355,7 +396,13 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   return (
     <SessionContext.Provider value={contextValue}>
-      {children}
+      {connectionStatus === "connected" ? (
+        children
+      ) : connectionStatus === "connecting" ? (
+        <LoadingSessionComponent />
+      ) : (
+        <LoadingErrorSessionComponent />
+      )}
     </SessionContext.Provider>
   );
 };
@@ -367,3 +414,36 @@ export const useSessionContext = (): SessionContextType => {
   }
   return context;
 };
+
+// Ideally should be extracted as a generic component
+function LoadingSessionComponent() {
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center gap-5">
+      <LoadingSpinner />
+      <p>Joining the collaboration session...</p>
+    </div>
+  );
+}
+
+function LoadingErrorSessionComponent() {
+  const router = useRouter();
+
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center gap-5">
+      <Frown size={50} />
+      <div className="text-center">
+        <p>Something went wrong while joining the session.</p>
+        <p>Please try again or find another match.</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
+        <Button
+          variant="secondary"
+          onClick={() => router.replace("/dashboard")}
+        >
+          Back to Dashboard
+        </Button>
+      </div>
+    </div>
+  );
+}
