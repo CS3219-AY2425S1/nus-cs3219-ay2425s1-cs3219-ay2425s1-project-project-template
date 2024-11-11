@@ -65,7 +65,6 @@ export async function handleSendMessage(socket: Socket, data: MessageData) {
 
 export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
   const { roomId, codeContent } = data;
-  socket.leave(roomId);
 
   // Get userInfo before removing from state
   const userInfo = stateManager.getUserInfo(socket.id);
@@ -78,6 +77,9 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
     `User ${userName} left room ${roomId} with final code content:`,
     codeContent
   );
+
+  console.log('notifying peer');
+  socket.to(roomId).emit("leave_collab_notify", { userName });
 
   // Calculate time taken based on room start time
   const endTime = Date.now();
@@ -136,10 +138,11 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
     socket.to(roomId).emit("peer_left", { userName });
   }
 
-  socket.to(roomId).emit("leave_collab_notify", { userName });
-
   // Now remove user from room and state
   stateManager.removeUserFromRoom(socket.id, roomId);
+  
+  console.log('leaving room');
+  socket.leave(roomId);
 }
 
 export async function handleRunCode(socket: Socket, data: RunCodeData) {
