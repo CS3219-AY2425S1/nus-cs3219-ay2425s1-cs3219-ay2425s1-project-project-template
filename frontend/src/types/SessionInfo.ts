@@ -15,6 +15,13 @@ export const SessionInfoSchema = z.object({
   updatedAt: z.string().datetime(), // ISO date string
 });
 
+export const SessionHistorySchema = z.object({
+  sessionId: z.string(),
+  status: z.enum(["active", "inactive"]),
+});
+
+export const SessionHistoryDataSchema = z.array(SessionHistorySchema);
+
 export const SessionJoinRequestSchema = z.object({
   userId: z.string(),
   sessionId: z.string(),
@@ -23,7 +30,16 @@ export const SessionJoinRequestSchema = z.object({
 export const SessionInfoResponseSchema =
   createResponseSchema(SessionInfoSchema);
 
+export const SessionHistoryResponseSchema = createResponseSchema(
+  SessionHistoryDataSchema
+);
+
 export type SessionInfo = z.infer<typeof SessionInfoSchema>;
+export type SessionHistory = z.infer<typeof SessionHistorySchema>;
+export type SessionHistoryData = z.infer<typeof SessionHistoryDataSchema>;
 
 export type SessionJoinRequest = z.infer<typeof SessionJoinRequestSchema>;
 export type SessionInfoResponse = z.infer<typeof SessionInfoResponseSchema>;
+export type HistorySessionInfoResponse = z.infer<
+  typeof SessionHistoryResponseSchema
+>;
