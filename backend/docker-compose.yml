@@ -116,6 +116,7 @@ services:
       - "3005:4000"
 
   code-execution-service:
+    read_only: true
     build:
       context: ./code-execution-service
       target: development

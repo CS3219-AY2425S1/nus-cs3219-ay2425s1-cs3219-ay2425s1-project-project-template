@@ -7,6 +7,7 @@ import {
   useMemo,
   useCallback,
   useEffect,
+  // SetStateAction, Dispatch,
 } from "react";
 import {
   SessionUserProfiles,
@@ -42,6 +43,8 @@ interface SessionContextType {
   handleSendMessage: (message: string) => void;
   setSessionId: (sessionId: string) => void;
   setUserProfile: (userProfile: UserProfile) => void;
+  language: string;
+  changeLanguage: (language: string) => void;
   submitCode: () => void;
   submitting: boolean;
   submissionResult?: SubmissionResult;
@@ -223,9 +226,17 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   );
 
   const onSessionJoined = useCallback(
-    ({ sessionUserProfiles }: { sessionUserProfiles: SessionUserProfiles }) => {
+    ({
+      language,
+      sessionUserProfiles,
+    }: {
+      language: string;
+      sessionUserProfiles: SessionUserProfiles;
+    }) => {
       console.log("sessionJoined occured");
       try {
+        _setLanguage(language);
+
         const currentSessionUserProfiles =
           SessionUserProfilesSchema.parse(sessionUserProfiles);
         setSessionUserProfiles([...currentSessionUserProfiles]);
@@ -281,6 +292,26 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   const [testResultPanel, setTestResultPanel] = useState("test-cases");
 
+  const [language, _setLanguage] = useState("python3");
+
+  const changeLanguage = useCallback(
+    (language: string) => {
+      socket.emit("changeLanguage", {
+        userId: userProfile.id,
+        sessionId: sessionId,
+        language,
+      });
+    },
+    [sessionId, socket, userProfile.id]
+  );
+
+  const onLanguageChanged = useCallback(
+    ({ language }: { changedBy: string; language: string }) => {
+      _setLanguage(language);
+    },
+    []
+  );
+
   const submitCode = useCallback(() => {
     if (submitting) {
       return;
@@ -295,6 +326,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       sessionId: sessionId,
       questionId: question._id,
       code: codeReview.currentClientCode,
+      language: language,
     });
   }, [
     submitting,
@@ -303,6 +335,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     sessionId,
     question._id,
     codeReview.currentClientCode,
+    language,
   ]);
 
   const onSubmitting = useCallback(({}: { message: string }) => {
@@ -347,6 +380,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     socket.on("submitting", onSubmitting);
     socket.on("submitted", onSubmitted);
 
+    socket.on("languageChanged", onLanguageChanged);
+
     return () => {
       socket.emit("sessionLeave", {
         userId: userProfile.id,
@@ -365,6 +400,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     onChatReceiveMessage,
     onSessionJoined,
     onSessionLeft,
+    onLanguageChanged,
   ]);
 
   const contextValue: SessionContextType = useMemo(
@@ -379,6 +415,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       messages,
       setMessages,
       handleSendMessage,
+      language,
+      changeLanguage,
       submitCode,
       submitting,
       submissionResult,
@@ -400,6 +438,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       userProfile,
       messages,
       handleSendMessage,
+      language,
+      changeLanguage,
       submitCode,
       submitting,
       submissionResult,
