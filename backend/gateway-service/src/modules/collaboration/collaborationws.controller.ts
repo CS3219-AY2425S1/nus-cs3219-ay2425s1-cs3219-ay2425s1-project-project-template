@@ -13,12 +13,14 @@ import {
   CHAT_SEND_MESSAGE,
   SESSION_JOIN,
   SESSION_LEAVE,
+  SESSION_END,
   SUBMIT,
 } from './collaboration.message';
 import {
   CHAT_RECIEVE_MESSAGE,
   EXCEPTION,
   LANGUAGE_CHANGED,
+  SESSION_ENDED,
   SESSION_ERROR,
   SESSION_JOINED,
   SESSION_LEFT,
@@ -112,7 +114,7 @@ export class CollaborationGateway implements OnGatewayDisconnect {
         success: true,
         data: {
           messages, // chat messages
-        }
+        },
       };
     } catch (e) {
       console.log(e);
@@ -330,10 +332,46 @@ export class CollaborationGateway implements OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage(SESSION_END)
+  async handleEndSession(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: {
+      userId: string;
+      sessionId: string;
+    },
+  ) {
+    try {
+      const { userId, sessionId } = payload;
+
+      if (!userId || !sessionId) {
+        client.emit(SESSION_ERROR, 'Invalid change language request payload.');
+        return;
+      }
+
+      const data = await firstValueFrom(
+        this.collaborationClient.send(
+          { cmd: 'update-session-status' },
+          { id: sessionId, status: 'completed' },
+        ),
+      );
+
+      console.log('session end data');
+      console.log(data);
+
+      this.server.to(sessionId).emit(SESSION_ENDED, {
+        endedBy: userId,
+        message: 'The session has ended.',
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   handleDisconnect(@ConnectedSocket() client: Socket) {
     // When client disconnects from the socket
     console.log(`User: ${this.socketUserMap.get(client.id)} disconnected`);
-    this.debugFunction(`disconnect`);
+    // this.debugFunction(`disconnect`);
     this.userSocketMap.delete(this.socketUserMap.get(client.id));
     this.socketUserMap.delete(client.id);
   }
@@ -361,8 +399,8 @@ export class CollaborationGateway implements OnGatewayDisconnect {
 
   async getSessionMembersUserProfiles({ sessionId, userIds }) {
     const activeUserIdSet = this.server.adapter['rooms'].get(sessionId);
-    console.log('getSessionUserProfiels invoked');
-    console.log(activeUserIdSet);
+    // console.log('getSessionUserProfiels invoked');
+    // console.log(activeUserIdSet);
     const userProfilePromises = [];
     for (const userId of userIds) {
       userProfilePromises.push(
