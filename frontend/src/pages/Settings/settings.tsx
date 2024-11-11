@@ -2,12 +2,14 @@ import { useForm } from "react-hook-form";
 import EmailIcon from '@mui/icons-material/Email';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PersonIcon from '@mui/icons-material/Person'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Avatar, Button, InputAdornment, styled, TextField } from "@mui/material";
 import { useContext, useState } from "react";
 import MainLayout from "../../components/MainLayout";
 import toast from "react-hot-toast";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ConfirmSettingDialog from "../../components/Settings/ConfirmDialog";
 import { AuthContext, User } from '../../contexts/AuthContext';
 
@@ -24,12 +26,13 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function SettingsPage() {
-
     const { user, setUser } = useContext(AuthContext);
 
     const [confirmSettingDialogOpen, setConfirmSettingDialogOpen] = useState(false);
     const [file, setFile] = useState<File | undefined>();
     const [preview, setPreview] = useState(user.avatar);
+    const [showPassword, setShowPassword] = useState(false);
+
     const handleFileChange = (e: React.FormEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement & {
             files: FileList;
@@ -151,23 +154,33 @@ export default function SettingsPage() {
                                 {...register("email", {
                                     pattern: { value: email.length > 0 ? /[a-z0-9]+@[a-z0-9]+\.[a-z]{2,3}/ : /.*/, message: "Email is invalid" },
                                 })} />
-                            <TextField label="New Password" variant="outlined" type="password" placeholder="Enter new password"
+                            <TextField label="New Password" variant="outlined" type={showPassword ? "text" : "password"} placeholder="Enter new password"
                                 error={errors.newPassword !== undefined}
                                 helperText={errors.newPassword?.message}
                                 slotProps={{
                                     input: {
-                                        startAdornment: (<InputAdornment position="start"><VpnKeyIcon /></InputAdornment>)
+                                        startAdornment: <InputAdornment position="start"><VpnKeyIcon /></InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">{
+                                            showPassword
+                                                ? <VisibilityOffIcon className="cursor-pointer" onClick={() => setShowPassword(false)} />
+                                                : <VisibilityIcon className="cursor-pointer" onClick={() => setShowPassword(true)} />
+                                        }</InputAdornment>
                                     }
                                 }}
                                 {...register("newPassword", {
                                     minLength: { value: newPassword.length > 0 ? 6 : 0, message: "Password must be at least 6 characters." },
                                 })} />
-                            <TextField label="Confirm Password" variant="outlined" type="password" placeholder="Enter new password again"
+                            <TextField label="Confirm Password" variant="outlined" type={showPassword ? "text" : "password"} placeholder="Enter new password again"
                                 error={errors.cfmPassword !== undefined}
                                 helperText={errors.cfmPassword?.message}
                                 slotProps={{
                                     input: {
-                                        startAdornment: (<InputAdornment position="start"><VpnKeyIcon /></InputAdornment>)
+                                        startAdornment: <InputAdornment position="start"><VpnKeyIcon /></InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">{
+                                            showPassword
+                                                ? <VisibilityOffIcon className="cursor-pointer" onClick={() => setShowPassword(false)} />
+                                                : <VisibilityIcon className="cursor-pointer" onClick={() => setShowPassword(true)} />
+                                        }</InputAdornment>
                                     }
                                 }}
                                 {...register("cfmPassword",

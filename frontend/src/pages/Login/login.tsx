@@ -70,8 +70,8 @@ export default function LoginPage() {
             {...register("password", { required: { value: true, message: "Password is required." } })} />
           <VpnKeyIcon fontSize="medium" className="absolute top-1/2 -translate-y-1/2 translate-x-1/3" />
           {showPassword
-            ? <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)} />
-            : <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)} />}
+            ? <VisibilityOffIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(false)} />
+            : <VisibilityIcon fontSize="medium" className="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/3 cursor-pointer" onClick={() => setShowPassword(true)} />}
           <span className="absolute bottom-0 translate-y-full right-0 text-base text-red-500">{errors.password?.message}</span>
         </div>
         <div className="flex justify-between items-center">
