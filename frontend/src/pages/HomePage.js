@@ -9,7 +9,7 @@ import { QUESTIONS_SERVICE } from "../Services";
 export const HomePage = () => {
   const [questions, setQuestions] = useState([]);
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(true);
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const getQuestions = async () => {
     try {
