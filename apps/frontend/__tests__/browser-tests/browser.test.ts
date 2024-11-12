@@ -35,7 +35,9 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
     })
 
     afterEach(async () => {
-        await driver.quit();
+        if (driver) {
+            await driver.quit();
+        }
     })
 
     describe("webdriver installed correctly", () => {

@@ -115,7 +115,6 @@ jobs:
       - name: Install Geckodriver
         uses: browser-actions/setup-geckodriver@latest
       
-      
       - name: Run Browser Test
         run: |
           cd ./apps/frontend
