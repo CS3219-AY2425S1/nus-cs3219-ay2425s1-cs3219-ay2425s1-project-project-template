@@ -29,23 +29,20 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
     })
 
     beforeEach(async () => {
-        console.log(browser + ": building...");
         driver = await builder.build();
-        console.log(browser + ": built");
     })
 
     afterEach(async () => {
-        await driver.quit();
+        if (driver) {
+            await driver.quit();
+        }
     })
 
     describe("webdriver installed correctly", () => {
         it("does google search", async () => {
-            console.log("getting url");
             await driver.get('http://www.google.com');
-            console.log("got url");
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
-            console.log("did search");
         }, 10000);
 
         it.skip("does another google search", async () => {
@@ -55,7 +52,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
         }, 10000);
     });
     
-    describe.skip("browser-test", () => {
+    describe("browser-test", () => {
         it("accesses and login to peerprep", async () => {
             await driver.get(URL);
             await driver.wait(until.urlIs(`${URL}login`));
