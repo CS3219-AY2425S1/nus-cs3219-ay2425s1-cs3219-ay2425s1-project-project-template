@@ -133,6 +133,7 @@ export const Match = () => {
         setIsMatching(false);
       });
     } catch (error) {
+      alert("An error occured while trying to match you with a peer.");
       console.error("Error:", error);
       stopMatching();
     }
