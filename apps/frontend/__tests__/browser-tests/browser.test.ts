@@ -10,8 +10,11 @@ const ETERNAL_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OD
 const CHROME_OPTIONS = new ChromeOptions()
     .addArguments("--headless=new") as ChromeOptions; // uncomment locally to see the steps in action
 const EDGE_OPTIONS = new EdgeOptions()
+    .setBinaryPath("/opt/hostedtoolcache/msedge/stable/x64/msedge")
     .addArguments("--headless=new") as EdgeOptions;
+
 const FIREFOX_OPTIONS = new FirefoxOptions()
+    .setBinary("/opt/hostedtoolcache/geckodriver/0.35.0/x64/geckodriver")
     .addArguments("--headless") as FirefoxOptions;
 
 const builder = new Builder()
@@ -34,7 +37,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
         await driver.quit();
     })
 
-    describe.skip("webdriver installed correctly", () => {
+    describe("webdriver installed correctly", () => {
         it("does google search", async () => {
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
