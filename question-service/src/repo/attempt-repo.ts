@@ -2,7 +2,6 @@ import AttemptModel from "../model/attempt-model";
 
 // Create an attempts 
 export async function saveAttempt(attemptData: any) {
-  console.log("Saving attempt:", attemptData);
   return await AttemptModel.create(attemptData);
 }
 

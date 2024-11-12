@@ -19,7 +19,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { fetchUserAttempts, fetchAttemptById } from "../api/attemptApi";
 import { DifficultyLevel, Attempt, Counts } from "../@types/attempt";
-import { format } from "date-fns"; // Added date-fns for formatting dates
+import { format } from "date-fns"; 
 
 const Dashboard = () => {
   // State variables
@@ -43,54 +43,58 @@ const Dashboard = () => {
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentEntries = filteredAttempts.slice(indexOfFirstEntry, indexOfLastEntry);
 
+  // Hook to fetch attempts
   useEffect(() => {
-    const fetchAttemptsData = async () => {
-      if (!token) {
-        console.error("No token available");
-        return;
-      }
-
-      try {
-        const data = await fetchUserAttempts(token);
-        setAttempts(data);
-
-        // Calculate counts
-        const newCounts: Counts = { Easy: 0, Medium: 0, Hard: 0 };
-        data.forEach((attempt: Attempt) => {
-          const difficulty = attempt.questionId.complexity;
-          if (newCounts[difficulty] !== undefined) {
-            newCounts[difficulty]++;
-          }
-        });
-        setCounts(newCounts);
-
-        // Apply initial filter and sort
-        filterAndSortAttempts(data, searchQuery, sortBy);
-      } catch (error: any) {
-        console.error("Failed to fetch attempts", error.response?.data || error.message);
-      }
-    };
-
     fetchAttemptsData();
   }, [token]);
 
-    // Function to determine proficiency level based on counts
-    useEffect(() => {
-      const determineProficiency = () => {
-        if (counts.Hard >= 20) {
-          setProficiency("Expert");
-        } else if (counts.Medium >= 40 || counts.Hard >= 10) {
-          setProficiency("Proficient");
-        } else if (counts.Medium >= 15 || counts.Hard >= 5) {
-          setProficiency("Competent");
-        } else if (counts.Easy >= 20 || counts.Medium >= 5 || counts.Hard >= 2) {
-          setProficiency("Novice");
-        } else {
-          setProficiency("Beginner");
+  // Hook to ensure dashboard data is refreshed
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchAttemptsData();
+    };
+  
+    window.addEventListener('focus', handleFocus);
+  
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  // Hook to filter and sort attempts by default
+  useEffect(() => {
+    filterAndSortAttempts(attempts, searchQuery, sortBy);
+  }, [searchQuery, sortBy, attempts]);
+
+  // Hook to determine proficiency
+  useEffect(() => {
+    determineProficiency();
+  }, [counts]);
+
+
+  const fetchAttemptsData = async () => {
+    if (!token) {
+      console.error("No token available");
+      return;
+    }
+    try {
+      const data = await fetchUserAttempts(token);
+      setAttempts(data);
+      // Calculate counts
+      const newCounts: Counts = { Easy: 0, Medium: 0, Hard: 0 };
+      data.forEach((attempt: Attempt) => {
+        const difficulty = attempt.questionId.complexity;
+        if (newCounts[difficulty] !== undefined) {
+          newCounts[difficulty]++;
         }
-      };
-      determineProficiency();
-    }, [counts]);
+      });
+      setCounts(newCounts);
+      // Apply initial filter and sort
+      filterAndSortAttempts(data, searchQuery, sortBy);
+    } catch (error: any) {
+      console.error("Failed to fetch attempts", error.response?.data || error.message);
+    }
+  };
 
   const filterAndSortAttempts = (data: Attempt[], query: string, criteria: string) => {
     const filtered = data.filter((attempt) => {
@@ -103,7 +107,8 @@ const Dashboard = () => {
       const peerMatch = attempt.peerUserName
         ? attempt.peerUserName.toLowerCase().includes(searchTerm)
         : false;
-          // Date and time match
+
+      // Date and time match
       const dateMatch = attempt.timestamp
       ? format(new Date(attempt.timestamp), "MMM dd, yyyy").toLowerCase().includes(searchTerm)
       : false;
@@ -126,9 +131,20 @@ const Dashboard = () => {
     setFilteredAttempts(sorted);
   };
 
-  useEffect(() => {
-    filterAndSortAttempts(attempts, searchQuery, sortBy);
-  }, [searchQuery, sortBy, attempts]);
+  const determineProficiency = () => {
+    if (counts.Hard >= 20) {
+      setProficiency("Expert");
+    } else if (counts.Medium >= 40 || counts.Hard >= 10) {
+      setProficiency("Proficient");
+    } else if (counts.Medium >= 15 || counts.Hard >= 5) {
+      setProficiency("Competent");
+    } else if (counts.Easy >= 20 || counts.Medium >= 5 || counts.Hard >= 2) {
+      setProficiency("Novice");
+    } else {
+      setProficiency("Beginner");
+    }
+  };
+
 
   const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSortBy(event.target.value);
@@ -143,28 +159,23 @@ const Dashboard = () => {
   };
 
 
-const handleViewAttempt = async (attemptId: string) => {
-  if (!token) {
-    console.error("Token is missing");
-    return;
-  }
+  const handleViewAttempt = async (attemptId: string) => {
+    if (!token) {
+      console.error("Token is missing");
+      return;
+    }
 
-  try {
-    const attempt = await fetchAttemptById(attemptId, token); // Fetch specific attempt by ID
+    try {
+      const attempt = await fetchAttemptById(attemptId, token); // Fetch specific attempt by ID
 
-    // Navigate to CollaborationDetails with specific attempt data
-    navigate(`/collaboration-details`, {
-      state: { attempt },
-    });
-  } catch (error) {
-    console.error("Error fetching specific attempt:", error);
-  }
-};
-
-  const pageNumbers: number[] = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
+      // Navigate to CollaborationDetails with specific attempt data
+      navigate(`/collaboration-details`, {
+        state: { attempt },
+      });
+    } catch (error) {
+      console.error("Error fetching specific attempt:", error);
+    }
+  };
 
   const highlightText = (text: string, searchQuery: string) => {
     if (!searchQuery) return text;
@@ -177,6 +188,11 @@ const handleViewAttempt = async (attemptId: string) => {
       )
     );
   };
+
+  const pageNumbers: number[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <>
