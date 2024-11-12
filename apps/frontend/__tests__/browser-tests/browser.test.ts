@@ -42,12 +42,9 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
 
     describe("webdriver installed correctly", () => {
         it("does google search", async () => {
-            console.log("getting url");
             await driver.get('http://www.google.com');
-            console.log("got url");
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
-            console.log("did search");
         }, 10000);
 
         it.skip("does another google search", async () => {
@@ -78,7 +75,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
             expect(slogan2).toBe("peers");
         }, 10000);
     })
-})
+}, 20000)
 
 
 
