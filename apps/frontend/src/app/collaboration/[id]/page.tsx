@@ -34,9 +34,12 @@ import {
   ExecuteVisibleAndHiddenTestsAndSubmit,
   ExecutionResults,
   GetVisibleTests,
+  isTestResult,
   SubmissionHiddenTestResultsAndStatus,
   SubmissionResults,
   Test,
+  TestData,
+  TestResult,
 } from "@/app/services/execute";
 import { QuestionDetailFull } from "@/components/question/QuestionDetailFull/QuestionDetailFull";
 import VideoPanel from "@/components/VideoPanel/VideoPanel";
@@ -75,14 +78,16 @@ export default function CollaborationPage(props: CollaborationProps) {
   );
   const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
   const [matchedUser, setMatchedUser] = useState<string>("Loading...");
-  const [sessionDuration, setSessionDuration] = useState<number>(() => {
-    const storedTime = localStorage.getItem("session-duration");
-    return storedTime ? parseInt(storedTime) : 0;
-  }); // State for count-up timer (TODO: currently using localstorage to store time, change to db stored time in the future)
+  const [sessionDuration, setSessionDuration] = useState<number>(0); // State for count-up timer (TODO: currently using localstorage to store time, change to db stored time in the future)
   const stopwatchRef = useRef<NodeJS.Timeout | null>(null);
   const [matchedTopics, setMatchedTopics] = useState<string[] | undefined>(
     undefined
   );
+
+  useEffect(() => {
+    const storedTime = localStorage.getItem("session-duration");
+    setSessionDuration(storedTime ? parseInt(storedTime) : 0);
+  }, []);
 
   // Chat states
   const [messageToSend, setMessageToSend] = useState<string | undefined>(
@@ -313,6 +318,52 @@ export default function CollaborationPage(props: CollaborationProps) {
       router.push("/matching"); // Redirect to matching page
     }
   }, [isSessionEndModalOpen, countDown]);
+
+  // Tabs component items for visibleTestCases
+  var items: TabsProps["items"] = visibleTestCases.map((item, index) => {
+    return {
+      key: index.toString(),
+      label: (
+        <span
+          style={{
+            color: !isTestResult(item) ? "" : item.passed ? "green" : "red",
+          }}
+        >
+          Case {index + 1}
+        </span>
+      ),
+      children: (
+        <div>
+          <Input.TextArea
+            disabled
+            placeholder={`Stdin: ${item.input}\nStdout: ${item.expected}`}
+            rows={4}
+          />
+          {isTestResult(item) && (
+            <div className="test-result-container">
+              <InfoCircleFilled className="hidden-test-icon" />
+              <Typography.Text
+                strong
+                style={{ color: item.passed ? "green" : "red" }}
+              >
+                {item.passed ? "Passed" : "Failed"}
+              </Typography.Text>
+              <br />
+              <Typography.Text strong>Actual Output:</Typography.Text>{" "}
+              {item.actual}
+              <br />
+              {item.error && (
+                <>
+                  <Typography.Text strong>Error:</Typography.Text>
+                  <div className="error-message">{item.error}</div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      ),
+    };
+  });
 
   // Handles the cleaning of localstorage variables, stopping the timer & signalling collab user on webrtc
   // type: "initiator" | "peer"

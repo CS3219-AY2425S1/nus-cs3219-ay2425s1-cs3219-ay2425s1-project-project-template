@@ -47,9 +47,34 @@ To start the server, run the following command:
 go run main.go
 ```
 
+### Setting up message queue with RabbitMQ
+
+A message queue is used to pass submission results asynchronously from the execution-service to the history-service.
+
+1. In order to do so, we can run the following command to set up a docker container for RabbitMQ:
+
+```bash
+docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+```
+
+2. Then we can run the history-service:
+
+```bash
+go run main.go
+```
+
+3. We can run the execution-service by changing our directory and running the same command:
+
+```bash
+cd ../execution-service
+go run main.go
+```
+
+To view more details on the RabbitMQ queue, we can go to `localhost:15672`, and login using `guest` as the username and password.
+
 The server will be available at http://localhost:8082.
 
-## Running the Application via Docker
+### Running the Application via Docker
 
 To run the application via Docker, run the following command:
 
