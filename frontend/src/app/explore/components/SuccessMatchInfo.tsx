@@ -42,7 +42,7 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null;
 
-        if (isOpen && (matchStatus === 'pending')) {// || matchStatus === 'waiting')) {
+        if (isOpen && (matchStatus === 'pending' || matchStatus === 'waiting')) {
             const totalDuration = 15000; // 15 seconds
             const updateInterval = 100; // Every 100 ms
             const increment = (100 / totalDuration) * updateInterval;
@@ -64,10 +64,12 @@ const SuccessMatchInfo = (props: SuccessMatchInfoProps) => {
 
         return () => {
             if (timer) clearInterval(timer);
-            setTimerProgress(0);
-            setIsAcceptDisabled(false);
+            if (!isOpen) {
+                setTimerProgress(0);
+                setIsAcceptDisabled(false);
+            }
         };
-    }, [isOpen, matchStatus, setMatchStatus]);
+    }, [isOpen, matchStatus]);
 
     useEffect(() => {
         if (matchStatus === 'accepted' || matchStatus === 'failed' || matchStatus === 'timeout') {
