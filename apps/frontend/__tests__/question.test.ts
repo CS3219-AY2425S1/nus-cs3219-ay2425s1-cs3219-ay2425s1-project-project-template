@@ -213,7 +213,9 @@ describe("GetSingleQuestion", () => {
             async json() {
                 return QUESTIONS[0]
             },
-            text: () => Promise.resolve('mocked response'),
+            async text() {
+                return 'mocked response'
+            }
         });
     });
 
