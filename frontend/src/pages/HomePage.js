@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import "../styles/HomePage.css";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { QUESTIONS_SERVICE } from "../Services";
 
 export const HomePage = () => {
   const [questions, setQuestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const questionsPerPage = 10;
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
@@ -51,6 +53,32 @@ export const HomePage = () => {
     localStorage.clear();
     navigate("/login");
   }
+
+  const totalPages = Math.ceil(questions.length / questionsPerPage);
+  const currentQuestions = questions.slice(
+    (currentPage - 1) * questionsPerPage,
+    currentPage * questionsPerPage
+  );
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+        setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+        setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePageJump = (event) => {
+    event.preventDefault();
+    const targetPage = parseInt(event.target.pageInput.value, 10);
+    if (targetPage >= 1 && targetPage <= totalPages) {
+        setCurrentPage(targetPage);
+    }
+  };
   
 
   useEffect(() => {
@@ -72,7 +100,7 @@ export const HomePage = () => {
             </tr>
           </thead>
           <tbody>
-            {questions.map((item) => (
+            {currentQuestions.map((item) => (
               <tr key={item._id}>
                 <td>
                   <span
@@ -104,6 +132,22 @@ export const HomePage = () => {
             ))}
           </tbody>
         </table>
+
+        <div className="pagination">
+          <span>{`Page ${currentPage} / ${totalPages}`}</span>
+          <button className="prev-button" onClick={handlePreviousPage} disabled={currentPage === 1}>
+            <FontAwesomeIcon className="prev-icon" icon={faChevronLeft} />
+          </button>
+          <button className="next-button" onClick={handleNextPage} disabled={currentPage === totalPages}>
+            <FontAwesomeIcon className="next-icon" icon={faChevronRight} />
+          </button>
+          <form className="jump-to-form" onSubmit={handlePageJump}>
+                <label>Jump to</label>
+                <input type="number" name="pageInput" min="1" max={totalPages} />
+                <button type="submit">Go</button>
+          </form>
+        </div>
+
         <div className="button-div">
           {isAdmin ? <button className="create-btn" onClick={() => { goToQuestion("new") }}>Create</button> : null}
           <button className="create-btn" onClick={(e) => navigate("/match")}>Solve with a friend!</button>
