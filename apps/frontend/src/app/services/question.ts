@@ -102,7 +102,7 @@ export const GetSingleQuestion = async (docRef: string): Promise<Question> => {
     return response.json();
   } else {
     throw new Error(
-      `Error reading question: ${response.text}`
+      `Error reading question: ${await response.text()}`
     );
   }
 };
