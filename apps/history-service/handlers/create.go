@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"history-service/databases"
 	"history-service/models"
 	"history-service/utils"
 	"net/http"
 
-	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 )
 
@@ -22,22 +22,7 @@ func (s *Service) CreateHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Document reference ID in firestore mapped to the match ID in model
-	collection := s.Client.Collection("collaboration-history")
-
-	docRef, _, err := collection.Add(ctx, map[string]interface{}{
-		"title":              submissionHistory.Title,
-		"code":               submissionHistory.Code,
-		"language":           submissionHistory.Language,
-		"user":               submissionHistory.User,
-		"matchedUser":        submissionHistory.MatchedUser,
-		"matchedTopics":      submissionHistory.MatchedTopics,
-		"questionDocRefId":   submissionHistory.QuestionDocRefID,
-		"questionDifficulty": submissionHistory.QuestionDifficulty,
-		"questionTopics":     submissionHistory.QuestionTopics,
-		"status":             submissionHistory.Status,
-		"createdAt":          firestore.ServerTimestamp,
-		"updatedAt":          firestore.ServerTimestamp,
-	})
+	docRef, err := databases.CreateHistory(s.Client, ctx, submissionHistory)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

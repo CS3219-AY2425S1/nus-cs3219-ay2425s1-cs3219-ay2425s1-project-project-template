@@ -1,16 +1,16 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"execution-service/constants"
+	"execution-service/messagequeue"
 	"execution-service/models"
 	"execution-service/utils"
 	"fmt"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/iterator"
-	"net/http"
-	"os"
 )
 
 func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +61,6 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 	}
 
 	// Save the collaboration history via the history-service
-	// TODO: convert to message queue
 	submissionReq := models.Submission{
 		Code:               submission.Code,
 		Language:           submission.Language,
@@ -84,32 +83,10 @@ func (s *Service) ExecuteVisibleAndHiddenTestsAndSubmit(w http.ResponseWriter, r
 		return
 	}
 
-	// get history-service url from os env
-	historyServiceUrl := os.Getenv("HISTORY_SERVICE_URL")
-	if historyServiceUrl == "" {
-		http.Error(w, "HISTORY_SERVICE_URL is not set", http.StatusInternalServerError)
-		return
-	}
-
-	req, err := http.NewRequest(http.MethodPost, historyServiceUrl+"histories",
-		bytes.NewBuffer(jsonData))
+	err = messagequeue.PublishSubmissionMessage(jsonData)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to save submission history: %v", err), http.StatusInternalServerError)
 		return
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Failed to save submission history", http.StatusInternalServerError)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
