@@ -21,7 +21,8 @@ import { fileRemover } from "../utils/fileRemover.js";
 
 export async function createUser(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const { username, password } = req.body;
+    const email = req.body.email.toLowerCase();
     if (username && email && password) {
       const existingUser = await _findUserByUsernameOrEmail(username, email);
       if (existingUser) {
@@ -32,7 +33,11 @@ export async function createUser(req, res) {
 
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
-      const createdUser = await _createUser(username, email, hashedPassword);
+      const createdUser = await _createUser(
+        username,
+        email.toLowerCase(),
+        hashedPassword
+      );
       await sendEmail(email, createdUser._id, EMAIL_TYPE.VERIFICATION);
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
@@ -221,7 +226,7 @@ export async function deleteUser(req, res) {
 
 export async function forgetPassword(req, res) {
   try {
-    const userEmail = req.params.email;
+    const userEmail = req.params.email.toLowerCase();
     const user = await _findUserByEmail(userEmail);
 
     if (user) {
