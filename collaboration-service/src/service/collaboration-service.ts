@@ -78,7 +78,6 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
     codeContent
   );
 
-  console.log('notifying peer');
   socket.to(roomId).emit("leave_collab_notify", { userName });
 
   // Calculate time taken based on room start time
@@ -110,8 +109,6 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
   const peerUserNames = stateManager.getPeerUserNames(roomId, userName);
   const peerUserName = peerUserNames.length > 0 ? peerUserNames[0] : undefined;
 
-  console.log(`Peer userName is: ${peerUserName}`);
-
   // Send attempt data to question-service
   const attemptData: AttemptData = {
     userId,
@@ -141,7 +138,6 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
   // Now remove user from room and state
   stateManager.removeUserFromRoom(socket.id, roomId);
   
-  console.log('leaving room');
   socket.leave(roomId);
 }
 
