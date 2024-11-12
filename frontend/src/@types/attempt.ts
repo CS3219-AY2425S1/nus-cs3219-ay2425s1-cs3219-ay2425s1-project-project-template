@@ -16,6 +16,21 @@ export interface Attempt {
   timeTaken?: number; // Store time taken
 }
 
+export interface AttemptTestCases {
+  questionId: {
+    title: string;
+    description: string;
+    category: string[];
+    complexity: string;
+  };
+  peerUserName?: string;
+  timestamp?: string;
+  timeTaken?: number;
+  codeContent?: string;
+  language?: string;
+  codeRuns?: CodeRun[];
+}
+
 export interface FetchAttemptsResponse {
   attempts: Attempt[];
 }
@@ -33,3 +48,21 @@ export interface Counts {
 
 
 export type DifficultyLevel = 'Easy' | 'Medium' | 'Hard';
+
+export interface TestCaseResult {
+  testCaseIndex: number;
+  input: string;
+  expected: string;
+  actual: string;
+  pass: boolean;
+  userStdOut: string;
+}
+
+export interface CodeRun {
+  code: string;
+  language: string;
+  output: string;
+  testCaseResults: TestCaseResult[];
+  timestamp: number;
+  status: string;
+}

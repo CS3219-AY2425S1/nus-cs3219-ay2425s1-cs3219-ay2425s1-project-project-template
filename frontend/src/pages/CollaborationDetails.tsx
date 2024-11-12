@@ -1,14 +1,23 @@
-import React from "react";
-import { Box, Typography, Button, Chip } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  Chip,
+  List,
+  ListItemText,
+  ListItemButton, 
+} from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { AttemptTestCases, CodeRun } from "../@types/attempt";
 
 const CollaborationDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { attempt } = location.state || {}; // Access the attempt object from state
+  const { attempt } = (location.state as { attempt: AttemptTestCases }) || {};
 
   // If no attempt data is found, return a loading message
   if (!attempt) {
@@ -22,20 +31,26 @@ const CollaborationDetails: React.FC = () => {
     timeTaken,
     codeContent,
     language,
+    codeRuns,
   } = attempt;
 
+  const [selectedCodeRunIndex, setSelectedCodeRunIndex] = useState<number>(0);
+
   // Format the timestamp and time taken
-  const formattedTimestamp = timestamp ? format(new Date(timestamp), "dd MMMM yyyy, hh:mm a") : "N/A";
+  const formattedTimestamp = timestamp
+    ? format(new Date(timestamp), "dd MMMM yyyy, hh:mm a")
+    : "N/A";
   const formattedTimeTaken =
-    timeTaken >= 3600
-      ? `${Math.floor(timeTaken / 3600)}h ${Math.floor((timeTaken % 3600) / 60)}m ${timeTaken % 60}s`
-      : timeTaken >= 60
+    timeTaken && timeTaken >= 3600
+      ? `${Math.floor(timeTaken / 3600)}h ${Math.floor(
+          (timeTaken % 3600) / 60)}m ${timeTaken % 60}s`
+      : timeTaken && timeTaken >= 60
       ? `${Math.floor(timeTaken / 60)}m ${timeTaken % 60}s`
-      : `${timeTaken}s`;
+      : `${timeTaken || 0}s`;
 
   // Styling for difficulty chip
   const difficultyColor = complexity === "Easy" ? "success" : complexity === "Medium" ? "warning" : "error";
-  
+
   const formatLanguageName = (language: string | undefined) => {
     switch (language) {
       case "cpp":
@@ -67,30 +82,67 @@ const CollaborationDetails: React.FC = () => {
       }}
     >
       {/* Header Section */}
-      <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: "bold", mb: 2 }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        align="center"
+        sx={{ fontWeight: "bold", mb: 2 }}
+      >
         Collaboration with {peerUserName || "Unknown"}
       </Typography>
-      <Typography variant="subtitle1" gutterBottom align="center" sx={{ color: "#bbb" }}>
+      <Typography
+        variant="subtitle1"
+        gutterBottom
+        align="center"
+        sx={{ color: "#bbb" }}
+      >
         Completed on {formattedTimestamp} in {formattedTimeTaken}
       </Typography>
 
       {/* Main Content Area */}
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4, mt: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 4,
+          mt: 4,
+        }}
+      >
         {/* Left Side: Question Details */}
-        <Box sx={{ flex: 1, backgroundColor: "#2a2a2a", p: 3, borderRadius: 3 }}>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", color: "#fff" }}>
+        <Box
+          sx={{ flex: 1, backgroundColor: "#2a2a2a", p: 3, borderRadius: 3 }}
+        >
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{ fontWeight: "bold", color: "#fff" }}
+          >
             {title || "Question Title"}
           </Typography>
 
           {/* Tags for Difficulty and Category */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <Chip label={complexity} color={difficultyColor} size="small" sx={{ fontWeight: "bold", color: "#fff" }} />
+            <Chip
+              label={complexity}
+              color={difficultyColor}
+              size="small"
+              sx={{ fontWeight: "bold", color: "#fff" }}
+            />
             {category.map((topic: string, index: number) => (
-              <Chip key={index} label={topic} variant="outlined" size="small" sx={{ color: "#bbb", borderColor: "#444" }} />
+              <Chip
+                key={index}
+                label={topic}
+                variant="outlined"
+                size="small"
+                sx={{ color: "#bbb", borderColor: "#444" }}
+              />
             ))}
           </Box>
 
-          <Typography variant="body1" sx={{ color: "#ddd", whiteSpace: "pre-wrap" }}>
+          <Typography
+            variant="body1"
+            sx={{ color: "#ddd", whiteSpace: "pre-wrap" }}
+          >
             {description || "No description available."}
           </Typography>
         </Box>
@@ -109,15 +161,46 @@ const CollaborationDetails: React.FC = () => {
               boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.2)",
             }}
           >
-            <Typography variant="subtitle1" gutterBottom sx={{ color: "#ddd", mb: 2 }}>
-              Code Written in {formatLanguageName(language)}
-            </Typography>
-            <SyntaxHighlighter language={language || "javascript"} style={materialDark}>
-              {codeContent || "// No code content available"}
-            </SyntaxHighlighter>
+            {codeRuns && codeRuns.length > 0 ? (
+              <>
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{ color: "#ddd", mb: 2 }}
+                >
+                  Code Written in{" "}
+                  {formatLanguageName(codeRuns[selectedCodeRunIndex].language)}
+                </Typography>
+                <SyntaxHighlighter
+                  language={
+                    codeRuns[selectedCodeRunIndex].language || "javascript"
+                  }
+                  style={materialDark}
+                >
+                  {codeRuns[selectedCodeRunIndex].code ||
+                    "// No code content available"}
+                </SyntaxHighlighter>
+              </>
+            ) : (
+              <>
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{ color: "#ddd", mb: 2 }}
+                >
+                  Code Written in {formatLanguageName(language)}
+                </Typography>
+                <SyntaxHighlighter
+                  language={language || "javascript"}
+                  style={materialDark}
+                >
+                  {codeContent || "// No code content available"}
+                </SyntaxHighlighter>
+              </>
+            )}
           </Box>
 
-          {/* Placeholder for Test Cases Section */}
+          {/* Code Runs Section */}
           <Box
             sx={{
               mt: 3,
@@ -130,12 +213,66 @@ const CollaborationDetails: React.FC = () => {
             }}
           >
             <Typography variant="subtitle1" gutterBottom>
-              Test Cases (Coming Soon)
+              Code Runs
             </Typography>
-            <Typography variant="body2" sx={{ color: "#bbb" }}>
-              This section will display all the test cases that have been run by the user.
-            </Typography>
+            {codeRuns && codeRuns.length > 0 ? (
+              <List>
+                {codeRuns.map((codeRun: CodeRun, index: number) => (
+                  <ListItemButton
+                    key={index}
+                    onClick={() => setSelectedCodeRunIndex(index)}
+                    sx={{
+                      backgroundColor:
+                        selectedCodeRunIndex === index
+                          ? "rgba(255,255,255,0.1)"
+                          : "transparent",
+                    }}
+                  >
+                    <ListItemText
+                      primary={`${codeRun.status}`}
+                      secondary={`${new Date(
+                        codeRun.timestamp
+                      ).toLocaleString()} - ${formatLanguageName(
+                        codeRun.language
+                      )}`}
+                    />
+                  </ListItemButton>
+                ))}
+              </List>
+            ) : (
+              <Typography variant="body2" sx={{ color: "#bbb" }}>
+                No code runs available.
+              </Typography>
+            )}
           </Box>
+
+          {/* Output and Test Case Results */}
+          {codeRuns && codeRuns.length > 0 && (
+            <Box
+              sx={{
+                mt: 3,
+                p: 3,
+                backgroundColor: "#1e1e1e",
+                borderRadius: 3,
+                color: "#fff",
+                fontSize: "0.9rem",
+                boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.2)",
+              }}
+            >
+              <Typography variant="subtitle1" gutterBottom>
+                Output:
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ whiteSpace: "pre-wrap", color: "#ddd" }}
+              >
+                {codeRuns[selectedCodeRunIndex].output}
+              </Typography>
+
+              
+             
+            </Box>
+          )}
         </Box>
       </Box>
 

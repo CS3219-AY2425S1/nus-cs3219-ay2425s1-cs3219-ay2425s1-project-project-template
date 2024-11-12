@@ -12,6 +12,7 @@ import {
 import { StateManager } from './stateManager';
 import { RedisService } from './redisService';
 import { sendAttemptData } from './attemptService';
+import { ExecutionResult } from '../models/models';
 
 const redisService = new RedisService();
 const stateManager = new StateManager();
@@ -108,6 +109,7 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
 
   const peerUserNames = stateManager.getPeerUserNames(roomId, userName);
   const peerUserName = peerUserNames.length > 0 ? peerUserNames[0] : undefined;
+  const codeRuns = await redisService.getCodeRuns(roomId);
 
   // Send attempt data to question-service
   const attemptData: AttemptData = {
@@ -117,6 +119,7 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
     timeTaken,
     codeContent: currentCode,
     language: currentLanguage,
+    codeRuns,
   };
 
   try {
@@ -128,8 +131,8 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
       `Error sending attempt data to question-service:`,
       error.message
     );
-  }
-
+  }  
+  
   // Notify the remaining user
   if (peerUserName) {
     socket.to(roomId).emit("peer_left", { userName });
@@ -137,7 +140,15 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
 
   // Now remove user from room and state
   stateManager.removeUserFromRoom(socket.id, roomId);
-  
+  const usersInRoom = stateManager.getCurrentUsersInRoom(roomId);
+
+  if (usersInRoom.length === 0) {
+    // Clean up Redis data for the room
+    await redisService.deleteCodeRuns(roomId);
+    await redisService.deleteCode(roomId);
+    await redisService.deleteOutput(roomId);
+    await redisService.deleteLanguage(roomId);
+  }
   socket.leave(roomId);
 }
 
@@ -148,17 +159,34 @@ export async function handleRunCode(socket: Socket, data: RunCodeData) {
 
   try {
     let output;
+    let testCaseResults = [];
+    let status = "Error";
 
     if (!testCases || !testTemplateCode) {
       output = await executeCode(code, language);
     } else {
-      output = await executeCodeWithTestCases(
+      const executionResult = await executeCodeWithTestCases(
         code,
         language,
         testCases,
         testTemplateCode
       );
+      output = executionResult.summary;
+      testCaseResults = executionResult.results;
+      
+      const allPassed = testCaseResults.every((result) => result.pass);
+      status = allPassed ? "Success" : "Wrong Answer";
     }
+    // Store the code run data in Redis
+    const codeRunData = {
+      code,
+      language,
+      output,
+      testCaseResults,
+      timestamp: Date.now(),
+      status,
+    };
+    await redisService.addCodeRun(roomId, codeRunData);
 
     await redisService.setOutput(roomId, output);
     socket.to(roomId).emit("code_result", { output });

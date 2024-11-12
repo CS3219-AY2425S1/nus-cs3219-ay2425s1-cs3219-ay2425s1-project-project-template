@@ -13,7 +13,7 @@ export async function createAttemptController(req: any, res: Response) {
   try {
     const userId = req.user.id;
     const userName = req.user.username; 
-    const { peerUserName, questionId, timeTaken, codeContent, language } = req.body;
+    const { peerUserName, questionId, timeTaken, codeContent, language, codeRuns } = req.body;
 
     
     // Ensure peerUserName is not the same as the authenticated user's name
@@ -29,8 +29,7 @@ export async function createAttemptController(req: any, res: Response) {
       });
     }
 
-    const attemptData = { questionId, peerUserName, userId, timeTaken, codeContent, language};
-    console.log("Attempt data received:", attemptData);
+    const attemptData = { questionId, peerUserName, userId, timeTaken, codeContent, language, codeRuns};
 
     const attempt = await createAttempt(attemptData);
     console.log("Attempt created successfully:", attempt);
