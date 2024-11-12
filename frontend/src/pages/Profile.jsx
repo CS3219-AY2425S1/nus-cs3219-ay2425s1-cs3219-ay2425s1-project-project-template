@@ -78,7 +78,8 @@ const Profile = () => {
   
       // If successful, update the UI and show success message
       if (response.status === 200) {
-        toast.success("Changes saved successfully!");
+        toast.success(`Changes saved successfully!
+          For email changes, a verification email has been sent to your new address.`);
       } else {
         toast.error("Failed to save changes.");
       }
