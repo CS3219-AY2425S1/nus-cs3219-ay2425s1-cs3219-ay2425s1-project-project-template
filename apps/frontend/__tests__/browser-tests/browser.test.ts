@@ -23,12 +23,12 @@ describe("chrome browser", () => {
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
-        });
+        }, 10000);
         it("does another google search", async () => {
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
-        });
+        }, 10000);
     });
     
     describe("browser-test", () => {
@@ -48,8 +48,9 @@ describe("chrome browser", () => {
             const slogan1 = await driver.findElement(By.xpath("/html/body/div[1]/main/div/div[1]/div[2]/span[1]")).then(ele => ele.getText())
             const slogan2 = await driver.findElement(By.xpath("/html/body/div[1]/main/div/div[1]/div[2]/span[2]")).then(ele => ele.getText())
 
-            expect(slogan1 + slogan2).toBe("A better way to prepare for coding interviews withpeers");
-        });
+            expect(slogan1).toBe("A better way to prepare for coding interviews with");
+            expect(slogan2).toBe("peers");
+        }, 10000);
     })
 })
 
