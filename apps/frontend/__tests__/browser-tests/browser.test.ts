@@ -32,7 +32,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
         console.log(browser + ": building...");
         driver = await builder.build();
         console.log(browser + ": built");
-    })
+    }, 10000)
 
     afterEach(async () => {
         if (driver) {
