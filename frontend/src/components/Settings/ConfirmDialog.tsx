@@ -1,13 +1,15 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import React, { useContext } from 'react'
+import React from 'react'
 import toast from 'react-hot-toast';
 import { AuthContext, User } from '../../contexts/AuthContext';
 
 export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, handleSuccessChange }: { open: boolean, handleDialogCloseFn: () => void, data: Record<string, string>, handleSuccessChange: (updatedUser: User) => void }) {
-
-    const { user } = useContext(AuthContext);
+    const { user } = React.useContext(AuthContext);
+    const [showPassword, setShowPassword] = React.useState(false);
 
     const handleClose = () => {
         if (isPending) {
@@ -71,9 +73,18 @@ export default function ConfirmSettingDialog({ open, handleDialogCloseFn, data, 
                         name='oldPassword'
                         margin="dense"
                         label="Current Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         fullWidth
                         variant="standard"
+                        slotProps={{
+                            input: {
+                                endAdornment: <InputAdornment position="end">{
+                                    showPassword
+                                        ? <VisibilityOffIcon className="cursor-pointer" onClick={() => setShowPassword(false)} />
+                                        : <VisibilityIcon className="cursor-pointer" onClick={() => setShowPassword(true)} />
+                                }</InputAdornment>
+                            }
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>
