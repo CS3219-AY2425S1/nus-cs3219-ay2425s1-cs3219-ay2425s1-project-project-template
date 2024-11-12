@@ -6,7 +6,7 @@ import {
   Chip,
   List,
   ListItemText,
-  ListItemButton, 
+  ListItemButton,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -64,7 +64,7 @@ const CollaborationDetails: React.FC = () => {
       case "javascript":
         return "JavaScript";
       default:
-        return "JavaScript";
+        return "";
     }
   };
 
@@ -75,27 +75,44 @@ const CollaborationDetails: React.FC = () => {
         color: "white",
         backgroundColor: "#1c1c1c",
         borderRadius: 4,
-        maxWidth: 1200,
+        maxWidth: 1400, 
         margin: "0 auto",
         boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)",
         overflow: "hidden",
       }}
     >
       {/* Header Section */}
-      <Typography
-        variant="h4"
-        gutterBottom
-        align="center"
-        sx={{ fontWeight: "bold", mb: 2 }}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
       >
-        Collaboration with {peerUserName || "Unknown"}
-      </Typography>
-      <Typography
-        variant="subtitle1"
-        gutterBottom
-        align="center"
-        sx={{ color: "#bbb" }}
-      >
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          Collaboration with {peerUserName || "Unknown"}
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{
+            px: 3,
+            py: 1,
+            fontSize: "1rem",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+            "&:hover": {
+              backgroundColor: "#0056b3",
+            },
+          }}
+          onClick={() => navigate("/dashboard")}
+        >
+          Back to Dashboard
+        </Button>
+      </Box>
+      <Typography variant="subtitle1" sx={{ color: "#bbb", mb: 3 }}>
         Completed on {formattedTimestamp} in {formattedTimeTaken}
       </Typography>
 
@@ -103,15 +120,12 @@ const CollaborationDetails: React.FC = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
+          flexDirection: "column", 
           gap: 4,
-          mt: 4,
         }}
       >
-        {/* Left Side: Question Details */}
-        <Box
-          sx={{ flex: 1, backgroundColor: "#2a2a2a", p: 3, borderRadius: 3 }}
-        >
+        {/* Question Details */}
+        <Box sx={{ backgroundColor: "#2a2a2a", p: 3, borderRadius: 3 }}>
           <Typography
             variant="h5"
             gutterBottom
@@ -147,18 +161,80 @@ const CollaborationDetails: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* Right Side: Code and Test Cases */}
-        <Box sx={{ flex: 1 }}>
+        {/* Code Runs and Code Display */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 3,
+          }}
+        >
+          {/* Code Runs List */}
           <Box
             sx={{
-              p: 3,
+              flexBasis: "30%",
+              backgroundColor: "#1e1e1e",
+              p: 2,
+              borderRadius: 3,
+              maxHeight: 400,
+              overflowY: "auto",
+            }}
+          >
+            <Typography variant="subtitle1" gutterBottom>
+              Code Runs
+            </Typography>
+            {codeRuns && codeRuns.length > 0 ? (
+              <List>
+                {codeRuns.map((codeRun: CodeRun, index: number) => (
+                  <ListItemButton
+                    key={index}
+                    onClick={() => setSelectedCodeRunIndex(index)}
+                    sx={{
+                      backgroundColor:
+                        selectedCodeRunIndex === index
+                          ? "rgba(255,255,255,0.1)"
+                          : "transparent",
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        codeRun.status === "Success" ? (
+                          <span style={{ color: "green" }}>{codeRun.status}</span>
+                        ) : (
+                          <span style={{ color: "red" }}>{codeRun.status}</span>
+                        )
+                      }                      
+                      secondary={`${new Date(
+                        codeRun.timestamp
+                      ).toLocaleString()} - ${formatLanguageName(
+                        codeRun.language
+                      )}`}
+                      sx={{ "& .MuiTypography-root": { color: "#fff" } }} 
+
+                    />
+                  </ListItemButton>
+                ))}
+              </List>
+            ) : (
+              <Typography variant="body2" sx={{ color: "#bbb" }}>
+                No code runs available.
+              </Typography>
+            )}
+          </Box>
+
+          {/* Code Display */}
+          <Box
+            sx={{
+              flex: 1,
               backgroundColor: "#2e2e2e",
+              p: 2,
               borderRadius: 3,
               overflowX: "auto",
               color: "#f5f5f5",
               fontFamily: "monospace",
               fontSize: "0.95rem",
               boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.2)",
+              maxHeight: 400,
             }}
           >
             {codeRuns && codeRuns.length > 0 ? (
@@ -188,7 +264,7 @@ const CollaborationDetails: React.FC = () => {
                   gutterBottom
                   sx={{ color: "#ddd", mb: 2 }}
                 >
-                  Code Written in {formatLanguageName(language)}
+                  No Language Selected
                 </Typography>
                 <SyntaxHighlighter
                   language={language || "javascript"}
@@ -199,103 +275,67 @@ const CollaborationDetails: React.FC = () => {
               </>
             )}
           </Box>
+        </Box>
 
-          {/* Code Runs Section */}
+        {/* Output and Test Case Results */}
+        {codeRuns && codeRuns.length > 0 && (
           <Box
             sx={{
-              mt: 3,
-              p: 3,
               backgroundColor: "#1e1e1e",
+              p: 2,
               borderRadius: 3,
               color: "#fff",
               fontSize: "0.9rem",
               boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.2)",
             }}
           >
-            <Typography variant="subtitle1" gutterBottom>
-              Code Runs
-            </Typography>
-            {codeRuns && codeRuns.length > 0 ? (
-              <List>
-                {codeRuns.map((codeRun: CodeRun, index: number) => (
-                  <ListItemButton
-                    key={index}
-                    onClick={() => setSelectedCodeRunIndex(index)}
-                    sx={{
-                      backgroundColor:
-                        selectedCodeRunIndex === index
-                          ? "rgba(255,255,255,0.1)"
-                          : "transparent",
-                    }}
-                  >
-                    <ListItemText
-                      primary={`${codeRun.status}`}
-                      secondary={`${new Date(
-                        codeRun.timestamp
-                      ).toLocaleString()} - ${formatLanguageName(
-                        codeRun.language
-                      )}`}
-                    />
-                  </ListItemButton>
-                ))}
-              </List>
-            ) : (
-              <Typography variant="body2" sx={{ color: "#bbb" }}>
-                No code runs available.
-              </Typography>
-            )}
+            {/* Test Case Results */}
+            {codeRuns[selectedCodeRunIndex].testCaseResults &&
+              codeRuns[selectedCodeRunIndex].testCaseResults.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Test Case Results:
+                  </Typography>
+                  <List>
+                    {codeRuns[selectedCodeRunIndex].testCaseResults.map(
+                      (testCase, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            backgroundColor: testCase.pass
+                              ? "rgba(0, 255, 0, 0.1)"
+                              : "rgba(255, 0, 0, 0.1)",
+                            mb: 1,
+                            p: 1,
+                            borderRadius: 2,
+                          }}
+                        >
+                          <Typography variant="body1" sx={{ color: "#fff" }}>
+                            Test Case {testCase.testCaseIndex}:{" "}
+                            {testCase.pass ? "Passed" : "Failed"}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#fff" }}>
+                            Input: {testCase.input}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#fff" }}>
+                            Expected Output: {testCase.expected}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#fff" }}>
+                            Actual Output: {testCase.actual}
+                          </Typography>
+                          {testCase.userStdOut && (
+                            <Typography variant="body2" sx={{ color: "#fff" }}>
+                              StdOut: {testCase.userStdOut}
+                            </Typography>
+                          )}
+                        </Box>
+                      )
+                    )}
+                  </List>
+                </Box>
+              )}
           </Box>
-
-          {/* Output and Test Case Results */}
-          {codeRuns && codeRuns.length > 0 && (
-            <Box
-              sx={{
-                mt: 3,
-                p: 3,
-                backgroundColor: "#1e1e1e",
-                borderRadius: 3,
-                color: "#fff",
-                fontSize: "0.9rem",
-                boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.2)",
-              }}
-            >
-              <Typography variant="subtitle1" gutterBottom>
-                Output:
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ whiteSpace: "pre-wrap", color: "#ddd" }}
-              >
-                {codeRuns[selectedCodeRunIndex].output}
-              </Typography>
-
-              
-             
-            </Box>
-          )}
-        </Box>
-      </Box>
-
-      {/* Back Button */}
-      <Box display="flex" justifyContent="center" mt={4}>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            px: 4,
-            py: 1.5,
-            fontSize: "1rem",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
-            "&:hover": {
-              backgroundColor: "#0056b3",
-            },
-          }}
-          onClick={() => navigate("/dashboard")}
-        >
-          Back to Dashboard
-        </Button>
+        )}
       </Box>
     </Box>
   );
