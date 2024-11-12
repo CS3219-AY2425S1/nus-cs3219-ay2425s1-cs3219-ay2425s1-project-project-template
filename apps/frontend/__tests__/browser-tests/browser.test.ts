@@ -14,7 +14,7 @@ const EDGE_OPTIONS = new EdgeOptions()
     .addArguments("--headless=new") as EdgeOptions;
 
 const FIREFOX_OPTIONS = new FirefoxOptions()
-    .setBinary("/opt/hostedtoolcache/geckodriver/0.35.0/x64/geckodriver")
+    .setBinary("/opt/hostedfasdjhflkajsdlkjfhalsdj")
     .addArguments("--headless") as FirefoxOptions;
 
 const builder = new Builder()
