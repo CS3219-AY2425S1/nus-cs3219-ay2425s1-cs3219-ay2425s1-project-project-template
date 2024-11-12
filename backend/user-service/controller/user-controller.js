@@ -11,6 +11,7 @@ const {
   updateUserById: _updateUserById,
   updateUserPrivilegeById: _updateUserPrivilegeById,
   addNewSession: _addNewSession,
+  updateSessionHistory: _updateSessionHistory
 } = require("../model/repository.js");
 
 const createUser = async (req, res) => {
@@ -200,6 +201,33 @@ const addSessionToUser = async (req, res) => {
   }
 };
 
+const updateSessionHistory = async (req, res) => {
+  const userId = req.params.id; // Extract userId from route params
+  const roomId = req.params.roomId; // Extract roomId from route params
+  const sessionData = req.body; // Get session data (e.g., chat, code, aiChat) from request body
+  
+  console.log("Preparing to update session history:", { userId, roomId });
+  console.log("Session data:", { chat: sessionData.chat, code: sessionData.code, aiChat: sessionData.aiChat });
+
+  try {
+    // Call the repository function to update session history
+    const updatedUser = await _updateSessionHistory(userId, roomId, sessionData);
+
+    if (updatedUser) {
+      return res.status(200).json({
+        message: "Session history updated successfully",
+        data: updatedUser
+      });
+    } else {
+      return res.status(404).json({ message: "User or session not found" });
+    }
+  } catch (error) {
+    console.error("Error updating session history:", error);
+    return res.status(500).json({ message: "Error updating session history" });
+  }
+};
+
+
 module.exports = {
   createUser,
   getUser,
@@ -209,5 +237,6 @@ module.exports = {
   updateUserPrivilege,
   deleteUser,
   formatUserResponse,
-  addSessionToUser
+  addSessionToUser,
+  updateSessionHistory,
 };

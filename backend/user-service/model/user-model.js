@@ -33,6 +33,14 @@ const UserModelSchema = new Schema({
           type: String,
           required: true,
         },
+        matchedUserId: {
+          type: String,
+          required: true,
+        },
+        questionId: {
+          type: String,
+          required: true,
+        },
         difficulty: {
           type: String,
           required: true,
@@ -44,6 +52,18 @@ const UserModelSchema = new Schema({
         startDate: {
           type: Date,
           default: Date.now, // Set start time to the current date/time by default
+        },
+        chat: {
+          type: Array,
+          default: [],
+        },
+        code: {
+          type: String,
+          default: "// Start coding...",
+        },
+        aiChat: {
+          type: Array,
+          default: [],
         },
       },
     ],
