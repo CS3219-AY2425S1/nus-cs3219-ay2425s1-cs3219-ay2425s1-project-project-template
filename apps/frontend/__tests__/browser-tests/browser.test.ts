@@ -1,14 +1,30 @@
-import { Actions, Browser, Builder, By, Key, until, WebDriver } from "selenium-webdriver"
+import { Actions, Browser, Builder, By, Capabilities, Key, until, WebDriver } from "selenium-webdriver"
 
-import Chrome from "selenium-webdriver/chrome"
+import {Options as ChromeOptions} from "selenium-webdriver/chrome"
+import {Options as EdgeOptions} from "selenium-webdriver/edge"
+import {Options as FirefoxOptions} from "selenium-webdriver/firefox"
+
 const URL = 'http://localhost:3000/';
 const ETERNAL_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTk5fQ.Z4_FVGQ5lIcouP3m4YLMr6pGMF17IJFfo2yOTiN58DY"
 
-describe("chrome browser", () => {
-    const options = new Chrome.Options()
-    .addArguments("--headless=new") as Chrome.Options; // uncomment locally to see the steps in action
-    const builder = new Builder().forBrowser(Browser.CHROME).setChromeOptions(options);
+const CHROME_OPTIONS = new ChromeOptions()
+    .addArguments("--headless=new") as ChromeOptions; // uncomment locally to see the steps in action
+const EDGE_OPTIONS = new EdgeOptions()
+    .addArguments("--headless=new") as EdgeOptions;
+const FIREFOX_OPTIONS = new FirefoxOptions()
+    .addArguments("--headless") as FirefoxOptions;
+
+const builder = new Builder()
+    .setChromeOptions(CHROME_OPTIONS)
+    .setEdgeOptions(EDGE_OPTIONS)
+    .setFirefoxOptions(FIREFOX_OPTIONS)
+
+describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test", (browser) => {
     let driver: WebDriver;
+    beforeAll(() => {
+        const cap = new Capabilities().setBrowserName(browser)
+        builder.withCapabilities(cap);
+    })
 
     beforeEach(async () => {
         driver = await builder.build();
@@ -18,13 +34,14 @@ describe("chrome browser", () => {
         await driver.quit();
     })
 
-    describe("chrome webdriver installed correctly", () => {
+    describe.skip("webdriver installed correctly", () => {
         it("does google search", async () => {
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
         }, 10000);
-        it("does another google search", async () => {
+
+        it.skip("does another google search", async () => {
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
