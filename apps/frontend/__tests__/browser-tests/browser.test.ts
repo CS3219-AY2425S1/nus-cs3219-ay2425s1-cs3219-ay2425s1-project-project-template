@@ -54,7 +54,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
         }, 10000);
     });
     
-    describe.skip("browser-test", () => {
+    describe("browser-test", () => {
         it("accesses and login to peerprep", async () => {
             await driver.get(URL);
             await driver.wait(until.urlIs(`${URL}login`));
@@ -75,7 +75,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
             expect(slogan2).toBe("peers");
         }, 10000);
     })
-}, 20000)
+}, 60000)
 
 
 
