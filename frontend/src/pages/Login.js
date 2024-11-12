@@ -26,6 +26,7 @@ export const Login = ({ onLoginSuccess }) => {
                     localStorage.setItem("accessToken", response.data.data.accessToken);
                     localStorage.setItem("username", response.data.data.username);
                     localStorage.setItem("email", response.data.data.email);
+                    localStorage.setItem("isAdmin", response.data.data.isAdmin);
                     alert('Successfully logged in!');
                     onLoginSuccess();
                     navigate("/home");
