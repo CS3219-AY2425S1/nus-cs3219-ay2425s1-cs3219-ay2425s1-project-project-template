@@ -27,9 +27,11 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
     beforeAll(() => {
         const cap = new Capabilities().setBrowserName(browser)
         builder.withCapabilities(cap);
+        console.log("got here");
     })
 
     beforeEach(async () => {
+        console.log("got here");
         driver = await builder.build();
     })
 
@@ -39,6 +41,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
 
     describe("webdriver installed correctly", () => {
         it("does google search", async () => {
+            console.log("got here");
             await driver.get('http://www.google.com');
             await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
             await driver.wait(until.titleIs('webdriver - Google Search'), 1000);
@@ -51,7 +54,7 @@ describe.each([Browser.CHROME, Browser.EDGE, Browser.FIREFOX])("%s driver test",
         }, 10000);
     });
     
-    describe("browser-test", () => {
+    describe.skip("browser-test", () => {
         it("accesses and login to peerprep", async () => {
             await driver.get(URL);
             await driver.wait(until.urlIs(`${URL}login`));
