@@ -146,7 +146,7 @@ const CollaborativeEditor: React.FC = () => {
   };
 
   const handleLeaveRoom = () => {
-    cleanupCollaboration();
+    // cleanupCollaboration();
     navigate("/matching");
   };
 
