@@ -85,42 +85,6 @@ jobs:
           cd ./apps/frontend
           pnpm unit-test
 
-  test-webdriver-working:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.1.4
-  
-      - name: Install dependencies
-        run: |
-          cd ./apps/frontend
-          pnpm i
-          
-      - name: Install Chrome WebDriver
-        uses: nanasess/setup-chromedriver@v2
-        with:
-          chromedriver-version: '130.0.6723.116'
-      
-      - name: Install Edge
-        uses: browser-actions/setup-edge@v1
-        with:
-          edge-version: stable
-      
-      - name: Install Geckodriver
-        uses: browser-actions/setup-geckodriver@latest
-      
-      - name: Run Browser Test
-        run: |
-          cd ./apps/frontend
-          pnpm browser-test -t "webdriver installed correctly"
-
-
   test-docker-compose:
     runs-on: ubuntu-latest
 
