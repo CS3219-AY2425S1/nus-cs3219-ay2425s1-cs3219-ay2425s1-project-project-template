@@ -212,7 +212,8 @@ describe("GetSingleQuestion", () => {
         global.fetch = jest.fn().mockResolvedValue({
             async json() {
                 return QUESTIONS[0]
-            }
+            },
+            text: () => Promise.resolve('mocked response'),
         });
     });
 
