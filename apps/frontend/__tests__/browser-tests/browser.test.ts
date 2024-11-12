@@ -10,11 +10,10 @@ const ETERNAL_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OD
 const CHROME_OPTIONS = new ChromeOptions()
     .addArguments("--headless=new") as ChromeOptions; // uncomment locally to see the steps in action
 const EDGE_OPTIONS = new EdgeOptions()
-    .setBinaryPath("/opt/hostedtoolcache/msedge/stable/x64/msedge")
+    .setBinaryPath("/opt/hostedtoolcache/msedge/stable/x64/msedge") // need to point to the correct path
     .addArguments("--headless=new") as EdgeOptions;
 
 const FIREFOX_OPTIONS = new FirefoxOptions()
-    // .setBinary("/opt/hostedtoolcache/geckodriver/0.35.0/x64/geckodriver")
     .addArguments("--headless") as FirefoxOptions;
 
 const builder = new Builder()
