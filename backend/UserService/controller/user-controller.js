@@ -91,10 +91,10 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, newPassword, oldPassword } = req.body;
+    const { username, newPassword, oldPassword } = req.body;
     const { file } = req;
 
-    if (oldPassword && (username || email || newPassword || file)) {
+    if (oldPassword && (username || newPassword || file)) {
       const userId = req.params.id;
       let newAvatarPath;
       if (!isValidObjectId(userId)) {
@@ -125,14 +125,10 @@ export async function updateUser(req, res) {
         }
       }
 
-      if (username || email) {
+      if (username) {
         let existingUser = await _findUserByUsername(username);
         if (existingUser && existingUser.id !== userId) {
           return res.status(409).json({ message: "username already exists" });
-        }
-        existingUser = await _findUserByEmail(email);
-        if (existingUser && existingUser.id !== userId) {
-          return res.status(409).json({ message: "email already exists" });
         }
       }
 
@@ -145,7 +141,6 @@ export async function updateUser(req, res) {
       const updatedUser = await _updateUserById(
         userId,
         username,
-        email,
         newAvatarPath,
         hashedPassword
       );
@@ -156,7 +151,7 @@ export async function updateUser(req, res) {
     } else {
       return res.status(400).json({
         message:
-          "Missing current password or no field to update: username and email and new password are all missing!",
+          "Missing current password or no field to update: username and new password are all missing!",
       });
     }
   } catch (err) {
