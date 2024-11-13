@@ -20,10 +20,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   socketRef,
 }) => {
   const [messages, setMessages] = useState<string[]>([
-    "Start chatting to find out who you are paired with!"
+    "You have joined the chat room. Say hello!"
   ]);
   const [message, setMessage] = useState<string>("");
-  const [otherUserName, setOtherUserName] = useState<string>("");
+  const [otherUserName, setOtherUserName] = useState<string>(localStorage.getItem("pairedUserName") || "");
 
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const questionRef = useRef<Question | null>(question);
@@ -37,24 +37,38 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   useEffect(() => {
     if (socketRef.current) {
       socketRef.current.off("newConnection");
+      socketRef.current.off("userJoined");
 
-      socketRef.current.on("newConnection", (data: { userId: string }) => {
-        setMessages((prevMessages) => [...prevMessages, "Your partner has connected. Let’s chat!"]);
+      socketRef.current.on("newConnection", (data) => {
+        if (data.userId !== socketRef.current.id) { 
+          setMessages((prevMessages) => [...prevMessages, "Your partner has connected. Let’s chat!"]);
+        }
       });
 
       socketRef.current.on("connect", () => {
         if (roomId && user?.username) {
           socketRef.current.emit("joinRoom", { roomId, username: user.username });
+  
+         
+          socketRef.current.emit("getPairedUserName", roomId, (pairedUserName) => {
+            if (pairedUserName) {
+              setOtherUserName(pairedUserName);
+              localStorage.setItem("pairedUserName", pairedUserName);
+            }
+          });
         }
       });
 
       socketRef.current.on("userJoined", (data: { username: string }) => {
         if (data.username !== user?.username) {
           setOtherUserName(data.username);
+          localStorage.setItem("pairedUserName", data.username);
         }
       });
 
       socketRef.current.on("leaveSession", () => {
+        setOtherUserName("");
+        localStorage.removeItem("pairedUserName");
         onEndSession(questionRef.current, currentCodeRef.current);
       });
 
@@ -62,6 +76,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
         if (data.username !== user?.username) {
           setMessages((prevMessages) => [...prevMessages, `${data.username}: ${data.message}`]);
           setOtherUserName(data.username);
+          localStorage.setItem("pairedUserName", data.username);
         }
 
         if (chatBoxRef.current) {
@@ -70,11 +85,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       });
 
       socketRef.current.on("userDisconnected", (data: { userId: string }) => {
-        setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected"]);
-        setOtherUserName("");
+        if (data.userId !== socketRef.current.id) {
+          setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected"]);
+        }
       });
 
       return () => {
+        socketRef.current?.off("newConnection");
         socketRef.current?.off("userJoined");
         socketRef.current?.off("leaveSession");
         socketRef.current?.off("receiveMessage");
@@ -104,7 +121,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 
   const renderMessages = () => {
     const notificationMessages = [
-      "Your partner has connected. Let’s chat!",
+      "You have joined the chat room. Say hello!",
       "Your partner has disconnected",
       "Start chatting to find out who you are paired with!"
     ];
@@ -128,7 +145,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       );
     });
   };
-  
 
   return (
     <div style={styles.chatBoxContainer}>
@@ -187,7 +203,7 @@ const styles = {
     fontWeight: "normal",
     color: "#b3b3b3",
     fontStyle: "italic",
-    flex: 1,  // Allows pairedUser section to take available space
+    flex: 1,
   },
 
   endSessionButton: {
@@ -203,7 +219,7 @@ const styles = {
   messagesContainer: {
     display: "flex",
     flexDirection: "column" as const,
-    alignItems: "flex-start", // Aligns messages to the start
+    alignItems: "flex-start",
     flex: 1,
     overflowY: "auto" as const,
     padding: "10px",
@@ -221,10 +237,10 @@ const styles = {
     borderRadius: "10px",
     marginBottom: "5px",
     fontSize: "0.9rem",
-    display: "inline-flex", // Adjusts the bubble width to fit the content
-    maxWidth: "80%", // Optional: prevents the bubble from getting too wide on large screens
-    whiteSpace: "pre-wrap", // Allows text to wrap within the bubble if needed
-    wordBreak: "break-word", // Breaks long words to avoid overflow
+    display: "inline-flex", 
+    maxWidth: "80%",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
   },
   
   receivedMessage: {
@@ -235,10 +251,10 @@ const styles = {
     borderRadius: "10px",
     marginBottom: "5px",
     fontSize: "0.9rem",
-    display: "inline-flex", // Adjusts the bubble width to fit the content
-    maxWidth: "80%", // Optional: prevents the bubble from getting too wide on large screens
-    whiteSpace: "pre-wrap", // Allows text to wrap within the bubble if needed
-    wordBreak: "break-word", // Breaks long words to avoid overflow
+    display: "inline-flex",
+    maxWidth: "80%",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
   },
   
 
@@ -275,7 +291,7 @@ const styles = {
   },
 
   userMessageLeft: {
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     backgroundColor: "#4e8ef7",
     color: "#ffffff",
     padding: "6px 10px",
@@ -289,7 +305,7 @@ const styles = {
   },
   
   receivedMessageRight: {
-    alignSelf: "flex-end",
+    alignSelf: "flex-start",
     backgroundColor: "#44475a",
     color: "#ffffff",
     padding: "6px 10px",

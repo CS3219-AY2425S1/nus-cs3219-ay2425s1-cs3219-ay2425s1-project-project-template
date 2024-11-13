@@ -55,7 +55,11 @@ const EditorElement: React.FC<Props> = ({
       try {
         const { version, doc } = await getDocument(socket);
         setVersion(version);
-        setDoc(doc.toString());
+        const docString = doc.toString();
+        setDoc(docString);
+        if (docString !== "Start document") {
+          onCodeChange(docString);
+        }
       } catch (error) {
         console.error("Error fetching document:", error);
       }

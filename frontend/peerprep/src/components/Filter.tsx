@@ -24,7 +24,7 @@ const Filters: React.FC<FiltersProps> = ({
   setColumnFilters,
   topics,
 }) => {
-  const filteredTitle = columnFilters.filter((x) => x.id === "title");
+  const filteredTitle = columnFilters.filter((x) => x.id === "Title");
 
   const onFilterChange = (id: string, value: string) => {
     setColumnFilters((prev) =>
@@ -64,7 +64,7 @@ const Filters: React.FC<FiltersProps> = ({
           value={
             filteredTitle.length === 0 ? "" : String(filteredTitle[0].value)
           }
-          onChange={(e) => onFilterChange("title", e.target.value)}
+          onChange={(e) => onFilterChange("Title", e.target.value)}
         />
       </InputGroup>
       <Text textColor={"white"} size={"lg"}>

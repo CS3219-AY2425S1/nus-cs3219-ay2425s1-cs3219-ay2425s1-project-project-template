@@ -69,7 +69,6 @@ const EditorView: React.FC = () => {
 
   const saveCode = (code: string) => {
     setCurrentCode(code);
-    console.log("Code saved:", code);
   };
 
   const saveQuestion = (question: Question) => {

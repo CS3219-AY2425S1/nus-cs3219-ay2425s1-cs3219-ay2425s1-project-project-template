@@ -135,8 +135,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             <FormLabel>Categories</FormLabel>
             <Menu>
               <HStack pb={2}>
-                {selectedCategories.map((cat) => (
-                  <div className="flex flex-row p-1 space-x-2 border-2 border-purple-500 rounded-md capitalize">
+                {selectedCategories.map((cat, ind) => (
+                  <div
+                    key={ind}
+                    className="flex flex-row p-1 space-x-2 border-2 border-purple-500 rounded-md capitalize"
+                  >
                     <span>{cat}</span>
                     <CloseButton
                       variant="outline"
