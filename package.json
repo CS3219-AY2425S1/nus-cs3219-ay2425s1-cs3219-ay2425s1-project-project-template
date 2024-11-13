@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "erlang": "^1.0.0",
     "@mistralai/mistralai": "^1.1.0",
+    "erlang": "^1.0.0",
+    "lodash": "^4.17.21",
     "zod": "^3.23.8"
   }
 }
