@@ -20,7 +20,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   socketRef,
 }) => {
   const [messages, setMessages] = useState<string[]>([
-    "Start chatting to find out who you are paired with!"
+    "You have joined the chat room. Say hello!"
   ]);
   const [message, setMessage] = useState<string>("");
   const [otherUserName, setOtherUserName] = useState<string>(localStorage.getItem("pairedUserName") || "");
@@ -122,7 +122,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 
   const renderMessages = () => {
     const notificationMessages = [
-      "Your partner has connected. Let’s chat!",
+      "You have joined the chat room. Say hello!",
       "Your partner has disconnected",
       "Start chatting to find out who you are paired with!"
     ];
