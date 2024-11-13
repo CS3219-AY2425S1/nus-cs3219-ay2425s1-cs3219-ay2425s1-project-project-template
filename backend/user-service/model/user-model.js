@@ -45,10 +45,6 @@ const UserModelSchema = new Schema({
           type: Date,
           default: Date.now, // Set start time to the current date/time by default
         },
-        chat: {
-          type: Array,
-          default: [],
-        },
         codeLanguage: {
           type:String,
           default: "javascript"
@@ -56,10 +52,6 @@ const UserModelSchema = new Schema({
         code: {
           type: String,
           default: "// Start coding...",
-        },
-        aiChat: {
-          type: Array,
-          default: [],
         },
       },
     ],

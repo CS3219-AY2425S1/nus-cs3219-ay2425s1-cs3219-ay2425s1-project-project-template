@@ -94,9 +94,8 @@ const updateSessionHistory = async (userId, roomId, sessionData) => {
       { _id: userId, "sessionHistory.roomId": roomId }, // Locate user and specific session by roomId
       { 
         $set: {
-          "sessionHistory.$.chat": sessionData.chat, // Update chat data
+          "sessionHistory.$.codeLanguage": sessionData.codeLangauge, // Update code language
           "sessionHistory.$.code": sessionData.code, // Update code data
-          "sessionHistory.$.aiChat": sessionData.aiChat, // Update aiChat data
         } 
       },
       { new: true } // Return the updated document

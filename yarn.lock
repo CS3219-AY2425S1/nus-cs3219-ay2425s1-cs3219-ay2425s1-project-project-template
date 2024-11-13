@@ -3,11 +3,35 @@
 
 
 "@mistralai/mistralai@^1.1.0":
-  "integrity" "sha512-YueaIX+g4+QTX6ERLjZLZMOhlC0/EoqwpayWrUKfTM9EGTyiOPdxFLpLpg5B9PsaxOrmZDC88pOp4QgSMqVr8w=="
-  "resolved" "https://registry.npmjs.org/@mistralai/mistralai/-/mistralai-1.1.0.tgz"
-  "version" "1.1.0"
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@mistralai/mistralai/-/mistralai-1.1.0.tgz"
+  integrity sha512-YueaIX+g4+QTX6ERLjZLZMOhlC0/EoqwpayWrUKfTM9EGTyiOPdxFLpLpg5B9PsaxOrmZDC88pOp4QgSMqVr8w==
 
-"zod@^3.23.8", "zod@>= 3":
-  "integrity" "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g=="
-  "resolved" "https://registry.npmjs.org/zod/-/zod-3.23.8.tgz"
-  "version" "3.23.8"
+debug@~1.0.4:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/debug/-/debug-1.0.5.tgz"
+  integrity sha512-SIKSrp4+XqcUaNWhwaPJbLFnvSXPsZ4xBdH2WRK0Xo++UzMC4eepYghGAVhVhOwmfq3kqowqJ5w45R3pmYZnuA==
+  dependencies:
+    ms "2.0.0"
+
+erlang@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/erlang/-/erlang-1.0.0.tgz"
+  integrity sha512-wiWoJAl4LZA/Sa7oks/sacKZO1M/OinpDujNs5McgZaaIBZMuiHhiaoLK7kbwVB5rd9JIyRdMeyhVXYiGxEyPA==
+  dependencies:
+    debug "~1.0.4"
+
+lodash@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+
+ms@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz"
+  integrity sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==
+
+zod@^3.23.8, "zod@>= 3":
+  version "3.23.8"
+  resolved "https://registry.npmjs.org/zod/-/zod-3.23.8.tgz"
+  integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
