@@ -56,6 +56,41 @@
     width: 400px;
 }
 
+.editable-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editable-container input {
+  flex-grow: 1;
+  border: 2px solid black;
+  height: 15px;
+}
+
+.editable-container button {
+  font-size: 14px;
+  padding: 3px 3px;
+  height: 25px;
+}
+
+.cancel-button {
+  margin-left: 5px;
+  background-color: red;
+}
+
+.cancel-button:hover {
+  background-color: red;
+}
+
+.edit-icon {
+  cursor: pointer;
+}
+
+.created-at {
+  text-align: left;
+}
+
 .history-btn {
     background-color: #f7b32b;
     color: white;
