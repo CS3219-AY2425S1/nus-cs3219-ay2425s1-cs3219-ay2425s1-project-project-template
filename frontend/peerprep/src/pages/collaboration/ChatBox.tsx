@@ -49,11 +49,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({
         if (roomId && user?.username) {
           socketRef.current.emit("joinRoom", { roomId, username: user.username });
   
-          // Request paired user name from server on reconnect
+         
           socketRef.current.emit("getPairedUserName", roomId, (pairedUserName) => {
             if (pairedUserName) {
               setOtherUserName(pairedUserName);
-              localStorage.setItem("pairedUserName", pairedUserName); // Store in localStorage
+              localStorage.setItem("pairedUserName", pairedUserName);
             }
           });
         }
@@ -62,13 +62,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       socketRef.current.on("userJoined", (data: { username: string }) => {
         if (data.username !== user?.username) {
           setOtherUserName(data.username);
-          localStorage.setItem("pairedUserName", data.username); // Store in localStorage
+          localStorage.setItem("pairedUserName", data.username);
         }
       });
 
       socketRef.current.on("leaveSession", () => {
         setOtherUserName("");
-        localStorage.removeItem("pairedUserName"); // Clear from localStorage
+        localStorage.removeItem("pairedUserName");
         onEndSession(questionRef.current, currentCodeRef.current);
       });
 
@@ -76,7 +76,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
         if (data.username !== user?.username) {
           setMessages((prevMessages) => [...prevMessages, `${data.username}: ${data.message}`]);
           setOtherUserName(data.username);
-          localStorage.setItem("pairedUserName", data.username); // Update in localStorage
+          localStorage.setItem("pairedUserName", data.username);
         }
 
         if (chatBoxRef.current) {
@@ -87,7 +87,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       socketRef.current.on("userDisconnected", (data: { userId: string }) => {
         if (data.userId !== socketRef.current.id) {
           setMessages((prevMessages) => [...prevMessages, "Your partner has disconnected"]);
-          // Don't clear `otherUserName` here to keep it displayed
         }
       });
 
@@ -204,7 +203,7 @@ const styles = {
     fontWeight: "normal",
     color: "#b3b3b3",
     fontStyle: "italic",
-    flex: 1,  // Allows pairedUser section to take available space
+    flex: 1,
   },
 
   endSessionButton: {
@@ -220,7 +219,7 @@ const styles = {
   messagesContainer: {
     display: "flex",
     flexDirection: "column" as const,
-    alignItems: "flex-start", // Aligns messages to the start
+    alignItems: "flex-start",
     flex: 1,
     overflowY: "auto" as const,
     padding: "10px",
@@ -238,10 +237,10 @@ const styles = {
     borderRadius: "10px",
     marginBottom: "5px",
     fontSize: "0.9rem",
-    display: "inline-flex", // Adjusts the bubble width to fit the content
-    maxWidth: "80%", // Optional: prevents the bubble from getting too wide on large screens
-    whiteSpace: "pre-wrap", // Allows text to wrap within the bubble if needed
-    wordBreak: "break-word", // Breaks long words to avoid overflow
+    display: "inline-flex", 
+    maxWidth: "80%",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
   },
   
   receivedMessage: {
@@ -252,10 +251,10 @@ const styles = {
     borderRadius: "10px",
     marginBottom: "5px",
     fontSize: "0.9rem",
-    display: "inline-flex", // Adjusts the bubble width to fit the content
-    maxWidth: "80%", // Optional: prevents the bubble from getting too wide on large screens
-    whiteSpace: "pre-wrap", // Allows text to wrap within the bubble if needed
-    wordBreak: "break-word", // Breaks long words to avoid overflow
+    display: "inline-flex",
+    maxWidth: "80%",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
   },
   
 
