@@ -217,3 +217,23 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
+
+.avatar-button {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  color: white;
+  font-size: 0.875rem; /* Equivalent to Tailwind's text-sm */
+  font-weight: 600; /* Equivalent to Tailwind's font-semibold */
+  opacity: 0; /* Hidden by default */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Rounded full */
+  transition: opacity 0.2s ease; /* Smooth transition */
+  z-index: 10;
+}
+
+.avatar-button:hover {
+  opacity: 1; /* Show on hover */
+}

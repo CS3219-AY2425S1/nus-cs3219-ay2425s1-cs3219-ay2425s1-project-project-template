@@ -82,7 +82,7 @@ function App() {
                 <div className="main-layout flex-1 bg-[#EDEDED] border-2 border-[#e0e0e0] rounded-[1.5rem] overflow-auto shadow-lg">
                   <Routes>
                     <Route path="/" element={<MatchingPage />} />
-                    <Route path="/settings" element={<SettingPage />} />
+                    <Route path="/setting" element={<SettingPage />} />
                     <Route path="/history" element={<HistoryPage />} />
                     <Route path="/room/:roomId" element={<CollaborationRoom />} />
                     <Route path="*" element={<h1>404 Not Found</h1>} />
