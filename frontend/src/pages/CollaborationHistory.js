@@ -51,7 +51,8 @@ export const CollaborationHistory = () => {
       <div className="question-and-whiteboard">
         <div className="home-btn-container">
           <h2 className="subheading">Question</h2>
-          <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} onClick={handleHomeButton}>        
+          <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} title="Return to homepage" 
+            onClick={handleHomeButton}>        
           </FontAwesomeIcon>
         </div>
         <div className="question-box">

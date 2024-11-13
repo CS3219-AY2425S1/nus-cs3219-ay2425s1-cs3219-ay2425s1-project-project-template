@@ -66,6 +66,14 @@ export const UserPage = () => {
     }
   }
 
+  const confirmDelete = () => {
+    if (window.confirm("Are you sure you want to delete your profile? This action is irreversible!")) {
+      deleteProfile(localStorage.getItem("userId"), localStorage.getItem("accessToken"))
+    } else {
+      console.log("Did not delete");
+    }
+  }
+
   return (
     <div className="user-page">
       <div className="center-block">
@@ -87,12 +95,15 @@ export const UserPage = () => {
           </tbody>
         </table>
         <div className='btn-container'>
-          <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} onClick={handleHomeButton}>        
+          <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer"}} 
+            title="Return to homepage"
+            onClick={handleHomeButton}>        
           </FontAwesomeIcon>
           <button className="history-btn" onClick={(e) => navigate("/history")}>Questions attempted</button>
           <FontAwesomeIcon icon={faTrash} 
-            style={{fontSize: "32px", color: "red", cursor: "pointer"}} 
-            onClick={() => deleteProfile(localStorage.getItem("userId"), localStorage.getItem("accessToken"))}>
+            style={{fontSize: "32px", color: "red", cursor: "pointer"}}
+            title="Delete your profile permanently" 
+            onClick={() => confirmDelete()}>
           </FontAwesomeIcon>
         </div>
       </div>

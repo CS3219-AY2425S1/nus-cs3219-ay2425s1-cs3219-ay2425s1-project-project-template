@@ -60,7 +60,8 @@ export const History = () => {
           </tr>)}
         </tbody>
       </table>
-      <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer", margin: "20px"}} onClick={handleHomeButton}>        
+      <FontAwesomeIcon icon={faHome} style={{fontSize: "32px", color: "#F7B32B", cursor: "pointer", margin: "20px"}} 
+        title="Return to homepage" onClick={handleHomeButton}>        
       </FontAwesomeIcon>
 
     </div>
