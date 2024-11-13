@@ -10,7 +10,7 @@ import {
 import {
     formatTestInput,
     countNumberOfPassedTestCases,
-    passedAllTestCases,
+    passedAllTestCases
 } from '../utils/utils'
 
 const executeUserCode = async (
@@ -53,7 +53,7 @@ const executeUserCode = async (
     const formattedInput = testCases
         .map((tc) => formatTestInput(tc.input))
         .join('\n')
-    const fileName = `q${questionId}.${languageExtensions.get(language)}`
+    const fileName = `q${questionId}.${languageExtensions.get(language.toLowerCase())}`
     let payload = {
         language: language.toLowerCase(),
         stdin: formattedInput,
@@ -84,7 +84,7 @@ const executeUserCode = async (
         if (executeCodeRes.data.stderr) {
             logger.error(
                 'Error appeared when executing code',
-                executeCodeRes.data.stderr,
+                String(executeCodeRes.data.stderr),
             )
             return res.status(400).json({
                 success: false,
