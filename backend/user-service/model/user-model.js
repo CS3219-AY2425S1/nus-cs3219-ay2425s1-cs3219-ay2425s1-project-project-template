@@ -41,14 +41,6 @@ const UserModelSchema = new Schema({
           type: String,
           required: true,
         },
-        difficulty: {
-          type: String,
-          required: true,
-        },
-        category: {
-          type: String,
-          required: true,
-        },
         startDate: {
           type: Date,
           default: Date.now, // Set start time to the current date/time by default
@@ -56,6 +48,10 @@ const UserModelSchema = new Schema({
         chat: {
           type: Array,
           default: [],
+        },
+        codeLanguage: {
+          type:String,
+          default: "javascript"
         },
         code: {
           type: String,

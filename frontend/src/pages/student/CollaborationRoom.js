@@ -7,7 +7,6 @@ import Text from "../../components/chat/Text.js";
 import TextInput from "../../components/chat/TextInput.js";
 import { addSessionToUser, updateSessionHistory } from "../../api/UserApi.js"
 import Modal from 'react-modal';
-import debounce from "lodash/debounce"
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -44,13 +43,15 @@ const CollaborationRoom = () => {
     console.log("Attempting to update session data:", {
       userId,
       roomId,
-      code,
+      language,
+      code: code,
       chat: messages,
       aiChat: copilotResponse
     });
     
     updateSessionHistory(userId, roomId, {
-      code,
+      codeLanguage: language,
+      code: code,
       chat: messages,
       aiChat: copilotResponse
     })
@@ -106,9 +107,7 @@ const CollaborationRoom = () => {
         const sessionData = {
           roomId: roomId,
           matchedUserId: matchedUserId,
-          questionId: question.id,
-          difficulty: question.difficulty,
-          category: question.category.join(", "),
+          questionId: question?._id,
           startDate: new Date(),
         };
         try {
@@ -119,6 +118,7 @@ const CollaborationRoom = () => {
         }
       } else if (result.type === "CODE_UPDATE") {
         setCode(result.code);
+        saveSessionData(); // Save session on leaving
       } else if (result.type === "USER_LEFT") {
         userLeaveRoom();
         // saveSessionData(); // Save session on leaving
