@@ -45,7 +45,10 @@ const HistoryView: React.FC<HistoryViewProps> = ({
         id: "rowNumber",
         cell: ({ getValue }) => getValue<number>(),
       },
-      { header: "Title", accessorKey: "title" },
+      { header: "Title", 
+        accessorFn: (row) => row.title, 
+        id: "Title", 
+      },
       {
         header: "Topic",
         accessorFn: (row) => row.categories,
