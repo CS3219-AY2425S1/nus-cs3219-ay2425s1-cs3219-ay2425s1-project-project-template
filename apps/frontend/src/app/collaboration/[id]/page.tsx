@@ -169,6 +169,13 @@ export default function CollaborationPage(props: CollaborationProps) {
     });
   };
 
+  const errorMessage = (message: string) => {
+    messageApi.open({
+      type: "error",
+      content: message,
+    });
+  };
+
   const sendSubmissionResultsToMatchedUser = (data: SubmissionResults) => {
     if (!providerRef.current) {
       throw new Error("Provider not initialized");
@@ -299,9 +306,13 @@ export default function CollaborationPage(props: CollaborationProps) {
       setDescription(data.description);
     });
 
-    GetVisibleTests(questionDocRefId).then((data: Test[]) => {
-      setVisibleTestCases(data);
-    });
+    GetVisibleTests(questionDocRefId)
+      .then((data: Test[]) => {
+        setVisibleTestCases(data);
+      })
+      .catch((e) => {
+        errorMessage(e.message);
+      });
 
     // Start stopwatch
     startStopwatch();
