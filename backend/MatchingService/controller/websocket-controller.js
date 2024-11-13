@@ -26,7 +26,7 @@ export const initializeCollaborationService = (server) => {
       // Verify the token
       await verifyToken(token); // Wait for the token verification to finish
       socket.token = token;
-      next();  // Proceed with the connection
+      next(); // Proceed with the connection
     } catch (error) {
       return next(new Error("Authentication failed"));
     }
@@ -102,7 +102,8 @@ export const handleUserMatch = async (job) => {
   if (!matchedUserSocket) {
     notifyUserOfMatchFailed(
       socketId,
-      "Matched user disconnected, please try again"
+      "Matched user disconnected, please try again",
+      {}
     );
     return;
   }
@@ -117,14 +118,18 @@ export const fetchQuestionId = async (topic, difficulty, socketId) => {
     const question_domain =
       process.env.QUESTION_SERVICE || "http://localhost:3002";
     const question_path = `${question_domain}/questions/matching`;
-    const response = await axios.post(question_path, {
-      category: topic,
-      complexity: difficulty,
-    },{
-      headers: {
-        'Authorization': `Bearer ${userSocket.token}`  // Pass the token here
+    const response = await axios.post(
+      question_path,
+      {
+        category: topic,
+        complexity: difficulty,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${userSocket.token}`, // Pass the token here
+        },
       }
-    });
+    );
 
     return response.data.question_id; // Return the fetched question ID
   } catch (error) {
@@ -137,18 +142,18 @@ export const fetchQuestionId = async (topic, difficulty, socketId) => {
 export const verifyToken = async (token) => {
   try {
     const user_domain = process.env.USER_SERVICE || "http://localhost:3001";
-    
+
     // Construct the URL for the verify-token endpoint
     const verifyTokenUrl = `${user_domain}/auth/verify-token`;
 
     // Send a POST request with the token in the Authorization header (Bearer token)
     const response = await axios({
-      method: 'get',
+      method: "get",
       url: verifyTokenUrl,
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'  // Set Content-Type
-      }
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // Set Content-Type
+      },
     });
 
     if (response.status !== 200) {
@@ -180,6 +185,6 @@ export const notifyUserOfMatchSuccess = (socketId, socket, job) => {
 };
 
 // Notify users when the match fails or times out
-export const notifyUserOfMatchFailed = (socketId, message) => {
-  io.to(socketId).emit("matchFailed", { error: message });
+export const notifyUserOfMatchFailed = (socketId, message, data) => {
+  io.to(socketId).emit("matchFailed", { error: message, content: data });
 };
