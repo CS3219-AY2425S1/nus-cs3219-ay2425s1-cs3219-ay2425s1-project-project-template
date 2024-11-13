@@ -245,3 +245,35 @@ export const updateSessionHistory = async (userId, roomId,updateData) => {
   }
 };
 
+// Update a specific session in sessionHistory
+export const updateUserById = async (userId, updateData) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("No token found, please log in.");
+    }
+
+    const response = await axios.patch(
+      `${USER_API_URL}/id/${userId}`,  // Ensure userId is not undefined
+      updateData,
+      { 
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to update user, please try again.");
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
+
