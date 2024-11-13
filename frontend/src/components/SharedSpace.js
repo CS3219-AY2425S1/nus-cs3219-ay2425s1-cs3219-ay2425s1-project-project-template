@@ -28,7 +28,7 @@ const SharedSpace = forwardRef((props, ref) => {
         case 'SQL':
             return sql();
         default:
-            return javascript();
+            return python();
     }
   }
 
@@ -53,6 +53,7 @@ const SharedSpace = forwardRef((props, ref) => {
 
     const yText = doc.getText('shared-text');
     const yCode = doc.getText('shared-code');
+    const yLanguage = doc.getText('shared-language');
 
     yText.observe(() => {
       setText1(yText.toString());
@@ -60,6 +61,10 @@ const SharedSpace = forwardRef((props, ref) => {
 
     yCode.observe(() => {
       setCode(yCode.toString());
+    });
+
+    yLanguage.observe(() => {
+      setLanguage(yLanguage.toString());
     });
 
     // Clean up WebSocket connection and Yjs document on unmount
@@ -85,6 +90,14 @@ const SharedSpace = forwardRef((props, ref) => {
     yCode.insert(0, newText);
   };
 
+  const handleLanguageChange = (event) => {
+    const newLanguage = event.target.value;
+    const yLanguage = docRef.current.getText('shared-language');
+
+    yLanguage.delete(0, yLanguage.length);
+    yLanguage.insert(0, newLanguage);
+  }
+
   const textAreaStyle = {
     display: 'block',
     width: '98%',
@@ -104,7 +117,7 @@ const SharedSpace = forwardRef((props, ref) => {
       />
       <h2 className="subheading">Code Editor</h2>
       <div className="code-area">
-        <select className="language" value={language} onChange={(e) => setLanguage(e.target.value)}>
+        <select className="language" value={language} onChange={handleLanguageChange}>
             <option value="JavaScript">JavaScript</option>
             <option value="Python">Python</option>
             <option value="C++">C++</option>
