@@ -12,6 +12,7 @@ import {
     countNumberOfPassedTestCases,
     passedAllTestCases
 } from '../utils/utils'
+import { error } from 'winston'
 
 const executeUserCode = async (
     req: CodeExecutionRequest,
@@ -53,7 +54,8 @@ const executeUserCode = async (
     const formattedInput = testCases
         .map((tc) => formatTestInput(tc.input))
         .join('\n')
-    const fileName = `q${questionId}.${languageExtensions.get(language.toLowerCase())}`
+
+    const fileName = `q${questionId}.${languageExtensions.get(language == 'Cpp' ? 'c++' : language.toLowerCase())}`
     let payload = {
         language: language.toLowerCase(),
         stdin: formattedInput,
@@ -82,9 +84,11 @@ const executeUserCode = async (
         )
 
         if (executeCodeRes.data.stderr) {
+            let errorMsg = executeCodeRes.data.stderr
+            console.log(errorMsg)
             logger.error(
                 'Error appeared when executing code',
-                String(executeCodeRes.data.stderr),
+                { error: errorMsg },
             )
             return res.status(400).json({
                 success: false,
