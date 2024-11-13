@@ -154,7 +154,7 @@ func AddLeetCodeQuestionToDb() gin.HandlerFunc {
         titleSlug := strings.ToLower(strings.ReplaceAll(LeetCodeAPIRequest.Title, " ", "-"))
 
         // Fetch question from the API
-        apiUrl := fmt.Sprintf("http://alfa_leetcode_api:3000/select?titleSlug=%s", titleSlug)
+        apiUrl := fmt.Sprintf("https://alfa-leetcode-api.onrender.com/select?titleSlug=%s", titleSlug)
         resp, err := http.Get(apiUrl)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch question from API"})

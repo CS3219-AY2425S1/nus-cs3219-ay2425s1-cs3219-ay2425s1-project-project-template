@@ -55,13 +55,6 @@ services:
         - path: ./PeerPrep-UserService-main/user-service
           action: rebuild
 
-  alfa_leetcode_api:
-    container_name: alfa_leetcode_api
-    image: alfaarghya/alfa-leetcode-api:2.0.1
-    ports:
-      - "3000:3000"
-    restart: always
-
   question-service:
     container_name: question-service
     build: ./QuestionService
@@ -69,7 +62,6 @@ services:
       - "3002:3002"
     depends_on:
       - mongo_db
-      - alfa_leetcode_api
     develop:
       watch:
         - action: sync
