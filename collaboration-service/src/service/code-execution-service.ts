@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
-
+import { TestTemplateCode, ExecutionResult } from "../models/models";
 dotenv.config();
 
 const JUDGE0_API_URL = process.env.JUDGE0_API_URL;
@@ -11,12 +11,6 @@ const languageIds: { [key: string]: number } = {
   python: 71, // Python 3 language ID
   java: 62, // Java
 };
-
-interface TestTemplateCode {
-  python: string;
-  java: string;
-  javascript: string;
-}
 
 export async function executeCode(
   code: string,
@@ -59,11 +53,11 @@ export async function executeCodeWithTestCases(
   language: string = "javascript",
   testCases: Array<{ input: any; output: any }> | null,
   testTemplateCode: TestTemplateCode | null
-): Promise<string> {
+): Promise<ExecutionResult> {
   const languageId = languageIds[language];
 
   if (!code.trim()) {
-    return "Code cannot be empty.";
+    throw new Error("Code cannot be empty.");
   }
 
   if (!languageId) {
@@ -102,11 +96,11 @@ export async function executeCodeWithTestCases(
         languageId
       );
     } else {
-      return "Not implemented";
+      throw new Error("Not implemented");
     }
   } catch (error) {
     console.error("Error executing code:", error);
-    return "An error occurred during code execution.";
+    throw new Error("An error occurred during code execution.");
   }
 }
 
@@ -115,7 +109,7 @@ async function runPythonCode(
   testCases: Array<{ input: any; output: any }> | null,
   testTemplateCode: string,
   languageId: number
-) {
+): Promise<ExecutionResult> {
   const results = [];
 
   for (const [index, testCase] of testCases!.entries()) {
@@ -176,7 +170,7 @@ async function runPythonCode(
 
         const errorMatch = message.match(/(\w+Error): (.*)/);
         if (errorMatch) {
-          errorMessage = `${errorMatch[1]}: ${errorMatch[2]}`;
+          errorMessage = `${errorMatch[1]} - ${errorMatch[2]}`;
         } else {
           errorMessage = message;
         }
@@ -213,7 +207,7 @@ async function runPythonCode(
     }
   }
 
-  return summary;
+  return { summary, results };
 }
 
 async function runJavaScriptCode(
@@ -221,7 +215,7 @@ async function runJavaScriptCode(
   testCases: Array<{ input: any[]; output: any[] }> | null,
   testTemplateCode: string,
   languageId: number
-) {
+): Promise<ExecutionResult> {
   const results = [];
 
   for (const [index, testCase] of testCases!.entries()) {
@@ -322,7 +316,7 @@ async function runJavaScriptCode(
     }
   }
 
-  return summary;
+  return { summary, results };
 }
 
 async function runJavaCode(
@@ -330,7 +324,7 @@ async function runJavaCode(
   testCases: Array<{ input: any[]; output: any[] }> | null,
   testTemplateCode: string,
   languageId: number
-) {
+): Promise<ExecutionResult> {
   const results = [];
 
   for (const [index, testCase] of testCases!.entries()) {
@@ -440,5 +434,5 @@ async function runJavaCode(
     }
   }
 
-  return summary;
+  return { summary, results };
 }

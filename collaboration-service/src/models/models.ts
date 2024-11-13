@@ -12,6 +12,7 @@ export interface UserInfo {
     timeTaken: number;
     codeContent: string | null;
     language: string | null;
+    codeRuns?: CodeRun[];
   }
   
   export interface JoinCollabData {
@@ -38,7 +39,7 @@ export interface UserInfo {
     codeContent: string;
   }
   
-  interface TestTemplateCode {
+  export interface TestTemplateCode {
     python: string;
     java: string;
     javascript: string;
@@ -56,4 +57,27 @@ export interface UserInfo {
   export interface ChangeLanguageData {
     roomId: string;
     newLanguage: string;
+  }
+
+  export interface ExecutionResult {
+    summary: string;
+    results: any[];
+  }
+
+  export interface TestCaseResult {
+    testCaseIndex: number;
+    input: string;
+    expected: string;
+    actual: string;
+    pass: boolean;
+    userStdOut: string;
+  }
+  
+  export interface CodeRun {
+    code: string;
+    language: string;
+    output: string;
+    testCaseResults: TestCaseResult[];
+    timestamp: number;
+    status: string;
   }

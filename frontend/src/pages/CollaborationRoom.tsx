@@ -215,8 +215,6 @@ const CollaborativeEditor: React.FC = () => {
             {question.description}
           </Typography>
 
-          <Typography variant="h6">Room ID: {roomId}</Typography>
-          <Typography variant="h6">User: {user?.name}</Typography>
           <Box
             sx={{ display: "flex", justifyContent: "flex-end", mt: 2, mb: 4 }}
           >
@@ -284,7 +282,27 @@ const CollaborativeEditor: React.FC = () => {
                   >
                     <Typography variant="h6">Output:</Typography>
                     <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-                      {output}
+                      {output.split(/(Passed|Failed)/g).map((part, index) =>
+                        part === "Passed" ? (
+                          <Box
+                            component="span"
+                            key={index}
+                            sx={{ color: "green", fontWeight: "bold" }}
+                          >
+                            {part}
+                          </Box>
+                        ) : part === "Failed" ? (
+                          <Box
+                            component="span"
+                            key={index}
+                            sx={{ color: "red", fontWeight: "bold" }}
+                          >
+                            {part}
+                          </Box>
+                        ) : (
+                          part
+                        )
+                      )}
                     </Typography>
                   </Box>
                 )

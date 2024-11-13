@@ -1,6 +1,35 @@
-// model/attempt-model.ts
-
 import mongoose from "mongoose";
+
+const TestCaseResultSchema = new mongoose.Schema(
+  {
+    testCaseIndex: Number,
+    input: String,
+    expected: String,
+    actual: String,
+    pass: Boolean,
+    userStdOut: String,
+  },
+  { _id: false }
+);
+
+const CodeRunSchema = new mongoose.Schema(
+  {
+    code: String,
+    language: String,
+    output: String,
+    testCaseResults: [TestCaseResultSchema],
+    timestamp: {
+      type: Date,
+      default: Date.now,
+    },
+    status: {
+      type: String,
+      enum: ["Success", "Wrong Answer", "Error"],
+      required: true,
+    },
+  },
+  { _id: false }
+);
 
 const AttemptSchema = new mongoose.Schema({
   userId: {
@@ -37,10 +66,8 @@ const AttemptSchema = new mongoose.Schema({
   language: {
     type: String,
     required: false, 
-  }
+  },
+  codeRuns: [CodeRunSchema],
 });
-
-// To prevent duplicates, consider adding a compound index
-// AttemptSchema.index({ userId: 1, questionId: 1, peerUserName: 1 }, { unique: false });
 
 export default mongoose.model("AttemptModel", AttemptSchema);
