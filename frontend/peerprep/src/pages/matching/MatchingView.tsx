@@ -75,7 +75,6 @@ const MatchingView: React.FC = () => {
     const domain = import.meta.env.VITE_MATCH_API_URL;
     const path =
       import.meta.env.VITE_ENV === "DEV" ? "/socket.io" : "/matching/socket.io";
-      console.log(path)
 
     // Initialize the WebSocket connection
     socketRef.current = io(domain, {
@@ -151,6 +150,19 @@ const MatchingView: React.FC = () => {
     };
   }, []); // Add elapsedTime to dependencies
 
+  const handleRetry = () => {
+    if (socketRef.current == null) {
+      return;
+    }
+    setStatus("Connecting to server, joining queue...");
+    setQueueStatus("loading");
+    socketRef.current.emit("joinQueue", {
+      username: user.username,
+      topic: topic,
+      difficulty: difficulty,
+    });
+  };
+
   return (
     <Box
       display="flex"
@@ -217,11 +229,7 @@ const MatchingView: React.FC = () => {
           <Text fontSize="lg" fontWeight="bold">
             Failed to find a match!
           </Text>
-          <Button
-            mt={4}
-            colorScheme="purple"
-            onClick={() => window.location.reload()}
-          >
+          <Button mt={4} colorScheme="purple" onClick={handleRetry}>
             Try Again
           </Button>
         </Box>
