@@ -26,7 +26,8 @@ const HistoryCard = ({ sessionData, userImage }) => {
       >
         {/* Topic and Difficulty */}
         <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">{sessionData?.question?.category.join(", ") || "-"}</h2>
+          <h1 className="text-3xl font-bold text-white"> {sessionData?.question?.title}</h1>
+          <h2 className="text-xl">{sessionData?.question?.category.join(", ") || "-"}</h2>
           <p className="text-lg">{sessionData?.question?.complexity || "-"}</p>
         </div>
         
