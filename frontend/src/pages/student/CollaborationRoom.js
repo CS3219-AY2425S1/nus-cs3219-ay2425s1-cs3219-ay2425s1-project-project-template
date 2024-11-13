@@ -7,6 +7,7 @@ import Text from "../../components/chat/Text.js";
 import TextInput from "../../components/chat/TextInput.js";
 import { addSessionToUser, updateSessionHistory } from "../../api/UserApi.js"
 import Modal from 'react-modal';
+import Loader from "../../components/utils/Loader";
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -244,6 +245,8 @@ const CollaborationRoom = () => {
   };
 
   const handleSubmitPrompt = async () => {
+    setCopilotResponse(""); // Clear previous response
+
     const promptData = {
       code: code,
       prompt: userPrompt,
@@ -252,11 +255,16 @@ const CollaborationRoom = () => {
     };
 
     try {
+      console.log("Starting API call...");
+      setCopilotResponse("Loading Response") // used to indicate loading
       const response = await askCopilot(promptData);
-      // setCopilotResponse(response);
+      console.log("response returned...");
+      // setCopilotResponse(response); // Set the response from the API
     } catch (error) {
       console.error("Error calling Copilot API:", error);
-      setCopilotResponse("Error: " + error);
+      setCopilotResponse("Error: " + error.message);
+    } finally {
+      console.log("Setting isLoading to false");
     }
   };
 
@@ -374,65 +382,79 @@ const CollaborationRoom = () => {
         </div>
       </div>
 
-      {/* Right Section: Editor */}
-      <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "10px", backgroundColor: "#333", color: "black" }}>
-          <label>Select Language: </label>
-          <select
-            value={language}
-            onChange={(e) => onLanguageChange(e.target.value)}
-          >
-            {languages.map((lang) => (
-              <option key={lang.value} value={lang.value}>
-                {lang.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Editor
-          height="90vh"
-          defaultLanguage="javascript"
-          defaultValue="// Start coding..."
-          language={language}
-          value={code}
-          onChange={onCodeChange}
-          onMount={handleEditorDidMount}
-          theme="vs-dark"
-        />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "10px",
-            backgroundColor: "#333",
-          }}
-        >
-          <button
-            onClick={formatCode}
+      <div style={{ flex: 2, height: "100vh", display: "flex", flexDirection: "column" }}>
+        {/* Top Half: Editor Section */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: "10px", backgroundColor: "#333", color: "white" }}>
+            <label>Select Language: </label>
+            <select
+              value={language}
+              onChange={(e) => onLanguageChange(e.target.value)}
+              style={{
+                padding: "5px",
+                borderRadius: "5px",
+                marginLeft: "10px",
+                color: "#333",
+              }}
+            >
+              {languages.map((lang) => (
+                <option key={lang.value} value={lang.value}>
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Editor
+            height="100%" // Fill available space in this section
+            defaultLanguage="javascript"
+            defaultValue="// Start coding..."
+            language={language}
+            value={code}
+            onChange={onCodeChange}
+            onMount={handleEditorDidMount}
+            theme="vs-dark"
+          />
+          <div
             style={{
+              display: "flex",
+              justifyContent: "space-between",
               padding: "10px",
-              backgroundColor: "#4CAF50",
-              color: "white",
-              borderRadius: "5px",
-              cursor: "pointer",
+              backgroundColor: "#333",
             }}
           >
-            Format Code
-          </button>
-          <div>
+            <button
+              onClick={formatCode}
+              style={{
+                padding: "10px",
+                backgroundColor: "#4CAF50",
+                color: "white",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Format Code
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom Half: Copilot Input and Response Section */}
+        <div style={{ flex: 1, padding: "10px", backgroundColor: "#333", color: "white", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
             <input
               type="text"
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
               placeholder="Ask Copilot..."
               style={{
-                padding: "5px",
-                marginRight: "10px",
+                padding: "10px",
                 borderRadius: "5px",
                 border: "1px solid #ccc",
-                width: "200px",
+                width: "70%",
+                backgroundColor: "#222",
+                color: "white",
               }}
             />
+
             <button
               onClick={handleSubmitPrompt}
               style={{
@@ -441,19 +463,26 @@ const CollaborationRoom = () => {
                 color: "white",
                 borderRadius: "5px",
                 cursor: "pointer",
+                width: "25%",
               }}
             >
               Ask Copilot
             </button>
           </div>
-        </div>
-        {/* Display Copilot Response */}
-        {copilotResponse && (
-          <div style={{ padding: "10px", backgroundColor: "#444", color: "white" }}>
+
+          {/* Display Copilot Response */}
+          <div style={{ flex: 1, backgroundColor: "#444", padding: "10px", borderRadius: "5px", overflowY: "auto" }}>
             <strong>Copilot Response:</strong>
-            <p>{copilotResponse}</p>
+            {copilotResponse !== "Loading Response"? (
+              <p>{copilotResponse || "No response yet."}</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <Loader /> {/* Display loader component */}
+                <p className="mt-3">Hold on, Co-pilot is preparing a response...</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
