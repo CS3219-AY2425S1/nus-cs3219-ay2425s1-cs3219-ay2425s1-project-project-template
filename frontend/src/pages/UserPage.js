@@ -10,10 +10,13 @@ export const UserPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [createdAt, setCreatedAt] = useState("");
   const [isEditing, setIsEditing] = useState({username: false, email: false});
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const options = {
     year: "numeric",
@@ -79,6 +82,11 @@ export const UserPage = () => {
     setIsEditing({ ...isEditing, [field]: true});
     if (field === "username") setNewUsername(username);
     if (field === "email") setNewEmail(email);
+    if (field === "password") {
+        setPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+    }
   }
 
   const handleCancel = (field) => {
@@ -112,6 +120,59 @@ export const UserPage = () => {
         } else {
             console.log("Failed to update profile:", error);
             alert("Failed to update profile information!");
+        }
+    }
+  }
+
+  const handlePasswordChange = async (e) => {
+
+    e.preventDefault();
+    if (password === "" || newPassword === "" || confirmPassword === "") {
+        alert("Please fill up all fields!")
+        return;
+    }
+
+     if (password === newPassword) {
+         alert("New password cannot be the same as the current password.");
+         return;
+     }
+
+     if (newPassword !== confirmPassword) {
+         alert("New password and confirm password do not match.")
+         return;
+     }
+
+     const id = localStorage.getItem("userId");
+     const accessToken = localStorage.getItem("accessToken");
+
+     const updatedData = { password: newPassword };
+
+     try {
+        // Verify
+        const verifyResponse = await axios.post(`${USER_SERVICE}/auth/login`, {
+            email: localStorage.getItem("email"),
+            password: password
+        });
+
+        if (verifyResponse.status === 200) {
+            const updatedData = { password: newPassword };
+            const updatedResponse = await axios.patch(`${USER_SERVICE}/users/${id}`, updatedData, {
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            });
+        }
+
+        setPassword(newPassword);
+        alert("Password updated successfully!");
+        setIsEditing({ ...isEditing, password: false});
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            alert("Current password is incorrect.")
+        } else {
+            console.log("Failed to change password:", error);
+            alert("Failed to update password. Please try again.", error);
         }
     }
   }
@@ -162,6 +223,31 @@ export const UserPage = () => {
                         icon={faEdit}
                         className="edit-icon"
                         onClick={() => handleEditClick("email")}
+                      />
+                    </>
+                  )}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Password:</td>
+              <td>
+                <div className="editable-container">
+                  {isEditing.password ? (
+                    <div className="password-input">
+                      <input type="password" placeholder="Current Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                      <input type="password" placeholder="New Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                      <input type="password" placeholder="Confirm New Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                      <button className="save-button" onClick={handlePasswordChange}>Save</button>
+                      <button className="cancel-button" onClick={() => handleCancel("password")}>Cancel</button>
+                    </div>
+                  ) : (
+                    <>
+                      <span>******</span>
+                      <FontAwesomeIcon
+                        icon={faEdit}
+                        className="edit-icon"
+                        onClick={() => handleEditClick("password")}
                       />
                     </>
                   )}
