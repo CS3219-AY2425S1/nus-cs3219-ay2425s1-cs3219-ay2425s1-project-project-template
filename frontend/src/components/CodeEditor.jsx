@@ -111,12 +111,8 @@ export default function CodeEditor({ roomId, provider, doc, onRoomClosed}) {
                     variant="outlined"
                     size="small"
                 >
-                    <MenuItem value="csharp">C#</MenuItem>
-                    <MenuItem value="java">Java</MenuItem>
-                    <MenuItem value="javascript">JavaScript</MenuItem>
-                    <MenuItem value="php">PHP</MenuItem>
                     <MenuItem value="python">Python</MenuItem>
-                    <MenuItem value="typescript">TypeScript</MenuItem>
+                    <MenuItem value="javascript">JavaScript</MenuItem>
                 </Select>
                 <Button variant="contained" /*onClick={formatCode}*/>
                     Format Code
