@@ -22,23 +22,26 @@ export const Collaboration = () => {
     const [showModal, setShowModal] = useState(false);
     const [roomName, setRoomName] = useState("");
     const navigate = useNavigate();
-    const topic = sessionStorage.getItem("match_topic") ?? 'Bit Manipulation';
-    const difficulty = sessionStorage.getItem("match_difficulty") ?? 'Medium';
+    const topic = sessionStorage.getItem("match_topic") ?? 'NA';
+    const difficulty = sessionStorage.getItem("match_difficulty") ?? 'NA';
     const sharedSpaceRef = useRef();
 
 
     const getQuestionData = async () => {
         try {
           const response = await axios.get(`${QUESTIONS_SERVICE}/questions/${topic}/${difficulty}`);
-          if (response.status === 404 || response.status === 500) {
-            console.log("Response 404 || 500");
-            navigate("/*");
-          }
+          console.log("response in getQuestionData: ", response);
           setTitle(response.data.title);
           setQuestion(response.data.description);
         } catch (error) {
-            console.log(error);
-            navigate("/*");
+            if (error.status === 404 || error.status === 500) {
+                console.log("Response 404 || 500", error);
+                setTitle("No questions found");
+                setQuestion("No questions were found matching your requested topic and difficulty. But this room is still open for collaboration if you wish to discuss anything!\nYou may also leave the room by clicking the 'Leave' button below and try out a different topic or difficulty level. Thank you for using PeerPrep!");
+            } else {
+                console.log(error);
+                navigate("/*");
+            }
         }
     }
 
