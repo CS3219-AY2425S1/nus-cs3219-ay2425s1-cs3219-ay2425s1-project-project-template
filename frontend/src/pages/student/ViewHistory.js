@@ -8,9 +8,6 @@ const ViewHistory = () => {
 
   // Access question from location.state
   const sessionData = location.state?.sessionData;
-
-  // Placeholder for saved code (Replace this with the code retrieved from backend or context)
-  const [code, setCode] = useState(`// This is some example code\nfunction add(a, b) {\n  return a + b;\n}`);
   
   // Optionally, you could retrieve code from backend using useEffect when component mounts
   useEffect(() => {
@@ -38,32 +35,9 @@ const ViewHistory = () => {
           height="300px"  // Set a height for the editor
           defaultLanguage={sessionData?.language || "javascript"}  // Set the language for syntax highlighting
           theme="vs-dark"  // Optional: set a theme
-          value={code}  // Display the saved code
+          value={sessionData?.code}  // Display the saved code
           options={{ readOnly: true, minimap: { enabled: false } }}  // Make it read-only and disable the minimap if desired
         />
-      </div>
-
-      {/* Chat History Section */}
-      <div className="mb-6 p-4 bg-gray-100 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Chat History</h2>
-        <div className="max-h-64 overflow-y-auto p-3 bg-white rounded-md">
-          {/* Sample chat messages */}
-          <div className="mb-3">
-            <span className="font-semibold">User1:</span> Hello, how can I solve this problem?
-          </div>
-          <div className="mb-3">
-            <span className="font-semibold">User2:</span> Try starting with a basic function.
-          </div>
-          {/* Add more messages here */}
-        </div>
-      </div>
-
-      {/* AI Chat Section */}
-      <div className="p-4 bg-blue-100 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">AI Chat History</h2>
-        <div className="p-3 bg-white rounded-md">
-          <p>AI Assistant: You could optimize this function by...</p>
-        </div>
       </div>
     </div>
   );
