@@ -111,10 +111,22 @@ matchingQueue.on("failed", async (job, err) => {
   console.log(
     `Job failed attempt ${job.attemptsMade} out of ${job.opts.attempts}. Error: ${err.message}`
   );
+
   if (job.attemptsMade >= job.opts.attempts) {
+    const jobsInQueue = await matchingQueue.getJobs(["waiting", "delayed"]);
+    const jobMap = {};
+    for (const job of jobsInQueue) {
+      if (jobMap[job.data.topic]) {
+        jobMap[job.data.topic].push(job.data.difficulty);
+      } else {
+        jobMap[job.data.topic] = [job.data.difficulty];
+      }
+    }
+
     notifyUserOfMatchFailed(
       job.data.socketId,
-      "Failed to find a match after multiple attempts."
+      "Failed to find a match after multiple attempts.",
+      jobMap
     );
   }
 });

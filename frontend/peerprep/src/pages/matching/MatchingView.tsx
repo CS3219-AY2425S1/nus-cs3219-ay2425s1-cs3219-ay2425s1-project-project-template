@@ -11,6 +11,7 @@ const MatchingView: React.FC = () => {
   const [queueStatus, setQueueStatus] = useState<string>("loading"); // loading, matched, timeout
   const [elapsedTime, setElapsedTime] = useState<number>(0); // Track elapsed time
   const [status, setStatus] = useState<string>("");
+  const [queueData, setQueueData] = useState<{ [key: string]: string[] }>({});
 
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic");
@@ -75,7 +76,6 @@ const MatchingView: React.FC = () => {
     const domain = import.meta.env.VITE_MATCH_API_URL;
     const path =
       import.meta.env.VITE_ENV === "DEV" ? "/socket.io" : "/matching/socket.io";
-      console.log(path)
 
     // Initialize the WebSocket connection
     socketRef.current = io(domain, {
@@ -128,18 +128,22 @@ const MatchingView: React.FC = () => {
     );
 
     // Listen for a match failure from the server
-    socket.on("matchFailed", (data: { error: string }) => {
-      console.log("Match failed:", data.error);
-      setStatus(data.error);
-      setQueueStatus("timeout");
+    socket.on(
+      "matchFailed",
+      (data: { error: string; content: { [key: string]: string[] } }) => {
+        console.log("Match failed:", data.error);
+        setStatus(data.error);
+        // console.log("Queue matches", data.data);
+        setQueueStatus("timeout");
+        setQueueData(data.content);
+        handleStopTimer();
 
-      handleStopTimer();
-
-      // if (timerRef.current) {
-      //   clearInterval(timerRef.current); // Stop the timer on failure
-      //   handleTimeout(elapsedTime); // Call handleTimeout with the elapsed time
-      // }
-    });
+        // if (timerRef.current) {
+        //   clearInterval(timerRef.current); // Stop the timer on failure
+        //   handleTimeout(elapsedTime); // Call handleTimeout with the elapsed time
+        // }
+      }
+    );
 
     return () => {
       if (socketRef.current !== null) {
@@ -150,6 +154,19 @@ const MatchingView: React.FC = () => {
       }
     };
   }, []); // Add elapsedTime to dependencies
+
+  const handleRetry = () => {
+    if (socketRef.current == null) {
+      return;
+    }
+    setStatus("Connecting to server, joining queue...");
+    setQueueStatus("loading");
+    socketRef.current.emit("joinQueue", {
+      username: user.username,
+      topic: topic,
+      difficulty: difficulty,
+    });
+  };
 
   return (
     <Box
@@ -217,13 +234,20 @@ const MatchingView: React.FC = () => {
           <Text fontSize="lg" fontWeight="bold">
             Failed to find a match!
           </Text>
-          <Button
-            mt={4}
-            colorScheme="purple"
-            onClick={() => window.location.reload()}
-          >
+          <Button mt={4} colorScheme="purple" onClick={handleRetry}>
             Try Again
           </Button>
+          <Box pt={2}>
+            <div>
+              Consider other topics and difficulties others are queueing...
+            </div>
+            {Object.entries(queueData).length > 0 &&
+              Object.entries(queueData).map(([topic, diff]) => (
+                <div>
+                  <b>Topic:</b> {topic}, Difficulties: {diff.join(", ")}
+                </div>
+              ))}
+          </Box>
         </Box>
       )}
     </Box>
