@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import HistoryCard from "../../components/student/HistoryCard";
 import { getUserByEmail } from "../../api/UserApi";
 import { UserContext } from "../../App";
+import { getQuestion } from "../../api/QuestionsApi";
 
 const HistoryPage = () => {
   const [currentUserInfo, setCurrentUserInfo] = useState({});
+  const [enrichedSessionHistory, setEnrichedSessionHistory] = useState([]); // Store session history with question details
   const [sessionHistory, setSessionHistory] = useState([]);
   const [loading, setLoading] = useState(true); // New loading state
   const { userEmail } = useContext(UserContext);
@@ -36,12 +39,33 @@ const HistoryPage = () => {
     fetchUser();
   }, [storedEmail]);
 
-  // Log currentUserInfo after it's updated
+  // fetch questions using questionId
   useEffect(() => {
-    if (currentUserInfo && Object.keys(currentUserInfo).length > 0) {
-      console.log("Current User Info:", currentUserInfo);
+    async function fetchQuestionDetails() {
+      try {
+        const enrichedData = await Promise.all(
+          sessionHistory.map(async (session) => {
+            if (session.questionId) {
+              const questionDetails = await getQuestion(session.questionId);
+              console.log("Question Details:", questionDetails);
+              return {
+                ...session,
+                question: questionDetails,
+              };
+            }
+            return session;
+          })
+        );
+        setEnrichedSessionHistory(enrichedData);
+      } catch (error) {
+        console.error("Failed to fetch question details:", error);
+      }
     }
-  }, [currentUserInfo]);
+
+    if (sessionHistory.length > 0) {
+      fetchQuestionDetails();
+    }
+  }, [sessionHistory]);
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-100 justify-center">
@@ -51,15 +75,12 @@ const HistoryPage = () => {
         <p className="text-center">Loading...</p>
       ) : (
         <div className="max-w-full h-[80vh] bg-gray-100 mx-4 justify-between gap-4 custom-scrollbar rounded-lg mb-1">
-          {sessionHistory.length > 0 ? (
-            sessionHistory.map((session, index) => (
+          {enrichedSessionHistory.length > 0 ? (
+            enrichedSessionHistory.map((item, index) => (
               <HistoryCard
                 key={index}
-                category={session.category}
-                difficulty={session.difficulty}
-                questionImage={""}
-                startDate={session.startDate}
-                userImage={""}
+                sessionData={item}
+                userImage=""
               />
             ))
           ) : (

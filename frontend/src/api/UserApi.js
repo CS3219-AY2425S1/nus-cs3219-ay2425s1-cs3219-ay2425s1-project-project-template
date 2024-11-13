@@ -179,10 +179,22 @@ export const deleteUser = async (id) => {
 
 export const addSessionToUser = async (userId, sessionData) => {
   try {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("No token found, please log in.");
+    }
+
     const response = await axios.post(
       `${USER_API_URL}/${userId}/sessionHistory`,
-      sessionData
+      sessionData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Ensure token is included here
+        },
+      }
     );
+
     if (response.status === 200) {
       return response.data;
     } else {
@@ -197,3 +209,39 @@ export const addSessionToUser = async (userId, sessionData) => {
     throw error; // Re-throw the error to handle it in the component
   }
 };
+
+
+// Update a specific session in sessionHistory
+export const updateSessionHistory = async (userId, roomId,updateData) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("No token found, please log in.");
+    }
+
+    const response = await axios.patch(
+      `${USER_API_URL}/${userId}/sessionHistory/${roomId}`,
+      updateData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token for verification
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to update session history, please try again.");
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Error updating session history:", error.response.data);
+      throw new Error(error.response.data.message);
+    }
+    console.error("Error updating session history:", error);
+    throw error; // Re-throw the error to handle it in the component
+  }
+};
+

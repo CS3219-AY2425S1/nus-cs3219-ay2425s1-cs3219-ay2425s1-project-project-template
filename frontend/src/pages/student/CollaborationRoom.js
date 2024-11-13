@@ -5,7 +5,7 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 import ChatHeader from "../../components/chat/ChatHeader.js";
 import Text from "../../components/chat/Text.js";
 import TextInput from "../../components/chat/TextInput.js";
-import { addSessionToUser } from "../../api/UserApi.js"
+import { addSessionToUser, updateSessionHistory } from "../../api/UserApi.js"
 import Modal from 'react-modal';
 
 const languages = [
@@ -38,7 +38,31 @@ const CollaborationRoom = () => {
   const [copilotResponse, setCopilotResponse] = useState(""); // Store the response from Copilot API
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
-  
+  // Helper function to save session data
+  const saveSessionData = () => {
+    console.log("Attempting to update session data:", {
+      userId,
+      roomId,
+      language,
+      code: code,
+      chat: messages,
+      aiChat: copilotResponse
+    });
+    
+    updateSessionHistory(userId, roomId, {
+      codeLanguage: language,
+      code: code,
+      chat: messages,
+      aiChat: copilotResponse
+    })
+      .then((response) => {
+        console.log("Session data updated successfully:", response);
+      })
+      .catch((error) => {
+        console.error("Error updating session data:", error);
+      });
+  };
+
   // Create a WebSocket connection when the component mounts.
   useEffect(() => {
     const websocket = new WebSocket(COLLABORATION_WS_URL);
@@ -82,8 +106,8 @@ const CollaborationRoom = () => {
 
         const sessionData = {
           roomId: roomId,
-          difficulty: difficulty,
-          category: category.join(", "),
+          matchedUserId: matchedUserId,
+          questionId: question?._id,
           startDate: new Date(),
         };
         try {
@@ -94,8 +118,10 @@ const CollaborationRoom = () => {
         }
       } else if (result.type === "CODE_UPDATE") {
         setCode(result.code);
+        saveSessionData(); // Save session on leaving
       } else if (result.type === "USER_LEFT") {
         userLeaveRoom();
+        // saveSessionData(); // Save session on leaving
       } else if (result.type === "ROOM_EXIST") {
         websocket.send(
           JSON.stringify({
@@ -130,12 +156,14 @@ const CollaborationRoom = () => {
     // Cleanup WebSocket when the component unmounts
     return () => {
       websocket.close();
+      // saveSessionData(); // Final save on component unmount 
     };
   }, [roomId, matchedUserId, difficulty, category, userId]);
 
   // Warn user before navigating away or refreshing the page
   useEffect(() => {
     const handleBeforeUnload = (event) => {
+      // saveSessionData(); // Save session before page unloads
       event.preventDefault();
       event.returnValue = ""; // Modern browsers require this to show the confirmation dialog.
     };
@@ -155,6 +183,7 @@ const CollaborationRoom = () => {
       "Are you sure you want to leave the room?"
     );
     if (confirmation) {
+      // saveSessionData(); // Save session on leaving
       navigate("/"); // Navigate the user out of the room
     }
   };
