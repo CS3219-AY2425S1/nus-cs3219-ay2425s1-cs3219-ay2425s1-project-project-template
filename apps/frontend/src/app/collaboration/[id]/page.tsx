@@ -12,6 +12,7 @@ import {
   Tag,
   Typography,
   Spin,
+  Tooltip,
 } from "antd";
 import { Content } from "antd/es/layout/layout";
 import "./styles.scss";
@@ -492,7 +493,9 @@ export default function CollaborationPage(props: CollaborationProps) {
                   />
                 )}
                 <div className="hidden-test-results">
-                  <InfoCircleFilled className="hidden-test-icon" />
+                  <Tooltip title="Status applies only to this session">
+                    <InfoCircleFilled className="hidden-test-icon" />
+                  </Tooltip>
                   <Typography.Text
                     strong
                     style={{
