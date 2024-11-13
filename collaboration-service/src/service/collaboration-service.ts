@@ -63,6 +63,7 @@ export async function handleSendMessage(socket: Socket, data: MessageData) {
   socket.to(roomId).emit('receive_message', chatMessage);
 }
 
+<<<<<<< Updated upstream
 
 export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
   const { roomId, codeContent } = data;
@@ -78,6 +79,17 @@ export async function handleLeaveRoom(socket: Socket, data: LeaveCollabData) {
     `User ${userName} left room ${roomId} with final code content:`,
     codeContent
   );
+=======
+export async function getChatHistory(roomId: string) {
+  const messages = await redis.lrange(`chat:${roomId}`, 0, -1);  
+  console.log(`Requested to retrieve the chat history in room ${roomId}`);
+  return messages.map((message) => JSON.parse(message));
+}
+
+export async function handleLeaveRoom(socket: Socket, { roomId, userName }: { roomId: string; userName: string }) {
+  socket.leave(roomId);
+  console.log(`User ${userName} left room ${roomId}`);
+>>>>>>> Stashed changes
 
   socket.to(roomId).emit("leave_collab_notify", { userName });
 

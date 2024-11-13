@@ -71,7 +71,15 @@ const CollaborativeEditor: React.FC = () => {
           console.error("Failed to join collaboration room");
         }
       }
+<<<<<<< Updated upstream
     );
+=======
+
+      socketRef.current.emit("fetch_chat_history", { roomId }, (messages: any[]) => {
+        setMessages(messages);  // Set the fetched messages to the state
+      });
+    });
+>>>>>>> Stashed changes
 
     // Listen for code updates
     socketRef.current.on("code_update", ({ code }: { code: string }) => {

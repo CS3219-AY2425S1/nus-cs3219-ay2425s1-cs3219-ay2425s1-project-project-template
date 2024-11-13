@@ -2,7 +2,11 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
+<<<<<<< Updated upstream
 import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom, handleSendMessage, handleRunCode, changeLanguage } from "./service/collaboration-service";
+=======
+import { handleCodeUpdates, joinCollaborationRoom, handleLeaveRoom, handleSendMessage, getChatHistory } from "./service/collaboration-service";
+>>>>>>> Stashed changes
 
 const PORT = process.env.PORT || 3003;
 const app = express();
@@ -33,6 +37,11 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", (data) => {
     handleSendMessage(socket, data); 
+  });
+
+  socket.on("fetch_chat_history", async ({ roomId }, callback) => {
+    const messages = await getChatHistory(roomId);
+    callback(messages);
   });
 
   socket.on("leave_collab", (data) => {
